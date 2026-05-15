@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\User;
+use App\Models\Address;
+use Illuminate\Database\Eloquent\Model;
+
+class Cart extends Model
+{
+    protected $guarded = [];
+    protected $fillable = ['address_id','price','tax', 'addons','shipping_cost','discount','product_referral_code','coupon_code','coupon_applied','quantity','user_id','temp_user_id','owner_id','product_id','variation'];
+	
+	 protected $casts = [
+        'addons' => 'array',
+    ];
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function shop()
+    {
+        return $this->hasOne(Shop::class, 'user_id', 'owner_id');
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
+}

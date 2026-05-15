@@ -1,0 +1,40 @@
+[12-Apr-2025 06:34:57 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/app.php on line 16
+[12-Apr-2025 12:32:51 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/app.php on line 16
+[13-Apr-2025 12:18:23 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/services.php on line 18
+[13-Apr-2025 12:18:36 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/app.php on line 16
+[13-Apr-2025 12:20:19 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/cache.php:20
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/cache.php on line 20
+[13-Apr-2025 12:20:19 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/filesystems.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/filesystems.php on line 16
+[13-Apr-2025 12:20:20 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function resource_path() in /home2/mixlondon/public_html/config/view.php:17
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/view.php on line 17
+[01-Jul-2025 05:59:54 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/database.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/database.php on line 16
+[01-Jul-2025 06:00:07 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/services.php on line 18
+[02-Aug-2025 19:01:12 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home2/mixlondon/public_html/config/database.php:16
+Stack trace:
+#0 {main}
+  thrown in /home2/mixlondon/public_html/config/database.php on line 16

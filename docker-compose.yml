@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timetofurnish_app
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - timetofurnish
+
+  mysql:
+    image: mysql:8.0
+    container_name: timetofurnish_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: timetofurnish
+      MYSQL_USER: ttf_user
+      MYSQL_PASSWORD: ttf_password
+      MYSQL_ROOT_PASSWORD: root_password
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - timetofurnish
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: timetofurnish_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "8081:80"
+    networks:
+      - timetofurnish
+
+volumes:
+  mysql_data:
+
+networks:
+  timetofurnish:
+    driver: bridge
