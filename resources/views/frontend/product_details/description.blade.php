@@ -34,6 +34,13 @@
                 {{ translate('Downloads') }}
             </a>
         @endif
+
+        <!-- New Review tab -->
+        <a href="#tab_default_5" data-toggle="tab"
+           class="custom-tab-link"
+           role="tab">
+            {{ translate('Reviews & Ratings') }}
+        </a>
     </div>
 
     <!-- Tab Content -->
@@ -120,6 +127,13 @@
                 </div>
             </div>
         @endif
+
+        <!-- Review Tab Pane -->
+        <div class="tab-pane fade" id="tab_default_5" role="tabpanel">
+            <div class="custom-editor-wrap" style="background: none; border:none; padding:0; box-shadow:none; min-height:0;">
+                @include('frontend.product_details.review_section')
+            </div>
+        </div>
 
     </div>
 </div>

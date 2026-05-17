@@ -63,7 +63,98 @@ use App\Http\Controllers\Seller\ProductController as SellerProductController;
   | contains the "web" middleware group. Now create something great!
   |
  */
+use App\Models\CombinedOrder;
+use App\Models\Order;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
+Route::get('/clear-all-cache', function () {
+
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('optimize:clear');
+
+    return "Caches cleared successfully!";
+});
+
+
+
+Route::get('/test-mail', function () {
+
+    try {
+
+        Mail::raw('Test email from Laravel', function ($message) {
+
+            $message->to('manpreetsdev@gmail.com')
+                    ->subject('Laravel Test Mail');
+        });
+
+        return "Mail sent";
+
+    } catch (\Exception $e) {
+
+        Log::error($e->getMessage());
+
+        return $e->getMessage();
+    }
+});
+
+
+Route::get('/test-order-email', function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | STEP 1: FIND LATEST ORDER
+    |--------------------------------------------------------------------------
+    */
+
+    $combinedOrder = CombinedOrder::latest()->first();
+
+    if (!$combinedOrder) {
+        return 'No combined order found';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STEP 2: UPDATE ORDERS AS PAID
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($combinedOrder->orders as $order) {
+
+        $order->payment_status = 'paid';
+        $order->payment_details = 'TEST PAYMENT';
+        $order->save();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STEP 3: STORE SESSION
+    |--------------------------------------------------------------------------
+    */
+
+    session()->put('combined_order_id', $combinedOrder->id);
+
+    /*
+    |--------------------------------------------------------------------------
+    | STEP 4: SEND EMAILS
+    |--------------------------------------------------------------------------
+    */
+
+    $controller = new CheckoutController();
+
+    $reflection = new \ReflectionClass($controller);
+
+    $method = $reflection->getMethod('sendOrderEmails');
+
+    $method->setAccessible(true);
+
+    $method->invoke($controller, $combinedOrder->id);
+
+    return 'Test emails sent successfully';
+});
 
 Route::post('/custom-webhook-endpoint', [HomeController::class, 'handleShiprocketWebhook']) ;
 

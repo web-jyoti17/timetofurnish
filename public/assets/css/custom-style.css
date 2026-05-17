@@ -9,9 +9,6 @@
 .bg-light {
     background: #dacbbc !important;
 }
-.custom-header-class.sticky-top {
-    box-shadow: 0 0 10px 4px #bcbcbc59 !important;
-}
 
 .border-width-1 {
     border-width: 1px !important;
@@ -44,7 +41,7 @@
 }
 .shopform{
     background:#FAF7F2;
-
+    
 }
 .shopform .bg-white.border {
     border: none !important;
@@ -1278,9 +1275,9 @@ ul.social [class*="linkedin"]:hover, ul.social.colored [class*="linkedin"] {
     .aiz-carousel .slick-prev {
         left: 0;
     }
-    .aiz-carousel .slick-arrow {
-        top: 20% !important;
-        background: transparent !important;
+    .aiz-carousel .slick-arrow { 
+        top: 50% !important;  
+        background: transparent !important; 
     }
 }
 @media only screen and (max-width: 767px) {
@@ -1290,9 +1287,9 @@ ul.social [class*="linkedin"]:hover, ul.social.colored [class*="linkedin"] {
     .aiz-carousel .slick-prev {
         left: -15px;
     }
-    .aiz-carousel .slick-arrow {
-        top: 10%;
-        background: transparent;
+    .aiz-carousel .slick-arrow { 
+        top: 50%;  
+        background: transparent; 
     }
 }
 .line{
@@ -1307,29 +1304,29 @@ ul.social [class*="linkedin"]:hover, ul.social.colored [class*="linkedin"] {
 
 	border:none;
 	border-radius:none;
-
+	
 }
 	.addoncolor .form-control{
 		font-weight:400;
 		color :black;
-
+		
 	}
 	 	.addon-options .align-items-center{
 			margin-right: 40px !important;
-
+	
 
 	}
 .check .mainchkbox{
     width:20px;       /* make smaller */
     height:20px;
 	margin-top:10px;
-
+    
 }
-
+	
 	.productvariation .form-control{
 		font-weight:400;
 		color :black;
-
+		
 	}
 .addontext{
 		font-size:12px;
@@ -1342,3 +1339,9 @@ ul.social [class*="linkedin"]:hover, ul.social.colored [class*="linkedin"] {
 		margin-right:50px:
 	}
 
+				@media only screen and (max-width: 1500px) {
+    .aiz-carousel .slick-arrow {
+        top: 50%!important;
+        background: transparent !important;
+    }
+}

@@ -114,7 +114,7 @@
 
                                 <input type="hidden" name="checkout_type" value="logged">
 
-                                <div class="d-flex flex-column flex-md-row gap-2 mt-3">
+                                <div class="d-flex flex-column flex-md-row gap-2 mt-3" style="gap:10px;">
                                     <a href="{{ route('home') }}" class="btn btn-outline-secondary w-100">
                                         <i class="las la-arrow-left"></i> {{ translate('Return to shop') }}
                                     </a>

@@ -211,12 +211,7 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-.product-name {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;           /* yahin se gap control hoga */
-    flex-wrap: wrap;   /* long name wrap ho jayega */
-}
+
 
 .product-name .qty {
     font-size: 13px;

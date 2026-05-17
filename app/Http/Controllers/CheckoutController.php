@@ -18,6 +18,7 @@ use App\Utility\PayhereUtility;
 use App\Utility\NotificationUtility;
 use Session;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use Seshac\Shiprocket\Shiprocket;
 use Illuminate\Support\Facades\Mail;
 use App\Utility\CartUtility;
@@ -29,36 +30,37 @@ class CheckoutController extends Controller
     {
         //
     }
+    //shivani
 
     //check the selected payment gateway and redirect to that controller accordingly
     public function checkout(Request $request)
     {
-
         if ($request->payment_option == null) {
             flash(translate('There is no payment option is selected.'))->warning();
             return redirect()->route('checkout.shipping_info');
         }
 
         $carts = Cart::where('user_id', Auth::user()->id)->get();
-        // Minumum order amount check
+
+        // Minimum order amount check
         if (get_setting('minimum_order_amount_check') == 1) {
+
             $subtotal = 0;
+
             foreach ($carts as $key => $cartItem) {
                 $product = Product::find($cartItem['product_id']);
+
                 $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
             }
+
             if ($subtotal < get_setting('minimum_order_amount')) {
                 flash(translate('You order amount is less than the minimum order amount'))->warning();
                 return redirect()->route('home');
             }
         }
-        // Minumum order amount check end
 
+        // Store Order
         (new OrderController)->store($request);
-
-        /*  if(count($carts) > 0){
-            Cart::where('user_id', Auth::user()->id)->delete();
-        } */
 
         $request->session()->put('payment_type', 'cart_payment');
 
@@ -67,83 +69,214 @@ class CheckoutController extends Controller
         $request->session()->put('payment_data', $data);
 
         if (!empty($data['combined_order_id'])) {
+
+            // Stripe Payment
             if ($request->payment_option == "stripe") {
 
-                $decorator = __NAMESPACE__ . '\\Payment\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) . "Controller";
+                $decorator = __NAMESPACE__ . '\\Payment\\' .
+                    str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) .
+                    "Controller";
+
                 if (class_exists($decorator)) {
                     return (new $decorator)->pay($request);
-                    // echo "hi"; die;
                 }
             } else {
-                $combined_order = CombinedOrder::findOrFail($request->session()->get('combined_order_id'));
+
+                // Manual Payment
+                $combined_order = CombinedOrder::findOrFail(
+                    $request->session()->get('combined_order_id')
+                );
+
                 $manual_payment_data = array(
                     'name'   => $request->payment_option,
                     'amount' => $combined_order->grand_total,
                     'trx_id' => $request->trx_id,
                     'photo'  => $request->photo
                 );
+
                 foreach ($combined_order->orders as $order) {
+
                     $order->manual_payment = 1;
                     $order->manual_payment_data = json_encode($manual_payment_data);
                     $order->save();
                 }
             }
-            $orders = Order::with('shop.user', 'orderDetails', 'user')->where('combined_order_id', $data['combined_order_id'])->get();
-            $seller_email = $order->shop->user->email;
-            $mailData = [
-                'order' => $order,
-                // 'site_name'       => get_setting('site_name'),
-                // 'contact_email'   => get_setting('contact_email'),
-                // 'contact_phone'   => get_setting('contact_phone'),
-                // 'logo'            => get_setting('header_logo') ? uploaded_asset(get_setting('header_logo')) : static_asset('assets/img/logo.png'),
-            ];
-            Mail::send('emails.order-mail', $mailData, function ($message) use ($seller_email, $order) {
-                $message->to($seller_email)->subject('New Order Received: ' . $order->code);
-            });
-            if (!empty($order->user) && !empty($order->user->email)) {
-                $user_email = $order->user->email;
-                Mail::send('emails.order-mail', $mailData, function ($message) use ($user_email, $order) {
-                    $message->to($user_email)->subject('Your Order Confirmation: ' . $order->code);
-                });
-            }
         } else {
-            ///\Log::info("User email not found for order: ".$order->id);
-            \Log::info("User email not found for order");
+
+            \Log::info("Combined order id not found");
         }
 
         flash(translate('Your order has been placed successfully. Please submit payment information from purchase history'))->success();
-        return redirect()->route('order_confirmed');
-        //   print_r($orders); die;
-    }
 
+        return redirect()->route('order_confirmed');
+    }
+    //shivani
 
 
     public function checkout_done($combined_order_id, $payment, $cod = null)
     {
-        // $this->creatShiprocket($cod);
-        if (!empty(Auth::user()->id)) {
-            Cart::where('user_id', Auth::user()->id)->delete();
-        }
-        if ($cod) {
-            flash(translate("Your order has been placed successfully"))->success();
-            Session::forget('orderId');
-            return redirect()->route('order_confirmed');
-        }
+        // Store combined order id in session
+        Session::put('combined_order_id', $combined_order_id);
 
         $combined_order = CombinedOrder::findOrFail($combined_order_id);
 
-        // Update all orders in this combined order
-        foreach ($combined_order->orders as $key => $order) {
+        // COD Order
+        if ($cod) {
+
+            foreach ($combined_order->orders as $order) {
+
+                $order->payment_status = 'unpaid';
+                $order->payment_details = 'Cash On Delivery';
+                $order->save();
+            }
+            Log::info($order);
+            // Send emails
+            $this->sendOrderEmails($combined_order_id);
+            Log::info($combined_order_id);
+            // Clear cart
+            if (Auth::check()) {
+                Cart::where('user_id', Auth::id())->delete();
+            }
+
+            flash(translate("Your order has been placed successfully"))->success();
+
+            Session::forget('orderId');
+
+            return redirect()->route('order_confirmed');
+        }
+
+        // ONLINE PAYMENT SUCCESS
+        foreach ($combined_order->orders as $order) {
+
             $order->payment_status = 'paid';
             $order->payment_details = $payment;
             $order->save();
 
             calculateCommissionAffilationClubPoint($order);
         }
-        Session::put('combined_order_id', $combined_order_id);
+        Log::info('onlinr payment success');
+        // Send Emails
+        $this->sendOrderEmails($combined_order_id);
+
+        // Clear Cart
+        if (Auth::check()) {
+            Cart::where('user_id', Auth::id())->delete();
+        }
+
         flash(translate("Your order has been placed successfully"))->success();
 
         return redirect()->route('order_confirmed');
+    }
+
+    private function sendOrderEmails($combined_order_id)
+    {
+        $orders = Order::with([
+            'shop.user',
+            'orderDetails',
+            'user'
+        ])->where('combined_order_id', $combined_order_id)->get();
+
+        foreach ($orders as $order) {
+
+            $mailData = [
+                'order' => $order,
+            ];
+
+            Log::info('onlinr payment success', [$mailData]);
+            /*
+        |--------------------------------------------------------------------------
+        | SELLER EMAIL
+        |--------------------------------------------------------------------------
+        */
+            try {
+
+                if (
+                    $order->shop &&
+                    $order->shop->user &&
+                    !empty($order->shop->user->email)
+                ) {
+
+                    $seller_email = trim($order->shop->user->email);
+
+                    Log::info('oDASFGsaS', [$seller_email]);
+                    Mail::send(
+                        'emails.order-mail',
+                        $mailData,
+                        function ($message) use ($seller_email, $order) {
+
+                            $message->to($seller_email)
+                                ->subject('New Order Received - ' . $order->code);
+                        }
+                    );
+                    Log::info('onlinr payment success', [$seller_email]);
+
+
+                    \Log::info('Seller mail sent: ' . $seller_email);
+                }
+            } catch (\Exception $e) {
+
+                \Log::error('Seller mail error: ' . $e->getMessage());
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | CUSTOMER EMAIL
+        |--------------------------------------------------------------------------
+        */
+            try {
+
+                if (
+                    $order->user &&
+                    !empty($order->user->email)
+                ) {
+
+                    $customer_email = trim($order->user->email);
+                    Log::info('customer_email', [$customer_email]);
+                    Mail::send(
+                        'emails.order-mail',
+                        $mailData,
+                        function ($message) use ($customer_email, $order) {
+
+                            $message->to($customer_email)
+                                ->subject('Order Confirmation - ' . $order->code);
+                        }
+                    );
+                    Log::info('customer_email', [$customer_email]);
+                    \Log::info('Customer mail sent: ' . $customer_email);
+                }
+            } catch (\Exception $e) {
+
+                \Log::error('Customer mail error: ' . $e->getMessage());
+            }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN EMAIL
+        |--------------------------------------------------------------------------
+        */
+            try {
+
+                $admin_email = 'manpreetsdev@gmail.com';
+                $bcc_email = 'manpreetsdev@gmail.com'; // Set your BCC email here
+                Log::info('admin_email', [$admin_email]);
+                Mail::send(
+                    'emails.order-mail',
+                    $mailData,
+                    function ($message) use ($admin_email, $order, $bcc_email) {
+                        $message->to($admin_email)
+                            ->bcc($bcc_email)
+                            ->subject('New Order(Admin) - ' . $order->code);
+                    }
+                );
+
+                Log::info('admin_emailASDFG', [$admin_email]);
+
+                \Log::info('Admin mail sent: ' . $admin_email);
+            } catch (\Exception $e) {
+
+                \Log::error('Admin mail error: ' . $e->getMessage());
+            }
+        }
     }
 
 
@@ -513,14 +646,6 @@ class CheckoutController extends Controller
                                 ]
                             );
                         $tax_total = $tax * $cart_item_qty;
-                        /* $cartt = Cart::where('user_id', Auth::user()->id)
-                            ->update(
-                                [
-                                    'discount' => $coupon_discount / count($carts),
-                                    'coupon_code' => $request->code,
-                                    'coupon_applied' => 1
-                                ]
-                            ); */
                         $response_message['response'] = 'success';
                         $response_message['message'] = translate('Coupon has been applied');
                         $response_message['cartt'] = $cartt;
@@ -617,28 +742,28 @@ class CheckoutController extends Controller
     }
 
     public function destroy($id)
-{
-    $address = Address::where('user_id', Auth::id())
-        ->where('id', $id)
-        ->first();
+    {
+        $address = Address::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->first();
 
-    if (!$address) {
-        flash(translate('Address not found'))->warning();
+        if (!$address) {
+            flash(translate('Address not found'))->warning();
+            return back();
+        }
+
+        // Prevent deleting default if only one exists
+        $totalAddresses = Address::where('user_id', Auth::id())->count();
+
+        if ($totalAddresses <= 1) {
+            flash(translate('At least one address is required'))->warning();
+            return back();
+        }
+
+        $address->delete();
+
+        flash(translate('Address deleted successfully'))->success();
+
         return back();
     }
-
-    // Prevent deleting default if only one exists
-    $totalAddresses = Address::where('user_id', Auth::id())->count();
-
-    if ($totalAddresses <= 1) {
-        flash(translate('At least one address is required'))->warning();
-        return back();
-    }
-
-    $address->delete();
-
-    flash(translate('Address deleted successfully'))->success();
-
-    return back();
-}
 }

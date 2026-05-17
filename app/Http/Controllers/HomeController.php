@@ -51,7 +51,7 @@ class HomeController extends Controller
         });
 
         return view('frontend.'.get_setting('homepage_select').'.index', compact('featured_categories'));
-        
+
     }
 
     public function shiprocket_webhook(Request $request)
@@ -78,7 +78,7 @@ class HomeController extends Controller
 
         return response()->json([], 200); // Send a 200 status code response
     }
-    
+
     public function load_todays_deal_section()
     {
         $todays_deal_products = filter_products(Product::where('todays_deal', '1'))->get();
@@ -90,7 +90,7 @@ class HomeController extends Controller
         $newest_products = Cache::remember('newest_products', 3600, function () {
             return filter_products(Product::latest())->limit(12)->get();
         });
-        
+
         return view('frontend.'.get_setting('homepage_select').'.partials.newest_products_section', compact('newest_products'));
     }
 
@@ -280,9 +280,9 @@ class HomeController extends Controller
         if (!Auth::check()) {
             session(['link' => url()->current()]);
         }
-        
-       $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->first(); 
-        
+
+       $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->first();
+
        // old if ($detailedProduct != null && $detailedProduct->published) {
        if ($detailedProduct != null) {
             if((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller'){
@@ -430,7 +430,7 @@ class HomeController extends Controller
     public function all_categories(Request $request)
     {
         $categories = Category::with('childrenCategories')->where('parent_id', 0)->orderBy('order_level', 'desc')->get();
-        
+
         // dd($categories);
         return view('frontend.all_category', compact('categories'));
     }
@@ -671,7 +671,7 @@ class HomeController extends Controller
         $user->save();
 
         try {
-            Mail::to($email)->queue(new SecondEmailVerifyMailManager($array));
+            Mail::to($email)->send(new SecondEmailVerifyMailManager($array));
 
             $response['status'] = 1;
             $response['message'] = translate("Your verification mail has been Sent to your email.");

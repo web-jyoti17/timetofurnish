@@ -61,7 +61,7 @@
         <div class="py-0 bg-white">
 
             <div class="row">
-                <div class="pt-3 pb-3 col-12 d-flex justify-content-end">
+                <div class="pt-5 pb-5 col-12 d-flex justify-content-end">
                     <div class="col-lg-8 d-flex align-items-center">
                         <nav aria-label="breadcrumb" class="flex-grow-1">
                             <ol class="breadcrumb bg-white pl-0 m-0 justify-content-start">
@@ -313,7 +313,7 @@
         <div class="container">
             @if (isset($detailedProduct) && property_exists($detailedProduct, 'auction_product') && $detailedProduct->auction_product)
                 <!-- Reviews & Ratings -->
-                @include('frontend.product_details.review_section')
+                {{-- @include('frontend.product_details.review_section') --}}
 
                 <!-- Description, Video, Downloads -->
                 {{--@include('frontend.product_details.description')--}}
@@ -337,7 +337,7 @@
                     <div class="col-lg-12">
 
                         <!-- Reviews & Ratings -->
-                        @include('frontend.product_details.review_section')
+                        {{-- @include('frontend.product_details.review_section') --}}
 
                         <!-- Description, Video, Downloads -->
                        {{-- @include('frontend.product_details.description')--}}

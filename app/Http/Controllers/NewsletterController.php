@@ -34,7 +34,7 @@ class NewsletterController extends Controller
                     $array['content'] = $request->content;
 
                     try {
-                        Mail::to($email)->queue(new EmailManager($array));
+                        Mail::to($email)->send(new EmailManager($array));
                     } catch (\Exception $e) {
                         //dd($e);
                     }
@@ -50,7 +50,7 @@ class NewsletterController extends Controller
                     $array['content'] = $request->content;
 
                     try {
-                        Mail::to($email)->queue(new EmailManager($array));
+                        Mail::to($email)->send(new EmailManager($array));
                     } catch (\Exception $e) {
                         //dd($e);
                     }

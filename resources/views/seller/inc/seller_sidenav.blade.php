@@ -2,22 +2,28 @@
     <div class="aiz-sidebar left c-scrollbar side">
         <div class="aiz-side-nav-logo-wrap ">
             <div class="d-block text-center my-3 logo">
-                @if (optional(Auth::user()->shop)->logo != null)
-                    <img class=" logoimg" src="{{ asset('public/assets/img/logoT.png') }}" 
+                @php
+                    $user = Auth::user();
+                    $shop = $user && isset($user->shop) ? $user->shop : null;
+                @endphp
+
+                @if ($shop && $shop->logo != null)
+                    <img class="logoimg" src="{{ asset('public/assets/img/logoT.png') }}"
                         alt="{{ get_setting('site_name') }}">
                 @else
-                    <img class=" logoimg" src="{{ uploaded_asset(get_setting('header_logo')) }}" 
+                    <img class="logoimg" src="{{ uploaded_asset(get_setting('header_logo')) }}"
                         alt="{{ get_setting('site_name') }}">
                 @endif
+
                 <hr class="line">
                 <h3 class="fs-16  m-0 text-white">{{ optional(Auth::user()->shop)->name }}</h3>
                 <hr class="line">
-                
+
               {{--  <p class="text-primary">{{ Auth::user()->email }}</p>--}}
             </div>
-           
+
         </div>
-       
+
         <div class="aiz-side-nav-wrap">
           {{--  <div class="px-20px mb-3">
                 <input class="form-control bg- border-0 form-control-sm" type="text" name=""
@@ -53,7 +59,7 @@
                                 <span class="aiz-side-nav-text t">{{ translate('Product Bulk Upload') }}</span>
                             </a>
                         </li>--}}
-                        
+
                         {{--<li class="aiz-side-nav-item">
                             <a href="{{ route('seller.digitalproducts') }}"
                                 class="aiz-side-nav-link {{ areActiveRoutes(['seller.digitalproducts', 'seller.digitalproducts.create', 'seller.digitalproducts.edit']) }}">
@@ -263,7 +269,7 @@
                     </a>
                 </li>--}}
                 <li class="aiz-side-nav-item">
-    <a href="https://www.youtube.com/@TimeToFurnish" 
+    <a href="https://www.youtube.com/@TimeToFurnish"
        target="_blank"
        class="aiz-side-nav-link">
         <i class="las la-play-circle aiz-side-nav-icon icon1"></i>
@@ -293,12 +299,12 @@
     .logo{
           background:#a89c8f!important;
     }
-    
+
     .icon1{
         color:white!important;
         size:20px;
     }
-    
+
   .logoimg{
     height: 60px !important;
     background:white;

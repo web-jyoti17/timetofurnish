@@ -295,89 +295,6 @@
                     </div>
                 </div>
 
-                <!-- Search box -->
-                {{-- <div class="ml-3 mr-0">
-                        <div class="nav-search-box">
-                            <a href="#" class="nav-box-link text-dark">
-                            <svg class="svg-search icon icon--header-search" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.00002 1.6C4.4654 1.6 1.60002 4.46538 1.60002 8C1.60002 11.5346 4.4654 14.4 8.00002 14.4C11.5346 14.4 14.4 11.5346 14.4 8C14.4 4.46538 11.5346 1.6 8.00002 1.6ZM0.400024 8C0.400024 3.80264 3.80266 0.400002 8.00002 0.400002C12.1974 0.400002 15.6 3.80264 15.6 8C15.6 9.88268 14.9155 11.6055 13.7817 12.933L19.4243 18.5757C19.6586 18.8101 19.6586 19.19 19.4243 19.4243C19.19 19.6586 18.8101 19.6586 18.5758 19.4243L12.9332 13.7816C11.6056 14.9154 9.88275 15.6 8.00002 15.6C3.80266 15.6 0.400024 12.1974 0.400024 8Z" fill="currentColor"></path>
-                            </svg>
-                            </a>
-                        </div>
-                    </div> --}}
-                {{-- @if (!isAdmin())
-                        <!-- Notifications -->
-                        <ul class="list-inline mb-0 h-100 d-none d-xl-flex justify-content-end align-items-center">
-                            <li class="list-inline-item ml-3 mr-3 pr-3 pl-0 dropdown">
-                                <a class="dropdown-toggle no-arrow text-secondary fs-12" data-toggle="dropdown"
-                                    href="javascript:void(0);" role="button" aria-haspopup="false"
-                                    aria-expanded="false">
-                                    <span class="">
-                                        <span class="position-relative d-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14.668" height="16"
-                                                viewBox="0 0 14.668 16">
-                                                <path id="_26._Notification" data-name="26. Notification"
-                                                    d="M8.333,16A3.34,3.34,0,0,0,11,14.667H5.666A3.34,3.34,0,0,0,8.333,16ZM15.06,9.78a2.457,2.457,0,0,1-.727-1.747V6a6,6,0,1,0-12,0V8.033A2.457,2.457,0,0,1,1.606,9.78,2.083,2.083,0,0,0,3.08,13.333H13.586A2.083,2.083,0,0,0,15.06,9.78Z"
-                                                    transform="translate(-0.999)" fill="#91919b" />
-                                            </svg>
-                                            @if (Auth::check() && count($user->unreadNotifications) > 0)
-                                                <span
-                                                    class="badge badge-primary badge-inline badge-pill absolute-top-right--10px">{{ count($user->unreadNotifications) }}</span>
-                                            @endif
-                                        </span>
-                                </a>
-
-                                @auth
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg py-0 rounded-0">
-                                        <div class="p-3 bg-light border-bottom">
-                                            <h6 class="mb-0">{{ translate('Notifications') }}</h6>
-                                        </div>
-                                        <div class="px-3 c-scrollbar-light overflow-auto " style="max-height:300px;">
-                                            <ul class="list-group list-group-flush">
-                                                @forelse($user->unreadNotifications as $notification)
-                                                    <li class="list-group-item">
-                                                        @if ($notification->type == 'App\Notifications\OrderNotification')
-                                                            @if ($user->user_type == 'customer')
-                                                                <a href="{{ route('purchase_history.details', encrypt($notification->data['order_id'])) }}"
-                                                                    class="text-secondary fs-12">
-                                                                    <span class="ml-2">
-                                                                        {{ translate('Order code: ') }}
-                                                                        {{ $notification->data['order_code'] }}
-                                                                        {{ translate('has been ' . ucfirst(str_replace('_', ' ', $notification->data['status']))) }}
-                                                                    </span>
-                                                                </a>
-                                                            @elseif ($user->user_type == 'seller')
-                                                                <a href="{{ route('seller.orders.show', encrypt($notification->data['order_id'])) }}"
-                                                                    class="text-secondary fs-12">
-                                                                    <span class="ml-2">
-                                                                        {{ translate('Order code: ') }}
-                                                                        {{ $notification->data['order_code'] }}
-                                                                        {{ translate('has been ' . ucfirst(str_replace('_', ' ', $notification->data['status']))) }}
-                                                                    </span>
-                                                                </a>
-                                                            @endif
-                                                        @endif
-                                                    </li>
-                                                @empty
-                                                    <li class="list-group-item">
-                                                        <div class="py-4 text-center fs-16">
-                                                            {{ translate('No notification found') }}
-                                                        </div>
-                                                    </li>
-                                                @endforelse
-                                            </ul>
-                                        </div>
-                                        <div class="text-center border-top">
-                                            <a href="{{ route('all-notifications') }}"
-                                                class="text-secondary fs-12 d-block py-2">
-                                                {{ translate('View All Notifications') }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endauth
-                            </li>
-                        </ul>
-                    @endif --}}
 
                 <div class="d-none d-xl-block mr-0">
                     @auth
@@ -514,25 +431,7 @@
                                             class="user-top-menu-name has-transition ml-3">{{ translate('Purchase History') }}</span>
                                     </a>
                                 </li>
-                                {{-- <li class="user-top-nav-element border border-top-0" data-id="1">
-                                        <a href="{{ route('digital_purchase_history.index') }}"
-                                            class="text-truncate text-dark px-4 fs-14 d-flex align-items-center hov-column-gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16.001" height="16"
-                                                viewBox="0 0 16.001 16">
-                                                <g id="Group_25262" data-name="Group 25262"
-                                                    transform="translate(-1388.154 -562.604)">
-                                                    <path id="Path_2963" data-name="Path 2963"
-                                                        d="M77.864,98.69V92.1a.5.5,0,1,0-1,0V98.69l-1.437-1.437a.5.5,0,0,0-.707.707l1.851,1.852a1,1,0,0,0,.707.293h.172a1,1,0,0,0,.707-.293l1.851-1.852a.5.5,0,0,0-.7-.713Z"
-                                                        transform="translate(1318.79 478.5)" fill="#b5b5bf" />
-                                                    <path id="Path_2964" data-name="Path 2964"
-                                                        d="M67.155,88.6a3,3,0,0,1-.474-5.963q-.009-.089-.015-.179a5.5,5.5,0,0,1,10.977-.718,3.5,3.5,0,0,1-.989,6.859h-1.5a.5.5,0,0,1,0-1l1.5,0a2.5,2.5,0,0,0,.417-4.967.5.5,0,0,1-.417-.5,4.5,4.5,0,1,0-8.908.866.512.512,0,0,1,.009.121.5.5,0,0,1-.52.479,2,2,0,1,0-.162,4l.081,0h2a.5.5,0,0,1,0,1Z"
-                                                        transform="translate(1324 486)" fill="#b5b5bf" />
-                                                </g>
-                                            </svg>
-                                            <span
-                                                class="user-top-menu-name has-transition ml-3">{{ translate('Downloads') }}</span>
-                                        </a>
-                                    </li> --}}
+
                                 @if (get_setting('conversation_system') == 1)
                                     <li class="user-top-nav-element border border-top-0" data-id="1">
                                         <a href="{{ route('conversations.index') }}"
@@ -586,25 +485,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                {{-- <li class="user-top-nav-element border border-top-0" data-id="1">
-                                        <a href="{{ route('support_ticket.index') }}"
-                                            class="text-truncate text-dark px-4 fs-14 d-flex align-items-center hov-column-gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16.001"
-                                                viewBox="0 0 16 16.001">
-                                                <g id="Group_25259" data-name="Group 25259"
-                                                    transform="translate(-316 -1066)">
-                                                    <path id="Subtraction_184" data-name="Subtraction 184"
-                                                        d="M16427.109,902H16420a8.015,8.015,0,1,1,8-8,8.278,8.278,0,0,1-1.422,4.535l1.244,2.132a.81.81,0,0,1,0,.891A.791.791,0,0,1,16427.109,902ZM16420,887a7,7,0,1,0,0,14h6.283c.275,0,.414,0,.549-.111s-.209-.574-.34-.748l0,0-.018-.022-1.064-1.6A6.829,6.829,0,0,0,16427,894a6.964,6.964,0,0,0-7-7Z"
-                                                        transform="translate(-16096 180)" fill="#b5b5bf" />
-                                                    <path id="Union_12" data-name="Union 12"
-                                                        d="M16414,895a1,1,0,1,1,1,1A1,1,0,0,1,16414,895Zm.5-2.5V891h.5a2,2,0,1,0-2-2h-1a3,3,0,1,1,3.5,2.958v.54a.5.5,0,1,1-1,0Zm-2.5-3.5h1a.5.5,0,1,1-1,0Z"
-                                                        transform="translate(-16090.998 183.001)" fill="#b5b5bf" />
-                                                </g>
-                                            </svg>
-                                            <span
-                                                class="user-top-menu-name has-transition ml-3">{{ translate('Support Ticket') }}</span>
-                                        </a>
-                                    </li> --}}
+
                             @endif
                             <li class="user-top-nav-element border border-top-0" data-id="1">
                                 <a href="{{ route('logout') }}"
@@ -697,7 +578,7 @@
                 <!-- Image -->
                 <span class="size-40px rounded-circle overflow-hidden border border-transparent nav-user-img">
                     @if ($user->avatar_original != null)
-                        <img src="{{ $user_avatar }}" class="img-fit h-100" alt="{{ translate('avatar') }}"
+                        <img src="{{ $user_avatar }}" class="img-fit h-100 sajdhgfjakhdgfjs" alt="{{ translate('avatar') }}"
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                     @else
                         <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="image"
