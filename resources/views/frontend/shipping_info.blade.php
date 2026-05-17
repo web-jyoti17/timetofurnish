@@ -50,97 +50,108 @@
 </section>
 
 
-    <!-- Shipping Info Simple Style -->
-    <section class="mb-4">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <form action="{{ route('checkout.store_shipping_infostore') }}" method="POST">
-                        @csrf
-                        @if (Auth::check())
-                            @php
-                                $addresses = Auth::user()->addresses;
-                                $addresses_count = $addresses->count();
-                                $max_addresses = 2;
-                            @endphp
+<!-- Shipping Info Simple Style -->
+<section class="mb-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form action="{{ route('checkout.store_shipping_infostore') }}" method="POST">
+                    @csrf
+                    @if (Auth::check())
+                    @php
+                    $addresses = Auth::user()->addresses;
+                    $addresses_count = $addresses->count();
+                    $max_addresses = 2;
+                    @endphp
 
-                            <div class="bg-white p-3 mb-3 rounded shadow-sm">
-                                @foreach ($addresses->take($max_addresses) as $key => $address)
-                                    <div class="border rounded p-3 mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-                                        <div class="d-flex align-items-center mb-2 mb-md-0" style="gap:12px;">
-                                            <input type="radio" name="address_id" value="{{ $address->id }}"
-                                                @if ($address->set_default || $addresses_count == 1 || old('address_id') == $address->id) checked @endif required style="width:18px;height:18px;">
-                                            <div>
-                                                <div><strong>{{ optional($address->country)->name }}</strong>
-                                                    @if ($address->set_default)
-                                                        <span class="badge bg-primary ms-2">{{ translate('Default') }}</span>
-                                                    @endif
-                                                </div>
-                                                <div>
-                                                    {{ $address->flat ? $address->flat . ', ' : '' }}
-                                                    {{ $address->street ? $address->street . ', ' : '' }}
-                                                    {{ $address->city_id ? $address->city_id . ', ' : '' }}
-                                                    {{ $address->postal_code ? $address->postal_code : '' }}
-                                                </div>
-                                                <div>
-                                                    {{ $address->phone ? $address->phone : '' }}
-                                                    {{ $address->landline_no ? ', ' . $address->landline_no : '' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex flex-row gap-2" style="gap:5px;">
-                                            <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary"
-                                                onclick="edit_address('{{ $address->id }}')" title="{{ translate('Edit') }}">
-                                                {{ translate('Edit') }}
-                                            </a>
-                                            <a href="{{ route('address.delete', $address->id) }}"
-                                                class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('{{ translate('Are you sure to delete this address?') }}')">
-                                                 {{ translate('Delete') }}
-                                             </a>
-                                        </div>
+                    <div class="bg-white p-3 mb-3 rounded shadow-sm">
+                        @foreach ($addresses->take($max_addresses) as $key => $address)
+                        <div class="border rounded p-3 mb-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                            <div class="d-flex align-items-center mb-2 mb-md-0" style="gap:12px;">
+                                <input type="radio" name="address_id" value="{{ $address->id }}"
+                                    @if ($address->set_default || $addresses_count == 1 || old('address_id') == $address->id) checked @endif required style="width:18px;height:18px;">
+                                <div>
+                                    <div><strong>{{ optional($address->country)->name }}</strong>
+                                        @if ($address->set_default)
+                                        <span class="badge bg-primary ms-2">{{ translate('Default') }}</span>
+                                        @endif
                                     </div>
-                                @endforeach
-
-                                @if ($addresses_count < $max_addresses)
-                                    <div class="border border-dashed rounded bg-light p-3 text-center cursor-pointer mb-3" onclick="add_new_address();" style="cursor:pointer;">
-                                        <div class="text-primary"><i class="las la-plus la-2x"></i></div>
-                                        <div class="fw-semibold mb-1">{{ translate('Add New Address') }}</div>
-                                        <div class="text-muted" style="font-size:12px;">
-                                            {{ $max_addresses - $addresses_count }} {{ translate('address slots left') }}
-                                        </div>
+                                    <div>
+                                        {{ $address->flat ? $address->flat . ', ' : '' }}
+                                        {{ $address->street ? $address->street . ', ' : '' }}
+                                        {{ $address->city_id ? $address->city_id . ', ' : '' }}
+                                        {{ $address->postal_code ? $address->postal_code : '' }}
                                     </div>
-                                @endif
-
-                                <input type="hidden" name="checkout_type" value="logged">
-
-                                <div class="d-flex flex-column flex-md-row gap-2 mt-3" style="gap:10px;">
-                                    <a href="{{ route('home') }}" class="btn btn-outline-secondary w-100">
-                                        <i class="las la-arrow-left"></i> {{ translate('Return to shop') }}
-                                    </a>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        {{ translate('Next') }}
-                                    </button>
+                                    <div>
+                                        {{ $address->phone ? $address->phone : '' }}
+                                        {{ $address->landline_no ? ', ' . $address->landline_no : '' }}
+                                    </div>
                                 </div>
                             </div>
-                        @endif
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
+                            <div class="d-flex flex-row gap-2" style="gap:5px;">
+                                <a href="javascript:void(0)" class="btn btn-sm btn-outline-primary"
+                                    onclick="edit_address('{{ $address->id }}')" title="{{ translate('Edit') }}">
+                                    {{ translate('Edit') }}
+                                </a>
+                                <a href="{{ route('address.delete', $address->id) }}"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('{{ translate('Are you sure to delete this address?') }}')">
+                                    {{ translate('Delete') }}
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
 
-    <style type="text/css">
-        .border-dashed { border-style: dashed !important; }
-        @media (max-width: 576px) {
-            .d-flex.flex-md-row { flex-direction: column !important; }
-            .d-flex.flex-row { flex-direction: row !important; }
+                        @if ($addresses_count < $max_addresses)
+                            <div class="border border-dashed rounded bg-light p-3 text-center cursor-pointer mb-3" onclick="add_new_address();" style="cursor:pointer;">
+                            <div class="text-primary"><i class="las la-plus la-2x"></i></div>
+                            <div class="fw-semibold mb-1">{{ translate('Add New Address') }}</div>
+                            <div class="text-muted" style="font-size:12px;">
+                                {{ $max_addresses - $addresses_count }} {{ translate('address slots left') }}
+                            </div>
+                    </div>
+                    @endif
+
+                    <input type="hidden" name="checkout_type" value="logged">
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2" style="gap:10px;">
+                        <a href="{{ route('home') }}" class="btn borderbtn py-3 px-4">
+                            <i class="las la-arrow-left"></i> {{ translate('Return to shop') }}
+                        </a>
+                        <button type="submit" class="btn borderbtn py-3 px-5 ">
+                            {{ translate('Next') }}
+                        </button>
+                    </div>
+            </div>
+            @endif
+            </form>
+        </div>
+    </div>
+    </div>
+</section>
+
+<style type="text/css">
+    .border-dashed {
+        border-style: dashed !important;
+    }
+
+    @media (max-width: 576px) {
+        .d-flex.flex-md-row {
+            flex-direction: column !important;
         }
-        .cursor-pointer { cursor: pointer; }
-    </style>
+
+        .d-flex.flex-row {
+            flex-direction: row !important;
+        }
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
 @endsection
 
 @section('modal')
-    <!-- Address Modal -->
-    @include('frontend.' . get_setting('homepage_select') . '.partials.address_modal')
+<!-- Address Modal -->
+@include('frontend.' . get_setting('homepage_select') . '.partials.address_modal')
 @endsection
