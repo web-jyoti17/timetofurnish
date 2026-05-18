@@ -29,13 +29,13 @@ class ProductRequest extends FormRequest
     {
         $rules = [];
 
-    $rules['name'] = 'required|string|max:255|regex:/^[A-Za-z0-9\s\-(),+&*]+$/';
+        $rules['name'] = 'required|string|max:255|regex:/^[A-Za-z0-9\s\-(),+&*]+$/';
 
 
 
         $rules['category_ids']  = 'required';
         $rules['category_id']   = ['required', Rule::in($this->category_ids)];
-       $rules['unit'] = 'sometimes|required|integer|min:1|max:10';
+        $rules['unit'] = 'sometimes|required|integer|min:1|max:10';
 
         $rules['min_qty']      = 'sometimes|required|numeric|max:99999';
         $discountEnabled = $this->boolean('discount_enabled') || $this->filled('date_range');
@@ -46,25 +46,25 @@ class ProductRequest extends FormRequest
             'gt:0',
             'max:99999',
         ];
-        $rules['weight'] ='required';
+        $rules['weight'] = 'required';
 
 
 
-       // $rules['discount'] = 'nullable|numeric|gt:0';
+        // $rules['discount'] = 'nullable|numeric|gt:0';
 
         $rules['discount'] = ['nullable', 'numeric'];
         if ($discountEnabled && $this->filled('unit_price')) {
             $rules['discount'][] = 'lt:unit_price';
         }
-           $rules['unit'] = 'required|integer|between:1,10';
+        $rules['unit'] = 'required|integer|between:1,10';
 
-        $rules['thumbnail_img']='required';
+        $rules['thumbnail_img'] = 'required';
         $rules['current_stock'] = 'nullable|numeric';
         $rules['starting_bid']  = 'sometimes|required|numeric|min:1';
         $rules['auction_date_range']  = 'sometimes|required';
-        $rules['description'] = 'required';
-        $rules['specification'] = 'required';
-        $rules['low_stock_quantity']   ='required|max:3';
+        $rules['description'] = 'nullable';
+        $rules['specification'] = 'nullable';
+        $rules['low_stock_quantity']   = 'required|max:3';
         $rules['dimensions_enabled'] = 'nullable|boolean';
 
         foreach ($this->all() as $key => $value) {
@@ -111,13 +111,13 @@ class ProductRequest extends FormRequest
             'starting_bid.required'     => translate('Minimum Starting Bid is 1'),
             'auction_date_range.required' => translate('Auction Date Range is required'),
             'thumbnail_img.required'  => translate('Display Image is required'),
-            'photos.required'=> translate('Gallery Image is required'),
+            'photos.required' => translate('Gallery Image is required'),
 
-             'unit '              => translate( 'Unit  must be a 10-digit number'),
-             'min_qty'             =>  translate(  'Minimum Purchase Qty must be a 5-digit number'),
-            'low_stock_quantity'=>translate('Low stock quantity must be a 3-digit number'),
-            'weight'=>translate('weight must be a 4 digit number'),
-            'unit_price'=>translate(' unit price must be a 5 digit number'),
+            'unit '              => translate('Unit  must be a 10-digit number'),
+            'min_qty'             =>  translate('Minimum Purchase Qty must be a 5-digit number'),
+            'low_stock_quantity' => translate('Low stock quantity must be a 3-digit number'),
+            'weight' => translate('weight must be a 4 digit number'),
+            'unit_price' => translate(' unit price must be a 5 digit number'),
 
             //'sku.unique' => translate('SKU already exists'),
         ];

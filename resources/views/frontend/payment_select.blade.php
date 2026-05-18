@@ -57,7 +57,7 @@
             <div class="row">
 
                 <div class="col-lg-6 mt-lg-0" id="cart_summary">
-                    @include('frontend.'.get_setting('homepage_select').'.partials.cart_summary')
+                    @include('frontend.' . get_setting('homepage_select') . '.partials.cart_summary')
                 </div>
 
                 <div class="col-lg-6">
@@ -666,7 +666,7 @@
                                 <!-- Return to shop -->
                                 <div class="col-12 col-md-6 mb-2 mb-md-0">
                                     <a href="{{ route('home') }}"
-                                        class="btn btn-outline-secondary fs-15 fw-600 rounded-2 w-100 py-3">
+                                        class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3">
                                         <i class="las la-arrow-left fs-17"></i>
                                         {{ translate('Return to shop') }}
                                     </a>
@@ -674,7 +674,7 @@
                                 <!-- Complete Order -->
                                 <div class="col-12 col-md-6">
                                     <button type="button" onclick="submitOrder(this)"
-                                        class="btn btn-primary fs-15 fw-600 rounded-2 w-100 py-3 border-none">
+                                        class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3 border-none">
                                         {{ translate('Complete Order') }}
                                     </button>
                                 </div>

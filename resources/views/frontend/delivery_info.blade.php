@@ -4,6 +4,27 @@
 
     <section class="pt-5 mb-4">
         <div class="container">
+            <style>
+                .addon-toggle-btn {
+                    background: #f5eee6 !important;
+                    border: 1px solid #e2d2c0 !important;
+                    color: #8b5e34 !important;
+                    font-size: 13px !important;
+                    font-weight: 600 !important;
+                    border-radius: 6px !important;
+                    padding: 6px 12px !important;
+                    transition: all .3s ease;
+                }
+
+                .addon-toggle-btn:hover {
+                    background: #8b5e34 !important;
+                    color: #fff !important;
+                }
+
+                .addon-toggle-btn:focus {
+                    box-shadow: none !important;
+                }
+            </style>
             <div class="row">
                 <div class="col-xl-8 mx-auto">
                     <div class="row gutters-5 sm-gutters-10">
@@ -67,7 +88,7 @@
     <section class="py-4 gry-bg">
         <div class="container">
             <div class="row">
-                <div class="col-xxl-8 col-xl-10 mx-auto">
+                <div class="col-xxl-12 col-xl-12 mx-auto">
 
                     <div class="border bg-white p-4 mb-4">
 
@@ -84,33 +105,27 @@
                                 $seller_product_variation = [];
 
                                 foreach ($carts as $key => $cartItem) {
-
                                     $product = get_single_product($cartItem['product_id']);
 
                                     $variation = $cartItem['variation'];
 
                                     // Get stock row
-                                    $stock = $product->stocks
-                                        ->where('variant', $variation)
-                                        ->first();
+                                    $stock = $product->stocks->where('variant', $variation)->first();
 
                                     $variant_price = $stock ? $stock->price : 0;
 
                                     $variation_data = [
                                         'product_id' => $cartItem['product_id'],
-                                        'variation'  => $variation,
-                                        'price'      => $variant_price,
-                                        'sku'        => $stock ? $stock->sku : '',
+                                        'variation' => $variation,
+                                        'price' => $variant_price,
+                                        'sku' => $stock ? $stock->sku : '',
                                     ];
 
                                     if ($product->added_by == 'admin') {
-
                                         array_push($admin_products, $cartItem['product_id']);
 
                                         $admin_product_variation[] = $variation_data;
-
                                     } else {
-
                                         $product_ids = [];
 
                                         if (isset($seller_products[$product->user_id])) {
@@ -173,10 +188,9 @@
                                                         }
                                                     @endphp
 
-                                                    <li
-                                                        class="list-group-item py-3 px-0"
-                                                        style="padding: 0; border: none;">
-                                                        <div class="d-block d-lg-flex flex-row w-100" style="gap:20px;">
+                                                    <li class="list-group-item py-3 px-0" style="padding: 0; border: none;">
+                                                        <div class="d-flex d-lg-flex flex-column flex-lg-row w-100 w-lg-auto"
+                                                            style="gap:20px;">
                                                             <div class="flex-shrink-0" style="min-width: 120px;">
                                                                 <img src="{{ get_image($product->thumbnail) }}"
                                                                     alt="{{ $product->getTranslation('name') }}"
@@ -187,38 +201,126 @@
                                                                 <div class="fw-700 fs-15 mb-1" style="margin-bottom:5px;">
                                                                     {{ $product->getTranslation('name') }}
                                                                 </div>
-                                                                <div class="fs-13 text-dark mb-2">
-                                                                    @if (!empty($seller_product_variation[$key2]['variation']))
-                                                                    <div class="mb-1">
-                                                                        <span class="fw-600">{{ translate('Variation') }}:</span>
 
-                                                                        {{ $seller_product_variation[$key2]['variation'] }}
+                                                                {{-- Variations & Addons (Toggleable) --}}
+                                                                @php
+                                                                    $hasVariation = !empty(
+                                                                        $seller_product_variation[$key2]['variation']
+                                                                    );
+                                                                    $cartItem_addons = [];
+                                                                    if (!empty($cart->addons)) {
+                                                                        $cartItem_addons = json_decode(
+                                                                            $cart->addons,
+                                                                            true,
+                                                                        );
+                                                                    }
+                                                                    $hasAddons = !empty($cartItem_addons);
+                                                                    $toggleId =
+                                                                        'addonCollapseDelivery' .
+                                                                        ($seller_id ?? '') .
+                                                                        ($key2 ?? '') .
+                                                                        ($cart->id ?? uniqid());
+                                                                @endphp
 
-                                                                        @if ($seller_product_variation[$key2]['price'] > 0)
-                                                                            +{{ single_price($seller_product_variation[$key2]['price']) }}
-                                                                        @endif
+                                                                @if ($hasVariation || $hasAddons)
+                                                                    <button
+                                                                        class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center mb-2"
+                                                                        type="button" data-toggle="collapse"
+                                                                        data-target="#{{ $toggleId }}"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="{{ $toggleId }}"
+                                                                        style="background: none; border: none;">
+                                                                        <i class="las la-plus-circle me-1"></i>
+                                                                        <span class="flex-grow-1 text-left">
+                                                                            {{ translate('View Details') }}
+                                                                            @if ($hasAddons)
+                                                                                ({{ count($cartItem_addons) }})
+                                                                            @endif
+                                                                        </span>
+                                                                        <i class="las la-angle-down addon-arrow"></i>
+                                                                    </button>
+                                                                    <div class="collapse mt-2" id="{{ $toggleId }}">
+                                                                        <div
+                                                                            class="addon-details d-flex flex-column gap-1 mt-2 p-0">
+                                                                            {{-- Variation Table --}}
+                                                                            @if ($hasVariation)
+                                                                                <table class="table table-sm mb-2 w-100">
+                                                                                    <tr>
+                                                                                        <th class="fw-600"
+                                                                                            style="width:70%">
+                                                                                            {{ translate('Variation') }}
+                                                                                        </th>
+                                                                                        <th class="fw-600"
+                                                                                            style="width:30%">
+                                                                                            {{ translate('Price') }}
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            {{ $seller_product_variation[$key2]['variation'] }}
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            @if ($seller_product_variation[$key2]['price'] > 0)
+                                                                                                +{{ single_price($seller_product_variation[$key2]['price']) }}
+                                                                                            @else
+                                                                                                {{ single_price(0) }}
+                                                                                            @endif
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            @endif
+
+                                                                            {{-- Addon Table --}}
+                                                                            @if ($hasAddons)
+                                                                                <table
+                                                                                    class="table table-sm mb-1 addon-table w-100">
+                                                                                    <tr>
+                                                                                        <th class="fw-600 addon-name-text addon-header"
+                                                                                            style="width:70%">
+                                                                                            {{ translate('Addons Selected') }}
+                                                                                        </th>
+                                                                                        <th class="fw-600 addon-price-text addon-header"
+                                                                                            style="width:30%">
+                                                                                            {{ translate('Pricing') }}
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                    @foreach ($cartItem_addons as $addon)
+                                                                                        <tr>
+                                                                                            <td>
+                                                                                                {{ $addon['addon_name'] ?? '' }}
+                                                                                                @if (!empty($addon['name']))
+                                                                                                    <span
+                                                                                                        class="mx-2 text-secondary addon-separator">|</span>
+                                                                                                    {{ $addon['name'] ?? '' }}
+                                                                                                @endif
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                                                                    +£{{ number_format($addon['price'], 2) }}
+                                                                                                @else
+                                                                                                    <span
+                                                                                                        class="text-success">{{ translate('Free of cost') }}</span>
+                                                                                                @endif
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                </table>
+                                                                            @endif
+                                                                        </div>
                                                                     </div>
                                                                 @endif
 
-                                                                {{-- Addons --}}
-                                                                @if (!empty($cart->addons))
-                                                                    @php
-                                                                        $cartItem_addons = json_decode($cart->addons, true);
-                                                                    @endphp
-                                                                    @foreach ($cartItem_addons as $addon)
-                                                                        <div class="mb-1">
-                                                                            <span class="fw-600">{{ $addon['addon_name'] ?? '' }}:</span>
-                                                                            <span>
-                                                                                {{ $addon['name'] ?? '' }} -
-                                                                                £{{ number_format($addon['price'] ?? 0, 2) }}
-                                                                            </span>
-                                                                        </div>
-                                                                    @endforeach
+                                                                <div class="mb-1"><span
+                                                                        class="fw-600">{{ translate('Qty') }}:</span>
+                                                                    {{ $qty }}</div>
+
+                                                                @if ($product->dispatch_time)
+                                                                    <div><span
+                                                                            class="fw-600">{{ translate('Dispatch Time') }}:</span>
+                                                                        {{ $product->dispatch_time }}</div>
                                                                 @endif
-                                                                </div>
-                                                                <div class="mb-1"><span class="fw-600">{{ translate('Qty') }}:</span> {{ $qty }}</div>
-                                                                <div><span class="fw-600">{{ translate('Dispatch Time') }}:</span> {{ $product->dispatch_time }}</div>
                                                             </div>
+
                                                         </div>
                                                     </li>
                                                 @endforeach
@@ -283,7 +385,8 @@
                                                                                 {{ $service->name }}
                                                                             </span>
                                                                             @if (!empty($service->description))
-                                                                                <span class="d-block fs-14 text-muted mt-1">
+                                                                                <span
+                                                                                    class="d-block fs-14 text-muted mt-1">
                                                                                     {{ $service->description }}
                                                                                 </span>
                                                                             @endif
@@ -328,7 +431,6 @@
                                             </div>
                                         </div> {{-- end card-body --}}
                                     </div>
-
                                 @endforeach
                             @endif
 
@@ -336,19 +438,19 @@
 
                     </div>
 
-                    <div class="row g-2 checkout-btn-row mb-4 flex-wrap">
+                    <div class="checkout-btn-row mb-4 d-flex flex-wrap justify-content-between">
                         <!-- Return to shop -->
-                        <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <div class="mb-2 mb-md-0 w-100 w-lg-auto">
                             <a href="{{ route('home') }}"
-                                class="btn btn-outline-secondary fs-15 fw-600 rounded-2 w-100 py-3">
+                                class="btn btn-outline-secondary  borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
                                 <i class="las la-arrow-left fs-17"></i>
                                 {{ translate('Return to shop') }}
                             </a>
                         </div>
                         <!-- Continue to Payment -->
-                        <div class="col-12 col-md-6">
+                        <div class="w-100 w-lg-auto">
                             <button type="submit" id="continue-to-payment-btn"
-                                class="btn btn-primary fs-15 fw-600 rounded-2 w-100 py-3 border-none">
+                                class="btn fs-15 fw-600 borderbtn rounded-2 w-100 py-3 border-none custom_checkout_button_design unfilled">
                                 {{ translate('Continue to Payment') }}
                             </button>
                         </div>
@@ -442,8 +544,8 @@
 
             // If only one (free) option present, prevent unchecking it
             if ($serviceCheckboxes.length === 1 && parseFloat($serviceCheckboxes.first().data('price')) === 0) {
-                $serviceCheckboxes.on('click', function(e){
-                    if($(this).is(':checked')){
+                $serviceCheckboxes.on('click', function(e) {
+                    if ($(this).is(':checked')) {
                         e.preventDefault();
                         // always keep checked if it's the only (free) option
                         $(this).prop('checked', true);

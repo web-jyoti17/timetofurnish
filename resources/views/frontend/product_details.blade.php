@@ -61,8 +61,8 @@
         <div class="py-0 bg-white">
 
             <div class="row">
-                <div class="pt-5 pb-5 col-12 d-flex justify-content-end">
-                    <div class="col-lg-8 d-flex align-items-center">
+                <div class="pt-5 pb-5 col-12 d-flex flex-wrap justify-content-between flex-row image_gallery_section_shadow">
+                    <div class="d-flex align-items-center">
                         <nav aria-label="breadcrumb" class="flex-grow-1">
                             <ol class="breadcrumb bg-white pl-0 m-0 justify-content-start">
                                 <li class="breadcrumb-item">
@@ -82,15 +82,16 @@
                         </nav>
                     </div>
 
-                    <div class="col-lg-4 d-flex justify-content-lg-end align-items-center mt-3 mt-lg-0">
+                    <div class=" d-flex justify-content-lg-end align-items-center mt-0 mt-lg-0">
                         <button type="button"
                             class="btn shadow-sm px-4 py-2 d-flex align-items-center"
                             id="viewSellerInfoBtn"
                             title="{{ translate('View seller information') }}">
-                            <span class="mr-2" style="font-size:20px;">
-                                <i class="las la-store"></i>
+                            <span style="font-size:20px;">
+                                <i class="las la-info-circle"></i>
+
                             </span>
-                            <span class="d-none d-md-inline-block">{{ translate('View Seller Info') }}</span>
+                            <span class="d-inline-block ml-1">{{ translate('View Seller Info') }}</span>
                         </button>
                         <style>
                             #viewSellerInfoBtn{

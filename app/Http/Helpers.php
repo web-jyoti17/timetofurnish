@@ -79,7 +79,7 @@ if (!function_exists('getCheckoutServicesByCategories')) {
 
 //sensSMS function for OTP
 if (!function_exists('getParentCategoryIds')) {
-     function getParentCategoryIds(array $categoryIds)
+    function getParentCategoryIds(array $categoryIds)
     {
         $parentIds = [];
 
@@ -132,7 +132,7 @@ if (!function_exists('default_language')) {
 
 function featured_categories()
 {
-     $featured_categories = Cache::rememberForever('featured_categories', function () {
+    $featured_categories = Cache::rememberForever('featured_categories', function () {
         return Category::with('bannerImage')->where('featured', 1)->get();
     });
 
@@ -294,7 +294,7 @@ if (!function_exists('format_price')) {
         }
 
         if (get_setting('symbol_format') == 1) {
-            return currency_symbol() .' '. $fomated_price;
+            return currency_symbol() . ' ' . $fomated_price;
         } else if (get_setting('symbol_format') == 3) {
             return currency_symbol() . ' ' . $fomated_price;
         } else if (get_setting('symbol_format') == 4) {
@@ -423,11 +423,11 @@ if (!function_exists('cart_product_tax')) {
         $tax = 0;
         foreach ($product->taxes as $product_tax) {
             //if ($product_tax->tax_type == 'percent') {
-                //$tax_portion = ($price * $product_tax->tax) / (100 + $product_tax->tax);
-                $vat = env('product_vat', 0);
-                $tax_portion = ($price * $vat) / 100;
-                $tax += $tax_portion;
-           /* } elseif ($product_tax->tax_type == 'amount') {
+            //$tax_portion = ($price * $product_tax->tax) / (100 + $product_tax->tax);
+            $vat = env('product_vat', 0);
+            $tax_portion = ($price * $vat) / 100;
+            $tax += $tax_portion;
+            /* } elseif ($product_tax->tax_type == 'amount') {
                 $tax += $product_tax->tax;
             }*/
         }
@@ -439,11 +439,12 @@ if (!function_exists('cart_product_tax')) {
         }
     }
 }
- function calculate_vat_total($subtotal){
+function calculate_vat_total($subtotal)
+{
     $vat = env('toat_val', 0);
-    $subtotal1 = ($subtotal * $vat)/100;
+    $subtotal1 = ($subtotal * $vat) / 100;
     return $subtotal1;
- }
+}
 if (!function_exists('cart_product_discount')) {
     function cart_product_discount($cart_product, $product, $formatted = false)
     {
@@ -484,8 +485,9 @@ if (!function_exists('cart_product_discount')) {
 }
 
 //get product discount amount
-if (!function_exists('discount_amount')){
-    function discount_amount($productId){
+if (!function_exists('discount_amount')) {
+    function discount_amount($productId)
+    {
         $discount = 0;
         $discount_applicable = false;
         $str = '';
@@ -516,7 +518,8 @@ if (!function_exists('discount_amount')){
     }
 }
 
-function real_price($orderDetail, $product, $formatted = false, $tax = false){
+function real_price($orderDetail, $product, $formatted = false, $tax = false)
+{
     if ($product->auction_product == 0) {
         $str = '';
         if ($orderDetail->variation != null) {
@@ -1092,13 +1095,13 @@ function getShippingCostOld($carts, $index, $carrier = '')
         if ($city != null) {
             $cartArray = json_decode(json_encode($carts), true);
             $totalPrice = array_sum(array_column($cartArray, 'price'));
-            if($totalPrice <= 500){
+            if ($totalPrice <= 500) {
                 if ($product->added_by == 'admin') {
                     return $city->cost / count($admin_products);
                 } else {
                     return $city->cost / count($seller_products[$product->user_id]);
                 }
-            }else{
+            } else {
                 return 0;
             }
         }
@@ -1209,14 +1212,14 @@ function getShippingCost($carts, $index, $carrier = '')
             $sellerCity = $cart_item['seller']->shop->city_id;
             $sellerState = $cart_item['seller']->shop->state_id;
             $shippingCharges = get_shipping_charges();
-            if($totalPrice <= $shippingCharges['orderTotal']){
+            if ($totalPrice <= $shippingCharges['orderTotal']) {
 
-                if($shipping_info->city_id == $sellerCity){
-                    return $shippingCharges['shipping_1']/count($seller_products[$product->user_id]);
-                }elseif($shipping_info->state_id == $sellerState){
-                    return $shippingCharges['shipping_1']/count($seller_products[$product->user_id]);
-                }else{
-                    return $shippingCharges['shipping_1']/count($seller_products[$product->user_id]);
+                if ($shipping_info->city_id == $sellerCity) {
+                    return $shippingCharges['shipping_1'] / count($seller_products[$product->user_id]);
+                } elseif ($shipping_info->state_id == $sellerState) {
+                    return $shippingCharges['shipping_1'] / count($seller_products[$product->user_id]);
+                } else {
+                    return $shippingCharges['shipping_1'] / count($seller_products[$product->user_id]);
                 }
 
                 // if ($product->added_by == 'admin') {
@@ -1224,7 +1227,7 @@ function getShippingCost($carts, $index, $carrier = '')
                 // } else {
                 //     return $city->cost / count($seller_products[$product->user_id]);
                 // }
-            }else{
+            } else {
                 return 0;
             }
         }
@@ -1476,16 +1479,52 @@ if (!function_exists('my_asset')) {
     function local_asset_path($path)
     {
         $path = ltrim($path, '/');
-        $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? realpath($_SERVER['DOCUMENT_ROOT']) : null;
-        $publicPath = realpath(public_path());
 
-        if ($documentRoot && $publicPath && $documentRoot === $publicPath) {
-            return $path;
+        // 1. Try safe request base path detection first (extremely fast and safe)
+        try {
+            if (function_exists('request') && request() !== null) {
+                $basePath = request()->getBasePath();
+                if (!empty($basePath)) {
+                    $normalizedBase = trim($basePath, '/');
+                    if ($normalizedBase === 'public' || str_ends_with($normalizedBase, '/public')) {
+                        return 'public/' . $path;
+                    }
+                    return $path;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore
         }
 
-        $appUrlPath = trim((string) parse_url(config('app.url'), PHP_URL_PATH), '/');
-        if ($appUrlPath === 'public' || str_ends_with($appUrlPath, '/public')) {
-            return $path;
+        // 2. Safe string/filesystem comparison in try-catch to prevent 500 open_basedir errors
+        try {
+            $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '';
+            $publicPath = public_path();
+
+            if (!empty($documentRoot) && !empty($publicPath)) {
+                // Safely resolve realpaths using @ to suppress open_basedir warnings/errors
+                $realRoot = @realpath($documentRoot);
+                $realPublic = @realpath($publicPath);
+
+                if ($realRoot && $realPublic && $realRoot === $realPublic) {
+                    return $path;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore filesystem errors completely
+        }
+
+        // 3. Check config app.url path
+        try {
+            $appUrl = config('app.url');
+            if ($appUrl) {
+                $appUrlPath = trim((string) parse_url($appUrl, PHP_URL_PATH), '/');
+                if ($appUrlPath === 'public' || str_ends_with($appUrlPath, '/public')) {
+                    return $path;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Ignore
         }
 
         return 'public/' . $path;
@@ -1545,7 +1584,7 @@ if (!function_exists('getFileBaseURL')) {
     function getFileBaseURL()
     {
         if (env('FILESYSTEM_DRIVER') != 'local') {
-            return env(Str::upper(env('FILESYSTEM_DRIVER')).'_URL') . '/';
+            return env(Str::upper(env('FILESYSTEM_DRIVER')) . '_URL') . '/';
         }
 
         $assetPath = local_asset_path('');
@@ -1915,7 +1954,7 @@ if (!function_exists('get_system_language')) {
         $language_query = Language::query();
 
         $locale = 'en';
-        if(Session::has('locale')){
+        if (Session::has('locale')) {
             $locale = Session::get('locale', Config::get('app.locale'));
         }
 
@@ -1948,10 +1987,9 @@ if (!function_exists('get_system_currency')) {
     function get_system_currency()
     {
         $currency_query = Currency::query();
-        if(Session::has('currency_code')){
+        if (Session::has('currency_code')) {
             $currency_query->where('code', Session::get('currency_code'));
-        }
-        else{
+        } else {
             $currency_query = $currency_query->where('id', get_setting('system_default_currency'));
         }
 
@@ -2015,7 +2053,7 @@ if (!function_exists('get_products_count')) {
     function get_products_count($user_id = null)
     {
         $products_query = Product::query();
-        if($user_id){
+        if ($user_id) {
             $products_query = $products_query->where('user_id', $user_id);
         }
         return $products_query->isApprovedPublished()->count();
@@ -2027,7 +2065,7 @@ if (!function_exists('get_product_min_unit_price')) {
     function get_product_min_unit_price($user_id = null)
     {
         $product_query = Product::query();
-        if($user_id){
+        if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
         return $product_query->isApprovedPublished()->min('unit_price');
@@ -2039,7 +2077,7 @@ if (!function_exists('get_product_max_unit_price')) {
     function get_product_max_unit_price($user_id = null)
     {
         $product_query = Product::query();
-        if($user_id){
+        if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
         return $product_query->isApprovedPublished()->max('unit_price');
@@ -2057,10 +2095,10 @@ if (!function_exists('get_featured_products')) {
 }
 
 if (!function_exists('get_best_selling_products')) {
-    function get_best_selling_products($limit, $user_id=null)
+    function get_best_selling_products($limit, $user_id = null)
     {
         $product_query = Product::query();
-        if($user_id){
+        if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
         return filter_products($product_query->orderBy('num_of_sale', 'desc'))->limit($limit)->get();
@@ -2096,7 +2134,7 @@ if (!function_exists('get_shop_best_selling_products')) {
 
 // Get all auction Products
 if (!function_exists('get_all_auction_products')) {
-    function get_auction_products($limit=null, $paginate=null)
+    function get_auction_products($limit = null, $paginate = null)
     {
         $product_query = Product::query();
         $products = $product_query->latest()->where('published', 1)->where('auction_product', 1);
@@ -2105,9 +2143,9 @@ if (!function_exists('get_all_auction_products')) {
         }
         $products = $products->where('auction_start_date', '<=', strtotime("now"))->where('auction_end_date', '>=', strtotime("now"));
 
-        if($limit){
+        if ($limit) {
             $products = $products->limit($limit);
-        }elseif($paginate){
+        } elseif ($paginate) {
             return $products->paginate($paginate);
         }
         return $products->get();
@@ -2190,7 +2228,7 @@ if (!function_exists('get_pages')) {
 if (!function_exists('get_pages_footer')) {
     function get_pages_footer($pageids)
     {
-        $arr=explode(',',$pageids);
+        $arr = explode(',', $pageids);
         $pages = Page::whereIn('id', $arr)->get();
         return $pages;
     }
@@ -2309,7 +2347,7 @@ if (!function_exists('get_best_sellers')) {
     function get_best_sellers($limit = '')
     {
         // return Cache::remember('best_selers', 86400, function () use ($limit) {
-            return Shop::where('verification_status', 1)->orderBy('num_of_sale', 'desc')->take($limit)->get();
+        return Shop::where('verification_status', 1)->orderBy('num_of_sale', 'desc')->take($limit)->get();
         // });
     }
 }
@@ -2337,7 +2375,7 @@ if (!function_exists('get_order_details_by_review')) {
     function get_order_details_by_review($review)
     {
         $order_detail_query = OrderDetail::query();
-        return $order_detail_query->with(['order' => function ($q) use($review) {
+        return $order_detail_query->with(['order' => function ($q) use ($review) {
             $q->where('user_id', $review->user_id);
         }])->where('product_id', $review->product_id)->where('delivery_status', 'delivered')->first();
     }
@@ -2377,8 +2415,8 @@ if (!function_exists('get_delivery_boy_total_completed_delivery')) {
     {
         $delivery_boy_delivery_query = Order::query();
         return  $delivery_boy_delivery_query->where('assign_delivery_boy', Auth::user()->id)
-                                                        ->where('delivery_status', 'delivered')
-                                                        ->count();
+            ->where('delivery_status', 'delivered')
+            ->count();
     }
 }
 
@@ -2388,10 +2426,10 @@ if (!function_exists('get_delivery_boy_total_pending_delivery')) {
     {
         $delivery_boy_delivery_query = Order::query();
         return  $delivery_boy_delivery_query->where('assign_delivery_boy', Auth::user()->id)
-                                            ->where('delivery_status', '!=', 'delivered')
-                                            ->where('delivery_status', '!=', 'cancelled')
-                                            ->where('cancel_request', '0')
-                                            ->count();
+            ->where('delivery_status', '!=', 'delivered')
+            ->where('delivery_status', '!=', 'cancelled')
+            ->where('cancel_request', '0')
+            ->count();
     }
 }
 
@@ -2401,8 +2439,8 @@ if (!function_exists('get_delivery_boy_total_cancelled_delivery')) {
     {
         $delivery_boy_delivery_query = Order::query();
         return  $delivery_boy_delivery_query->where('assign_delivery_boy', Auth::user()->id)
-                                            ->where('delivery_status', 'cancelled')
-                                            ->count();
+            ->where('delivery_status', 'cancelled')
+            ->count();
     }
 }
 
@@ -2411,7 +2449,7 @@ if (!function_exists('get_order_info')) {
     function get_order_info($order_id = null)
     {
         $order_query = Order::query();
-        return  $order_query->where('id',$order_id)->first();
+        return  $order_query->where('id', $order_id)->first();
     }
 }
 
@@ -2420,7 +2458,7 @@ if (!function_exists('get_user_order_by_id')) {
     function get_user_order_by_id($order_id = null)
     {
         $order_query = Order::query();
-        return  $order_query->where('id',$order_id)->where('user_id',Auth::user()->id)->first();
+        return  $order_query->where('id', $order_id)->where('user_id', Auth::user()->id)->first();
     }
 }
 
@@ -2429,7 +2467,7 @@ if (!function_exists('get_auction_product_bid_info')) {
     function get_auction_product_bid_info($bid_id = null)
     {
         $product_bid_info_query = AuctionProductBid::query();
-        return  $product_bid_info_query->where('id',$bid_id)->first();
+        return  $product_bid_info_query->where('id', $bid_id)->first();
     }
 }
 
@@ -2529,10 +2567,10 @@ if (!function_exists('get_coupons')) {
     {
         $coupon_query = Coupon::query();
         $coupon_query = $coupon_query->where('start_date', '<=', strtotime(date('d-m-Y')))->where('end_date', '>=', strtotime(date('d-m-Y')));
-        if($user_id){
-            $coupon_query = $coupon_query-> where('user_id', $user_id);
+        if ($user_id) {
+            $coupon_query = $coupon_query->where('user_id', $user_id);
         }
-        if($paginate){
+        if ($paginate) {
             return $coupon_query->paginate($paginate);
         }
         return $coupon_query->get();
@@ -2552,9 +2590,11 @@ if (!function_exists('get_non_viewed_conversations')) {
 if (!function_exists('get_affliate_option_status')) {
     function get_affliate_option_status($status = false)
     {
-        if(AffiliateOption::where('type', 'product_sharing')->first()->status ||
-            AffiliateOption::where('type', 'category_wise_affiliate')->first()->status){
-                $status = true;
+        if (
+            AffiliateOption::where('type', 'product_sharing')->first()->status ||
+            AffiliateOption::where('type', 'category_wise_affiliate')->first()->status
+        ) {
+            $status = true;
         }
         return $status;
     }
@@ -2564,8 +2604,8 @@ if (!function_exists('get_affliate_option_status')) {
 if (!function_exists('get_affliate_purchase_option_status')) {
     function get_affliate_purchase_option_status($status = false)
     {
-        if(AffiliateOption::where('type', 'user_registration_first_purchase')->first()->status){
-                $status = true;
+        if (AffiliateOption::where('type', 'user_registration_first_purchase')->first()->status) {
+            $status = true;
         }
         return $status;
     }
@@ -2584,7 +2624,7 @@ if (!function_exists('get_image')) {
     function get_image($image)
     {
         $image_url = static_asset('assets/img/placeholder.jpg');
-        if($image != null){
+        if ($image != null) {
             $image_url = $image->external_link == null ? my_asset($image->file_name) : $image->external_link;
         }
         return $image_url;
@@ -2593,22 +2633,21 @@ if (!function_exists('get_image')) {
 
 // Get POS user cart
 if (!function_exists('get_pos_user_cart')) {
-    function get_pos_user_cart($sessionUserID = null , $sessionTemUserId = null)
+    function get_pos_user_cart($sessionUserID = null, $sessionTemUserId = null)
     {
         $cart               = [];
         $authUser           = auth()->user();
         $owner_id           = $authUser->type == 'admin' ? User::where('user_type', 'admin')->first()->id : $authUser->id;
 
-        if($sessionUserID == null ) {
+        if ($sessionUserID == null) {
             $sessionUserID = Session::has('pos.user_id') ? Session::get('pos.user_id') : null;
         }
-        if($sessionTemUserId == null) {
+        if ($sessionTemUserId == null) {
             $sessionTemUserId = Session::has('pos.temp_user_id') ? Session::get('pos.temp_user_id') : null;
         }
 
         $cart = Cart::where('owner_id', $owner_id)->where('user_id', $sessionUserID)->where('temp_user_id', $sessionTemUserId)->get();
         return $cart;
-
     }
 }
 

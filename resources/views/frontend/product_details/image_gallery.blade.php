@@ -1,4 +1,7 @@
 <style>
+        div#imageGalleryCol {
+        touch-action: auto !important;
+    }
     @media only screen and (min-width: 992px) {
         .carousal_image_custom_height {
                 height: 600px !important;
@@ -138,6 +141,12 @@
             object-fit: cover;
             /* 👈 fill karega nicely */
         }
+    }
+    .image_gallery_section_shadow{
+    box-shadow: 0 0 16px 5px #7c7c7c1c;
+    padding: 15px 10px !important;
+    margin-bottom: 30px;
+    margin-top: 30px;
     }
 </style>
 <div class="sticky-top z-3 row gutters-10">
