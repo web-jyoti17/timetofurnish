@@ -178,13 +178,51 @@
 
                                     $price = 0;
                                     $qty = 1;
+                                    $hasVariation = false;
+                                    $cartItem_addons = [];
+                                    $hasAddons = false;
 
                                     if ($cart) {
-                                    $price =
-                                    cart_product_price($cart, $product, false, false) +
-                                    $cart['addon_price'];
-                                    $qty = $cart['quantity'];
-                                    $seller_subtotal += $price * $qty;
+                                        $cartItem_addons = !empty($cart->addons) ? json_decode($cart->addons, true) : [];
+                                        $cartItem_attributes = !empty($cart->attributes) ? json_decode($cart->attributes, true) : [];
+                                        
+                                        $attributeNames = [];
+                                        if (is_array($cartItem_attributes)) {
+                                            foreach ($cartItem_attributes as $attr) {
+                                                if (!empty($attr['attribute_name'])) {
+                                                    $attributeNames[] = strtolower(trim($attr['attribute_name']));
+                                                }
+                                            }
+                                        }
+
+                                        $variation_string = $seller_product_variation[$key2]['variation'] ?? '';
+                                        $variation_parts = array_map(function($v) {
+                                            return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
+                                        }, explode('-', $variation_string));
+
+                                        // Remove redundant variants that were injected into addons
+                                        $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames, $variation_parts) {
+                                            if (in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames)) {
+                                                return false;
+                                            }
+                                            $addon_value_clean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $addon['name'] ?? ''));
+                                            if (!empty($addon_value_clean) && in_array($addon_value_clean, $variation_parts)) {
+                                                return false;
+                                            }
+                                            return true;
+                                        });
+
+                                        $calculated_addon_price = 0;
+                                        foreach($cartItem_addons as $addon) {
+                                            $calculated_addon_price += ($addon['price'] ?? 0);
+                                        }
+
+                                        $price = cart_product_price($cart, $product, false, false) + $calculated_addon_price;
+                                        $qty = $cart['quantity'];
+                                        $seller_subtotal += $price * $qty;
+                                        
+                                        $hasVariation = !empty($variation_string);
+                                        $hasAddons = !empty($cartItem_addons);
                                     }
                                     @endphp
 
@@ -204,49 +242,6 @@
 
                                                 {{-- Variations & Addons (Toggleable) --}}
                                                 @php
-                                                $hasVariation = !empty(
-                                                $seller_product_variation[$key2]['variation']
-                                                );
-                                                $cartItem_addons = [];
-                                                if (!empty($cart->addons)) {
-                                                $cartItem_addons = json_decode(
-                                                $cart->addons,
-                                                true,
-                                                );
-                                                // Fetch attributes from cart if they exist
-                                                $cartItem_attributes = [];
-                                                if (!empty($cart->attributes)) {
-                                                $cartItem_attributes = json_decode($cart->attributes, true);
-                                                }
-
-                                                // Collect the names of all attributes so we can filter them out of the addons array
-                                                $attributeNames = [];
-                                                if (is_array($cartItem_attributes)) {
-                                                foreach ($cartItem_attributes as $attr) {
-                                                if (!empty($attr['attribute_name'])) {
-                                                $attributeNames[] = strtolower(trim($attr['attribute_name']));
-                                                }
-                                                }
-                                                }
-
-                                                $variation_string = $seller_product_variation[$key2]['variation'] ?? '';
-                                                $variation_parts = array_map(function($v) {
-                                                return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
-                                                }, explode('-', $variation_string));
-
-                                                // Remove any redundant variants that were injected into addons
-                                                $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames, $variation_parts) {
-                                                if (in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames)) {
-                                                return false;
-                                                }
-                                                $addon_value_clean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $addon['name'] ?? ''));
-                                                if (!empty($addon_value_clean) && in_array($addon_value_clean, $variation_parts)) {
-                                                return false;
-                                                }
-                                                return true;
-                                                });
-                                                }
-                                                $hasAddons = !empty($cartItem_addons);
                                                 $toggleId =
                                                 'addonCollapseDelivery' .
                                                 ($seller_id ?? '') .
@@ -384,6 +379,18 @@
 
                                 @php
                                 $allServices = $allServices->unique('id')->values();
+
+                                // Find selected services from the carts
+                                $selectedServiceIds = [];
+                                foreach ($seller_product as $productId) {
+                                    $cart = collect($carts)->firstWhere('product_id', $productId);
+                                    if ($cart && !empty($cart->services)) {
+                                        $cartServices = json_decode($cart->services, true);
+                                        foreach ($cartServices as $cs) {
+                                            $selectedServiceIds[] = $cs['id'];
+                                        }
+                                    }
+                                }
                                 @endphp
 
                                 @if ($allServices->count() > 0)
@@ -411,7 +418,8 @@
                                                 <input type="checkbox" name="selected_services[]"
                                                     value="{{ $service->id }}"
                                                     class="service-checkbox"
-                                                    data-price="{{ $service->price }}">
+                                                    data-price="{{ $service->price }}"
+                                                    @if(in_array($service->id, $selectedServiceIds)) checked @endif>
                                                 <span class="d-flex aiz-megabox-elem custom-service-card p-3">
                                                     <span
                                                         class="aiz-rounded-check flex-shrink-0 mt-1"></span>
@@ -452,7 +460,7 @@
                                 <!-- Services Total -->
                                 <div class="text-right pr-3 pb-2 ms-5 fw-700">
                                     {{ translate('Services') }} :
-                                    <span id="services-total">
+                                    <span class="services-total-display">
                                         £0.00
                                     </span>
                                 </div>
@@ -460,7 +468,7 @@
                                 <!-- Grand Total -->
                                 <div class="text-right pr-3 pb-3 ms-5 fw-700 fs-18">
                                     {{ translate('Total') }} :
-                                    <span id="grand-total" data-base-total="{{ $seller_subtotal }}">
+                                    <span class="grand-total-display" data-base-total="{{ $seller_subtotal }}">
                                         {{ single_price($seller_subtotal) }}
                                     </span>
                                 </div>
@@ -519,34 +527,50 @@
         let $continueBtn = $('#continue-to-payment-btn');
         let $serviceError = $('#service-required-error');
 
-        // Ensure only one checkbox can be selected at a time
+        // Initial calculation for all cards
+        $('.card').each(function() {
+            let $card = $(this);
+            let $checkboxes = $card.find('.service-checkbox');
+            if ($checkboxes.length === 0) return;
+            
+            // If there is no checked service but there is a free one, select it by default
+            if ($card.find('.service-checkbox:checked').length === 0) {
+                let $freeService = $checkboxes.filter(function() {
+                    return parseFloat($(this).data('price')) === 0;
+                });
+                if ($freeService.length > 0) {
+                    $freeService.first().prop('checked', true);
+                }
+            }
+            
+            // Trigger a change to calculate initial totals
+            $card.find('.service-checkbox:checked').first().trigger('change');
+        });
+
+        // Ensure only one checkbox can be selected at a time per seller card
         $serviceCheckboxes.on('change', function() {
-            // Uncheck all others
-            $serviceCheckboxes.not(this).prop('checked', false);
+            let $card = $(this).closest('.card');
+            let $cardCheckboxes = $card.find('.service-checkbox');
+            
+            // Uncheck all others in this card
+            $cardCheckboxes.not(this).prop('checked', false);
 
             // Update service and grand total
             let serviceTotal = 0;
-            let $checked = $('.service-checkbox:checked');
+            let $checked = $card.find('.service-checkbox:checked');
             if ($checked.length > 0) {
                 serviceTotal = parseFloat($checked.data('price')) || 0;
             }
-            let baseTotal = parseFloat($('#grand-total').data('base-total'));
+            
+            let $grandTotal = $card.find('.grand-total-display');
+            let baseTotal = parseFloat($grandTotal.data('base-total'));
             let finalTotal = baseTotal + serviceTotal;
 
-            $('#services-total').html('£' + serviceTotal.toFixed(2));
-            $('#grand-total').html('£' + finalTotal.toFixed(2));
+            $card.find('.services-total-display').html('£' + serviceTotal.toFixed(2));
+            $grandTotal.html('£' + finalTotal.toFixed(2));
 
             checkServiceSelection();
         });
-
-        // If there is a free service, select it by default
-        let $freeService = $serviceCheckboxes.filter(function() {
-            return parseFloat($(this).data('price')) === 0;
-        });
-        if ($freeService.length > 0) {
-            $serviceCheckboxes.prop('checked', false); // uncheck all
-            $freeService.first().prop('checked', true).trigger('change');
-        }
 
         // Hide or show button depending on if any service-checkbox must be chosen
         function checkServiceSelection() {

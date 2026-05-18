@@ -43,7 +43,7 @@ class CartController extends Controller
     public function showCartModal(Request $request)
     {
         $product = Product::find($request->id);
-        return view('frontend.'.get_setting('homepage_select').'.partials.addToCart', compact('product'));
+        return view('frontend.' . get_setting('homepage_select') . '.partials.addToCart', compact('product'));
     }
 
     public function showCartModalAuction(Request $request)
@@ -60,12 +60,12 @@ class CartController extends Controller
         $product = Product::find($request->id);
         $carts = array();
 
-        if($check_auction_in_cart && $product->auction_product == 0) {
+        if ($check_auction_in_cart && $product->auction_product == 0) {
             return array(
                 'status' => 0,
                 'cart_count' => count($carts),
-                'modal_view' => view('frontend.'.get_setting('homepage_select').'.partials.removeAuctionProductFromCart')->render(),
-                'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+                'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.removeAuctionProductFromCart')->render(),
+                'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
             );
         }
 
@@ -75,8 +75,8 @@ class CartController extends Controller
             return array(
                 'status' => 0,
                 'cart_count' => count($carts),
-                'modal_view' => view('frontend.'.get_setting('homepage_select').'.partials.minQtyNotSatisfied', ['min_qty' => $product->min_qty])->render(),
-                'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+                'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.minQtyNotSatisfied', ['min_qty' => $product->min_qty])->render(),
+                'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
             );
         }
 
@@ -96,16 +96,16 @@ class CartController extends Controller
                 return array(
                     'status' => 0,
                     'cart_count' => count($carts),
-                    'modal_view' => view('frontend.'.get_setting('homepage_select').'.partials.auctionProductAlredayAddedCart')->render(),
-                    'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+                    'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.auctionProductAlredayAddedCart')->render(),
+                    'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
                 );
             }
             if ($product_stock->qty < $cart->quantity + $request['quantity']) {
                 return array(
                     'status' => 0,
                     'cart_count' => count($carts),
-                    'modal_view' => view('frontend.'.get_setting('homepage_select').'.partials.outOfStockCart')->render(),
-                    'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+                    'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.outOfStockCart')->render(),
+                    'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
                 );
             }
             $quantity = $cart->quantity + $request['quantity'];
@@ -143,41 +143,8 @@ class CartController extends Controller
                         'image'      => $option->img,
                     ];
                 }
-
             }
-            // SAVE ATTRIBUTES AS DISPLAYABLE OPTIONS
-                foreach ($request->all() as $key => $value) {
 
-                    if (str_starts_with($key, 'attribute_id_')) {
-
-                        $attributeId = str_replace('attribute_id_', '', $key);
-
-                        $attribute = \App\Models\Attribute::find($attributeId);
-
-                        if ($attribute) {
-
-                            // create variant key exactly like product stock
-                            $variantKey = str_replace(' ', '', $value);
-
-                            // find matching stock
-                            $variantStock = $product->stocks->where('variant', $variantKey)->first();
-
-                            // get variant price
-                            $variantPrice = $variantStock ? (float)$variantStock->price : 0;
-
-                            $addons[] = [
-                                'addon_id'   => 'attribute_' . $attributeId,
-                                'addon_name' => $attribute->getTranslation('name'),
-                                'name'       => $value,
-                                'price'      => $variantPrice,
-                                'image'      => null,
-                            ];
-
-                        }
-
-                    }
-
-                }
             $jsonAddons = json_encode($addons);
             $addon_total = collect($addons)->sum('price');
             $price += $addon_total;
@@ -198,8 +165,8 @@ class CartController extends Controller
         return array(
             'status' => 1,
             'cart_count' => count($carts),
-            'modal_view' => view('frontend.'.get_setting('homepage_select').'.partials.addedToCart', compact('product', 'cart'))->render(),
-            'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+            'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.addedToCart', compact('product', 'cart'))->render(),
+            'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
         );
     }
 
@@ -217,8 +184,8 @@ class CartController extends Controller
 
         return array(
             'cart_count' => count($carts),
-            'cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart_details', compact('carts'))->render(),
-            'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+            'cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart_details', compact('carts'))->render(),
+            'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
         );
     }
 
@@ -286,8 +253,8 @@ class CartController extends Controller
 
         return array(
             'cart_count' => count($carts),
-            'cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart_details', compact('carts'))->render(),
-            'nav_cart_view' => view('frontend.'.get_setting('homepage_select').'.partials.cart')->render(),
+            'cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart_details', compact('carts'))->render(),
+            'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
         );
     }
 }
