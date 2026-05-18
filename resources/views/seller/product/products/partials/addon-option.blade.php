@@ -2,6 +2,13 @@
     $name = $option['name'] ?? '';
     $price = $option['price'] ?? '';
     $img = $option['img'] ?? '';
+
+    $isOptChecked = false;
+    if (old('addons') !== null) {
+        $isOptChecked = old('addons.'.$groupIndex.'.options.'.$optIndex.'.id') !== null;
+    } else {
+        $isOptChecked = isset($option['id']);
+    }
 @endphp
 
 <div class="row align-items-center mb-3 addon-option-row">
@@ -14,7 +21,7 @@
                 class="option-toggle"
                 name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][id]"
                 value="{{ $option['id'] ?? 'new' }}"
-                {{ isset($option['id']) ? 'checked' : '' }}>
+                {{ $isOptChecked ? 'checked' : '' }}>
 
             <span></span>
 
@@ -27,7 +34,7 @@
         <input type="text"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][name]"
                class="form-control option-input"
-               value="{{ $name }}"
+               value="{{ old('addons.'.$groupIndex.'.options.'.$optIndex.'.name', $name) }}"
                placeholder="Option Name">
 
     </div>
@@ -37,7 +44,7 @@
         <input type="number"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][price]"
                class="form-control option-input"
-               value="{{ $price }}"
+               value="{{ old('addons.'.$groupIndex.'.options.'.$optIndex.'.price', $price) }}"
                placeholder="Price">
 
     </div>

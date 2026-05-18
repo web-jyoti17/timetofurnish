@@ -25,7 +25,7 @@
                 onchange="getVariantPrice(); updateVariantOptionPrice(this);">
 
 
-                <option value="" selected>No selection</option>
+                <option value="" selected>Choose Option</option>
                 @foreach ($choice->values as $key => $value)
                 @php
                 $variantKey = str_replace(' ', '', $value);
@@ -109,7 +109,7 @@
                 data-addonid="{{ $addon->id }}"
                 onchange="updateFabricPreview({{ $addon->id }}, this);">
 
-                <option value="">No selection</option>
+                <option value="">Choose Option</option>
 
                 @foreach ($fabricGroups as $groupName => $groupOptions)
                 <option value="{{ $groupName }}" data-group="{{ $groupName }}">
@@ -171,7 +171,7 @@
             <select class="form-select custom-dropdown" name="addons[{{ $addon->id }}]"
                 data-addonid="{{ $addon->id }}">
 
-                <option value="">No selection</option>
+                <option value="">Choose Option</option>
 
                 @foreach ($addon->options as $option)
                 <option value="{{ $option->id }}" data-price="{{ $option->price }}">
@@ -423,6 +423,46 @@
             .replace(/\-\-+/g, '-')
             .replace(/^-+/, '')
             .replace(/-+$/, '');
+    }
+
+    // ---------------------------------
+    // Auto-selection of next/remaining options
+    // ---------------------------------
+    var isAutoSelecting = false;
+
+    function autoSelectRemainingAddons() {
+        if (isAutoSelecting) return;
+        isAutoSelecting = true;
+
+        try {
+            // Auto select unselected variant dropdowns
+            $('.variant-dropdown').each(function() {
+                var $select = $(this);
+                if (!$select.val() || $select.val() === '') {
+                    var firstValOption = $select.find('option').filter(function() {
+                        return $(this).val() !== '';
+                    }).first();
+                    if (firstValOption.length) {
+                        $select.val(firstValOption.val()).trigger('change');
+                    }
+                }
+            });
+
+            // Auto select unselected addon dropdowns
+            $('.addon-block select').each(function() {
+                var $select = $(this);
+                if (!$select.val() || $select.val() === '') {
+                    var firstValOption = $select.find('option').filter(function() {
+                        return $(this).val() !== '';
+                    }).first();
+                    if (firstValOption.length) {
+                        $select.val(firstValOption.val()).trigger('change');
+                    }
+                }
+            });
+        } finally {
+            isAutoSelecting = false;
+        }
     }
 
     // ---------------------------------
@@ -756,6 +796,51 @@
             });
         });
 
+        // Handle select2:clearing to correctly reset states on cross and remove
+        $('.custom-dropdown').on('select2:clearing', function(e) {
+            let $select = $(this);
+            let addonId = $select.data('addonid');
+            let attributeId = $select.data('attribute');
+
+            if ($select.hasClass('fabric-dropdown')) {
+                // Clear selected fabric name
+                $select.data('selected-fabric', '');
+
+                // Reset option texts to original group name
+                $select.find('option').each(function() {
+                    var originalGroup = $(this).data('group');
+                    if (originalGroup) {
+                        $(this).text(originalGroup);
+                    }
+                });
+
+                // Clear hidden input
+                $(`input[type="hidden"][name="addons[${addonId}]"]`).val('');
+
+                // Remove selected class from color boxes
+                var $previewBlock = $('#fabric-preview-block-' + addonId);
+                $previewBlock.find('.fabric-color-box').removeClass('selected');
+
+                // Hide all preview groups
+                $previewBlock.find('.fabric-preview-group').addClass('d-none');
+
+                // Hide price warning/info box
+                $('#addon-price-info-' + addonId).addClass('d-none').html('');
+            } else if (attributeId) {
+                // For attribute/variant dropdown
+                $('#attribute-price-info-' + attributeId).html('');
+            } else if (addonId) {
+                // For normal addon dropdown
+                $('#addon-price-info-' + addonId).addClass('d-none').html('');
+            }
+
+            // Trigger price recalculation after clear completes
+            setTimeout(function() {
+                getVariantPrice();
+                validateRequiredSelections(false);
+            }, 50);
+        });
+
         // Initialize variant prices
         $('.variant-dropdown').each(function() {
             updateVariantOptionPrice(this);
@@ -776,6 +861,7 @@
         // Attribute change
         $(document).on('change', '.variant-dropdown', function() {
             updateVariantOptionPrice(this);
+            autoSelectRemainingAddons();
             getVariantPrice();
             $('.selection-error, .global-addon-error').remove();
             $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
@@ -785,6 +871,7 @@
         $(document).on('change', '.addon-block select', function() {
             // Note: fabric dropdowns have inline onchange="updateFabricPreview" 
             // so we only need to trigger getVariantPrice here
+            autoSelectRemainingAddons();
             getVariantPrice();
             $('.selection-error, .global-addon-error').remove();
             $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');

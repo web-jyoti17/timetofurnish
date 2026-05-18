@@ -1,7 +1,7 @@
 
-(function($) {
+(function ($) {
     "use strict";
-    $(document).ready(function() {
+    $(document).ready(function () {
         if (!$.fn || !$.fn.hummingbird) {
             console.warn(
                 'hummingbird-treeview plugin is not available. Check script load order: jQuery must load before hummingbird-treeview.js, and avoid including jQuery twice.'
@@ -14,9 +14,9 @@
             'unit_price', 'current_stock', 'product_length', 'product_breadth', 'product_height',
             'discount'
         ];
-        $.each(inputNames, function(index, name) {
-            $('input[name="' + name + '"]').on('input', function() {
-                $(this).val(function(index, value) {
+        $.each(inputNames, function (index, name) {
+            $('input[name="' + name + '"]').on('input', function () {
+                $(this).val(function (index, value) {
                     return value.replace(/[^0-9.]/g, '');
                 });
             });
@@ -38,7 +38,7 @@
         var main_id = $('input[name="main_category_id"]').val() || 0;
 
         function syncMainCategoryId(preferredId = null) {
-            let checked = $('input[name="category_ids[]"]:checked').map(function() {
+            let checked = $('input[name="category_ids[]"]:checked').map(function () {
                 return $(this).val();
             }).get();
 
@@ -67,18 +67,18 @@
         update_sku();
         let initialCategoryIds = [];
 
-$('input[name="category_ids[]"]:checked').each(function () {
+        $('input[name="category_ids[]"]:checked').each(function () {
 
-    initialCategoryIds.push($(this).val());
+            initialCategoryIds.push($(this).val());
 
-});
+        });
 
 
 
         // UPDATE ATTRIBUTES
         function updateAttributes() {
             var categoryIds = [];
-            $('input[name="category_ids[]"]:checked').each(function() {
+            $('input[name="category_ids[]"]:checked').each(function () {
                 categoryIds.push($(this).val());
             });
             if (categoryIds.length > 0) {
@@ -89,14 +89,14 @@ $('input[name="category_ids[]"]:checked').each(function () {
                         category_ids: categoryIds,
                         _token: (typeof AIZ !== 'undefined' && AIZ.data && AIZ.data.csrf) ? AIZ.data.csrf : (formData.csrf || $('meta[name="csrf-token"]').attr('content'))
                     },
-                    success: function(response) {
-                        const currentSelected = $('#choice_attributes').val() || [];
-                        const oldSelected = formData.choiceAttributesOld || [];
+                    success: function (response) {
+                        const currentSelected = ($('#choice_attributes').val() || []).map(String);
+                        const oldSelected = (formData.choiceAttributesOld || []).map(String);
                         $('#choice_attributes').empty();
-                        $.each(response, function(index, attribute) {
+                        $.each(response, function (index, attribute) {
                             let isSelected = currentSelected.includes(attribute.id
                                 .toString()) || oldSelected.includes(attribute
-                                .id.toString());
+                                    .id.toString());
                             let selectedAttr = isSelected ? 'selected' : '';
                             $('#choice_attributes').append(
                                 `<option value="${attribute.id}" ${selectedAttr}>${attribute.name}</option>`
@@ -113,11 +113,11 @@ $('input[name="category_ids[]"]:checked').each(function () {
             }
         }
 
-        $('input[name="category_ids[]"]').on('change', function() {
+        $('input[name="category_ids[]"]').on('change', function () {
             updateAttributes();
             syncMainCategoryId($(this).val());
             let categoryIds = [];
-            $('input[name="category_ids[]"]:checked').each(function() {
+            $('input[name="category_ids[]"]:checked').each(function () {
                 categoryIds.push($(this).val());
             });
         });
@@ -126,10 +126,10 @@ $('input[name="category_ids[]"]:checked').each(function () {
         updateAttributes();
 
         // Attributes change
-        $('#choice_attributes').on('change', function() {
-            $.each($("#choice_attributes option:selected"), function(j, attribute) {
+        $('#choice_attributes').on('change', function () {
+            $.each($("#choice_attributes option:selected"), function (j, attribute) {
                 let flag = false;
-                $('input[name="choice_no[]"]').each(function(i, choice_no) {
+                $('input[name="choice_no[]"]').each(function (i, choice_no) {
                     if ($(attribute).val() == $(choice_no).val()) {
                         flag = true;
                     }
@@ -140,10 +140,10 @@ $('input[name="category_ids[]"]:checked').each(function () {
                 }
             });
             // Remove unselected
-            $('input[name="choice_no[]"]').each(function() {
+            $('input[name="choice_no[]"]').each(function () {
                 let val = $(this).val();
                 let isSelected = false;
-                $("#choice_attributes option:selected").each(function() {
+                $("#choice_attributes option:selected").each(function () {
                     if ($(this).val() == val) isSelected = true;
                 });
                 if (!isSelected) {
@@ -154,13 +154,13 @@ $('input[name="category_ids[]"]:checked').each(function () {
         });
 
         // Colors active toggle
-        $('input[name="colors_active"]').on('change', function() {
+        $('input[name="colors_active"]').on('change', function () {
             $('#colors').prop('disabled', !$(this).is(':checked'));
             AIZ.plugins.bootstrapSelect('refresh');
             update_sku();
         });
 
-        $(document).on("change", ".attribute_choice, #colors", function() {
+        $(document).on("change", ".attribute_choice, #colors", function () {
             update_sku();
         });
 
@@ -174,10 +174,10 @@ $('input[name="category_ids[]"]:checked').each(function () {
                 locale: {
                     format: 'DD-MM-YYYY HH:mm'
                 }
-            }).on('apply.daterangepicker', function(ev, picker) {
+            }).on('apply.daterangepicker', function (ev, picker) {
                 $(this).val(picker.startDate.format('DD-MM-YYYY HH:mm') + ' to ' + picker
                     .endDate.format('DD-MM-YYYY HH:mm'));
-            }).on('cancel.daterangepicker', function() {
+            }).on('cancel.daterangepicker', function () {
                 $(this).val('');
             });
         }
@@ -196,9 +196,9 @@ $('input[name="category_ids[]"]:checked').each(function () {
         //     });
         // }
         // Category Search Implementation
-        $(document).on('keyup', '#category-search', function() {
+        $(document).on('keyup', '#category-search', function () {
             var value = $(this).val().toLowerCase();
-            $("#treeview li").filter(function() {
+            $("#treeview li").filter(function () {
                 var text = $(this).text().toLowerCase();
                 var match = text.indexOf(value) > -1;
                 $(this).toggle(match);
@@ -210,7 +210,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
         });
 
         // Sticky Header Scroll Logic
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function () {
             const header = document.querySelector('.sticky-action-container');
             if (header) {
                 if (window.pageYOffset > 50) {
@@ -222,7 +222,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
         });
 
         // ADDON COLLAPSE
-        $(document).on('click', '.addon-header-clickable', function(e) {
+        $(document).on('click', '.addon-header-clickable', function (e) {
             if ($(e.target).is('input, button, i')) return;
             let block = $(this).closest('.addon-block');
             let body = block.find('.addon-body');
@@ -230,7 +230,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
         });
 
         // SELECT ALL OPTIONS
-        $(document).on('click', '.select-all-options', function() {
+        $(document).on('click', '.select-all-options', function () {
             let block = $(this).closest('.addon-block');
             let options = block.find('.option-toggle');
             let allChecked =
@@ -240,7 +240,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
         });
 
         // OPTION TOGGLE
-        $(document).on('change', '.option-toggle', function() {
+        $(document).on('change', '.option-toggle', function () {
             let row = $(this).closest('.addon-option-row');
             let checked = $(this).is(':checked');
             row.toggleClass('opacity-50', !checked);
@@ -250,7 +250,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
     });
 
     // Global functions
-    window.add_more_customer_choice_option = function(i, name) {
+    window.add_more_customer_choice_option = function (i, name) {
         const formData = $('#product-form-data').data();
         $.ajax({
             headers: {
@@ -261,7 +261,7 @@ $('input[name="category_ids[]"]:checked').each(function () {
             data: {
                 attribute_id: i
             },
-            success: function(data) {
+            success: function (data) {
                 var obj = JSON.parse(data);
                 name = name.trim();
                 $('#customer_choice_options').append('\
@@ -283,13 +283,13 @@ $('input[name="category_ids[]"]:checked').each(function () {
             }
         });
     };
-    window.update_sku = function() {
+    window.update_sku = function () {
         const formData = $('#product-form-data').data();
         $.ajax({
             type: "POST",
             url: formData.skuCombinationRoute,
             data: $('#choice_form').serialize(),
-            success: function(data) {
+            success: function (data) {
                 $('#sku_combination').html(data);
                 AIZ.uploader.previewGenerate();
                 AIZ.plugins.fooTable();
@@ -301,14 +301,14 @@ $('input[name="category_ids[]"]:checked').each(function () {
             }
         });
     };
-    window.delete_row = function(em) {
+    window.delete_row = function (em) {
         $(em).closest('.form-group').remove();
         update_sku();
     };
-    window.delete_variant = function(em) {
+    window.delete_variant = function (em) {
         $(em).closest('.variant').remove();
     };
-    window.toggleDiscount = function() {
+    window.toggleDiscount = function () {
         let boxes = $('.discount-box');
         let discountInput = $('#discountInput');
         let dateRange = $('#date_range');
@@ -335,12 +335,12 @@ function loadCheckoutServices(categoryIds = []) {
         data: {
             category_ids: categoryIds
         },
-        success: function(response) {
+        success: function (response) {
 
             $('#checkout-services-wrapper').html(response);
 
         },
-        error: function(xhr) {
+        error: function (xhr) {
 
             console.log(xhr.responseText);
 

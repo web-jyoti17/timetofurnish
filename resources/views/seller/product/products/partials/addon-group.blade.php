@@ -1,6 +1,13 @@
 @php
     $groupName = $addon['name'] ?? '';
     $options = $addon['options'] ?? [];
+    
+    $isChecked = false;
+    if (old('addons') !== null) {
+        $isChecked = old('addons.'.$index.'.id') !== null;
+    } else {
+        $isChecked = isset($addon['id']);
+    }
 @endphp
 
 <div class="addon-block card border mb-4 shadow-none safdg">
@@ -16,7 +23,7 @@
                            class="group-toggle"
                            name="addons[{{ $index }}][id]"
                            value="{{ $addon['id'] ?? 'new' }}"
-                           {{ isset($addon['id']) ? 'checked' : '' }}>
+                           {{ $isChecked ? 'checked' : '' }}>
 
                     <span></span>
 
@@ -24,7 +31,7 @@
 
                 <input type="text"
                        name="addons[{{ $index }}][name]"
-                       value="{{ $groupName }}"
+                       value="{{ old('addons.'.$index.'.name', $groupName) }}"
                        class="form-control border-0 bg-transparent font-weight-bold group-name p-0"
                        placeholder="Addon Group Name">
 

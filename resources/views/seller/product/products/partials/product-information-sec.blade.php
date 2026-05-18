@@ -61,7 +61,7 @@
                     $tags_string = is_array($tags) ? implode(',', $tags) : $tags;
                 @endphp
                 <input type="text" class="form-control aiz-tag-input" name="tags[]"
-                    value="{{ old('$tags_string ') }}"
+                    value="{{ $tags_string }}"
                     placeholder="{{ translate('Type and hit enter to add a tag') }}">
             </div>
         </div>

@@ -308,13 +308,13 @@
 </style>
 
 @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
 @endif
 {{-- Data container for JS --}}
 <div id="product-form-data" class="d-none" data-base-url="{{ asset('public') }}"
@@ -322,19 +322,19 @@
     data-get-attributes-route="{{ route('get-attributes-by-categories') }}"
     data-add-more-choice-route="{{ route('seller.products.add-more-choice-option') }}"
     data-sku-combination-route="{{ isset($product) && $product->id ? route('seller.products.sku_combination_edit') : route('seller.products.sku_combination') }}"
-    data-old-addons='@json(old('addons', $addons ?? []))' data-existing-addons='@json($addons ?? [])'
-    data-product-id="{{ $product->id ?? '' }}" data-choice-attributes-old='@json(old('choice_attributes', isset($product) && $product->attributes != null ? json_decode($product->attributes) : []))'>
+    data-old-addons='@json(old(' addons', $addons ?? []))' data-existing-addons='@json($addons ?? [])'
+    data-product-id="{{ $product->id ?? '' }}" data-choice-attributes-old='@json(old(' choice_attributes', isset($product) && $product->attributes != null ? json_decode($product->attributes) : []))'>
 </div>
 {{-- {{ dd($addons) }} --}}
 
 <form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form">
     @csrf
     @if (isset($product) && $product->id)
-        <input type="hidden" name="id" value="{{ $product->id }}">
+    <input type="hidden" name="id" value="{{ $product->id }}">
     @endif
 
     @if (isset($method) && $method == 'POST')
-        @method('POST')
+    @method('POST')
     @endif
     <div class="sticky-action-container">
         <div class="container p-0">
@@ -366,7 +366,7 @@
             <div>
                 @include('seller.product.products.partials.product-variation')
                 @include('seller.product.products.partials.scripts.product-variation-script')
-                </div>
+            </div>
 
             <div class="card">
                 <div class="card-header bg-light border-bottom-0 pb-2">
@@ -380,10 +380,10 @@
                     <div id="checkout-services-wrapper" class="row gutters-2">
 
                         @include(
-                            'seller.product.products.partials.checkout-services',
-                            [
-                                'services' => $services ?? collect()
-                            ]
+                        'seller.product.products.partials.checkout-services',
+                        [
+                        'services' => $services ?? collect()
+                        ]
                         )
 
                     </div>
@@ -432,10 +432,10 @@
                     </h6>
                 </div>
                 @php
-                    $selectedCategories = old(
-                        'category_ids',
-                        isset($product) ? $product->categories->pluck('id')->toArray() : [],
-                    );
+                $selectedCategories = old(
+                'category_ids',
+                isset($product) ? $product->categories->pluck('id')->toArray() : [],
+                );
                 @endphp
 
                 <input type="hidden" name="old_categories_string" value="{{ implode(',', $selectedCategories) }}">
@@ -469,15 +469,15 @@
                             data-checkbox-name="category_ids[]">
 
                             @foreach ($categories as $category)
-                                <li id="{{ $category->id }}">
-                                    {{ $category->getTranslation('name') }}
-                                </li>
+                            <li id="{{ $category->id }}">
+                                {{ $category->getTranslation('name') }}
+                            </li>
 
-                                @foreach ($category->childrenCategories as $childCategory)
-                                    @include('backend.product.products.child_category', [
-                                        'child_category' => $childCategory,
-                                    ])
-                                @endforeach
+                            @foreach ($category->childrenCategories as $childCategory)
+                            @include('backend.product.products.child_category', [
+                            'child_category' => $childCategory,
+                            ])
+                            @endforeach
                             @endforeach
 
                         </ul>
@@ -550,25 +550,25 @@
                 </div>
                 <div class="card-body">
                     @foreach (\App\Models\Tax::where('tax_status', 1)->get() as $tax)
-                        <label for="name">
-                            {{ $tax->name }}
-                            <input type="hidden" value="{{ $tax->id }}" name="tax_id[]">
-                        </label>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <input type="number" lang="en" min="0"
-                                    value="{{ is_array(old('tax')) ? old('tax')[$loop->index] ?? ($product->tax ?? 0) : old('tax', $product->tax ?? 0) }}"
-                                    step="0.01" placeholder="{{ translate('Tax') }}" name="tax[]"
-                                    class="form-control" required>
+                    <label for="name">
+                        {{ $tax->name }}
+                        <input type="hidden" value="{{ $tax->id }}" name="tax_id[]">
+                    </label>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input type="number" lang="en" min="0"
+                                value="{{ is_array(old('tax')) ? old('tax')[$loop->index] ?? ($product->tax ?? 0) : old('tax', $product->tax ?? 0) }}"
+                                step="0.01" placeholder="{{ translate('Tax') }}" name="tax[]"
+                                class="form-control" required>
 
-                            </div>
-                            <div class="form-group col-md-6">
-                                <select class="form-control aiz-selectpicker" name="tax_type[]">
-                                    <option value="amount">{{ translate('Flat') }}</option>
-                                    <option value="percent">{{ translate('Percent') }}</option>
-                                </select>
-                            </div>
                         </div>
+                        <div class="form-group col-md-6">
+                            <select class="form-control aiz-selectpicker" name="tax_type[]">
+                                <option value="amount">{{ translate('Flat') }}</option>
+                                <option value="percent">{{ translate('Percent') }}</option>
+                            </select>
+                        </div>
+                    </div>
                     @endforeach
                 </div>
             </div>
@@ -579,13 +579,13 @@
                     </h5>
                     <div>
                         @php
-                            $dimensions_enabled =
-                                (int) old('dimensions_enabled', $product->dimensions_enabled ?? 0) === 1;
+                        $dimensions_enabled =
+                        (int) old('dimensions_enabled', $product->dimensions_enabled ?? 0) === 1;
                         @endphp
                         <!-- Toggle to Show/Hide and Save/Not Save Dimensions -->
                         <label class="mb-0 aiz-switch aiz-switch-success mr-2" title="Enable Dimensions">
                             <input type="checkbox" id="toggle-dimensions" name="dimensions_enabled" value="1"
-                                @checked($dimensions_enabled && $dimensions_enabled == 1)>
+                                @checked($dimensions_enabled && $dimensions_enabled==1)>
 
                             <span></span>
                         </label>
@@ -736,10 +736,10 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $unit_price_enabled = (bool) old(
-                            'unit_price_enabled',
-                            trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
-                        );
+                    $unit_price_enabled = (bool) old(
+                    'unit_price_enabled',
+                    trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
+                    );
                     @endphp
                     <div class="form-group row align-items-center">
                         <label class="col-md-3 col-from-label">
@@ -812,11 +812,11 @@
                         </label>
                         <div class="col-md-9">
                             @php
-                                $discount_enabled = (bool) old(
-                                    'discount_enabled',
-                                    (float) old('discount', $product->discount ?? 0) > 0 ||
-                                        !empty(old('date_range', $product->date_range ?? '')),
-                                );
+                            $discount_enabled = (bool) old(
+                            'discount_enabled',
+                            (float) old('discount', $product->discount ?? 0) > 0 ||
+                            !empty(old('date_range', $product->date_range ?? '')),
+                            );
                             @endphp
                             <input type="text" class="form-control aiz-date-range" name="date_range"
                                 id="date_range" value="{{ old('date_range', $product->date_range ?? '') }}"
@@ -893,8 +893,8 @@
 
     <div class="card">
         @include('seller.product.products.partials.addons', [
-            'addons' => old('addons', $addons ?? []),
-            'oldAddonsJson' => old('addons', $addons ?? [])
+        'addons' => old('addons', $addons ?? []),
+        'oldAddonsJson' => old('addons', $addons ?? [])
         ])
     </div>
 
@@ -934,7 +934,87 @@
     }
 </style>
 @section('script')
-    <script src="{{ static_asset('assets/js/hummingbird-treeview.js') }}"></script>
-    <script src="{{ static_asset('assets/js/product-addon.js') }}"></script>
-    <script src="{{ static_asset('assets/js/seller-product-form.js') }}"></script>
+<!-- Fallback-friendly script loading with sequential guarantee -->
+<script>
+    function loadScriptSequentially(urls, checkSuccess, callback, index = 0) {
+        if (index >= urls.length) {
+            console.error("Failed to load script from any of the sources:", urls);
+            if (callback) callback(false);
+            return;
+        }
+
+        if (checkSuccess && checkSuccess()) {
+            if (callback) callback(true);
+            return;
+        }
+
+        let src = urls[index];
+        let script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.onload = function() {
+            if (!checkSuccess || checkSuccess()) {
+                console.log("Successfully loaded script from: " + src);
+                if (callback) callback(true);
+            } else {
+                console.warn("Script loaded from " + src + " but validation check failed. Trying next...");
+                loadScriptSequentially(urls, checkSuccess, callback, index + 1);
+            }
+        };
+        script.onerror = function() {
+            console.warn("Failed to load script from: " + src + ". Trying next...");
+            loadScriptSequentially(urls, checkSuccess, callback, index + 1);
+        };
+        document.head.appendChild(script);
+    }
+
+    // Initialize script loading once jQuery is ready
+    if (typeof jQuery !== 'undefined') {
+        initProductFormScripts();
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            initProductFormScripts();
+        });
+    }
+
+    function initProductFormScripts() {
+        const hummingbirdUrls = [
+            "{{ static_asset('assets/js/hummingbird-treeview.js') }}",
+            "{{ asset('assets/js/hummingbird-treeview.js') }}",
+            "/assets/js/hummingbird-treeview.js",
+            "{{ static_asset('js/hummingbird-treeview.js') }}",
+            "{{ asset('js/hummingbird-treeview.js') }}",
+            "/js/hummingbird-treeview.js"
+        ];
+
+        const addonUrls = [
+            "{{ static_asset('assets/js/product-addon.js') }}",
+            "{{ asset('assets/js/product-addon.js') }}",
+            "/assets/js/product-addon.js",
+            "{{ static_asset('js/product-addon.js') }}",
+            "{{ asset('js/product-addon.js') }}",
+            "/js/product-addon.js"
+        ];
+
+        const formUrls = [
+            "{{ static_asset('assets/js/seller-product-form.js') }}",
+            "{{ asset('assets/js/seller-product-form.js') }}",
+            "/assets/js/seller-product-form.js",
+            "{{ static_asset('js/seller-product-form.js') }}",
+            "{{ asset('js/seller-product-form.js') }}",
+            "/js/seller-product-form.js"
+        ];
+
+        loadScriptSequentially(hummingbirdUrls, function() {
+            return typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.hummingbird;
+        }, function(success) {
+            loadScriptSequentially(addonUrls, null, function(success) {
+                loadScriptSequentially(formUrls, null, function(success) {
+                    console.log("All custom product form JS files loaded successfully!");
+                    jQuery(document).trigger('seller-scripts-loaded');
+                });
+            });
+        });
+    }
+</script>
 @endsection

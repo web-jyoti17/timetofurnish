@@ -868,9 +868,9 @@
                     @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
                     <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
                 </button>
+            @endif
         </div>
-    @endif
-</div>
+    </div>
 
 
 <!-- Promote Link -->
