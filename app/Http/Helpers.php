@@ -2801,3 +2801,68 @@ if (!function_exists('timezones')) {
         );
     }
 }
+
+if (!function_exists('sync_cart_prices')) {
+    function sync_cart_prices($carts) {
+        foreach ($carts as $cart) {
+            $product = \App\Models\Product::find($cart->product_id);
+            if (!$product) continue;
+
+            $cartItem_addons = !empty($cart->addons) ? json_decode($cart->addons, true) : [];
+            $cartItem_attributes = !empty($cart->attributes) ? json_decode($cart->attributes, true) : [];
+            
+            $attributeNames = [];
+            if (is_array($cartItem_attributes)) {
+                foreach ($cartItem_attributes as $attr) {
+                    if (!empty($attr['attribute_name'])) {
+                        $attributeNames[] = strtolower(trim($attr['attribute_name']));
+                    }
+                }
+            }
+
+            $variation_string = $cart->variation ?? '';
+            $variation_parts = array_map(function($v) {
+                return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
+            }, explode('-', $variation_string));
+
+            $filtered_addons = [];
+            $addon_total = 0;
+
+            if (is_array($cartItem_addons)) {
+                foreach ($cartItem_addons as $addon) {
+                    // Check if redundant
+                    $is_redundant = false;
+                    if (in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames)) {
+                        $is_redundant = true;
+                    }
+                    $addon_value_clean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $addon['name'] ?? ''));
+                    if (!empty($addon_value_clean) && in_array($addon_value_clean, $variation_parts)) {
+                        $is_redundant = true;
+                    }
+
+                    if (!$is_redundant) {
+                        $filtered_addons[] = $addon;
+                        $addon_total += ($addon['price'] ?? 0);
+                    }
+                }
+            }
+
+            $base_product_price = cart_product_price($cart, $product, false, false);
+            
+            // Re-calculate tax if needed
+            $tax = \App\Utility\CartUtility::tax_calculation($product, $base_product_price + $addon_total);
+
+            // Update cart ONLY if values changed
+            $new_price = $base_product_price + $addon_total;
+            $new_addons_json = json_encode($filtered_addons);
+
+            if ($cart->price != $new_price || $cart->addon_price != $addon_total || $cart->addons != $new_addons_json || $cart->tax != $tax) {
+                $cart->price = $new_price;
+                $cart->addon_price = $addon_total;
+                $cart->addons = $new_addons_json;
+                $cart->tax = $tax;
+                $cart->save();
+            }
+        }
+    }
+}

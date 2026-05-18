@@ -37,6 +37,7 @@ class CartController extends Controller
             $carts = ($temp_user_id != null) ? Cart::where('temp_user_id', $temp_user_id)->get() : [];
         }
 
+        sync_cart_prices($carts);
         return view('frontend.view_cart', compact('carts'));
     }
 

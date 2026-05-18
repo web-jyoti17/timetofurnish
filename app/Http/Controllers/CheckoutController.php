@@ -423,6 +423,7 @@ class CheckoutController extends Controller
     public function get_shipping_info(Request $request)
     {
         $carts = Cart::where('user_id', Auth::user()->id)->get();
+        sync_cart_prices($carts);
         //        if (Session::has('cart') && count(Session::get('cart')) > 0) {
         if ($carts && count($carts) > 0) {
             $categories = Category::all();
@@ -440,6 +441,7 @@ class CheckoutController extends Controller
         }
 
         $carts = Cart::where('user_id', Auth::user()->id)->get();
+        sync_cart_prices($carts);
         if ($carts->isEmpty()) {
             flash(translate('Your cart is empty'))->warning();
             return redirect()->route('home');
@@ -470,6 +472,7 @@ class CheckoutController extends Controller
     {
         try {
             $carts = Cart::where('user_id', Auth::id())->get();
+            sync_cart_prices($carts);
 
             if ($carts->isEmpty()) {
                 return back()->with('error', translate('Your cart is empty'));
