@@ -606,6 +606,10 @@
         } else {
             $priceInfo.addClass('d-none').html('');
         }
+
+        if (typeof checkEnableDisableButtons === 'function') {
+            checkEnableDisableButtons();
+        }
     }
 
     function showFabricTooltip(e, imgSrc, fabricName) {
@@ -771,6 +775,59 @@
     }
 
     // ---------------------------------
+    // Dynamic Enable/Disable Action Buttons
+    // ---------------------------------
+    function checkEnableDisableButtons() {
+        let totalAttributesAvailable = $('.variant-dropdown').length;
+        let totalAddonsAvailable = $('.addon-block select').length;
+
+        // Dynamic thresholds based on product specifications
+        let requiredAttributes = Math.min(1, totalAttributesAvailable);
+        let requiredAddons = Math.min(3, totalAddonsAvailable);
+
+        let selectedAttributesCount = 0;
+        $('.variant-dropdown').each(function() {
+            let val = $(this).val();
+            if (val && val !== '') {
+                selectedAttributesCount++;
+            }
+        });
+
+        let selectedAddonsCount = 0;
+        $('.addon-block select').each(function() {
+            let addonId = $(this).data('addonid');
+            let isFabric = $(this).hasClass('fabric-dropdown');
+            if (isFabric) {
+                let fabricVal = $(`input[type="hidden"][name="addons[${addonId}]"]`).val();
+                if (fabricVal && fabricVal !== '') {
+                    selectedAddonsCount++;
+                }
+            } else {
+                let val = $(this).val();
+                if (val && val !== '') {
+                    selectedAddonsCount++;
+                }
+            }
+        });
+
+        let isEligible = (selectedAddonsCount >= requiredAddons && selectedAttributesCount >= requiredAttributes);
+
+        let $basketButtons = $('.add-to-cart');
+        let $buyButtons = $('.buy-now');
+        let $wishlistButtons = $('.wishlist-btn');
+
+        if (isEligible) {
+            $basketButtons.prop('disabled', false).removeClass('btn-disabled-custom');
+            $buyButtons.prop('disabled', false).removeClass('btn-disabled-custom');
+            $wishlistButtons.removeClass('disabled-wishlist');
+        } else {
+            $basketButtons.prop('disabled', true).addClass('btn-disabled-custom');
+            $buyButtons.prop('disabled', true).addClass('btn-disabled-custom');
+            $wishlistButtons.addClass('disabled-wishlist');
+        }
+    }
+
+    // ---------------------------------
     // Initialization & Events
     // ---------------------------------
     $(document).ready(function() {
@@ -838,6 +895,9 @@
             setTimeout(function() {
                 getVariantPrice();
                 validateRequiredSelections(false);
+                if (typeof checkEnableDisableButtons === 'function') {
+                    checkEnableDisableButtons();
+                }
             }, 50);
         });
 
@@ -853,6 +913,9 @@
 
         // Initial Price Refresh
         getVariantPrice();
+        if (typeof checkEnableDisableButtons === 'function') {
+            checkEnableDisableButtons();
+        }
 
         // ---------------------------------
         // Event Listeners
@@ -863,6 +926,9 @@
             updateVariantOptionPrice(this);
             autoSelectRemainingAddons();
             getVariantPrice();
+            if (typeof checkEnableDisableButtons === 'function') {
+                checkEnableDisableButtons();
+            }
             $('.selection-error, .global-addon-error').remove();
             $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
         });
@@ -873,6 +939,9 @@
             // so we only need to trigger getVariantPrice here
             autoSelectRemainingAddons();
             getVariantPrice();
+            if (typeof checkEnableDisableButtons === 'function') {
+                checkEnableDisableButtons();
+            }
             $('.selection-error, .global-addon-error').remove();
             $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
         });
@@ -881,6 +950,9 @@
         $(document).on('click', '.fabric-color-box', function(e) {
             var addonId = $(this).data('addonid');
             selectFabricOption(addonId, this);
+            if (typeof checkEnableDisableButtons === 'function') {
+                checkEnableDisableButtons();
+            }
             $('.selection-error, .global-addon-error').remove();
             $(`.fabric-dropdown[data-addonid="${addonId}"]`).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
         });
