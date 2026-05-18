@@ -2852,15 +2852,20 @@ if (!function_exists('sync_cart_prices')) {
             // Re-calculate tax if needed
             $tax = \App\Utility\CartUtility::tax_calculation($product, $base_product_price + $addon_total);
 
-            // Update cart ONLY if values changed
-            $new_price = $base_product_price + $addon_total;
+            // $cart->price = BASE variant price only; addons stored in addon_price
             $new_addons_json = json_encode($filtered_addons);
 
-            if ($cart->price != $new_price || $cart->addon_price != $addon_total || $cart->addons != $new_addons_json || $cart->tax != $tax) {
-                $cart->price = $new_price;
+            // Update cart ONLY if values have actually changed (use float cast to avoid type mismatches)
+            if (
+                (float)$cart->price       != (float)$base_product_price ||
+                (float)$cart->addon_price != (float)$addon_total         ||
+                $cart->addons             != $new_addons_json            ||
+                (float)$cart->tax         != (float)$tax
+            ) {
+                $cart->price       = $base_product_price;
                 $cart->addon_price = $addon_total;
-                $cart->addons = $new_addons_json;
-                $cart->tax = $tax;
+                $cart->addons      = $new_addons_json;
+                $cart->tax         = $tax;
                 $cart->save();
             }
         }

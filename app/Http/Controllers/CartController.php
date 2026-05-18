@@ -112,10 +112,12 @@ class CartController extends Controller
             $quantity = $cart->quantity + $request['quantity'];
         }
 
+        // Base variant price only (after discount) — addons are stored separately
         $price = CartUtility::get_price($product, $product_stock, $request->quantity);
 
         //shivani  (addon code)
         $addons = [];
+        $addon_total = 0;
 
         if ($request->has('addons')) {
 
@@ -146,17 +148,20 @@ class CartController extends Controller
                 }
             }
 
-            $jsonAddons = json_encode($addons);
             $addon_total = collect($addons)->sum('price');
-            $price += $addon_total;
-            $cart->price = $price;
+            // Store addon data on the cart model — saved by save_cart_data below
             $cart->addon_price = $addon_total;
-            $cart->addons = $jsonAddons;
+            $cart->addons = json_encode($addons);
+        } else {
+            // No addons submitted — clear previous addon data
+            $cart->addon_price = 0;
+            $cart->addons = null;
         }
 
-        //shivani  (addon code)
-        $tax = CartUtility::tax_calculation($product, $price);
+        // Tax is calculated on the combined total (base + addons) for accuracy
+        $tax = CartUtility::tax_calculation($product, $price + $addon_total);
 
+        // save_cart_data saves $price as the BASE price only (addons in addon_price column)
         CartUtility::save_cart_data($cart, $product, $price, $tax, $quantity);
 
 
