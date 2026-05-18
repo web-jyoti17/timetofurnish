@@ -181,13 +181,12 @@
 
             <div class="row">
                 <div class="col-xl-12 col-lg-12">
-                    <div class="row product-main-row gutters-10 flex-column flex-lg-row" style="min-height: 700px; max-height: 700px; margin-bottom: 50px;">
+                    <div class="row product-main-row gutters-10 flex-column flex-lg-row" style="margin-bottom: 50px;">
                         <!-- Product Image Gallery -->
                         <div
                             class="mb-4 col-xl-6 col-lg-6 product-gallery-col sticky-gallery"
-                            id="imageGalleryCol"
-                            style="height: 700px; touch-action: none;">
-                            <div style="height: 100%;">
+                            id="imageGalleryCol">
+                            <div>
                                 @include('frontend.product_details.image_gallery')
                             </div>
                         </div>
@@ -195,9 +194,8 @@
                         <!-- Product Details -->
                         <div
                             class="col-xl-6 col-lg-6 product-details-col scroll-details"
-                            style="height: 700px; overflow-y: auto;overflow-x: hidden;"
                             id="productDetailsCol">
-                            <div style="height: 100%;">
+                            <div>
                                 @include('frontend.product_details.details')
                             </div>
                         </div>
@@ -205,7 +203,30 @@
                 </div>
             </div>
             <style>
-                /* On desktop/tablet: keep two columns, fixed height, scroll details */
+                /* Premium Sticky Gallery & Natural Scrolling Details Layout */
+                @media (min-width: 992px) {
+                    .product-main-row {
+                        min-height: unset !important;
+                        max-height: unset !important;
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: flex-start !important;
+                    }
+                    .product-gallery-col.sticky-gallery {
+                        position: -webkit-sticky !important;
+                        position: sticky !important;
+                        top: 130px !important; /* Elegant offset for header navigation */
+                        z-index: 10;
+                        align-self: flex-start !important;
+                        height: auto !important;
+                    }
+                    .product-details-col.scroll-details {
+                        height: auto !important;
+                        overflow-y: visible !important;
+                        overflow-x: visible !important;
+                    }
+                }
+
                 @media (max-width: 991.98px) {
                     .product-main-row {
                         flex-direction: column !important;
@@ -217,27 +238,20 @@
                         width: 100% !important;
                         max-width: 100% !important;
                         flex: unset !important;
-                        height: 100% !important;
-                        min-height: 0px !important;
-                        max-height: none !important;
+                        height: auto !important;
+                        min-height: unset !important;
+                        max-height: unset !important;
                         overflow: visible !important;
                         position: static !important;
                     }
-                    /* Remove scroll bar on details on mobile and make it full height */
-                    .product-details-col.scroll-details {
-                        height: auto !important;
-                        overflow-y: visible !important;
-                    }
-                    .product-gallery-col {
-                        height: auto !important;
+                }
+
+                @media only screen and (max-width: 1500px) {
+                    .aiz-carousel .slick-arrow {
+                        top: 50% !important;
+                        background: transparent !important;
                     }
                 }
-				@media only screen and (max-width: 1500px) {
-                        .aiz-carousel .slick-arrow {
-                            top: 50%!important;
-                            background: transparent !important;
-                        }
-                    }
             </style>
 
             <div class="row">
@@ -248,66 +262,6 @@
 
         </div>
     </div>
-    <style>
-        @media only screen and (min-width: 768px) and (max-width: 1800px) {
-            .product-details-col.scroll-details {
-                height: 700px !important;
-                overflow-y: auto !important;
-                overflow-x: visible;
-            }
-        }
-
-        @media only screen and (max-width: 991.98px) {
-        /* Both columns same height and image gallery is sticky (does not scroll with details) */
-        .product-main-row {
-            min-height: 700px;
-            max-height: 700px;
-        }
-
-        }
-        @media (max-width: 991.98px) {
-            .product-gallery-col,
-            .product-details-col {
-                position: static !important;
-                height: unset !important;
-                overflow: visible !important;
-            }
-            .product-main-row {
-                min-height: unset !important;
-                max-height: unset !important;
-            }
-        }
-    </style>
-    <script>
-        // Synchronize scroll:
-        // When user tries to scroll the image gallery column,
-        // let the product-details area scroll only after gallery reaches its end (but since gallery is non-scrollable/sticky, use wheel-over-gallery to scroll product-details)
-        (function() {
-            const imageCol = document.getElementById('imageGalleryCol');
-            const detailsCol = document.getElementById('productDetailsCol');
-            if (!imageCol || !detailsCol) return;
-
-            imageCol.addEventListener('wheel', function(e) {
-                // Only work on desktop (not on mobile, where both columns are stacked)
-                if (window.innerWidth > 991) {
-                    // Get scrollable details div and its values
-                    const d = detailsCol;
-                    let delta = e.deltaY;
-                    let atTop = d.scrollTop === 0;
-                    let atBottom = (d.scrollHeight - d.scrollTop - d.clientHeight) <= 1;
-                    // Scroll details if not at end/top (depending on scroll direction)
-                    if (
-                        (delta > 0 && !atBottom) ||
-                        (delta < 0 && !atTop)
-                    ) {
-                        e.preventDefault();
-                        d.scrollTop += delta;
-                    }
-                }
-                // Otherwise, allow normal default (mobile)
-            }, {passive: false});
-        })();
-    </script>
 </section>
 
     <section class="mb-4">

@@ -822,16 +822,16 @@ $rtl = get_session_language()->rtl;
                         data.digital === 0
                     ) {
 
-                        $('.buy-now,.add-to-cart')
-                            .addClass('d-none');
+                        // $('.buy-now,.add-to-cart')
+                        //     .addClass('d-none');
 
                         $('.out-of-stock')
                             .removeClass('d-none');
 
                     } else {
 
-                        $('.buy-now,.add-to-cart')
-                            .removeClass('d-none');
+                        // $('.buy-now,.add-to-cart')
+                        //     .removeClass('d-none');
 
                         $('.out-of-stock')
                             .addClass('d-none');
