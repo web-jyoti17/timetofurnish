@@ -11,457 +11,473 @@
         }
     </style>
     @if ($carts && count($carts) > 0)
-        <div class="row justify-content-center">
-            <div class="col-xxl-12 col-xl-10">
-                <div class="border shadow-sm p-3 p-lg-4 bg-white maincontainer">
-                    <div class="mb-4">
-                        <!-- Headers for desktop -->
-                        <div
-                            class="row d-none d-lg-flex border-bottom bg-cart-header text-white fs-14 py-3 px-2 rounded-2">
-                            <div class="col-md-1 fw-bold">#</div>
-                            <div class="col-md-4 fw-bold">{{ translate('Product') }}</div>
-                            <div class="col-md-2 fw-bold">{{ translate('Price') }}</div>
-                            <div class="col-md-2 fw-bold">{{ translate('Quantity') }}</div>
-                            <div class="col-md-2 fw-bold">{{ translate('Total') }}</div>
-                            <div class="col-md-1 fw-bold text-end">{{ translate('Remove') }}</div>
-                        </div>
+    <div class="row justify-content-center">
+        <div class="col-xxl-12 col-xl-10">
+            <div class="border shadow-sm p-3 p-lg-4 bg-white maincontainer">
+                <div class="mb-4">
+                    <!-- Headers for desktop -->
+                    <div
+                        class="row d-none d-lg-flex border-bottom bg-cart-header text-white fs-14 py-3 px-2 rounded-2">
+                        <div class="col-md-1 fw-bold">#</div>
+                        <div class="col-md-4 fw-bold">{{ translate('Product') }}</div>
+                        <div class="col-md-2 fw-bold">{{ translate('Price') }}</div>
+                        <div class="col-md-2 fw-bold">{{ translate('Quantity') }}</div>
+                        <div class="col-md-2 fw-bold">{{ translate('Total') }}</div>
+                        <div class="col-md-1 fw-bold text-end">{{ translate('Remove') }}</div>
+                    </div>
 
-                        <!-- Cart Items (responsive) -->
-                        <ul class="list-group list-group-flush px-0 cart-list-responsive">
-                            @php
-                                $total = 0;
-                                $i = 1;
-                            @endphp
-                            @foreach ($carts as $key => $cartItem)
-                                @php
-                                    $product = get_single_product($cartItem['product_id']);
-                                    $product_stock = $product->stocks
-                                        ->where('variant', $cartItem['variation'])
-                                        ->first();
-                                    $product_name_with_choice = $product->getTranslation('name');
-                                    if ($cartItem['variation'] != null) {
-                                        $product_name_with_choice =
-                                            $product->getTranslation('name') . ' - ' . $cartItem['variation'];
-                                    }
-                                    $total_addon = $cartItem['addon_price'] * $cartItem['quantity'];
-                                    // Attribute price calculation
-                                    $attribute_price = 0;
-                                    $cartItem_attributes = [];
-                                    if (!empty($cartItem->attributes)) {
-                                        $cartItem_attributes = json_decode($cartItem->attributes, true);
-                                        if (is_array($cartItem_attributes)) {
-                                            foreach ($cartItem_attributes as $att) {
-                                                if (isset($att['price'])) {
-                                                    $attribute_price += floatval($att['price']);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    $total +=
-                                        (cart_product_price($cartItem, $product, false) + $attribute_price) *
-                                        $cartItem['quantity'];
-                                    $total += $total_addon;
-                                    $cartItem_addons = [];
-                                    if (!empty($cartItem->addons)) {
-                                        $cartItem_addons = json_decode($cartItem->addons, true);
-                                    }
-                                @endphp
+                    <!-- Cart Items (responsive) -->
+                    <ul class="list-group list-group-flush px-0 cart-list-responsive">
+                        @php
+                        $total = 0;
+                        $i = 1;
+                        @endphp
+                        @foreach ($carts as $key => $cartItem)
+                        @php
+                        $product = get_single_product($cartItem['product_id']);
+                        $product_stock = $product->stocks
+                        ->where('variant', $cartItem['variation'])
+                        ->first();
+                        $product_name_with_choice = $product->getTranslation('name');
+                        if ($cartItem['variation'] != null) {
+                        $product_name_with_choice =
+                        $product->getTranslation('name') . ' - ' . $cartItem['variation'];
+                        }
+                        $total_addon = $cartItem['addon_price'] * $cartItem['quantity'];
+                        // Attribute price calculation
+                        $attribute_price = 0;
+                        $cartItem_attributes = [];
+                        if (!empty($cartItem->attributes)) {
+                        $cartItem_attributes = json_decode($cartItem->attributes, true);
+                        if (is_array($cartItem_attributes)) {
+                        foreach ($cartItem_attributes as $att) {
+                        if (isset($att['price'])) {
+                        $attribute_price += floatval($att['price']);
+                        }
+                        }
+                        }
+                        }
+                        $cartItem_addons = [];
+                        if (!empty($cartItem->addons)) {
+                        $cartItem_addons = json_decode($cartItem->addons, true);
+                        }
 
-                                <!-- Responsive Cart row -->
-                                <li class="list-group-item p-0 cart-item-row position-relative border-0 border-bottom">
-                                    <div class="row gx-2 align-items-start d-none d-lg-flex mt-5">
-                                        <!-- Item # -->
-                                        <div class="col-1 d-flex justify-content-center align-items-start fw-bold">
-                                            {{ $i }}</div>
+                        $has_unit_price = !empty($product->unit_price) && floatval($product->unit_price) > 0;
 
-                                        <!-- Product Image & Name -->
-                                        <div
-                                            class="col-lg-4 d-flex align-items-start mb-2 mb-lg-0 flex-column min-w-0 product-col">
-                                            <!-- Image on top -->
-                                            <div class="w-100 mb-2">
-                                                <img src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                    class="img-fit rounded w-50" style="height:100px;object-fit:cover;"
-                                                    alt="{{ $product->getTranslation('name') }}"
-                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                            </div>
+                        $base_price = 0;
+                        if ($has_unit_price) {
+                            $base_price = cart_product_price($cartItem, $product, false);
+                        }
 
-                                            <!-- Name below image -->
-                                            <div class="w-100">
-                                                <span
-                                                    class="fs-16 fw-bold d-block product-name-text">{{ $product_name_with_choice }}</span>
-                                            </div>
+                        $total += ($base_price + $attribute_price) * $cartItem['quantity'];
+                        $total += $total_addon;
+                        @endphp
+
+                        <!-- Responsive Cart row -->
+                        <li class="list-group-item p-0 cart-item-row position-relative border-0 border-bottom">
+                            <div class="row gx-2 align-items-start d-none d-lg-flex mt-5 ftghjkgfdfghj">
+                                <!-- Item # -->
+                                <div class="col-1 d-flex justify-content-center align-items-start fw-bold">
+                                    {{ $i }}
+                                </div>
+
+                                <!-- Product Image & Name -->
+                                <div
+                                    class="col-lg-4 d-flex align-items-start mb-2 mb-lg-0 flex-column min-w-0 product-col">
+                                    <!-- Image on top -->
+                                    <div class="w-100 mb-2">
+                                        <img src="{{ uploaded_asset($product->thumbnail_img) }}"
+                                            class="img-fit rounded w-50" style="height:100px;object-fit:cover;"
+                                            alt="{{ $product->getTranslation('name') }}"
+                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                    </div>
+
+                                    <!-- Name below image -->
+                                    <div class="w-100">
+                                        <span
+                                            class="fs-16 fw-bold d-block product-name-text">{{ $product_name_with_choice }}</span>
+                                    </div>
 
 
-                                            <!-- Selected Attributes -->
-                                            @if (!empty($cartItem_attributes) && count($cartItem_attributes) > 0)
-                                                <div class="attribute-details mt-2 w-100">
-                                                    @foreach ($cartItem_attributes as $attribute)
-                                                        <div class="attribute-item text-primary"
-                                                            style="font-size: 13px;">
-                                                            <strong>
-                                                                {{ $attribute['attribute_name'] ?? '' }}
-                                                                @if (!empty($attribute['option_name']))
-                                                                    : {{ $attribute['option_name'] }}
-                                                                @endif
-                                                            </strong>
-                                                            @if (isset($attribute['price']) && $attribute['price'] > 0)
-                                                                (<span class="text-dark">+
-                                                                    £{{ number_format($attribute['price'], 2) }}</span>)
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                                    <!-- Selected Attributes -->
+                                    @if (!empty($cartItem_attributes) && count($cartItem_attributes) > 0)
+                                    <div class="attribute-details mt-2 w-100">
+                                        @foreach ($cartItem_attributes as $attribute)
+                                        <div class="attribute-item text-primary"
+                                            style="font-size: 13px;">
+                                            <strong>
+                                                {{ $attribute['attribute_name'] ?? '' }}
+                                                @if (!empty($attribute['option_name']))
+                                                : {{ $attribute['option_name'] }}
+                                                @endif
+                                            </strong>
+                                            @if (isset($attribute['price']) && $attribute['price'] > 0)
+                                            (<span class="text-dark">+
+                                                £{{ number_format($attribute['price'], 2) }}</span>)
                                             @endif
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @endif
 
-                                            <!-- Addons -->
-                                            @if (count($cartItem_addons) > 0)
-                                                <!-- Toggle Button -->
-                                                <button
-                                                    class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center w-100"
-                                                    type="button" data-toggle="collapse"
-                                                    data-target="#addonCollapseDesktop{{ $cartItem['id'] }}"
-                                                    aria-expanded="false"
-                                                    aria-controls="addonCollapseDesktop{{ $cartItem['id'] }}">
-                                                    <i class="las la-plus-circle me-1"></i>
-                                                    <span class="flex-grow-1 text-left">{{ translate('View Addons') }}
-                                                        ({{ count($cartItem_addons) }})</span>
-                                                    <i class="las la-angle-down addon-arrow"></i>
-                                                </button>
+                                    <!-- Addons -->
+                                    @if (count($cartItem_addons) > 0)
+                                    <!-- Toggle Button -->
+                                    <button
+                                        class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center w-100"
+                                        type="button" data-toggle="collapse"
+                                        data-target="#addonCollapseDesktop{{ $cartItem['id'] }}"
+                                        aria-expanded="false"
+                                        aria-controls="addonCollapseDesktop{{ $cartItem['id'] }}">
+                                        <i class="las la-plus-circle me-1"></i>
+                                        <span class="flex-grow-1 text-left">{{ translate('View Addons') }}
+                                            ({{ count($cartItem_addons) }})</span>
+                                        <i class="las la-angle-down addon-arrow"></i>
+                                    </button>
 
-                                                <!-- Collapse Addons -->
-                                                <div class="collapse mt-2 w-100"
-                                                    id="addonCollapseDesktop{{ $cartItem['id'] }}">
-                                                    <div class="addon-details d-flex flex-column gap-1 px-2 py-2">
-                                                        <div class="fw-bold fs-13 mb-1 text-uppercase addon-header">
+                                    <!-- Collapse Addons -->
+                                    <div class="collapse mt-2 w-100"
+                                        id="addonCollapseDesktop{{ $cartItem['id'] }}">
+                                        <div class="addon-details d-flex flex-column gap-1 px-2 py-2">
+                                            <div class="fw-bold fs-13 mb-1 text-uppercase addon-header">
+                                                {{ translate('Addons Selected') }}
+                                            </div>
+
+                                            @foreach ($cartItem_addons as $addon)
+                                            <table
+                                                class="table table-borderless table-sm addon-table mb-0">
+                                                <tr class="addon-item align-middle">
+                                                    <td style="width:32px;"
+                                                        class="text-center p-0 align-middle">
+                                                        <span class="addon-icon">
+                                                            <i class="las la-check-circle"></i>
+                                                        </span>
+                                                    </td>
+                                                    <td
+                                                        class="addon-name-text fw-600 text-dark align-middle">
+                                                        {{ $addon['addon_name'] ?? '' }}
+                                                        @if (isset($addon['name']))
+                                                        <span
+                                                            class="mx-2 text-secondary addon-separator">|</span>
+                                                        {{ $addon['name'] ?? '' }}
+                                                        @endif
+                                                    </td>
+                                                    <td style="width:60px;"
+                                                        class="addon-price-text align-middle text-end">
+                                                        @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                        <span class="ms-2 text-dark">
+                                                            +£{{ number_format($addon['price'], 2) }}
+                                                        </span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-lg-2 mb-2 mb-lg-0">
+                                    @php
+                                    $unit_attribute_price = $attribute_price;
+                                    $price_for_display = $base_price;
+                                    @endphp
+                                    @if($has_unit_price)
+                                        <span class="fw-700 fs-14">{{ single_price($price_for_display) }}</span>
+                                    @else
+                                        <span class="fw-700 fs-14">—</span>
+                                    @endif
+                                </div>
+
+                                <!-- Quantity -->
+                                <div class="col-lg-2 d-flex align-items-center justify-content-center">
+                                    @if ($cartItem['digital'] != 1 && $product->auction_product == 0)
+                                    <div class="quantity-group" style="max-width:110px;">
+                                        <div class="d-flex flex-wrap input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary border-0 px-2"
+                                                type="button" data-type="minus"
+                                                onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'minus')"
+                                                style="background:#f3f3f5; color:#555;"
+                                                @if ($cartItem['quantity'] <=1) disabled @endif>
+                                                <i class="las la-minus"></i>
+                                            </button>
+                                            <input type="number" name="quantity[{{ $cartItem['id'] }}]"
+                                                class="form-control text-center fw-bold fs-15 border-0 p-0 cart-qty-input"
+                                                value="{{ $cartItem['quantity'] }}"
+                                                min="{{ $product->min_qty }}"
+                                                max="{{ $product_stock->qty ?? 1 }}"
+                                                onchange="updateQuantity({{ $cartItem['id'] }}, this)"
+                                                style="max-width:46px;height:32px;">
+                                            <button class="btn btn-outline-secondary border-0 px-2"
+                                                type="button" data-type="plus"
+                                                onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'plus')"
+                                                style="background:#f3f3f5; color:#555;"
+                                                @if ($cartItem['quantity']>= ($product_stock->qty ?? 1)) disabled @endif>
+                                                <i class="las la-plus"></i>
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <div class="text-danger fs-10 ms-2 mt-2">
+                                                {{ translate('Only 1 item left in stock. More coming soon!') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @elseif($product->auction_product == 1)
+                                    <span class="fw-700 fs-15">1</span>
+                                    @endif
+                                </div>
+
+                                <!-- Total -->
+                                <div class="col-lg-2  mb-2 mb-lg-0">
+                                    <span class="fw-700 fs-16 text-primary">
+                                        {{ single_price(($base_price + $unit_attribute_price) * $cartItem['quantity'] + $total_addon) }}
+                                    </span>
+                                </div>
+
+                                <!-- Remove -->
+                                <div class="col-lg-1 ">
+                                    <a href="javascript:void(0)"
+                                        onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
+                                        class="btn btn-outline-danger btn-sm rounded-circle confirm-delete"
+                                        style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="las la-trash fs-16"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Mobile view -->
+                            <div class="d-block d-lg-none">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <div class="fw-bold fs-18 border-bottom pb-2 mb-2">{{ 'Product Name' }}
+                                        </div>
+                                        <div class="d-flex align-items-start min-w-0">
+                                            <img src="{{ uploaded_asset($product->thumbnail_img) }}"
+                                                class="img-fit rounded my-2 flex-shrink-0"
+                                                style="width:120px;height:70px;object-fit:cover;"
+                                                alt="{{ $product->getTranslation('name') }}"
+                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                            <div class="flex-grow-1 min-w-0 ml-2">
+                                                <span
+                                                    class="fs-18 fw-bold d-block product-name-text">{{ $product_name_with_choice }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Selected Attributes -->
+                                        @if (!empty($cartItem_attributes) && count($cartItem_attributes) > 0)
+                                        <div class="attribute-details mt-1">
+                                            @foreach ($cartItem_attributes as $attribute)
+                                            <div class="attribute-item text-primary"
+                                                style="font-size: 13px;">
+                                                <strong>
+                                                    {{ $attribute['attribute_name'] ?? '' }}
+                                                    @if (!empty($attribute['option_name']))
+                                                    : {{ $attribute['option_name'] }}
+                                                    @endif
+                                                </strong>
+                                                @if (isset($attribute['price']) && $attribute['price'] > 0)
+                                                (<span class="text-dark">+
+                                                    £{{ number_format($attribute['price'], 2) }}</span>)
+                                                @endif
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        @endif
+
+                                        <!-- Addons -->
+                                        @if (count($cartItem_addons) > 0)
+                                        <button
+                                            class="btn btn-sm mt-2 addon-toggle-btn w-100 d-flex align-items-center"
+                                            type="button" data-toggle="collapse"
+                                            data-target="#addonCollapseMobile{{ $cartItem['id'] }}"
+                                            aria-expanded="false"
+                                            aria-controls="addonCollapseMobile{{ $cartItem['id'] }}">
+                                            <i class="las la-plus-circle me-1"></i>
+                                            <span
+                                                class="flex-grow-1 text-left">{{ translate('View Addons') }}
+                                                ({{ count($cartItem_addons) }})</span>
+                                            <i class="las la-angle-down addon-arrow"></i>
+                                        </button>
+
+                                        <div class="collapse mt-2"
+                                            id="addonCollapseMobile{{ $cartItem['id'] }}">
+                                            <div
+                                                class="addon-details d-flex flex-column gap-1 mt-2 px-2 py-2">
+                                                <table class="table table-sm mb-1 addon-table w-100">
+                                                    <tr>
+                                                        <th class="fw-600  addon-name-text addon-header"
+                                                            style="width:80%">
                                                             {{ translate('Addons Selected') }}
-                                                        </div>
-
-                                                        @foreach ($cartItem_addons as $addon)
-                                                            <table
-                                                                class="table table-borderless table-sm addon-table mb-0">
-                                                                <tr class="addon-item align-middle">
-                                                                    <td style="width:32px;"
-                                                                        class="text-center p-0 align-middle">
-                                                                        <span class="addon-icon">
-                                                                            <i class="las la-check-circle"></i>
-                                                                        </span>
-                                                                    </td>
-                                                                    <td
-                                                                        class="addon-name-text fw-600 text-dark align-middle">
-                                                                        {{ $addon['addon_name'] ?? '' }}
-                                                                        @if (isset($addon['name']))
-                                                                            <span
-                                                                                class="mx-2 text-secondary addon-separator">|</span>
-                                                                            {{ $addon['name'] ?? '' }}
-                                                                        @endif
-                                                                    </td>
-                                                                    <td style="width:60px;"
-                                                                        class="addon-price-text align-middle text-end">
-                                                                        @if (isset($addon['price']) && floatval($addon['price']) > 0)
-                                                                            <span class="ms-2 text-dark">
-                                                                                +£{{ number_format($addon['price'], 2) }}
-                                                                            </span>
-                                                                        @endif
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endif
+                                                        </th>
+                                                        <th class="fw-600  addon-price-text addon-header"
+                                                            style="width:20%">
+                                                            {{ translate('Pricing') }}
+                                                        </th>
+                                                    </tr>
+                                                    @foreach ($cartItem_addons as $addon)
+                                                    <tr>
+                                                        <td>
+                                                            {{ $addon['addon_name'] ?? '' }}
+                                                            @if (isset($addon['name']))
+                                                            <span
+                                                                class="mx-2 text-secondary addon-separator">|</span>
+                                                            {{ $addon['name'] ?? '' }}
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                            +£{{ number_format($addon['price'], 2) }}
+                                                            @else
+                                                            <span
+                                                                class="text-success">{{ translate('Free of cost') }}</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </table>
+                                            </div>
                                         </div>
-
-                                        <!-- Price -->
-                                        <div class="col-lg-2 mb-2 mb-lg-0">
-                                            @php
-                                                $base_price = cart_product_price($cartItem, $product, false);
-                                                $unit_attribute_price = $attribute_price;
-                                                $price_for_display = $base_price + $unit_attribute_price;
-                                            @endphp
-                                            <span class="fw-700 fs-14">{{ single_price($price_for_display) }}</span>
-                                        </div>
-
-                                        <!-- Quantity -->
-                                        <div class="col-lg-2 d-flex align-items-center justify-content-center">
-                                            @if ($cartItem['digital'] != 1 && $product->auction_product == 0)
-                                                <div class="quantity-group" style="max-width:110px;">
-                                                    <div class="d-flex flex-wrap input-group input-group-sm">
-                                                        <button class="btn btn-outline-secondary border-0 px-2"
-                                                            type="button" data-type="minus"
-                                                            onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'minus')"
-                                                            style="background:#f3f3f5; color:#555;"
-                                                            @if ($cartItem['quantity'] <= 1) disabled @endif>
-                                                            <i class="las la-minus"></i>
-                                                        </button>
-                                                        <input type="number" name="quantity[{{ $cartItem['id'] }}]"
-                                                            class="form-control text-center fw-bold fs-15 border-0 p-0 cart-qty-input"
-                                                            value="{{ $cartItem['quantity'] }}"
-                                                            min="{{ $product->min_qty }}"
-                                                            max="{{ $product_stock->qty ?? 1 }}"
-                                                            onchange="updateQuantity({{ $cartItem['id'] }}, this)"
-                                                            style="max-width:46px;height:32px;">
-                                                        <button class="btn btn-outline-secondary border-0 px-2"
-                                                            type="button" data-type="plus"
-                                                            onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'plus')"
-                                                            style="background:#f3f3f5; color:#555;"
-                                                            @if ($cartItem['quantity'] >= ($product_stock->qty ?? 1)) disabled @endif>
-                                                            <i class="las la-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                    <div>
-                                                        <div class="text-danger fs-10 ms-2 mt-2">
-                                                            {{ translate('Only 1 item left in stock. More coming soon!') }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @elseif($product->auction_product == 1)
-                                                <span class="fw-700 fs-15">1</span>
-                                            @endif
-                                        </div>
-
-                                        <!-- Total -->
-                                        <div class="col-lg-2  mb-2 mb-lg-0">
-                                            <span class="fw-700 fs-16 text-primary">
-                                                {{ single_price(($base_price + $unit_attribute_price) * $cartItem['quantity'] + $total_addon) }}
-                                            </span>
-                                        </div>
-
-                                        <!-- Remove -->
-                                        <div class="col-lg-1 ">
-                                            <a href="javascript:void(0)"
-                                                onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
-                                                class="btn btn-outline-danger btn-sm rounded-circle confirm-delete"
-                                                style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">
-                                                <i class="las la-trash fs-16"></i>
-                                            </a>
-                                        </div>
+                                        @endif
                                     </div>
+                                </div>
 
-                                    <!-- Mobile view -->
-                                    <div class="d-block d-lg-none">
-                                        <div class="row mb-2">
-                                            <div class="col-12">
-                                                <div class="fw-bold fs-18 border-bottom pb-2 mb-2">{{ 'Product Name' }}
-                                                </div>
-                                                <div class="d-flex align-items-start min-w-0">
-                                                    <img src="{{ uploaded_asset($product->thumbnail_img) }}"
-                                                        class="img-fit rounded my-2 flex-shrink-0"
-                                                        style="width:120px;height:70px;object-fit:cover;"
-                                                        alt="{{ $product->getTranslation('name') }}"
-                                                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                                    <div class="flex-grow-1 min-w-0 ml-2">
-                                                        <span
-                                                            class="fs-18 fw-bold d-block product-name-text">{{ $product_name_with_choice }}</span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Selected Attributes -->
-                                                @if (!empty($cartItem_attributes) && count($cartItem_attributes) > 0)
-                                                    <div class="attribute-details mt-1">
-                                                        @foreach ($cartItem_attributes as $attribute)
-                                                            <div class="attribute-item text-primary"
-                                                                style="font-size: 13px;">
-                                                                <strong>
-                                                                    {{ $attribute['attribute_name'] ?? '' }}
-                                                                    @if (!empty($attribute['option_name']))
-                                                                        : {{ $attribute['option_name'] }}
-                                                                    @endif
-                                                                </strong>
-                                                                @if (isset($attribute['price']) && $attribute['price'] > 0)
-                                                                    (<span class="text-dark">+
-                                                                        £{{ number_format($attribute['price'], 2) }}</span>)
-                                                                @endif
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-
-                                                <!-- Addons -->
-                                                @if (count($cartItem_addons) > 0)
-                                                    <button
-                                                        class="btn btn-sm mt-2 addon-toggle-btn w-100 d-flex align-items-center"
-                                                        type="button" data-toggle="collapse"
-                                                        data-target="#addonCollapseMobile{{ $cartItem['id'] }}"
-                                                        aria-expanded="false"
-                                                        aria-controls="addonCollapseMobile{{ $cartItem['id'] }}">
-                                                        <i class="las la-plus-circle me-1"></i>
-                                                        <span
-                                                            class="flex-grow-1 text-left">{{ translate('View Addons') }}
-                                                            ({{ count($cartItem_addons) }})</span>
-                                                        <i class="las la-angle-down addon-arrow"></i>
-                                                    </button>
-
-                                                    <div class="collapse mt-2"
-                                                        id="addonCollapseMobile{{ $cartItem['id'] }}">
-                                                        <div
-                                                            class="addon-details d-flex flex-column gap-1 mt-2 px-2 py-2">
-                                                            <table class="table table-sm mb-1 addon-table w-100">
-                                                                <tr>
-                                                                    <th class="fw-600  addon-name-text addon-header"
-                                                                        style="width:80%">
-                                                                        {{ translate('Addons Selected') }}
-                                                                    </th>
-                                                                    <th class="fw-600  addon-price-text addon-header"
-                                                                        style="width:20%">
-                                                                        {{ translate('Pricing') }}
-                                                                    </th>
-                                                                </tr>
-                                                                @foreach ($cartItem_addons as $addon)
-                                                                    <tr>
-                                                                        <td>
-                                                                            {{ $addon['addon_name'] ?? '' }}
-                                                                            @if (isset($addon['name']))
-                                                                                <span
-                                                                                    class="mx-2 text-secondary addon-separator">|</span>
-                                                                                {{ $addon['name'] ?? '' }}
-                                                                            @endif
-                                                                        </td>
-                                                                        <td>
-                                                                            @if (isset($addon['price']) && floatval($addon['price']) > 0)
-                                                                                +£{{ number_format($addon['price'], 2) }}
-                                                                            @else
-                                                                                <span
-                                                                                    class="text-success">{{ translate('Free of cost') }}</span>
-                                                                            @endif
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
+                                <div class="row mb-2 align-items-center">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
+                                        <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
+                                            {{ translate('Price') }}
                                         </div>
-
-                                        <div class="row mb-2 align-items-center">
-                                            <div
-                                                class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
-                                                <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
-                                                    {{ translate('Price') }}</div>
-                                                <span
-                                                    class="fw-700 fs-14">{{ single_price($base_price + $attribute_price) }}</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-2 align-items-center">
-                                            <div
-                                                class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
-                                                <div class="fw-bold">{{ translate('Quantity') }}</div>
-                                                @if ($cartItem['digital'] != 1 && $product->auction_product == 0)
-                                                    <div class="quantity-group" style="max-width:110px;">
-                                                        <div class="d-flex flex-wrap input-group input-group-sm">
-                                                            <button class="btn btn-outline-secondary border-0 px-2"
-                                                                type="button" data-type="minus"
-                                                                onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'minus')"
-                                                                style="background:#f3f3f5; color:#555;"
-                                                                @if ($cartItem['quantity'] <= 1) disabled @endif>
-                                                                <i class="las la-minus"></i>
-                                                            </button>
-                                                            <input type="number"
-                                                                name="quantity[{{ $cartItem['id'] }}]"
-                                                                class="form-control text-center fw-bold fs-15 border-0 p-0 cart-qty-input"
-                                                                value="{{ $cartItem['quantity'] }}"
-                                                                min="{{ $product->min_qty }}"
-                                                                max="{{ $product_stock->qty ?? 1 }}"
-                                                                onchange="updateQuantity({{ $cartItem['id'] }}, this)"
-                                                                style="max-width:46px;height:32px;">
-                                                            <button class="btn btn-outline-secondary border-0 px-2"
-                                                                type="button" data-type="plus"
-                                                                onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'plus')"
-                                                                style="background:#f3f3f5; color:#555;"
-                                                                @if ($cartItem['quantity'] >= ($product_stock->qty ?? 1)) disabled @endif>
-                                                                <i class="las la-plus"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div>
-                                                            <div class="text-danger fs-10 ms-2 mt-2">
-                                                                {{ translate('Only 1 item left in stock. More coming soon!') }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @elseif($product->auction_product == 1)
-                                                    <span class="fw-700 fs-15">1</span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-2 align-items-center">
-                                            <div
-                                                class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
-                                                <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
-                                                    {{ translate('Total') }}</div>
-                                                <span class="fw-700 fs-16 text-primary">
-                                                    {{ single_price(($base_price + $attribute_price) * $cartItem['quantity'] + $total_addon) }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div class="row align-items-center">
-                                            <div
-                                                class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
-                                                <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
-                                                    {{ translate('Remove') }}</div>
-                                                <a href="javascript:void(0)"
-                                                    onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
-                                                    class="btn btn-outline-danger btn-sm rounded-circle confirm-delete"
-                                                    style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">
-                                                    <i class="las la-trash fs-16"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-
+                                        @if($has_unit_price)
+                                            <span class="fw-700 fs-14">{{ single_price($base_price) }}</span>
+                                        @else
+                                            <span class="fw-700 fs-14">—</span>
+                                        @endif
                                     </div>
-                                </li>
-                                @php $i++; @endphp
-                            @endforeach
-                        </ul>
-                    </div>
+                                </div>
 
-                    <!-- Subtotal -->
-                    <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center">
-                        <span class="opacity-70 fs-14 text-black">{{ translate('Subtotal') }}</span>
-                        <span style="font-weight: 700;" class="fs-20 text-dark">{{ single_price($total) }}</span>
-                    </div>
+                                <div class="row mb-2 align-items-center">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
+                                        <div class="fw-bold">{{ translate('Quantity') }}</div>
+                                        @if ($cartItem['digital'] != 1 && $product->auction_product == 0)
+                                        <div class="quantity-group" style="max-width:110px;">
+                                            <div class="d-flex flex-wrap input-group input-group-sm">
+                                                <button class="btn btn-outline-secondary border-0 px-2"
+                                                    type="button" data-type="minus"
+                                                    onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'minus')"
+                                                    style="background:#f3f3f5; color:#555;"
+                                                    @if ($cartItem['quantity'] <=1) disabled @endif>
+                                                    <i class="las la-minus"></i>
+                                                </button>
+                                                <input type="number"
+                                                    name="quantity[{{ $cartItem['id'] }}]"
+                                                    class="form-control text-center fw-bold fs-15 border-0 p-0 cart-qty-input"
+                                                    value="{{ $cartItem['quantity'] }}"
+                                                    min="{{ $product->min_qty }}"
+                                                    max="{{ $product_stock->qty ?? 1 }}"
+                                                    onchange="updateQuantity({{ $cartItem['id'] }}, this)"
+                                                    style="max-width:46px;height:32px;">
+                                                <button class="btn btn-outline-secondary border-0 px-2"
+                                                    type="button" data-type="plus"
+                                                    onclick="handleCartQuantity(this, {{ $cartItem['id'] }}, 'plus')"
+                                                    style="background:#f3f3f5; color:#555;"
+                                                    @if ($cartItem['quantity']>= ($product_stock->qty ?? 1)) disabled @endif>
+                                                    <i class="las la-plus"></i>
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <div class="text-danger fs-10 ms-2 mt-2">
+                                                    {{ translate('Only 1 item left in stock. More coming soon!') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @elseif($product->auction_product == 1)
+                                        <span class="fw-700 fs-15">1</span>
+                                        @endif
+                                    </div>
+                                </div>
 
-                    <div class="row g-2">
-                        <!-- Return to shop -->
-                        <div class="col-12 col-md-6 mb-2 mb-md-0">
-                            <a href="{{ route('home') }}"
-                                class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design filled">
-                                <i class="las la-arrow-left fs-17"></i>
-                                {{ translate('Return to shop') }}
-                            </a>
-                        </div>
-                        <!-- Continue to Shipping -->
-                        <div class="col-12 col-md-6 text-center text-md-right">
-                            @if (Auth::check())
-                                <a href="{{ route('checkout.shipping_info') }}"
-                                    class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
-                                    {{ 'Complete Order' }}
-                                </a>
-                            @else
-                                <button onclick="showLoginModal()"
-                                    class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
-                                    {{ 'Complete Order' }}
-                                </button>
-                            @endif
-                        </div>
+                                <div class="row mb-2 align-items-center">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
+                                        <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
+                                            {{ translate('Total') }}
+                                        </div>
+                                        <span class="fw-700 fs-16 text-primary">
+                                            {{ single_price(($base_price + $attribute_price) * $cartItem['quantity'] + $total_addon) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="row align-items-center">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center flex-wrap custom_cart_design_css">
+                                        <div class="fw-bold fs-14 border-bottom pb-2 mb-2">
+                                            {{ translate('Remove') }}
+                                        </div>
+                                        <a href="javascript:void(0)"
+                                            onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
+                                            class="btn btn-outline-danger btn-sm rounded-circle confirm-delete"
+                                            style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">
+                                            <i class="las la-trash fs-16"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </li>
+                        @php $i++; @endphp
+                        @endforeach
+                    </ul>
+                </div>
+
+                <!-- Subtotal -->
+                <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center">
+                    <span class="opacity-70 fs-14 text-black">{{ translate('Subtotal') }}</span>
+                    <span style="font-weight: 700;" class="fs-20 text-dark">{{ single_price($total) }}</span>
+                </div>
+
+                <div class="row g-2">
+                    <!-- Return to shop -->
+                    <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <a href="{{ route('home') }}"
+                            class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design filled">
+                            <i class="las la-arrow-left fs-17"></i>
+                            {{ translate('Return to shop') }}
+                        </a>
+                    </div>
+                    <!-- Continue to Shipping -->
+                    <div class="col-12 col-md-6 text-center text-md-right">
+                        @if (Auth::check())
+                        <a href="{{ route('checkout.shipping_info') }}"
+                            class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
+                            {{ 'Complete Order' }}
+                        </a>
+                        @else
+                        <button onclick="showLoginModal()"
+                            class="btn borderbtn fs-14 fw-700 rounded-2 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
+                            {{ 'Complete Order' }}
+                        </button>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     @else
-        <div class="row justify-content-center">
-            <div class="col-xl-8">
-                <div class="border bg-white rounded-3 p-5 shadow-sm">
-                    <!-- Empty cart -->
-                    <div class="text-center">
-                        <i class="las la-frown la-3x opacity-60 mb-3"></i>
-                        <h3 class="h4 fw-700">{{ translate('Your Cart is empty') }}</h3>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="border bg-white rounded-3 p-5 shadow-sm">
+                <!-- Empty cart -->
+                <div class="text-center">
+                    <i class="las la-frown la-3x opacity-60 mb-3"></i>
+                    <h3 class="h4 fw-700">{{ translate('Your Cart is empty') }}</h3>
                 </div>
             </div>
         </div>
+    </div>
     @endif
 </div>
 

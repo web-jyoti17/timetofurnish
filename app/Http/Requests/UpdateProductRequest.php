@@ -78,8 +78,6 @@ class UpdateProductRequest extends FormRequest
             $rules[$key] = [
                 'nullable',
                 'max:255',
-                Rule::unique('product_stocks', 'sku')
-                    ->ignore(optional($stock)->id),
             ];
         }
     }

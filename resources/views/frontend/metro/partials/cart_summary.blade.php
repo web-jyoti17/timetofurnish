@@ -9,89 +9,110 @@
         {{-- PRODUCTS --}}
         <table class="table summary-table mb-0 cartdetails" style="background: #f8f7f5;">
             <tbody>
-            @php
+                @php
                 $tax = 0;
                 $coupon_discount = 0;
                 $total = 0;
                 $subtotal = 0;
-            @endphp
-            @foreach($carts as $cartItem)
+                @endphp
+                @foreach($carts as $cartItem)
                 @php
-                    $product = get_single_product($cartItem->product_id);
-                    $price = cart_product_price($cartItem, $product, false, false);
-                    $product_name_with_choice = $product->getTranslation('name');
-                    if ($cartItem->variation != null) {
-                         $product_name_with_choice = $product->getTranslation('name') . ' - ' . $cartItem['variation'];
-                    }
-                    $tax += $cartItem['tax'] * $cartItem['quantity'];
-                    if(empty($coupon_discount)){
-                        $coupon_discount += $cartItem['discount'];
-                    }
-                    $product_total = $price * $cartItem->quantity;
-                    $subtotal += $product_total;
-                    $total += $product_total;
+                $product = get_single_product($cartItem->product_id);
+                $price = cart_product_price($cartItem, $product, false, false);
+                $product_name_with_choice = $product->getTranslation('name');
+                $tax += $cartItem['tax'] * $cartItem['quantity'];
+                if(empty($coupon_discount)){
+                $coupon_discount += $cartItem['discount'];
+                }
+                $product_total = $price * $cartItem->quantity;
+                $subtotal += $product_total;
+                $total += $product_total;
                 @endphp
 
                 {{-- Main Product Row --}}
                 <tr>
                     <td class="product-name" colspan="2" style="font-weight: 500;">
                         {{ $product_name_with_choice }}
-                        <span class="qty cartdetails">× {{ $cartItem->quantity }}</span>
                     </td>
                     <td class="text-right product-price cartdetails" style="font-weight: 500;">
-                        £{{ number_format($product_total, 2) }}
+                        @if($product->unit_price > 0)
+                        £{{ number_format($product->unit_price * $cartItem->quantity, 2) }}
+                        @else
+                        -
+                        @endif
                     </td>
                 </tr>
 
                 {{-- Addons: each as its own row --}}
                 @php $cartItem_addons = []; @endphp
                 @if(!empty($cartItem->addons))
-                    @php
-                        $cartItem_addons = json_decode($cartItem->addons, true);
-                    @endphp
-                    @foreach($cartItem_addons as $addon)
-                        @php
-                            $addon_price_total = ($addon['price'] ?? 0) * $cartItem->quantity;
-                            $subtotal += $addon_price_total;
-                            $total += $addon_price_total;
-                        @endphp
-                        <tr>
-                            <td class="pl-4" colspan="2">
-                                <span style="font-weight:400;">
-                                    @if(isset($addon['addon_name']))
-                                        <span class="text-muted">{{ $addon['addon_name'] }}:&nbsp;</span>
-                                    @endif
-                                    {{ $addon['name'] ?? '' }}
-                                    <span class="qty cartdetails">&times; {{ $cartItem->quantity }}</span>
-                                </span>
-                            </td>
-                            <td class="text-right">
-                                <span style="font-weight: 400;">£{{ number_format($addon_price_total, 2) }}</span>
-                            </td>
-                        </tr>
-                    @endforeach
+                @php
+                $cartItem_addons = json_decode($cartItem->addons, true);
+
+                // Fetch attributes from cart if they exist
+                $cartItem_attributes = [];
+                if (!empty($cartItem->attributes)) {
+                $cartItem_attributes = json_decode($cartItem->attributes, true);
+                }
+
+                // Collect the names of all attributes so we can filter them out of the addons array
+                $attributeNames = [];
+                if (is_array($cartItem_attributes)) {
+                foreach ($cartItem_attributes as $attr) {
+                if (!empty($attr['attribute_name'])) {
+                $attributeNames[] = strtolower(trim($attr['attribute_name']));
+                }
+                }
+                }
+
+                // Remove any redundant variants that were injected into addons
+                $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames) {
+                return !in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames);
+                });
+                @endphp
+                @foreach($cartItem_addons as $addon)
+                @php
+                $addon_price_total = ($addon['price'] ?? 0) * $cartItem->quantity;
+                $subtotal += $addon_price_total;
+                $total += $addon_price_total;
+                @endphp
+                <tr>
+                    <td class="pl-4" colspan="2">
+                        <span style="font-weight:400;">
+                            @if(isset($addon['addon_name']))
+                            <span class="text-muted">{{ $addon['addon_name'] }}:&nbsp;</span>
+                            @endif
+                            {{ $addon['name'] ?? '' }}
+                            <span class="qty cartdetails">&times; {{ $cartItem->quantity }}</span>
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <span style="font-weight: 400;">£{{ number_format($addon_price_total, 2) }}</span>
+                    </td>
+                </tr>
+                @endforeach
                 @endif
 
                 {{-- Services --}}
                 @if(!empty($cartItem->services))
-                    @foreach(get_cart_services($cartItem) as $service)
-                        @php $total += $service['price']; $subtotal += $service['price']; @endphp
-                        <tr>
-                            <td class="pl-4" colspan="2">
-                                <span style="font-weight:400;">
-                                    {{ $service['name'] }}
-                                    <span class="badge badge-inline badge-soft-primary ml-2">{{ ucfirst($service['type']) }}</span>
-                                    <span class="ml-2">(£{{ number_format($service['price'], 2) }})</span>
-                                </span>
-                            </td>
+                @foreach(get_cart_services($cartItem) as $service)
+                @php $total += $service['price']; $subtotal += $service['price']; @endphp
+                <tr>
+                    <td class="pl-4" colspan="2">
+                        <span style="font-weight:400;">
+                            {{ $service['name'] }}
+                            <span class="badge badge-inline badge-soft-primary ml-2">{{ ucfirst($service['type']) }}</span>
+                            <span class="ml-2">(£{{ number_format($service['price'], 2) }})</span>
+                        </span>
+                    </td>
 
-                            <td class="text-right">
-                                <span style="font-weight:400;">£{{ number_format($service['price'], 2) }}</span>
-                            </td>
-                        </tr>
-                    @endforeach
+                    <td class="text-right">
+                        <span style="font-weight:400;">£{{ number_format($service['price'], 2) }}</span>
+                    </td>
+                </tr>
+                @endforeach
                 @endif
-            @endforeach
+                @endforeach
             </tbody>
         </table>
 
@@ -107,25 +128,25 @@
                     </td>
                 </tr>
                 @if(!empty($coupon_discount))
-                    <tr>
-                        <td style="border: none;">Discount</td>
-                        <td class="text-right" style="border: none;">
-                            <span id="discount_amount">-£{{ number_format($coupon_discount,2) }}</span>
-                        </td>
-                    </tr>
-                    @php $total -= $coupon_discount; @endphp
+                <tr>
+                    <td style="border: none;">Discount</td>
+                    <td class="text-right" style="border: none;">
+                        <span id="discount_amount">-£{{ number_format($coupon_discount,2) }}</span>
+                    </td>
+                </tr>
+                @php $total -= $coupon_discount; @endphp
                 @endif
                 @if(!empty($shipping))
-                    <tr>
-                        <td style="border: none;">Shipping (£)</td>
-                        <td class="text-right" style="border: none;">
-                            <span id="shipping_rate">{{ number_format($shipping,2) }}</span>
-                        </td>
-                    </tr>
-                    @php $total += $shipping; @endphp
+                <tr>
+                    <td style="border: none;">Shipping (£)</td>
+                    <td class="text-right" style="border: none;">
+                        <span id="shipping_rate">{{ number_format($shipping,2) }}</span>
+                    </td>
+                </tr>
+                @php $total += $shipping; @endphp
                 @endif
                 @php
-                    if(!empty($tax)) $total += $tax;
+                if(!empty($tax)) $total += $tax;
                 @endphp
                 <tr class="grand-total" style="border-top:2px solid #ddd;">
                     <td style="font-size: 18px; font-weight: 700; padding-top:10px;">Total</td>
@@ -160,263 +181,267 @@
 
 {{-- STYLE --}}
 <style>
-/* ===============================
+    /* ===============================
 /* =========================
    MAIN CART CARD
 ========================= */
-.cart-summary-card {
-    border: 1px solid #e6e6e6;
-    border-radius: 6px;
-    background: #fff;
-    box-shadow:
-        0 10px 25px rgba(0,0,0,0.08),
-        0 2px 6px rgba(0,0,0,0.04);
-}
+    .cart-summary-card {
+        border: 1px solid #e6e6e6;
+        border-radius: 6px;
+        background: #fff;
+        box-shadow:
+            0 10px 25px rgba(0, 0, 0, 0.08),
+            0 2px 6px rgba(0, 0, 0, 0.04);
+    }
 
-/* =========================
+    /* =========================
    HEADER (PEACH BACK)
 ========================= */
-.cart-summary-card .card-header {
+    .cart-summary-card .card-header {
 
-    padding: 16px 20px;
-    border-bottom: 1px solid #eee;
-}
-.cart-summary-card{
-    margin-top:20px;
-    padding-top:20px;
-    padding-bottom:20px;
-    background:#f0eded;
-}
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+    }
 
-.cart-summary-card h5 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #222;
-}
+    .cart-summary-card {
+        margin-top: 20px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        background: #f0eded;
+    }
 
-/* =========================
+    .cart-summary-card h5 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    /* =========================
    CARD BODY PADDING
 ========================= */
-.cart-summary-card .card-body {
-    padding: 30px;
-}
+    .cart-summary-card .card-body {
+        padding: 30px;
+    }
 
-/* =========================
+    /* =========================
    PRODUCT LIST
 ========================= */
-.summary-table td {
-    padding: 15px 20px;
-    font-size: 15px;
-    border-top: none;
-    border-bottom: 1px solid #f0f0f0;
-}
+    .summary-table td {
+        padding: 15px 20px;
+        font-size: 15px;
+        border-top: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
 
 
 
-.product-name .qty {
-    font-size: 13px;
-    color: #000;
-    white-space: nowrap;
-    margin: 0;
-}
+    .product-name .qty {
+        font-size: 13px;
+        color: #000;
+        white-space: nowrap;
+        margin: 0;
+    }
 
 
-/* Product price */
-.product-price {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2a2a2a;
-}
+    /* Product price */
+    .product-price {
+        font-size: 15px;
+        font-weight: 600;
+        color: #2a2a2a;
+    }
 
-/* =========================
+    /* =========================
    TOTAL TABLE
 ========================= */
-.summary-total-table td {
-    padding: 15px 20px;
-    font-size: 14.5px;
-    border-top: none;
-    border-bottom: 1px solid #f0f0f0;
-}
+    .summary-total-table td {
+        padding: 15px 20px;
+        font-size: 14.5px;
+        border-top: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
 
-/* Subtotal / Shipping text */
-.summary-total-table tr td:first-child {
-    color: #7a7a7a;
-}
+    /* Subtotal / Shipping text */
+    .summary-total-table tr td:first-child {
+        color: #7a7a7a;
+    }
 
-/* Subtotal / Shipping price */
-.summary-total-table tr td.text-right {
-    color: #3d3d3d;
-    font-weight: 500;
-}
+    /* Subtotal / Shipping price */
+    .summary-total-table tr td.text-right {
+        color: #3d3d3d;
+        font-weight: 500;
+    }
 
-/* GRAND TOTAL */
-.summary-total-table .grand-total td {
-    font-size: 19px;
-    font-weight: 700;
-    color: #2b2b2b;
-}
+    /* GRAND TOTAL */
+    .summary-total-table .grand-total td {
+        font-size: 19px;
+        font-weight: 700;
+        color: #2b2b2b;
+    }
 
-/* =========================
+    /* =========================
    COUPON BOX
 ========================= */
-.coupon-box {
-    margin: 18px;
-    padding: 16px;
-    background: #dacbbc;
-    border: 2px solid #e6e6e6;
-    border-radius: 6px;
-}
+    .coupon-box {
+        margin: 18px;
+        padding: 16px;
+        background: #dacbbc;
+        border: 2px solid #e6e6e6;
+        border-radius: 6px;
+    }
 
-/* Coupon input */
-.coupon-box .form-control {
-    height: 48px;
-    border: 2px solid #ddd;
-    border-radius: 4px 0 0 4px;
-    font-size: 14px;
-    padding-left: 14px;
-}
+    /* Coupon input */
+    .coupon-box .form-control {
+        height: 48px;
+        border: 2px solid #ddd;
+        border-radius: 4px 0 0 4px;
+        font-size: 14px;
+        padding-left: 14px;
+    }
 
-/* Apply button */
-.coupon-box .btn {
-    height: 48px;
-    padding: 0 26px;
-    background:  #dacbbc;
-    color: black;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 0 4px 4px 0;
-}
+    /* Apply button */
+    .coupon-box .btn {
+        height: 48px;
+        padding: 0 26px;
+        background: #dacbbc;
+        color: black;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 0 4px 4px 0;
+    }
 
-.coupon-box .btn:hover {
-    background:  #dacbbc;
+    .coupon-box .btn:hover {
+        background: #dacbbc;
 
-}
+    }
 
-/* =========================
+    /* =========================
    PROCEED TO CHECKOUT BUTTON
 ========================= */
-.proceed-checkout-btn,
-.checkout-btn,
-.btn-checkout {
-    width: calc(100% - 40px);
-    margin: 10px 20px 20px;
-    height: 56px;
-    border-radius: 30px;
-    background: #ff7a57;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    text-transform: uppercase;
-    transition: all 0.25s ease;
-}
+    .proceed-checkout-btn,
+    .checkout-btn,
+    .btn-checkout {
+        width: calc(100% - 40px);
+        margin: 10px 20px 20px;
+        height: 56px;
+        border-radius: 30px;
+        background: #ff7a57;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        text-transform: uppercase;
+        transition: all 0.25s ease;
+    }
 
 
 
-/* =========================
+    /* =========================
    MOBILE FIX
 ========================= */
-@media (max-width: 575px) {
-    .summary-table td,
-    .summary-total-table td {
-        padding: 12px 14px;
+    @media (max-width: 575px) {
+
+        .summary-table td,
+        .summary-total-table td {
+            padding: 12px 14px;
+        }
+
+        .coupon-box {
+            margin: 14px;
+        }
+
+        .cart-summary-card .card-body {
+            padding: 20px;
+        }
     }
 
-    .coupon-box {
-        margin: 14px;
-    }
 
-    .cart-summary-card .card-body {
-        padding: 20px;
-    }
-}
-
-
-/* =========================
+    /* =========================
    FORCE BLACK TEXT (AS REQUESTED)
 ========================= */
 
-/* Subtotal, Shipping, Total labels */
-.summary-total-table tr td:first-child {
-    color: #000 !important;
-}
+    /* Subtotal, Shipping, Total labels */
+    .summary-total-table tr td:first-child {
+        color: #000 !important;
+    }
 
-/* Subtotal, Shipping, Total prices */
-.summary-total-table tr td.text-right,
-.summary-total-table tr td strong {
-    color: #000 !important;
-}
+    /* Subtotal, Shipping, Total prices */
+    .summary-total-table tr td.text-right,
+    .summary-total-table tr td strong {
+        color: #000 !important;
+    }
 
-/* Product name (optional – keeps consistent black) */
+    /* Product name (optional – keeps consistent black) */
 
 
-/* Coupon input text */
-.coupon-box .form-control {
-    color: #000 !important;
-}
+    /* Coupon input text */
+    .coupon-box .form-control {
+        color: #000 !important;
+    }
 
-/* Coupon placeholder text */
-.coupon-box .form-control::placeholder {
-    color: #000 !important;
-    opacity: 1;
-}
+    /* Coupon placeholder text */
+    .coupon-box .form-control::placeholder {
+        color: #000 !important;
+        opacity: 1;
+    }
 
-/* Apply button text (already white, keeping safe) */
-.coupon-box .btn {
-    color: #000 !important;
-}
-/* =========================
+    /* Apply button text (already white, keeping safe) */
+    .coupon-box .btn {
+        color: #000 !important;
+    }
+
+    /* =========================
    TOTAL ko NORMAL BLACK
 ========================= */
 
-.summary-total-table tr:last-child td,
-.summary-total-table tr:last-child td strong {
-    color: #000 !important;
-    font-weight: 400 !important; /* normal */
-}
-/* =========================
+    .summary-total-table tr:last-child td,
+    .summary-total-table tr:last-child td strong {
+        color: #000 !important;
+        font-weight: 400 !important;
+        /* normal */
+    }
+
+    /* =========================
    SUMMARY UI IMPROVEMENT
 ========================= */
 
-/* Product name */
-.summary-total-table .product-name,
-.summary-total-table td:first-child strong {
-    font-size: 15px;
-    font-weight: 500;
-    color: #4b3a2f; /* soft brown */
-}
+    /* Product name */
+    .summary-total-table .product-name,
+    .summary-total-table td:first-child strong {
+        font-size: 15px;
+        font-weight: 500;
+        color: #4b3a2f;
+        /* soft brown */
+    }
 
-/* Subtotal & Shipping text */
-.summary-total-table tr td {
-    font-size: 14px;
-    color: #777;
-}
+    /* Subtotal & Shipping text */
+    .summary-total-table tr td {
+        font-size: 14px;
+        color: #777;
+    }
 
-/* Total row label */
-.summary-total-table tr:last-child td:first-child {
-    font-size: 15px;
-    font-weight: 500;
-    color: #555;
-}
+    /* Total row label */
+    .summary-total-table tr:last-child td:first-child {
+        font-size: 15px;
+        font-weight: 500;
+        color: #555;
+    }
 
-/* Total amount (keep normal black) */
-.summary-total-table tr:last-child td:last-child {
-    color: #000;
-    font-weight: 400;
-}
+    /* Total amount (keep normal black) */
+    .summary-total-table tr:last-child td:last-child {
+        color: #000;
+        font-weight: 400;
+    }
 
-/* Summary card shadow (premium soft) */
-.cart-summary-card {
-    box-shadow: 0 12px 30px rgba(0,0,0,0.03);
-    border-radius: 8px;
-}
-
-
+    /* Summary card shadow (premium soft) */
+    .cart-summary-card {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.03);
+        border-radius: 8px;
+    }
 </style>
 
 {{-- JS --}}
 <script>
-/*document.addEventListener('DOMContentLoaded', function () {
+    /*document.addEventListener('DOMContentLoaded', function () {
 
     const delivery = document.getElementById('delivery_option');
 

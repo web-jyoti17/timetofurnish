@@ -49,10 +49,8 @@ class ProductRequest extends FormRequest
         $rules['starting_bid']  = 'sometimes|required|numeric|min:1';
         $rules['auction_date_range']  = 'sometimes|required';
         $rules['sku'] = [
-            'required',
+            'nullable',
             'max:255',
-            // Check if the SKU is unique in the ProductStock table
-            Rule::unique('product_stocks', 'sku')->ignore($this->route('product')), // Assuming your model is 'ProductStock'
         ];
         return $rules;
     }

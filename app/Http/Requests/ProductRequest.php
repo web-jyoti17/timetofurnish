@@ -71,9 +71,8 @@ class ProductRequest extends FormRequest
             if (str_starts_with($key, 'sku_')) {
 
                 $rules[$key] = [
-                    'required',
+                    'nullable',
                     'max:255',
-                    Rule::unique('product_stocks', 'sku'),
                 ];
             }
         }
