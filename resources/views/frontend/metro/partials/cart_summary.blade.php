@@ -65,9 +65,21 @@
                 }
                 }
 
+                $variation_string = $cartItem->variation ?? '';
+                $variation_parts = array_map(function($v) {
+                    return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
+                }, explode('-', $variation_string));
+
                 // Remove any redundant variants that were injected into addons
-                $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames) {
-                return !in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames);
+                $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames, $variation_parts) {
+                if (in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames)) {
+                    return false;
+                }
+                $addon_value_clean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $addon['name'] ?? ''));
+                if (!empty($addon_value_clean) && in_array($addon_value_clean, $variation_parts)) {
+                    return false;
+                }
+                return true;
                 });
                 @endphp
                 @foreach($cartItem_addons as $addon)
