@@ -38,12 +38,14 @@
                         $product_stock = $product->stocks
                         ->where('variant', $cartItem['variation'])
                         ->first();
+                        // dd($cartItem);
                         $product_name_with_choice = $product->getTranslation('name');
                         if ($cartItem['variation'] != null) {
                         $product_name_with_choice =
                         $product->getTranslation('name') . ' - ' . $cartItem['variation'];
                         }
                         $total_addon = $cartItem['addon_price'] * $cartItem['quantity'];
+                        $total_addon = $cartItem['variation'];
                         // Attribute price calculation
                         $attribute_price = 0;
                         $cartItem_attributes = [];
@@ -57,20 +59,63 @@
                         }
                         }
                         }
+                        // dd($cartItem_attributes);
                         $cartItem_addons = [];
                         if (!empty($cartItem->addons)) {
                         $cartItem_addons = json_decode($cartItem->addons, true);
                         }
 
-                        $has_unit_price = !empty($product->unit_price) && floatval($product->unit_price) > 0;
+                        $variant_price = 0;
 
-                        $base_price = 0;
-                        if ($has_unit_price) {
-                            $base_price = cart_product_price($cartItem, $product, false);
+                        if ($product_stock && isset($product_stock->price)) {
+                        $variant_price = floatval($product_stock->price);
+                        } else {
+                        $variant_price = floatval($cartItem['price'] ?? 0);
                         }
 
-                        $total += ($base_price + $attribute_price) * $cartItem['quantity'];
-                        $total += $total_addon;
+                        // attributes
+                        $attribute_price = 0;
+
+                        $cartItem_attributes = [];
+
+                        if (!empty($cartItem->attributes)) {
+
+                        $cartItem_attributes = json_decode($cartItem->attributes, true);
+
+                        if (is_array($cartItem_attributes)) {
+
+                        foreach ($cartItem_attributes as $att) {
+
+                        if (isset($att['price'])) {
+
+                        $attribute_price += floatval($att['price']);
+
+                        }
+
+                        }
+
+                        }
+
+                        }
+
+                        // addons total
+                        $total_addon = floatval($cartItem['addon_price'] ?? 0);
+
+                        // final unit price
+                        $base_price = $variant_price;
+
+                        // row total
+                        $row_total =
+                        (
+                        (
+                        $base_price
+                        + $attribute_price
+                        + $total_addon
+                        )
+                        * $cartItem['quantity']
+                        );
+
+                        $total += $row_total;
                         @endphp
 
                         <!-- Responsive Cart row -->
@@ -184,11 +229,9 @@
                                     $unit_attribute_price = $attribute_price;
                                     $price_for_display = $base_price;
                                     @endphp
-                                    @if($has_unit_price)
-                                        <span class="fw-700 fs-14">{{ single_price($price_for_display) }}</span>
-                                    @else
-                                        <span class="fw-700 fs-14">—</span>
-                                    @endif
+                                    <span class="fw-700 fs-14">
+                                        {{ single_price($base_price) }}
+                                    </span>
                                 </div>
 
                                 <!-- Quantity -->
@@ -232,7 +275,14 @@
                                 <!-- Total -->
                                 <div class="col-lg-2  mb-2 mb-lg-0">
                                     <span class="fw-700 fs-16 text-primary">
-                                        {{ single_price(($base_price + $unit_attribute_price) * $cartItem['quantity'] + $total_addon) }}
+                                        {{ single_price(
+(
+$base_price
++ $attribute_price
++ $total_addon
+)
+* $cartItem['quantity']
+) }}
                                     </span>
                                 </div>
 
@@ -348,11 +398,10 @@
                                         <div class="fw-bold fs-18 border-bottom pb-2 mb-2">
                                             {{ translate('Price') }}
                                         </div>
-                                        @if($has_unit_price)
-                                            <span class="fw-700 fs-14">{{ single_price($base_price) }}</span>
-                                        @else
-                                            <span class="fw-700 fs-14">—</span>
-                                        @endif
+
+                                        <span class="fw-700 fs-14">
+                                            {{ single_price($base_price) }}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -403,7 +452,14 @@
                                             {{ translate('Total') }}
                                         </div>
                                         <span class="fw-700 fs-16 text-primary">
-                                            {{ single_price(($base_price + $attribute_price) * $cartItem['quantity'] + $total_addon) }}
+                                            {{ single_price(
+(
+$base_price
++ $attribute_price
++ $total_addon
+)
+* $cartItem['quantity']
+) }}
                                         </span>
                                     </div>
                                 </div>
