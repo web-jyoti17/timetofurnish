@@ -17,14 +17,6 @@
         $companyEmail = 'sales@timetofurnish.com';
         $companyPhone = '+44 7751510365';
         $companyWebsite = 'www.timetofurnish.com';
-        $emailAsset = function ($path) {
-            $path = ltrim($path, '/');
-            $root = app()->runningInConsole()
-                ? rtrim((string) config('app.url'), '/')
-                : rtrim(request()->getSchemeAndHttpHost(), '/');
-
-            return $root . '/' . $path;
-        };
         $paymentType = strtolower((string) ($order->payment_type ?? ''));
         $paymentMethod =
             str_contains($paymentType, 'stripe') || in_array($paymentType, ['card', 'card_payment', 'online_payment'])
@@ -99,7 +91,7 @@
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td valign="middle">
-                                        <img src="{{ $emailAsset('assets/img/TTF.jpg') }}" width="128"
+                                        <img src="{{ asset('assets/img/TTF.jpg') }}" width="128"
                                             alt="Time To Furnish" style="display:block; max-width:128px;">
                                     </td>
                                     <td align="right" valign="middle">
@@ -401,19 +393,18 @@
                                 style="margin-top:13px;width:100%">
                                 <tr>
                                     <td style="font-size:12px; color:#333; padding-right:18px; white-space:nowrap;">
-                                        <img src="{{ $emailAsset('assets/img/order-emails/email.jpeg') }}"
-                                            width="14" height="14" alt="Email"
-                                            style="vertical-align:middle;">
+                                        <img src="{{ asset('public/assets/img/TTF.jpg') }}" class ="my"
+                                            alt="Logo">
                                         {{ $companyEmail }}
                                     </td>
                                     <td style="font-size:12px; color:#333; padding-right:18px; white-space:nowrap;">
-                                        <img src="{{ $emailAsset('assets/img/order-emails/website.jpeg') }}"
+                                        <img src="{{ url('email-assets/images/order-emails/website.jpeg') }}"
                                             width="14" height="14" alt="Website"
                                             style="vertical-align:middle;">
                                         {{ $companyWebsite }}
                                     </td>
                                     <td style="font-size:12px; color:#333; white-space:nowrap;">
-                                        <img src="{{ $emailAsset('assets/img/order-emails/whatsapp.jpeg') }}"
+                                        <img src="{{ url('email-assets/images/order-emails/whatsapp.jpeg') }}"
                                             width="14" height="14" alt="Phone"
                                             style="vertical-align:middle;"> {{ $companyPhone }}
                                     </td>
