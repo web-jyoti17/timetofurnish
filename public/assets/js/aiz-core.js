@@ -190,11 +190,57 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
         clearUploaderSelected: function () {
             $(".aiz-uploader-selected-clear").on("click", function () {
                 AIZ.uploader.data.selectedFiles = [];
+                AIZ.uploader.data.selectedFilesObject = [];
                 AIZ.uploader.addSelectedValue();
                 AIZ.uploader.addHiddenValue();
                 AIZ.uploader.resetFilter();
                 AIZ.uploader.updateUploaderSelected();
                 AIZ.uploader.updateUploaderFiles();
+            });
+        },
+        deleteSelectedUploaderFiles: function (elem = null, from = "") {
+            $('[data-toggle="aizUploaderDeleteSelected"]').on("click", function () {
+                var selectedFiles = AIZ.uploader.data.selectedFiles;
+
+                if (selectedFiles.length < 1) {
+                    AIZ.plugins.notify("warning", "Please select file first");
+                    return;
+                }
+
+                if (!confirm("Are you sure you want to delete selected file(s)?")) {
+                    return;
+                }
+
+                $.ajax({
+                    url: AIZ.data.appUrl + "/aiz-uploader/delete-selected",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: {
+                        _token: AIZ.data.csrf,
+                        ids: selectedFiles,
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            AIZ.uploader.data.selectedFiles = [];
+                            AIZ.uploader.data.selectedFilesObject = [];
+                            AIZ.uploader.updateUploaderSelected();
+                            if (from === "input" && elem != null) {
+                                AIZ.uploader.inputSelectPreviewGenerate(elem);
+                            }
+                            AIZ.uploader.getAllUploads(
+                                AIZ.data.appUrl + "/aiz-uploader/get-uploaded-files",
+                                $('[name="aiz-uploader-search"]').val(),
+                                $('[name="aiz-uploader-sort"]').val()
+                            );
+                            AIZ.plugins.notify("success", "File deleted successfully");
+                        } else {
+                            AIZ.plugins.notify("danger", "Something Went Wrong.");
+                        }
+                    },
+                    error: function () {
+                        AIZ.plugins.notify("danger", "Something Went Wrong.");
+                    },
+                });
             });
         },
         resetFilter: function () {
@@ -682,6 +728,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                     );
                     AIZ.uploader.updateUploaderSelected();
                     AIZ.uploader.clearUploaderSelected();
+                    AIZ.uploader.deleteSelectedUploaderFiles(elem, from);
                     AIZ.uploader.sortUploaderFiles();
                     AIZ.uploader.searchUploaderFiles();
                     AIZ.uploader.showSelectedFiles();

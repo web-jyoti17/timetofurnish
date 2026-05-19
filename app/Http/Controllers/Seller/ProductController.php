@@ -164,6 +164,13 @@ class ProductController extends Controller
     {
         if (addon_is_activated('seller_subscription')) {
             if (!seller_package_validity_check()) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => translate('Please upgrade your package.'),
+                        'errors' => [],
+                    ], 403);
+                }
+
                 flash(translate('Please upgrade your package.'))->warning();
                 return redirect()->route('seller.products.index');
             }
@@ -336,8 +343,17 @@ class ProductController extends Controller
 
         flash(translate('Your product has been submitted successfully. It is currently pending for approval and will be live once approved.'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        if (!$request->expectsJson()) {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => translate('Your product has been submitted successfully. It is currently pending for approval and will be live once approved.'),
+                'redirect' => route('seller.products.index'),
+            ]);
+        }
 
         return redirect()->route('seller.products.index');
     }
@@ -749,8 +765,17 @@ class ProductController extends Controller
 
         flash(translate('Product has been updated successfully'))->success();
 
-        Artisan::call('view:clear');
-        Artisan::call('cache:clear');
+        if (!$request->expectsJson()) {
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => translate('Product has been updated successfully'),
+                'redirect' => route('seller.products.index'),
+            ]);
+        }
 
         // return back();
         return redirect()->route('seller.products.index');

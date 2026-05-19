@@ -11,6 +11,22 @@ use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
+    protected function prepareForValidation()
+    {
+        if ($this->has('unit_price') && trim((string) $this->input('unit_price')) === '') {
+            $this->merge(['unit_price' => null]);
+        }
+
+        if (
+            !$this->boolean('discount_enabled') ||
+            !$this->has('discount') ||
+            trim((string) $this->input('discount')) === '' ||
+            (float) $this->input('discount') <= 0
+        ) {
+            $this->merge(['discount' => null]);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -35,15 +51,13 @@ class UpdateProductRequest extends FormRequest
         $rules['category_id']   = ['required', Rule::in($this->category_ids)];
         $rules['unit']         = 'sometimes|required';
         $rules['min_qty']      = 'sometimes|required|numeric';
-        $discountEnabled = $this->boolean('discount_enabled') || $this->filled('date_range');
         $rules['unit_price'] = [
-            Rule::requiredIf($discountEnabled),
             'nullable',
             'numeric',
-            'gt:0',
+            'min:0',
         ];
-        $rules['discount'] = ['nullable', 'numeric'];
-        if ($discountEnabled && $this->filled('unit_price')) {
+        $rules['discount'] = ['nullable', 'numeric', 'min:0'];
+        if ($this->filled('discount') && $this->filled('unit_price') && (float) $this->input('unit_price') > 0) {
             $rules['discount'][] = 'lt:unit_price';
         }
         $rules['current_stock'] = 'sometimes|required|numeric';
@@ -90,7 +104,8 @@ class UpdateProductRequest extends FormRequest
         // dd($this->expectsJson());
         if ($this->expectsJson()) {
             throw new HttpResponseException(response()->json([
-                'message' => $validator->errors()->all(),
+                'message' => translate('Please fix the highlighted errors.'),
+                'errors' => $validator->errors(),
                 'result' => false
             ], 422));
         } else {

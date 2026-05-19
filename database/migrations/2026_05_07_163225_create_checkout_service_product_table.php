@@ -13,15 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('checkout_service_product')) {
+            return;
+        }
+
         Schema::create('checkout_service_product', function (Blueprint $table) {
-
             $table->id();
-
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-
-            $table->foreignId('checkout_service_id')->constrained()->onDelete('cascade');
-
+            $table->integer('product_id');
+            $table->unsignedBigInteger('checkout_service_id');
             $table->timestamps();
+
+            $table->index('product_id');
+            $table->index('checkout_service_id');
         });
     }
 

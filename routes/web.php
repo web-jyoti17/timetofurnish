@@ -187,6 +187,7 @@ Route::controller(AizUploadController::class)->group(function () {
     Route::post('/aiz-uploader/upload', 'upload');
     Route::get('/aiz-uploader/get-uploaded-files', 'get_uploaded_files');
     Route::post('/aiz-uploader/get_file_by_ids', 'get_preview_files');
+    Route::post('/aiz-uploader/delete-selected', 'delete_selected_files');
     Route::get('/aiz-uploader/download/{id}', 'attachment_download')->name('download_attachment');
 });
 

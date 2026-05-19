@@ -75,6 +75,7 @@
 						<button type="button" class="btn btn-sm btn-primary" id="uploader_next_btn">{{ translate('Next') }}</button>
 					</div>
 				</div>
+				<button type="button" class="btn btn-sm btn-danger" data-toggle="aizUploaderDeleteSelected">{{ translate('Delete Selected') }}</button>
 				<button type="button" class="btn btn-sm btn-primary" data-toggle="aizUploaderAddSelected">{{ translate('Upload Files') }}</button>
 			</div>
 		</div>

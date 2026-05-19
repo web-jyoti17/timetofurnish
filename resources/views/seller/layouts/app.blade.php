@@ -108,6 +108,63 @@
             AIZ.plugins.notify('{{ $message['level'] }}', '{{ $message['message'] }}');
         @endforeach
 
+        function sellerPanelToastError(message) {
+            if (window.AIZ && AIZ.plugins && AIZ.plugins.notify && message) {
+                AIZ.plugins.notify('danger', message);
+            }
+        }
+
+        function sellerPanelAjaxMessages(xhr) {
+            var response = xhr.responseJSON || {};
+            var messages = [];
+
+            if (response.errors) {
+                $.each(response.errors, function(field, fieldMessages) {
+                    if ($.isArray(fieldMessages)) {
+                        messages = messages.concat(fieldMessages);
+                    } else if (fieldMessages) {
+                        messages.push(fieldMessages);
+                    }
+                });
+            }
+
+            if (messages.length < 1 && response.message) {
+                messages = $.isArray(response.message) ? response.message : [response.message];
+            }
+
+            if (messages.length < 1) {
+                if (xhr.status === 419) {
+                    messages.push('{{ translate('Your session has expired. Please refresh the page and try again.') }}');
+                } else if (xhr.status === 403) {
+                    messages.push('{{ translate('You do not have permission to perform this action.') }}');
+                } else if (xhr.status === 404) {
+                    messages.push('{{ translate('The requested action was not found.') }}');
+                } else if (xhr.status >= 500) {
+                    messages.push('{{ translate('Server error. Please try again or contact support.') }}');
+                } else {
+                    messages.push('{{ translate('Something went wrong. Please try again.') }}');
+                }
+            }
+
+            return messages;
+        }
+
+        $(document).ajaxError(function(event, xhr) {
+            if (xhr.sellerToastHandled || xhr.status === 0) {
+                return;
+            }
+
+            $.each(sellerPanelAjaxMessages(xhr), function(index, message) {
+                sellerPanelToastError(message);
+            });
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            sellerPanelToastError(event.reason && event.reason.message
+                ? event.reason.message
+                : '{{ translate('Something went wrong. Please try again.') }}');
+        });
+
         $('.dropdown-menu a[data-toggle="tab"]').click(function(e) {
             e.stopPropagation()
             $(this).tab('show')

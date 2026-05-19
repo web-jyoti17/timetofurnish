@@ -247,7 +247,177 @@
             row.find('.option-input').prop('disabled', !checked);
         });
 
+        bindProductAjaxSubmit();
+        bindProductGlobalAjaxErrors();
     });
+
+    function clearProductFormErrors() {
+        $('#product-form-alert').addClass('d-none').removeClass('alert-danger alert-success').html('');
+        $('.product-form-field-error').remove();
+        $('.is-invalid-field').removeClass('is-invalid-field');
+    }
+
+    function fieldSelector(name) {
+        return '[name="' + name.replace(/"/g, '\\"') + '"], [name="' + name.replace(/"/g, '\\"') + '[]"]';
+    }
+
+    function showProductFormAlert(type, messages) {
+        let html = '';
+        if ($.isArray(messages)) {
+            html = '<ul class="mb-0 pl-3">' + messages.map(function (message) {
+                return '<li>' + message + '</li>';
+            }).join('') + '</ul>';
+        } else {
+            html = messages;
+        }
+
+        $('#product-form-alert')
+            .removeClass('d-none alert-danger alert-success')
+            .addClass('alert-' + type)
+            .html(html);
+    }
+
+    function notifyProductForm(type, messages) {
+        let list = $.isArray(messages) ? messages : [messages];
+
+        if (typeof AIZ !== 'undefined' && AIZ.plugins && AIZ.plugins.notify) {
+            $.each(list, function (index, message) {
+                if (message) {
+                    AIZ.plugins.notify(type, message);
+                }
+            });
+            return;
+        }
+
+        if (type === 'danger') {
+            console.error(list.join('\n'));
+        } else {
+            console.log(list.join('\n'));
+        }
+    }
+
+    function addFieldError(field, message) {
+        let normalized = field.replace(/\.\d+/g, '[]').replace(/\./g, '[').replace(/\[/g, '[').replace(/\]/g, ']');
+        let input = $(fieldSelector(field)).first();
+
+        if (!input.length) {
+            normalized = field.replace(/\.(\d+)\./g, '[$1][').replace(/\./g, '][') + (field.indexOf('.') > -1 ? ']' : '');
+            input = $(fieldSelector(normalized)).first();
+        }
+
+        if (!input.length && field === 'category_ids') {
+            input = $('input[name="category_ids[]"]').first();
+        }
+
+        if (!input.length) return;
+
+        let error = $('<span class="product-form-field-error"></span>').text(message);
+        let wrapper = input.closest('.form-group, .input-group, .bootstrap-select, .aiz-file-box-wrap');
+
+        input.addClass('is-invalid-field');
+        if (input.hasClass('aiz-selectpicker')) {
+            input.closest('.bootstrap-select').addClass('is-invalid-field');
+        }
+
+        if (wrapper.length) {
+            wrapper.after(error);
+        } else {
+            input.after(error);
+        }
+    }
+
+    function bindProductAjaxSubmit() {
+        $('#choice_form[data-ajax-submit="true"]').on('submit', function (e) {
+            e.preventDefault();
+
+            let form = $(this);
+            let submitButton = $(document.activeElement).is('[type="submit"]')
+                ? $(document.activeElement)
+                : form.find('[type="submit"]').first();
+            let formData = new FormData(this);
+
+            if (submitButton.attr('name')) {
+                formData.set(submitButton.attr('name'), submitButton.val());
+            }
+
+            clearProductFormErrors();
+            submitButton.prop('disabled', true).data('original-text', submitButton.html());
+            submitButton.html('Saving...');
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method') || 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    let message = response.message || 'Product saved successfully.';
+                    showProductFormAlert('success', message);
+                    notifyProductForm('success', message);
+                    if (response.redirect) {
+                        window.location.href = response.redirect;
+                    }
+                },
+                error: function (xhr) {
+                    xhr.sellerToastHandled = true;
+                    if (xhr.status === 422) {
+                        let response = xhr.responseJSON || {};
+                        let errors = response.errors || {};
+                        let messages = [];
+
+                        $.each(errors, function (field, fieldMessages) {
+                            let firstMessage = $.isArray(fieldMessages) ? fieldMessages[0] : fieldMessages;
+                            messages.push(firstMessage);
+                            addFieldError(field, firstMessage);
+                        });
+
+                        if (!messages.length && response.message) {
+                            messages = $.isArray(response.message) ? response.message : [response.message];
+                        }
+
+                        showProductFormAlert('danger', messages.length ? messages : ['Please check the highlighted fields.']);
+                        notifyProductForm('danger', messages.length ? messages : ['Please check the highlighted fields.']);
+                    } else {
+                        let message = 'Something went wrong while saving the product. Please check the form and try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        showProductFormAlert('danger', message);
+                        notifyProductForm('danger', message);
+                    }
+
+                    $('html, body').animate({
+                        scrollTop: $('#product-form-alert').offset().top - 90
+                    }, 250);
+                },
+                complete: function () {
+                    submitButton.prop('disabled', false);
+                    submitButton.html(submitButton.data('original-text'));
+                }
+            });
+        });
+    }
+
+    function bindProductGlobalAjaxErrors() {
+        $(document).ajaxError(function (event, xhr, settings) {
+            if (!$('#choice_form').length || !settings || !settings.url) return;
+            if (settings.url === $('#choice_form').attr('action')) return;
+            if (xhr.status === 0 || xhr.status === 422) return;
+            xhr.sellerToastHandled = true;
+
+            let message = 'Something went wrong. Please try again.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            }
+
+            notifyProductForm('danger', message);
+        });
+    }
 
     // Global functions
     window.add_more_customer_choice_option = function (i, name) {
@@ -315,9 +485,11 @@
         let enabled = $('#discountToggleBtn').is(':checked');
         if (enabled) {
             dateRange.prop('disabled', false);
+            discountInput.prop('disabled', false);
             boxes.show();
         } else {
             dateRange.prop('disabled', true);
+            discountInput.prop('disabled', true);
             boxes.hide();
         }
     };

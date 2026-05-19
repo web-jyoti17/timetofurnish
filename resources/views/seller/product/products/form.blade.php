@@ -305,6 +305,75 @@
     .sticky-action-container.stuck .card {
         border-color: transparent;
     }
+
+    #choice_form {
+        color: #202223;
+    }
+
+    #choice_form .card {
+        border: 1px solid #dfe3e8;
+        border-radius: 8px;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    }
+
+    #choice_form .card-header {
+        background: #fff;
+        border-bottom: 1px solid #edf0f2;
+        padding: 16px 20px;
+    }
+
+    #choice_form .card-header h5,
+    #choice_form .card-header .h6 {
+        color: #202223;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    #choice_form .card-body {
+        padding: 20px;
+    }
+
+    #choice_form .form-control,
+    #choice_form .bootstrap-select .dropdown-toggle {
+        border-color: #c9cccf;
+        border-radius: 6px;
+        min-height: 38px;
+        box-shadow: none;
+    }
+
+    #choice_form .form-control:focus,
+    #choice_form .bootstrap-select.show .dropdown-toggle {
+        border-color: #2c6ecb;
+        box-shadow: 0 0 0 1px #2c6ecb;
+    }
+
+    #choice_form label,
+    #choice_form .col-from-label,
+    #choice_form .control-label {
+        color: #202223;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    #choice_form .btn-primary {
+        background: #008060;
+        border-color: #008060;
+    }
+
+    #choice_form .btn-primary:hover,
+    #choice_form .btn-primary:focus {
+        background: #006e52;
+        border-color: #006e52;
+    }
+
+    #choice_form .btn-soft-primary {
+        background: #eaf4ff;
+        color: #2c6ecb;
+    }
+
+    #choice_form .sticky-action-container .card {
+        border-radius: 8px;
+    }
 </style>
 
 @if ($errors->any())
@@ -316,6 +385,7 @@
     </ul>
 </div>
 @endif
+<div id="product-form-alert" class="alert d-none" role="alert"></div>
 {{-- Data container for JS --}}
 <div id="product-form-data" class="d-none" data-base-url="{{ asset('public') }}"
     data-checkout-services-route="{{ route('seller.products.checkout-services') }}"
@@ -327,7 +397,7 @@
 </div>
 {{-- {{ dd($addons) }} --}}
 
-<form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form">
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form" data-ajax-submit="true">
     @csrf
     @if (isset($product) && $product->id)
     <input type="hidden" name="id" value="{{ $product->id }}">
@@ -767,10 +837,6 @@
                             if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
                                 this.value = this.value.replace(/^0+/, '');
                             }
-                            // block 0 or 0.00
-                            if (parseFloat(this.value) <= 0) {
-                                this.value = '';
-                            }
                         "
                                 onblur="if(this.value > 99999) alert('Unit price cannot exceed 99999')"
                                 onchange="update_sku()" id="unit_price_input">
@@ -795,9 +861,10 @@
                                 } else {
                                     unitPriceInputWrapper.style.display = 'none';
                                     label.innerText = "{{ translate('Hide') }}";
-                                    // Disable the input so it's not focusable or submitted
+                                    // Keep the empty value submitted so update can save null.
                                     if (unitPriceInput) {
-                                        unitPriceInput.setAttribute('disabled', 'disabled');
+                                        unitPriceInput.value = '';
+                                        unitPriceInput.removeAttribute('disabled');
                                         unitPriceInput.tabIndex = -1;
                                     }
                                 }
@@ -841,7 +908,7 @@
                         <div class="col-md-4 discount-box" style="{{ $discount_enabled ? '' : 'display:none;' }}">
                             <input type="number" lang="en" min="0" step="0.01"
                                 placeholder="{{ translate('Discount') }}" name="discount" id="discountInput"
-                                value="{{ old('discount', $product->discount ?? 0) }}" class="form-control"
+                                value="{{ old('discount', $product->discount ?? '') }}" class="form-control"
                                 oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
                         </div>
                         <!-- Discount Type -->
@@ -931,6 +998,24 @@
 
     input[type="file"] {
         padding-left: 15px;
+    }
+
+    .product-form-field-error {
+        display: block;
+        margin-top: 6px;
+        color: #d63031;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .is-invalid-field,
+    .is-invalid-field .dropdown-toggle {
+        border-color: #d63031 !important;
+    }
+
+    #product-form-alert {
+        border-radius: 8px;
+        margin-bottom: 16px;
     }
 </style>
 @section('script')

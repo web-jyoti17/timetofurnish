@@ -249,7 +249,7 @@ class CheckoutController extends Controller
                 \Log::error('Customer mail error: ' . $e->getMessage());
             }
 
-        /*
+            /*
         |--------------------------------------------------------------------------
         | ADMIN EMAIL
         |--------------------------------------------------------------------------
@@ -265,7 +265,7 @@ class CheckoutController extends Controller
                     function ($message) use ($admin_email, $order, $bcc_email) {
                         $message->to($admin_email)
                             ->bcc($bcc_email)
-                            ->subject('New Order(Admin) - ' . $order->code);
+                            ->subject('New Order Placed - ' . $order->id);
                     }
                 );
 

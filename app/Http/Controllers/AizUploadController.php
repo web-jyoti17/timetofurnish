@@ -271,6 +271,50 @@ class AizUploadController extends Controller
         }
     }
 
+    public function delete_selected_files(Request $request)
+    {
+        $ids = collect($request->input('ids', []))
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => translate('No files selected'),
+            ], 422);
+        }
+
+        $uploads = Upload::whereIn('id', $ids)
+            ->when(auth()->user()->user_type == 'seller', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->get();
+
+        foreach ($uploads as $upload) {
+            try {
+                if (env('FILESYSTEM_DRIVER') != 'local') {
+                    Storage::disk(env('FILESYSTEM_DRIVER'))->delete($upload->file_name);
+                    if (file_exists(public_path($upload->file_name))) {
+                        unlink(public_path($upload->file_name));
+                    }
+                } elseif (file_exists(public_path($upload->file_name))) {
+                    unlink(public_path($upload->file_name));
+                }
+            } catch (\Exception $e) {
+                // Keep deleting the database record even if the file is already missing.
+            }
+
+            $upload->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $uploads->count(),
+        ]);
+    }
+
     public function get_preview_files(Request $request)
     {
         $ids = explode(',', $request->ids);
