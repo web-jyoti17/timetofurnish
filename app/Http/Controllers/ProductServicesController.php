@@ -14,6 +14,7 @@ class ProductServicesController extends Controller
 
         $categories = Category::where('parent_id', 0)
             ->where('digital', 0)
+            ->with('childrenCategories')
             ->get();
 
         return view(
@@ -34,10 +35,7 @@ class ProductServicesController extends Controller
             'sort_order' => $request->sort_order,
         ]);
 
-        if ($request->categories) {
-
-            $service->categories()->sync($request->categories);
-        }
+        $service->categories()->sync($request->categories ?? []);
 
         return redirect()
             ->route('services.index')
@@ -52,6 +50,7 @@ class ProductServicesController extends Controller
 
     $categories = Category::where('parent_id', 0)
         ->where('digital', 0)
+        ->with('childrenCategories')
         ->get();
 
     return view(
@@ -74,10 +73,7 @@ class ProductServicesController extends Controller
             'sort_order' => $request->sort_order,
         ]);
 
-        if ($request->categories) {
-
-            $service->categories()->sync($request->categories);
-        }
+        $service->categories()->sync($request->categories ?? []);
 
         return redirect()
             ->route('services.index')

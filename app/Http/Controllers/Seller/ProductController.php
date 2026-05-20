@@ -98,6 +98,7 @@ class ProductController extends Controller
     public function getCheckoutServicesByCategory(Request $request)
     {
         $categoryIds = $request->category_ids ?? [];
+        $categoryIds = getCheckoutServiceCategoryMatchIds($categoryIds);
 
         $services = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($categoryIds) {
             $q->whereIn('categories.id', $categoryIds);
@@ -199,9 +200,11 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $serviceIds = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($request) {
+        $serviceCategoryIds = getCheckoutServiceCategoryMatchIds($request->category_ids ?? []);
 
-            $q->whereIn('categories.id', $request->category_ids);
+        $serviceIds = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+
+            $q->whereIn('categories.id', $serviceCategoryIds);
 
         })
         ->where('status', 1)
@@ -375,9 +378,11 @@ class ProductController extends Controller
         $old_categories = $product->categories()->pluck('category_id')->toArray();
         $old_categories = $product->categories()->pluck('category_id')->toArray();
 
-        $services = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($old_categories) {
+        $serviceCategoryIds = getCheckoutServiceCategoryMatchIds($old_categories);
 
-            $q->whereIn('categories.id', $old_categories);
+        $services = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+
+            $q->whereIn('categories.id', $serviceCategoryIds);
 
         })
         ->where('status', 1)
@@ -529,9 +534,11 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $serviceIds = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($request) {
+        $serviceCategoryIds = getCheckoutServiceCategoryMatchIds($request->category_ids ?? []);
 
-            $q->whereIn('categories.id', $request->category_ids);
+        $serviceIds = \App\Models\CheckoutService::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+
+            $q->whereIn('categories.id', $serviceCategoryIds);
 
         })
         ->where('status', 1)

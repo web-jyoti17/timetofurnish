@@ -67,12 +67,46 @@ if (!function_exists('getCheckoutServicesByCategories')) {
             return collect([]);
         }
 
+        $categoryIds = getCheckoutServiceCategoryMatchIds($categoryIds);
+
         return CheckoutService::where('status', 1)
             ->whereHas('categories', function ($query) use ($categoryIds) {
                 $query->whereIn('categories.id', $categoryIds);
             })
             ->orderBy('sort_order')
             ->get();
+    }
+}
+
+if (!function_exists('getCheckoutServiceCategoryMatchIds')) {
+    function getCheckoutServiceCategoryMatchIds($categoryIds = [])
+    {
+        $categoryIds = collect($categoryIds)
+            ->filter()
+            ->map(function ($id) {
+                return (int) $id;
+            })
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (empty($categoryIds)) {
+            return [];
+        }
+
+        $matchIds = $categoryIds;
+
+        foreach ($categoryIds as $categoryId) {
+            $matchIds = array_merge($matchIds, CategoryUtility::children_ids($categoryId));
+
+            $category = Category::select('id', 'parent_id')->find($categoryId);
+            while ($category && (int) $category->parent_id !== 0) {
+                $matchIds[] = (int) $category->parent_id;
+                $category = Category::select('id', 'parent_id')->find($category->parent_id);
+            }
+        }
+
+        return array_values(array_unique($matchIds));
     }
 }
 

@@ -128,15 +128,11 @@
                                 $selectedCats = old('categories', isset($service) ? $service->categories->pluck('id')->toArray() : []);
                             @endphp
                             @foreach($categories as $category)
-                                <div class="d-flex align-items-center mb-2">
-                                    <input
-                                        type="checkbox" id="cat_{{ $category->id }}"
-                                        name="categories[]" value="{{ $category->id }}"
-                                        class="mr-2"
-                                        {{ in_array($category->id, $selectedCats) ? 'checked' : '' }}
-                                    />
-                                    <label for="cat_{{ $category->id }}" class="mb-0">{{ $category->getTranslation('name') }}</label>
-                                </div>
+                                @include('backend.productServices.partials.category-checkbox', [
+                                    'category' => $category,
+                                    'selectedCats' => $selectedCats,
+                                    'level' => 0
+                                ])
                             @endforeach
                         </div>
 
