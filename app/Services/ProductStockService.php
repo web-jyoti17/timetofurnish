@@ -35,7 +35,7 @@ class ProductStockService
         } else {
             unset($collection['colors_active'], $collection['colors'], $collection['choice_no']);
             $qty = $collection['current_stock'];
-            $price = $collection['unit_price'];
+            $price = is_numeric($collection->get('unit_price')) ? $collection->get('unit_price') : 0;
             unset($collection['current_stock']);
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();

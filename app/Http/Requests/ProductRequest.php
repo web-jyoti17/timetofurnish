@@ -12,8 +12,8 @@ class ProductRequest extends FormRequest
 {
     protected function prepareForValidation()
     {
-        if ($this->has('unit_price') && trim((string) $this->input('unit_price')) === '') {
-            $this->merge(['unit_price' => null]);
+        if (!$this->has('unit_price') || trim((string) $this->input('unit_price')) === '') {
+            $this->merge(['unit_price' => 0]);
         }
 
         if (

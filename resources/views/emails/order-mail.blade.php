@@ -91,7 +91,7 @@
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td valign="middle">
-                                        <img src="{{ asset('assets/img/TTF.jpg') }}" width="128"
+                                        <img src="{{ asset('public/assets/img/TTF.jpg') }}" width="128"
                                             alt="Time To Furnish" style="display:block; max-width:128px;">
                                     </td>
                                     <td align="right" valign="middle">
@@ -384,32 +384,98 @@
 
                     <tr>
                         <td
-                            style="padding:18px 34px 26px; background:#fbfaf8; border-top:1px solid #e3ddd5;text-align:center;">
-                            <div style="font-size:12px; color:#555; line-height:1.65;">You will receive an email
-                                notification once your goods have been dispatched by the seller.</div>
-                            <div style="font-size:13px; font-weight:700; color:#222; margin-top:8px;">Thank you for
-                                shopping with Time To Furnish.</div>
+                            style="padding:18px 34px 26px;background:#fbfaf8;border-top:1px solid #e3ddd5;text-align:center;">
+
+                            <div style="font-size:12px;color:#555;line-height:1.65;">
+                                You will receive an email notification once your goods have been dispatched by the
+                                seller.
+                            </div>
+
+                            <div style="font-size:13px;font-weight:700;color:#222;margin-top:8px;">
+                                Thank you for shopping with Time To Furnish.
+                            </div>
+
                             <table cellpadding="0" cellspacing="0" role="presentation"
-                                style="margin-top:13px;width:100%">
+                                style="margin:20px auto 0;width:100%;max-width:700px;">
+
                                 <tr>
-                                    <td style="font-size:12px; color:#333; padding-right:18px; white-space:nowrap;">
-                                        <img src="{{ asset('public/assets/img/TTF.jpg') }}" class ="my"
-                                            alt="Logo">
-                                        {{ $companyEmail }}
+
+                                    <!-- EMAIL -->
+                                    <td align="center"
+                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
+
+                                        <table cellpadding="0" cellspacing="0" role="presentation">
+                                            <tr>
+                                                <td style="vertical-align:middle;padding-right:10px;">
+                                                    <img src="{{ asset('public/assets/img/email.jpeg') }}" alt="Email"
+                                                        width="40" height="40"
+                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
+                                                </td>
+
+                                                <td style="vertical-align:middle;">
+                                                    {{ $companyEmail }}
+                                                </td>
+                                            </tr>
+                                        </table>
+
                                     </td>
-                                    <td style="font-size:12px; color:#333; padding-right:18px; white-space:nowrap;">
-                                        <img src="{{ url('email-assets/images/order-emails/website.jpeg') }}"
-                                            width="14" height="14" alt="Website"
-                                            style="vertical-align:middle;">
-                                        {{ $companyWebsite }}
+
+
+                                    <!-- WEBSITE -->
+                                    <td align="center"
+                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
+
+                                        <table cellpadding="0" cellspacing="0" role="presentation">
+                                            <tr>
+
+                                                <td style="vertical-align:middle;padding-right:10px;">
+
+                                                    <img src="{{ asset('public/assets/img/website.jpeg') }}"
+                                                        alt="Website" width="40" height="40"
+                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
+
+                                                </td>
+
+                                                <td style="vertical-align:middle;">
+                                                    {{ $companyWebsite }}
+                                                </td>
+
+                                            </tr>
+                                        </table>
+
                                     </td>
-                                    <td style="font-size:12px; color:#333; white-space:nowrap;">
-                                        <img src="{{ url('email-assets/images/order-emails/whatsapp.jpeg') }}"
-                                            width="14" height="14" alt="Phone"
-                                            style="vertical-align:middle;"> {{ $companyPhone }}
+
+
+                                    <!-- PHONE -->
+                                    <td align="center"
+                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
+
+                                        <table cellpadding="0" cellspacing="0" role="presentation">
+
+                                            <tr>
+
+                                                <td style="vertical-align:middle;padding-right:10px;">
+
+                                                    <img src="{{ asset('public/assets/img/whatsapp.jpeg') }}"
+                                                        alt="Phone" width="40" height="40"
+                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
+
+                                                </td>
+
+                                                <td style="vertical-align:middle;">
+                                                    {{ $companyPhone }}
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+
                                     </td>
+
                                 </tr>
+
                             </table>
+
                         </td>
                     </tr>
                 </table>

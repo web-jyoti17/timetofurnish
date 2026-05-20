@@ -17,6 +17,7 @@ class ProductService
     public function store(array $data)
     {
         $collection = collect($data);
+        $collection['unit_price'] = is_numeric($collection->get('unit_price')) ? $collection->get('unit_price') : 0;
 
         $dispatch_time = $collection['dispatch_time'];
         $approved = 1;
@@ -150,6 +151,7 @@ class ProductService
     public function update(array $data, Product $product)
     {
         $collection = collect($data);
+        $collection['unit_price'] = is_numeric($collection->get('unit_price')) ? $collection->get('unit_price') : 0;
 
         $slug = Str::slug($collection['name']);
         $slug = $collection->has('slug') && $collection['slug'] ? Str::slug($collection['slug']) : Str::slug($collection['name']);
