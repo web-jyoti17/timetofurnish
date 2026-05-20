@@ -1,6 +1,119 @@
 @extends('frontend.layouts.app')
 
 @section('content')
+    <style>
+        .order-confirmed-page {
+            color: #20202c;
+        }
+
+        .order-confirmed-page .order-success-icon {
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background: #85b567;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .order-confirmed-page .order-thank-title {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #dedede;
+            color: #85b567;
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+
+        .order-confirmed-page .order-copy-note {
+            color: #20202c;
+            font-size: 17px;
+            margin-bottom: 34px;
+        }
+
+        .order-confirmed-page .order-panel {
+            background: #fff;
+            border: 1px solid #e6e8ef;
+            padding: 34px 38px;
+            margin-bottom: 30px;
+        }
+
+        .order-confirmed-page .order-panel-title {
+            color: #20202c;
+            font-size: 22px;
+            font-weight: 700;
+            padding-bottom: 18px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e6e8ef;
+        }
+
+        .order-confirmed-page .summary-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 44px;
+        }
+
+        .order-confirmed-page .summary-row {
+            display: grid;
+            grid-template-columns: 190px minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 22px;
+            font-size: 18px;
+            line-height: 1.45;
+        }
+
+        .order-confirmed-page .summary-label {
+            color: #20202c;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .order-confirmed-page .summary-value {
+            color: #20202c;
+            overflow-wrap: anywhere;
+        }
+
+        .order-confirmed-page .order-code-title {
+            color: #20202c;
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 40px;
+        }
+
+        .order-confirmed-page .order-code-title span {
+            color: #000;
+            font-weight: 800;
+        }
+
+        @media (max-width: 767px) {
+            .order-confirmed-page .order-thank-title {
+                font-size: 28px;
+            }
+
+            .order-confirmed-page .order-panel {
+                padding: 24px 18px;
+            }
+
+            .order-confirmed-page .summary-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .order-confirmed-page .summary-row {
+                grid-template-columns: 1fr;
+                gap: 4px;
+                font-size: 16px;
+            }
+        }
+    </style>
 
     <!-- Steps -->
     <section class="pt-5 mb-0">
@@ -55,131 +168,92 @@
     </section>
 
     <!-- Order Confirmation -->
-    <section class="py-4">
+    <section class="py-4 order-confirmed-page">
         <div class="container text-left">
             <div class="row">
-                <div class="col-xl-8 mx-auto">
+                <div class="col-xl-11 mx-auto">
                     @php
                         $first_order = $combined_order->orders->first();
+                        $shipping_address = null;
+                        if (!empty($first_order->shipping_address)) {
+                            $shipping_address = json_decode($first_order->shipping_address);
+                        }
+
+                        $addressParts = [];
+                        foreach (['flat', 'address', 'street', 'postal_code', 'city', 'country'] as $field) {
+                            if (!empty($shipping_address->{$field})) {
+                                $addressParts[] = $shipping_address->{$field};
+                            }
+                        }
+
+                        if (empty($addressParts) && !empty($shipping_address->city_id)) {
+                            $addressParts[] = $shipping_address->city_id;
+                        }
+
+                        $paymentDetails = json_decode($first_order->payment_details ?? '');
+                        $paymentMethod = ucfirst(str_replace('_', ' ', $first_order->payment_type));
+                        if (!empty($paymentDetails->mode) && strtolower((string) $paymentDetails->mode) === 'mock') {
+                            $paymentMethod = 'Mock';
+                        } elseif (strtolower((string) $first_order->payment_type) === 'stripe') {
+                            $paymentMethod = 'Stripe';
+                        }
                     @endphp
                     <!-- Order Confirmation Text-->
                     <div class="text-center py-1 mb-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" class=" mb-3">
-                            <g id="Group_23983" data-name="Group 23983" transform="translate(-978 -481)">
-                              <circle id="Ellipse_44" data-name="Ellipse 44" cx="18" cy="18" r="18" transform="translate(978 481)" fill="#85b567"/>
-                              <g id="Group_23982" data-name="Group 23982" transform="translate(32.439 8.975)">
-                                <rect id="Rectangle_18135" data-name="Rectangle 18135" width="11" height="3" rx="1.5" transform="translate(955.43 487.707) rotate(45)" fill="#fff"/>
-                                <rect id="Rectangle_18136" data-name="Rectangle 18136" width="3" height="18" rx="1.5" transform="translate(971.692 482.757) rotate(45)" fill="#fff"/>
-                              </g>
-                            </g>
-                        </svg>
-                        <h1 class="mb-2 fs-28 fw-500 text-success">{{ translate('Thank You for Your Order!')}}</h1>
-                        <p class="fs-13 text-soft-dark">{{  translate('A copy of your order summary has been sent to') }} <strong>{{ json_decode($first_order->shipping_address)->email }}</strong></p>
+                        <div class="order-success-icon">✓</div>
+                        <h1 class="order-thank-title">{{ translate('Thank You for Your Order!') }}</h1>
+                        <p class="order-copy-note">{{ translate('A copy of your order summary has been sent to') }} <strong>{{ $shipping_address->email ?? '' }}</strong></p>
                     </div>
                     <!-- Order Summary -->
-                    <div class="mb-4 bg-white p-4 border">
-                        <h5 class="fw-600 mb-3 fs-16 text-soft-dark pb-2 border-bottom">{{ translate('Order Summary')}}</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class="table fs-14 text-soft-dark">
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 pl-0 py-2">{{ ('Order Date')}} &nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 py-2">{{ date('d-m-Y h:i A', $first_order->date) }}</td>
-                                    </tr>
-                                    @php 
-                                        $shipping_address = "";
-                                        if(!empty($first_order->shipping_address)) $shipping_address = json_decode($first_order->shipping_address);
-                                    @endphp
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 pl-0 py-2">{{ translate('Name')}}&nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 py-2">@if(!empty($shipping_address->name)) {{ $shipping_address->name }} @endif </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 pl-0 py-2">{{ translate('Email')}}&nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 py-2">@if(!empty($shipping_address->email)) {{ $shipping_address->email }}  @endif </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 pl-0 py-2">{{ ('Shipping Address')}}&nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 py-2">
-
-     @php
-    $addressParts = [];
-
-    if(!empty($shipping_address->flat)) {
-        $addressParts[] = $shipping_address->flat;
-    }
-
-    if(!empty($shipping_address->address)) {
-        $addressParts[] = $shipping_address->address;
-    }
-
-    if(!empty($shipping_address->street)) {
-        $addressParts[] = $shipping_address->street;
-    }
-
-     if(!empty($shipping_address->postal_code)) {
-        $addressParts[] = $shipping_address->postal_code;
-    }
-      if(!empty($shipping_address->city_id)) {
-        $addressParts[] = $shipping_address->city_id;
-    }
-
-   
-
-    if(!empty($shipping_address->country)) {
-        $addressParts[] = $shipping_address->country;
-    }
-
-   
-@endphp
-
-
-
-{{ implode(', ', $addressParts) }}
-
-
-    </td>
-                                    </tr>
-                                </table>
+                    <div class="order-panel">
+                        <h5 class="order-panel-title">{{ translate('Order Summary') }}</h5>
+                        <div class="summary-grid">
+                            <div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Order Date') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ date('d-m-Y h:i A', $first_order->date) }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Name') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ $shipping_address->name ?? '' }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Email') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ $shipping_address->email ?? '' }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Shipping Address') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ implode(', ', $addressParts) }}</div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <table class="table">
-                                    <tr>
-                                        <td class="fw-600 border-top-0 " style="white-space:nowrap;">{{ ('Order Status')}} &nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 ">{{ translate(ucfirst(str_replace('_', ' ', $first_order->delivery_status))) }}</td>
-                                    </tr>
-                                {{--   <tr>
-                                        <td class="w-50 fw-600 border-top-0 py-2">{{ translate('Total order amount')}} &nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 pr-0 py-2">{{ single_price($combined_order->grand_total) }}</td>
-                                    </tr>--}}
-                                  {{--  <tr>
-                                        <td class="w-50 fw-600 border-top-0 py-2">{{ translate('Shipping')}} &nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 pr-0 py-2">{{ translate('Flat shipping rate')}}</td>
-                                    </tr>--}}
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 py-2">{{ ('Payment Method')}}&nbsp;&nbsp;:</td>
-                                        <td class="border-top-0 pr-0 py-2">{{ translate(ucfirst(str_replace('_', ' ', $first_order->payment_type))) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="w-50 fw-600 border-top-0 py-2"> {{translate ('Mobile Number')}}&nbsp;&nbsp;: </td> 
-                                        <td  class="border-top-0 pr-0 py-2"> @if(!empty($shipping_address->phone)) {{ $shipping_address->phone }}  @endif</td>
-                                    </tr>
-                                     <tr>
-                                        <td class="w-50 fw-600 border-top-0 py-2"> {{translate ('Landline Number')}} &nbsp;&nbsp;: </td> 
-                                        <td  class="border-top-0 pr-0 py-2"> @if(!empty($shipping_address->landline_no)) {{ $shipping_address->landline_no }}  @endif</td>
-                                    </tr>
-                                </table>
+                            <div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Order Status') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ translate(ucfirst(str_replace('_', ' ', $first_order->payment_status))) }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Payment Method') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ translate($paymentMethod) }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Mobile Number') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ $shipping_address->phone ?? '' }}</div>
+                                </div>
+                                <div class="summary-row">
+                                    <div class="summary-label">{{ translate('Landline Number') }} &nbsp;:</div>
+                                    <div class="summary-value">{{ $shipping_address->landline_no ?? '' }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Orders Info -->
                     @foreach ($combined_order->orders as $order)
-                        <div class="card shadow-none border rounded-0">
+                        <div class="order-panel">
                             <div class="card-body">
                                 <!-- Order Code -->
                                 <div class="text-center py-1 mb-4">
-                                    <h2 class="h5 fs-20">{{ translate('Order Id')}} <span class="fw-700 text-primary">{{ $order->code }}</span></h2>
+                                    <h2 class="order-code-title">{{ translate('Order Id') }} <span>{{ $order->code }}</span></h2>
                                 </div>
                                 <!-- Order Details -->
                                 <div>

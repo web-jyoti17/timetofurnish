@@ -384,7 +384,7 @@
 
                     <tr>
                         <td
-                            style="padding:18px 34px 26px;background:#fbfaf8;border-top:1px solid #e3ddd5;text-align:center;">
+                            style="padding:18px 34px 26px;border-top:1px solid #e3ddd5;text-align:center;">
 
                             <div style="font-size:12px;color:#555;line-height:1.65;">
                                 You will receive an email notification once your goods have been dispatched by the

@@ -36,6 +36,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'payment_mode' => env('PAYMENT_MODE', 'live'),
+
     'google' => [
         'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

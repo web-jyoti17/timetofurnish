@@ -72,6 +72,15 @@ class CheckoutController extends Controller
 
             // Stripe Payment
             if ($request->payment_option == "stripe") {
+                if ($this->isMockPaymentMode()) {
+                    $payment = [
+                        'status' => 'Success',
+                        'mode' => 'mock',
+                        'transaction_id' => 'mock_' . $data['combined_order_id'] . '_' . time(),
+                    ];
+
+                    return $this->checkout_done($data['combined_order_id'], json_encode($payment));
+                }
 
                 $decorator = __NAMESPACE__ . '\\Payment\\' .
                     str_replace(' ', '', ucwords(str_replace('_', ' ', $request->payment_option))) .
@@ -111,6 +120,11 @@ class CheckoutController extends Controller
         return redirect()->route('order_confirmed');
     }
     //shivani
+
+    private function isMockPaymentMode()
+    {
+        return strtolower((string) config('services.payment_mode', 'live')) === 'mock';
+    }
 
 
     public function checkout_done($combined_order_id, $payment, $cod = null)
@@ -265,7 +279,7 @@ class CheckoutController extends Controller
                     function ($message) use ($admin_email, $order, $bcc_email) {
                         $message->to($admin_email)
                             ->bcc($bcc_email)
-                            ->subject('New Order Placed - ' . $order->id);
+                            ->subject('New Order Placed - GB - ' . $order->id);
                     }
                 );
 
