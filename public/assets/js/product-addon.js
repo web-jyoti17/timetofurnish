@@ -1,5 +1,5 @@
-if (!window.productAddonControlsBound) {
-window.productAddonControlsBound = true;
+if (!window.productAddonExternalControlsBound && !window.productAddonInlineControlsBound) {
+window.productAddonExternalControlsBound = true;
 
 $(document).ready(function () {
 
@@ -100,8 +100,15 @@ $(document).ready(function () {
         }
 
         let block = $(html);
-        $('#addon-wrapper').append(block);
+        $('#addon-wrapper').prepend(block);
         initBlock(block);
+        if (block[0]) {
+            block[0].scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+        block.find('.group-name').first().trigger('focus');
     });
 
     $(document).on('click', '.add-option-btn', function () {
@@ -232,6 +239,12 @@ $(document).ready(function () {
 
         let block = $(this).closest('.addon-block');
 
+        let groupToggle = block.find('.group-toggle').first();
+
+        if (groupToggle.length && !groupToggle.is(':checked')) {
+            groupToggle.prop('checked', true).trigger('change');
+        }
+
         let options = block.find('.option-toggle:not(:disabled)');
 
         let allChecked = options.length === options.filter(':checked').length;
@@ -308,6 +321,7 @@ $(document).ready(function () {
 |--------------------------------------------------------------------------
 */
 
+if (!window.productAddonSkipExternalCollapse) {
 $(document).off('click.productAddonCollapse', '.addon-collapse-header').on('click.productAddonCollapse', '.addon-collapse-header', function (e) {
 
     /*
@@ -335,3 +349,4 @@ $(document).off('click.productAddonCollapse', '.addon-collapse-header').on('clic
     arrow.toggleClass('la-angle-down la-angle-up');
 
 });
+}
