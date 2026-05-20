@@ -184,11 +184,24 @@ class CheckoutController extends Controller
 
     private function sendOrderEmails($combined_order_id)
     {
+        Log::info('sendOrderEmails started', [
+            'combined_order_id' => $combined_order_id,
+            'payment_mode' => config('services.payment_mode', 'live'),
+        ]);
+
         $orders = Order::with([
             'shop.user',
             'orderDetails',
             'user'
         ])->where('combined_order_id', $combined_order_id)->get();
+
+        if ($orders->isEmpty()) {
+            Log::warning('sendOrderEmails skipped: no orders found', [
+                'combined_order_id' => $combined_order_id,
+            ]);
+
+            return;
+        }
 
         foreach ($orders as $order) {
 
