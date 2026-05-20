@@ -355,16 +355,6 @@
         font-weight: 500;
     }
 
-    #choice_form .btn-primary {
-        background: #008060;
-        border-color: #008060;
-    }
-
-    #choice_form .btn-primary:hover,
-    #choice_form .btn-primary:focus {
-        background: #006e52;
-        border-color: #006e52;
-    }
 
     #choice_form .btn-soft-primary {
         background: #eaf4ff;
@@ -377,13 +367,13 @@
 </style>
 
 @if ($errors->any())
-<div class="alert alert-danger">
-    <ul>
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
 @endif
 <div id="product-form-alert" class="alert d-none" role="alert"></div>
 {{-- Data container for JS --}}
@@ -398,28 +388,25 @@
 </div>
 {{-- {{ dd($addons) }} --}}
 
-<form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form" data-ajax-submit="true">
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form"
+    data-ajax-submit="true">
     @csrf
     @if (isset($product) && $product->id)
-    <input type="hidden" name="id" value="{{ $product->id }}">
+        <input type="hidden" name="id" value="{{ $product->id }}">
     @endif
 
     @if (isset($method) && $method == 'POST')
-    @method('POST')
+        @method('POST')
     @endif
     <div class="sticky-action-container">
         <div class="container p-0">
             <div class="flex flex-row card align-items-center">
                 <div class="card-body d-flex justify-content-between align-items-center w-100">
                     <h3 class="mb-0">
-                        {{ isset($product) && $product->id
-                            ? translate('Edit Your Product')
-                            : translate('Add Your
-                                                                                                                        Product') }}
+                        {{ isset($product) && $product->id ? translate('Edit Your Product') : translate('Add Your Product') }}
                     </h3>
                     <button type="submit" name="button" value="publish"
-                        class="btn btn-primary">{{ translate('Upload
-                                                                                                                        Product') }}</button>
+                        class="btn btn-primary">{{ translate('Upload Product') }}</button>
                 </div>
             </div>
 
@@ -433,7 +420,8 @@
                 <div class="card-body">
                     <div id="shipping-charges-wrapper" class="row gutters-2">
                         @include('seller.product.products.partials.shipping-charges', [
-                            'shippingCharges' => isset($product) && $product->id ? getProductShippingCharges($product) : collect()
+                            'shippingCharges' =>
+                                isset($product) && $product->id ? getProductShippingCharges($product) : collect(),
                         ])
                     </div>
                 </div>
@@ -466,12 +454,9 @@
 
                     <div id="checkout-services-wrapper" class="row gutters-2">
 
-                        @include(
-                        'seller.product.products.partials.checkout-services',
-                        [
-                        'services' => $services ?? collect()
-                        ]
-                        )
+                        @include('seller.product.products.partials.checkout-services', [
+                            'services' => $services ?? collect(),
+                        ])
 
                     </div>
 
@@ -514,15 +499,15 @@
                             <i class="las la-question-circle fs-18 text-info"></i>
                             <span
                                 class="p-2 border main-category-info bg-soft-info position-absolute d-none">{{ translate('This will be used for commission based calculations and homepage category
-                                                                                                                                                                wise product Show.') }}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
                         </span>
                     </h6>
                 </div>
                 @php
-                $selectedCategories = old(
-                'category_ids',
-                isset($product) ? $product->categories->pluck('id')->toArray() : [],
-                );
+                    $selectedCategories = old(
+                        'category_ids',
+                        isset($product) ? $product->categories->pluck('id')->toArray() : [],
+                    );
                 @endphp
 
                 <input type="hidden" name="old_categories_string" value="{{ implode(',', $selectedCategories) }}">
@@ -556,15 +541,15 @@
                             data-checkbox-name="category_ids[]">
 
                             @foreach ($categories as $category)
-                            <li id="{{ $category->id }}">
-                                {{ $category->getTranslation('name') }}
-                            </li>
+                                <li id="{{ $category->id }}">
+                                    {{ $category->getTranslation('name') }}
+                                </li>
 
-                            @foreach ($category->childrenCategories as $childCategory)
-                            @include('backend.product.products.child_category', [
-                            'child_category' => $childCategory,
-                            ])
-                            @endforeach
+                                @foreach ($category->childrenCategories as $childCategory)
+                                    @include('backend.product.products.child_category', [
+                                        'child_category' => $childCategory,
+                                    ])
+                                @endforeach
                             @endforeach
 
                         </ul>
@@ -637,25 +622,25 @@
                 </div>
                 <div class="card-body">
                     @foreach (\App\Models\Tax::where('tax_status', 1)->get() as $tax)
-                    <label for="name">
-                        {{ $tax->name }}
-                        <input type="hidden" value="{{ $tax->id }}" name="tax_id[]">
-                    </label>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <input type="number" lang="en" min="0"
-                                value="{{ is_array(old('tax')) ? old('tax')[$loop->index] ?? ($product->tax ?? 0) : old('tax', $product->tax ?? 0) }}"
-                                step="0.01" placeholder="{{ translate('Tax') }}" name="tax[]"
-                                class="form-control" required>
+                        <label for="name">
+                            {{ $tax->name }}
+                            <input type="hidden" value="{{ $tax->id }}" name="tax_id[]">
+                        </label>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <input type="number" lang="en" min="0"
+                                    value="{{ is_array(old('tax')) ? old('tax')[$loop->index] ?? ($product->tax ?? 0) : old('tax', $product->tax ?? 0) }}"
+                                    step="0.01" placeholder="{{ translate('Tax') }}" name="tax[]"
+                                    class="form-control" required>
 
+                            </div>
+                            <div class="form-group col-md-6">
+                                <select class="form-control aiz-selectpicker" name="tax_type[]">
+                                    <option value="amount">{{ translate('Flat') }}</option>
+                                    <option value="percent">{{ translate('Percent') }}</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <select class="form-control aiz-selectpicker" name="tax_type[]">
-                                <option value="amount">{{ translate('Flat') }}</option>
-                                <option value="percent">{{ translate('Percent') }}</option>
-                            </select>
-                        </div>
-                    </div>
                     @endforeach
                 </div>
             </div>
@@ -666,13 +651,13 @@
                     </h5>
                     <div>
                         @php
-                        $dimensions_enabled =
-                        (int) old('dimensions_enabled', $product->dimensions_enabled ?? 0) === 1;
+                            $dimensions_enabled =
+                                (int) old('dimensions_enabled', $product->dimensions_enabled ?? 0) === 1;
                         @endphp
                         <!-- Toggle to Show/Hide and Save/Not Save Dimensions -->
                         <label class="mb-0 aiz-switch aiz-switch-success mr-2" title="Enable Dimensions">
                             <input type="checkbox" id="toggle-dimensions" name="dimensions_enabled" value="1"
-                                @checked($dimensions_enabled && $dimensions_enabled==1)>
+                                @checked($dimensions_enabled && $dimensions_enabled == 1)>
 
                             <span></span>
                         </label>
@@ -757,6 +742,7 @@
                     </div>
                 </div>
             </div>
+
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     var dimensionsToggle = document.getElementById('toggle-dimensions');
@@ -823,10 +809,10 @@
                 </div>
                 <div class="card-body">
                     @php
-                    $unit_price_enabled = (bool) old(
-                    'unit_price_enabled',
-                    trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
-                    );
+                        $unit_price_enabled = (bool) old(
+                            'unit_price_enabled',
+                            trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
+                        );
                     @endphp
                     <div class="form-group row align-items-center">
                         <label class="col-md-3 col-from-label">
@@ -891,16 +877,15 @@
                         });
                     </script>
                     <div class="form-group row">
-                        <label class="col-md-3 control-label"
-                            for="start_date">{{ translate('Discount Date Range') }}
+                        <label class="col-md-3 control-label" for="start_date">{{ translate('Discount Date Range') }}
                         </label>
                         <div class="col-md-9">
                             @php
-                            $discount_enabled = (bool) old(
-                            'discount_enabled',
-                            (float) old('discount', $product->discount ?? 0) > 0 ||
-                            !empty(old('date_range', $product->date_range ?? '')),
-                            );
+                                $discount_enabled = (bool) old(
+                                    'discount_enabled',
+                                    (float) old('discount', $product->discount ?? 0) > 0 ||
+                                        !empty(old('date_range', $product->date_range ?? '')),
+                                );
                             @endphp
                             <input type="text" class="form-control aiz-date-range" name="date_range"
                                 id="date_range" value="{{ old('date_range', $product->date_range ?? '') }}"
@@ -940,7 +925,7 @@
                         <div class="col-md-12">
                             <small class="text-muted discount">
                                 <span>(</span>{{ translate('If you do want to sell the items in discounted price or
-                                                                                                                                                                clearance') }}<span>)</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
                             </small>
                         </div>
                     </div>
@@ -977,13 +962,19 @@
 
     <div class="card">
         @include('seller.product.products.partials.addons', [
-        'addons' => old('addons', $addons ?? []),
-        'oldAddonsJson' => old('addons', $addons ?? [])
+            'addons' => old('addons', $addons ?? []),
+            'oldAddonsJson' => old('addons', $addons ?? []),
         ])
     </div>
 
     </div>
-
+    <div class="flex flex-row card align-items-center" style="justify-content: end !important;">
+        <div class="card-body d-flex justify-content-between align-items-center w-100"
+            style="justify-content: end !important;">
+            <button type="submit" name="button" value="publish"
+                class="btn btn-primary">{{ translate('Upload Product') }}</button>
+        </div>
+    </div>
 </form>
 
 <style>
@@ -1036,87 +1027,87 @@
     }
 </style>
 @section('script')
-<!-- Fallback-friendly script loading with sequential guarantee -->
-<script>
-    function loadScriptSequentially(urls, checkSuccess, callback, index = 0) {
-        if (index >= urls.length) {
-            console.error("Failed to load script from any of the sources:", urls);
-            if (callback) callback(false);
-            return;
-        }
-
-        if (checkSuccess && checkSuccess()) {
-            if (callback) callback(true);
-            return;
-        }
-
-        let src = urls[index];
-        let script = document.createElement('script');
-        script.src = src;
-        script.async = false;
-        script.onload = function() {
-            if (!checkSuccess || checkSuccess()) {
-                console.log("Successfully loaded script from: " + src);
-                if (callback) callback(true);
-            } else {
-                console.warn("Script loaded from " + src + " but validation check failed. Trying next...");
-                loadScriptSequentially(urls, checkSuccess, callback, index + 1);
+    <!-- Fallback-friendly script loading with sequential guarantee -->
+    <script>
+        function loadScriptSequentially(urls, checkSuccess, callback, index = 0) {
+            if (index >= urls.length) {
+                console.error("Failed to load script from any of the sources:", urls);
+                if (callback) callback(false);
+                return;
             }
-        };
-        script.onerror = function() {
-            console.warn("Failed to load script from: " + src + ". Trying next...");
-            loadScriptSequentially(urls, checkSuccess, callback, index + 1);
-        };
-        document.head.appendChild(script);
-    }
 
-    // Initialize script loading once jQuery is ready
-    if (typeof jQuery !== 'undefined') {
-        initProductFormScripts();
-    } else {
-        document.addEventListener('DOMContentLoaded', function() {
+            if (checkSuccess && checkSuccess()) {
+                if (callback) callback(true);
+                return;
+            }
+
+            let src = urls[index];
+            let script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+            script.onload = function() {
+                if (!checkSuccess || checkSuccess()) {
+                    console.log("Successfully loaded script from: " + src);
+                    if (callback) callback(true);
+                } else {
+                    console.warn("Script loaded from " + src + " but validation check failed. Trying next...");
+                    loadScriptSequentially(urls, checkSuccess, callback, index + 1);
+                }
+            };
+            script.onerror = function() {
+                console.warn("Failed to load script from: " + src + ". Trying next...");
+                loadScriptSequentially(urls, checkSuccess, callback, index + 1);
+            };
+            document.head.appendChild(script);
+        }
+
+        // Initialize script loading once jQuery is ready
+        if (typeof jQuery !== 'undefined') {
             initProductFormScripts();
-        });
-    }
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                initProductFormScripts();
+            });
+        }
 
-    function initProductFormScripts() {
-        const hummingbirdUrls = [
-            "{{ static_asset('assets/js/hummingbird-treeview.js') }}",
-            "{{ asset('assets/js/hummingbird-treeview.js') }}",
-            "/assets/js/hummingbird-treeview.js",
-            "{{ static_asset('js/hummingbird-treeview.js') }}",
-            "{{ asset('js/hummingbird-treeview.js') }}",
-            "/js/hummingbird-treeview.js"
-        ];
+        function initProductFormScripts() {
+            const hummingbirdUrls = [
+                "{{ static_asset('assets/js/hummingbird-treeview.js') }}",
+                "{{ asset('assets/js/hummingbird-treeview.js') }}",
+                "/assets/js/hummingbird-treeview.js",
+                "{{ static_asset('js/hummingbird-treeview.js') }}",
+                "{{ asset('js/hummingbird-treeview.js') }}",
+                "/js/hummingbird-treeview.js"
+            ];
 
-        const addonUrls = [
-            "{{ static_asset('assets/js/product-addon.js') }}",
-            "{{ asset('assets/js/product-addon.js') }}",
-            "/assets/js/product-addon.js",
-            "{{ static_asset('js/product-addon.js') }}",
-            "{{ asset('js/product-addon.js') }}",
-            "/js/product-addon.js"
-        ];
+            const addonUrls = [
+                "{{ static_asset('assets/js/product-addon.js') }}",
+                "{{ asset('assets/js/product-addon.js') }}",
+                "/assets/js/product-addon.js",
+                "{{ static_asset('js/product-addon.js') }}",
+                "{{ asset('js/product-addon.js') }}",
+                "/js/product-addon.js"
+            ];
 
-        const formUrls = [
-            "{{ static_asset('assets/js/seller-product-form.js') }}",
-            "{{ asset('assets/js/seller-product-form.js') }}",
-            "/assets/js/seller-product-form.js",
-            "{{ static_asset('js/seller-product-form.js') }}",
-            "{{ asset('js/seller-product-form.js') }}",
-            "/js/seller-product-form.js"
-        ];
+            const formUrls = [
+                "{{ static_asset('assets/js/seller-product-form.js') }}",
+                "{{ asset('assets/js/seller-product-form.js') }}",
+                "/assets/js/seller-product-form.js",
+                "{{ static_asset('js/seller-product-form.js') }}",
+                "{{ asset('js/seller-product-form.js') }}",
+                "/js/seller-product-form.js"
+            ];
 
-        loadScriptSequentially(hummingbirdUrls, function() {
-            return typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.hummingbird;
-        }, function(success) {
-            loadScriptSequentially(addonUrls, null, function(success) {
-                loadScriptSequentially(formUrls, null, function(success) {
-                    console.log("All custom product form JS files loaded successfully!");
-                    jQuery(document).trigger('seller-scripts-loaded');
+            loadScriptSequentially(hummingbirdUrls, function() {
+                return typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.hummingbird;
+            }, function(success) {
+                loadScriptSequentially(addonUrls, null, function(success) {
+                    loadScriptSequentially(formUrls, null, function(success) {
+                        console.log("All custom product form JS files loaded successfully!");
+                        jQuery(document).trigger('seller-scripts-loaded');
+                    });
                 });
             });
-        });
-    }
-</script>
+        }
+    </script>
 @endsection
