@@ -193,6 +193,11 @@
                                         <span class="aiz-side-nav-text">{{translate('Services')}}</span>
                                     </a>
                                 </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{route('shipping-charges.index')}}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">{{translate('Shipping Charges')}}</span>
+                                    </a>
+                                </li>
                             @endcan
                             @can('view_colors')
                                 <li class="aiz-side-nav-item">

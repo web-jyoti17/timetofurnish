@@ -221,32 +221,6 @@
             }
         });
 
-        // ADDON COLLAPSE
-        $(document).on('click', '.addon-header-clickable', function (e) {
-            if ($(e.target).is('input, button, i')) return;
-            let block = $(this).closest('.addon-block');
-            let body = block.find('.addon-body');
-            body.slideToggle(200);
-        });
-
-        // SELECT ALL OPTIONS
-        $(document).on('click', '.select-all-options', function () {
-            let block = $(this).closest('.addon-block');
-            let options = block.find('.option-toggle');
-            let allChecked =
-                options.length === options.filter(':checked').length;
-            options.prop('checked', !allChecked);
-            $(this).text(allChecked ? 'Select All' : 'Deselect All');
-        });
-
-        // OPTION TOGGLE
-        $(document).on('change', '.option-toggle', function () {
-            let row = $(this).closest('.addon-option-row');
-            let checked = $(this).is(':checked');
-            row.toggleClass('opacity-50', !checked);
-            row.find('.option-input').prop('disabled', !checked);
-        });
-
         bindProductAjaxSubmit();
         bindProductGlobalAjaxErrors();
     });
@@ -527,6 +501,40 @@ function loadCheckoutServices(categoryIds = []) {
     });
 }
 
+function loadShippingCharges(categoryIds = []) {
+
+    let route = $('#product-form-data').data('shipping-charges-route');
+
+    if (!route) {
+        return;
+    }
+
+    $.ajax({
+        url: route,
+        type: "GET",
+        data: {
+            category_ids: categoryIds
+        },
+        success: function (response) {
+
+            $('#shipping-charges-wrapper').html(response);
+
+        },
+        error: function (xhr) {
+
+            console.log(xhr.responseText);
+
+            $('#shipping-charges-wrapper').html(`
+                <div class="col-12">
+                    <div class="alert alert-danger mb-0">
+                        Unable to load shipping charges.
+                    </div>
+                </div>
+            `);
+        }
+    });
+}
+
 function getSelectedCategoryIds() {
 
     let selected = [];
@@ -551,6 +559,7 @@ $(document).ready(function () {
     if (initialCategories.length > 0) {
 
         loadCheckoutServices(initialCategories);
+        loadShippingCharges(initialCategories);
     }
 
     // CATEGORY CHANGE
@@ -559,6 +568,7 @@ $(document).ready(function () {
         let categoryIds = getSelectedCategoryIds();
 
         loadCheckoutServices(categoryIds);
+        loadShippingCharges(categoryIds);
     });
 
 });

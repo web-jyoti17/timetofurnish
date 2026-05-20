@@ -25,6 +25,14 @@ class Product extends Model
             'checkout_service_product'
         );
     }
+
+    public function shippingCharges()
+    {
+        return $this->belongsToMany(
+            \App\Models\ShippingCharge::class,
+            'product_shipping_charge'
+        );
+    }
     public function product_translations()
     {
         return $this->hasMany(ProductTranslation::class);

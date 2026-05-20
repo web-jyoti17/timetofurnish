@@ -48,6 +48,7 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ProductAddonGlobalController;
 use App\Http\Controllers\ProductServicesController;
+use App\Http\Controllers\ShippingChargeController;
 /*
   |--------------------------------------------------------------------------
   | Admin Routes
@@ -90,6 +91,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
     Route::get('services/{id}/edit', [ProductServicesController::class, 'edit'])->name('services.edit');
     Route::post('services/{id}/update', [ProductServicesController::class, 'update'])->name('services.update');
     Route::delete('services/{id}', [ProductServicesController::class, 'destroy'])->name('services.destroy');
+    Route::get('shipping-charges', [ShippingChargeController::class, 'index'])->name('shipping-charges.index');
+    Route::post('shipping-charges', [ShippingChargeController::class, 'store'])->name('shipping-charges.store');
+    Route::get('shipping-charges/{id}/edit', [ShippingChargeController::class, 'edit'])->name('shipping-charges.edit');
+    Route::post('shipping-charges/{id}/update', [ShippingChargeController::class, 'update'])->name('shipping-charges.update');
+    Route::delete('shipping-charges/{id}', [ShippingChargeController::class, 'destroy'])->name('shipping-charges.destroy');
     // Brand
     Route::resource('brands', BrandController::class);
     Route::controller(BrandController::class)->group(function () {

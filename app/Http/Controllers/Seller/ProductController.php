@@ -112,6 +112,23 @@ class ProductController extends Controller
         )->render();
     }
 
+    public function getShippingChargesByCategory(Request $request)
+    {
+        $categoryIds = getCheckoutServiceCategoryMatchIds($request->category_ids ?? []);
+
+        $shippingCharges = \App\Models\ShippingCharge::whereHas('categories', function ($q) use ($categoryIds) {
+            $q->whereIn('categories.id', $categoryIds);
+        })
+        ->where('status', 1)
+        ->orderBy('sort_order')
+        ->get();
+
+        return view(
+            'seller.product.products.partials.shipping-charges',
+            compact('shippingCharges')
+        )->render();
+    }
+
     public function create(Request $request)
     {
         if (addon_is_activated('seller_subscription')) {
@@ -212,6 +229,15 @@ class ProductController extends Controller
         ->toArray();
 
         $product->checkoutServices()->sync($serviceIds);
+
+        $shippingChargeIds = \App\Models\ShippingCharge::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+            $q->whereIn('categories.id', $serviceCategoryIds);
+        })
+        ->where('status', 1)
+        ->pluck('id')
+        ->toArray();
+
+        $product->shippingCharges()->sync($shippingChargeIds);
         //VAT & Tax
         if ($request->tax_id) {
             $this->productTaxService->store($request->only([
@@ -392,6 +418,14 @@ class ProductController extends Controller
         $serviceIds = $services->pluck('id')->toArray();
 
         $product->checkoutServices()->sync($serviceIds);
+        $shippingChargeIds = \App\Models\ShippingCharge::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+            $q->whereIn('categories.id', $serviceCategoryIds);
+        })
+        ->where('status', 1)
+        ->pluck('id')
+        ->toArray();
+
+        $product->shippingCharges()->sync($shippingChargeIds);
 
         $selectedServices = $serviceIds;
         $parentIds =  getParentCategoryIds($old_categories);
@@ -546,6 +580,14 @@ class ProductController extends Controller
         ->toArray();
 
         $product->checkoutServices()->sync($serviceIds);
+        $shippingChargeIds = \App\Models\ShippingCharge::whereHas('categories', function ($q) use ($serviceCategoryIds) {
+            $q->whereIn('categories.id', $serviceCategoryIds);
+        })
+        ->where('status', 1)
+        ->pluck('id')
+        ->toArray();
+
+        $product->shippingCharges()->sync($shippingChargeIds);
 
 
         //Product Stock

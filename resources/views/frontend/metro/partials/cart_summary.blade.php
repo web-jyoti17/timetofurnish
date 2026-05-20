@@ -14,6 +14,7 @@
                 $coupon_discount = 0;
                 $total = 0;
                 $subtotal = 0;
+                $shipping_total = 0;
                 @endphp
                 @foreach($carts as $cartItem)
                 @php
@@ -27,6 +28,7 @@
                 $product_total = $price * $cartItem->quantity;
                 $subtotal += $product_total;
                 $total += $product_total;
+                $shipping_total += (float) $cartItem->shipping_cost;
                 @endphp
 
                 {{-- Main Product Row --}}
@@ -148,14 +150,14 @@
                 </tr>
                 @php $total -= $coupon_discount; @endphp
                 @endif
-                @if(!empty($shipping))
+                @if($shipping_total > 0)
                 <tr>
-                    <td style="border: none;">Shipping (£)</td>
+                    <td style="border: none;">Shipping Charges</td>
                     <td class="text-right" style="border: none;">
-                        <span id="shipping_rate">{{ number_format($shipping,2) }}</span>
+                        <span>{{ single_price($shipping_total) }}</span>
                     </td>
                 </tr>
-                @php $total += $shipping; @endphp
+                @php $total += $shipping_total; @endphp
                 @endif
                 @php
                 if(!empty($tax)) $total += $tax;

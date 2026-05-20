@@ -283,7 +283,7 @@ class CheckoutController extends Controller
         */
             try {
 
-                $admin_email = 'sales@timetofurnish.com';
+                $admin_email = 'manpreetsdev@gmail.com';
                 $bcc_email = 'manpreetsdev@gmail.com'; // Set your BCC email here
                 Log::info('admin_email', [$admin_email]);
                 Mail::send(
@@ -500,17 +500,13 @@ class CheckoutController extends Controller
         try {
             $carts = Cart::where('user_id', Auth::id())->get();
             sync_cart_prices($carts);
+            syncCartShippingCharges($carts);
 
             if ($carts->isEmpty()) {
                 return back()->with('error', translate('Your cart is empty'));
             }
 
-            // Validate services
-            if (!$request->has('selected_services')) {
-                return back()->with('error', translate('Please select at least one service'));
-            }
-
-            $selectedServices = $request->selected_services;
+            $selectedServices = $request->selected_services ?? [];
 
             // Calculations
             $subtotal = 0;
@@ -549,10 +545,8 @@ class CheckoutController extends Controller
                 ];
             }
 
-            // Shipping
             $weight = $totalWeight;
-
-            $shipping = 0;
+            $shipping = $carts->sum('shipping_cost');
             $shipping_rates = ShippingRate::where('min_weight', '<=', $weight)
                 ->where('max_weight', '>=', $weight)
                 ->first();

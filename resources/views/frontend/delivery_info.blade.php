@@ -449,11 +449,28 @@
                                 </div>
                                 @endif
 
+                                @php
+                                    $seller_shipping = 0;
+                                    foreach ($seller_product as $productId) {
+                                        $shippingProduct = get_single_product($productId);
+                                        $shippingCart = collect($carts)->firstWhere('product_id', $productId);
+                                        $seller_shipping += getProductShippingChargeTotal($shippingProduct, $shippingCart->quantity ?? 1);
+                                    }
+                                @endphp
+
                                 <!-- Seller Subtotal -->
                                 <div class="text-right pr-3 pb-2 ms-5 fw-700">
                                     {{ translate('Subtotal') }} :
                                     <span id="seller-subtotal">
                                         {{ single_price($seller_subtotal) }}
+                                    </span>
+                                </div>
+
+                                <!-- Shipping Total -->
+                                <div class="text-right pr-3 pb-2 ms-5 fw-700">
+                                    {{ translate('Shipping Charges') }} :
+                                    <span class="shipping-total-display">
+                                        {{ single_price($seller_shipping) }}
                                     </span>
                                 </div>
 
@@ -468,8 +485,8 @@
                                 <!-- Grand Total -->
                                 <div class="text-right pr-3 pb-3 ms-5 fw-700 fs-18">
                                     {{ translate('Total') }} :
-                                    <span class="grand-total-display" data-base-total="{{ $seller_subtotal }}">
-                                        {{ single_price($seller_subtotal) }}
+                                    <span class="grand-total-display" data-base-total="{{ $seller_subtotal + $seller_shipping }}">
+                                        {{ single_price($seller_subtotal + $seller_shipping) }}
                                     </span>
                                 </div>
                             </div> {{-- end card-body --}}

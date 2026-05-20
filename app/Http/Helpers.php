@@ -55,6 +55,7 @@ use App\Http\Controllers\CommissionController;
 use AizPackages\ColorCodeConverter\Services\ColorCodeConverter;
 use App\Models\FlashDealProduct;
 use App\Models\ShippingCost;
+use App\Models\ShippingCharge;
 use App\Models\CheckoutService;
 
 
@@ -107,6 +108,61 @@ if (!function_exists('getCheckoutServiceCategoryMatchIds')) {
         }
 
         return array_values(array_unique($matchIds));
+    }
+}
+
+if (!function_exists('getShippingChargesByCategories')) {
+    function getShippingChargesByCategories($categoryIds = [])
+    {
+        if (empty($categoryIds)) {
+            return collect([]);
+        }
+
+        $categoryIds = getCheckoutServiceCategoryMatchIds($categoryIds);
+
+        return ShippingCharge::where('status', 1)
+            ->whereHas('categories', function ($query) use ($categoryIds) {
+                $query->whereIn('categories.id', $categoryIds);
+            })
+            ->orderBy('sort_order')
+            ->get();
+    }
+}
+
+if (!function_exists('getProductShippingCharges')) {
+    function getProductShippingCharges($product)
+    {
+        if (!$product) {
+            return collect([]);
+        }
+
+        $categoryIds = $product->categories()->pluck('categories.id')->toArray();
+
+        if (!empty($product->category_id)) {
+            $categoryIds[] = $product->category_id;
+        }
+
+        return getShippingChargesByCategories($categoryIds);
+    }
+}
+
+if (!function_exists('getProductShippingChargeTotal')) {
+    function getProductShippingChargeTotal($product, $quantity = 1)
+    {
+        return (float) getProductShippingCharges($product)->sum('price') * max((int) $quantity, 1);
+    }
+}
+
+if (!function_exists('syncCartShippingCharges')) {
+    function syncCartShippingCharges($carts)
+    {
+        foreach ($carts as $cart) {
+            $product = get_single_product($cart->product_id);
+            $cart->shipping_cost = getProductShippingChargeTotal($product, $cart->quantity);
+            $cart->save();
+        }
+
+        return $carts;
     }
 }
 

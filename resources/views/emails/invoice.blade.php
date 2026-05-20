@@ -213,7 +213,7 @@
 						<td class="currency">{{ single_price($order->orderDetails->sum('price')) }}</td>
 					</tr>
 					<tr>
-						<th class="gry-color text-left">{{ translate('Shipping Cost') }}</th>
+						<th class="gry-color text-left">{{ translate('Shipping Charges') }}</th>
 						<td class="currency">{{ single_price($order->orderDetails->sum('shipping_cost')) }}</td>
 					</tr>
 					@if($order->igst)

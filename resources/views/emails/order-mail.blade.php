@@ -369,6 +369,13 @@
                                                     {{ single_price($addonsSubtotal) }}</td>
                                             </tr>
                                             <tr>
+                                                <td style="padding:4px 0; font-size:13px; color:#666;">Shipping charges
+                                                </td>
+                                                <td align="right"
+                                                    style="padding:4px 0; font-size:13px; white-space:nowrap;">
+                                                    {{ single_price($shippingTotal) }}</td>
+                                            </tr>
+                                            <tr>
                                                 <td style="padding:12px 0 0; font-size:20px; font-weight:700;">Invoice
                                                     total</td>
                                                 <td align="right"

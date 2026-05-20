@@ -145,9 +145,9 @@
                         <span class="fw-600">{{ single_price($tax) }}</span>
                     </td>
                 </tr>
-                <!-- Total Shipping -->
+                <!-- Shipping Charges -->
                 <tr class="cart-shipping">
-                    <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Total Shipping') }}</th>
+                    <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Shipping Charges') }}</th>
                     <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-primary border-top-0">
                         <span class="fw-600">{{ single_price($shipping) }}</span>
                     </td>

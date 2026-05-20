@@ -47,6 +47,14 @@ class Category extends Model
     );
 }
 
+    public function shippingCharges()
+    {
+        return $this->belongsToMany(
+            ShippingCharge::class,
+            'shipping_charge_categories'
+        );
+    }
+
     public function categories()
     {
         return $this->hasMany(Category::class, 'parent_id');

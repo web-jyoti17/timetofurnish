@@ -389,6 +389,7 @@
 {{-- Data container for JS --}}
 <div id="product-form-data" class="d-none" data-base-url="{{ asset('public') }}"
     data-checkout-services-route="{{ route('seller.products.checkout-services') }}"
+    data-shipping-charges-route="{{ route('seller.products.shipping-charges') }}"
     data-get-attributes-route="{{ route('get-attributes-by-categories') }}"
     data-add-more-choice-route="{{ route('seller.products.add-more-choice-option') }}"
     data-sku-combination-route="{{ isset($product) && $product->id ? route('seller.products.sku_combination_edit') : route('seller.products.sku_combination') }}"
@@ -419,6 +420,22 @@
                     <button type="submit" name="button" value="publish"
                         class="btn btn-primary">{{ translate('Upload
                                                                                                                         Product') }}</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-light border-bottom-0 pb-2">
+                    <h5 class="mb-0 h6 text-black">
+                        {{ translate('Matched Shipping Charges') }}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <div id="shipping-charges-wrapper" class="row gutters-2">
+                        @include('seller.product.products.partials.shipping-charges', [
+                            'shippingCharges' => isset($product) && $product->id ? getProductShippingCharges($product) : collect()
+                        ])
+                    </div>
                 </div>
             </div>
         </div>

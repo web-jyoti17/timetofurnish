@@ -40,3 +40,18 @@
     </div>
 
 </div>
+
+<template id="addon-group-template">
+    @include('seller.product.products.partials.addon-group', [
+        'addon' => null,
+        'index' => '__GROUP_INDEX__'
+    ])
+</template>
+
+<template id="addon-option-template">
+    @include('seller.product.products.partials.addon-option', [
+        'option' => [],
+        'groupIndex' => '__GROUP_INDEX__',
+        'optIndex' => '__OPTION_INDEX__',
+    ])
+</template>

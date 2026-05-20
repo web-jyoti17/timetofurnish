@@ -281,6 +281,8 @@ Route::post('/currency', [CurrencyController::class, 'changeCurrency'])->name('c
 
 Route::get('/seller/get-checkout-services', [SellerProductController::class, 'getCheckoutServicesByCategory'])
     ->name('seller.products.checkout-services');
+Route::get('/seller/get-shipping-charges', [SellerProductController::class, 'getShippingChargesByCategory'])
+    ->name('seller.products.shipping-charges');
 
 Route::get('/sitemap.xml', function () {
     return base_path('sitemap.xml');

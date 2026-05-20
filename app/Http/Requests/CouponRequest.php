@@ -51,8 +51,8 @@ class CouponRequest extends FormRequest
             'min_buy'       => $minBuyRule,
             'max_discount'  => $maxDiscountRule,
             'date_range'    => ['required'],
-           'start_date' => ['required', 'date', 'after_or_equal:today'],
-'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
+            'start_date'    => ['required', 'integer'],
+            'end_date'      => ['required', 'integer', 'gte:start_date'],
             'details'       => ['required'],
         ];
     }
@@ -87,13 +87,15 @@ class CouponRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $date_range = explode(" - ", $this->date_range);
-        $start_date = '';
-        $end_date = '';
-        // dd($date_range);
-        if($date_range[0]) {
-            $start_date = strtotime($date_range[0]);
-            $end_date = strtotime($date_range[1]);
+        $date_range = preg_split('/\s+(?:-|to)\s+/i', (string) $this->date_range);
+        $start_date = null;
+        $end_date = null;
+
+        if (!empty($date_range[0]) && !empty($date_range[1])) {
+            $parsedStartDate = strtotime(trim($date_range[0]));
+            $parsedEndDate = strtotime(trim($date_range[1]));
+            $start_date = $parsedStartDate ?: null;
+            $end_date = $parsedEndDate ?: null;
         }
         $coupon_details = null;
         if ($this->type == "product_base") {
