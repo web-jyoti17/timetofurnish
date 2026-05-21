@@ -10,7 +10,6 @@ use Carbon\Carbon;
 use Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use PDF;
 use Session;
 
 class OrderInvoiceService
@@ -72,22 +71,21 @@ class OrderInvoiceService
 
         File::ensureDirectoryExists(dirname($absolutePath));
 
-        $pdf = PDF::loadView(
-            'backend.invoices.pdf',
-            [
-                'order' => $order,
-                'invoiceCopyType' => $copyType,
-                'invoiceCopy' => self::copyTypes()[$copyType],
-                'invoiceNumber' => $invoiceNumber,
-                'invoiceName' => $invoiceName,
-                'invoiceGeneratedAt' => $generatedAt,
-                'isPdf' => true,
-            ],
-            [],
-            $this->pdfConfig()
-        );
+        $html = view('backend.invoices.pdf', [
+            'order' => $order,
+            'invoiceCopyType' => $copyType,
+            'invoiceCopy' => self::copyTypes()[$copyType],
+            'invoiceNumber' => $invoiceNumber,
+            'invoiceName' => $invoiceName,
+            'invoiceGeneratedAt' => $generatedAt,
+            'isPdf' => true,
+        ])->render();
 
-        $pdf->save($absolutePath);
+        $mpdf = new \Mpdf\Mpdf($this->pdfConfig());
+        $mpdf->showImageErrors = false;
+        $mpdf->SetAutoPageBreak(true, 15);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output($absolutePath, \Mpdf\Output\Destination::FILE);
 
         return OrderInvoice::updateOrCreate(
             [
@@ -151,10 +149,6 @@ class OrderInvoiceService
             'margin_bottom' => 0,
             'default_font' => $this->fontFamily($currencyCode, $languageCode),
             'directionality' => optional($language)->rtl == 1 ? 'rtl' : 'ltr',
-            'instanceConfigurator' => function ($mpdf) {
-                $mpdf->showImageErrors = false;
-                $mpdf->SetAutoPageBreak(true, 15);
-            },
         ];
     }
 

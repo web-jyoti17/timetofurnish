@@ -110,19 +110,23 @@ public function invoice_download($id)
     // Fetch Order
     $order = Order::with('shop')->findOrFail($id);
 
-    // Generate PDF
-    return PDF::loadView(
-        'backend.invoices.invoice',
-        [
-            'order' => $order,
-            'font_family' => $font_family,
-            'direction' => $direction,
-            'text_align' => $text_align,
-            'not_text_align' => $not_text_align
-        ],
-        [],
-        $config
-    )->download('order-' . $order->code . '.pdf');
+    $html = view('backend.invoices.invoice', [
+        'order' => $order,
+        'font_family' => $font_family,
+        'direction' => $direction,
+        'text_align' => $text_align,
+        'not_text_align' => $not_text_align,
+    ])->render();
+
+    $mpdf = new \Mpdf\Mpdf($config);
+    $mpdf->showImageErrors = false;
+    $mpdf->SetAutoPageBreak(true, 15);
+    $mpdf->WriteHTML($html);
+
+    return response($mpdf->Output('order-' . $order->code . '.pdf', \Mpdf\Output\Destination::STRING_RETURN), 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="order-' . $order->code . '.pdf"',
+    ]);
 }
 
 }
