@@ -306,10 +306,14 @@
                                         <div class="copy-badge" style="background:{{ $invoiceCopy['color'] }};">
                                             {{ $invoiceCopy['label'] }}
                                         </div>
+                                        @if (($invoiceCopyType ?? '') === \App\Services\OrderInvoiceService::ADMIN)
+                                            <div class="muted" style="font-size:13px;margin-top:6px;">
+                                                For office use only
+                                            </div>
+                                        @endif
+
                                         <div class="invoice-title" style="color:{{ $invoiceCopy['color'] }};">
                                             Invoice
-                                        </div>
-                                        <div class="muted" style="font-size:11px;margin-top:4px;">{{ $invoiceName }}
                                         </div>
                                         <div class="muted" style="font-size:11px;margin-top:3px;">Order
                                             {{ $order->code }}</div>
