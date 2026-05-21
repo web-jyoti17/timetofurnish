@@ -341,11 +341,14 @@ Route::resource('sellers', SellerController::class);
     Route::controller(OrderController::class)->group(function () {
         // All Orders
         Route::get('/all_orders', 'all_orders')->name('all_orders.index');
+        Route::get('/all_orders/export-with-invoices', 'all_orders_export')->name('all_orders.export_with_invoices');
         Route::get('/inhouse-orders', 'all_orders')->name('inhouse_orders.index');
         Route::get('/seller_orders', 'all_orders')->name('seller_orders.index');
         Route::get('orders_by_pickup_point', 'all_orders')->name('pick_up_point.index');
 
         Route::get('/orders/{id}/show', 'show')->name('all_orders.show');
+        Route::get('/orders/{id}/invoice/{copyType}/view', 'invoice_copy_view')->name('orders.invoice.copy.view');
+        Route::get('/orders/{id}/invoice/{copyType}/download', 'invoice_copy_download')->name('orders.invoice.copy.download');
         Route::get('/inhouse-orders/{id}/show', 'show')->name('inhouse_orders.show');
         Route::get('/seller_orders/{id}/show', 'show')->name('seller_orders.show');
         Route::get('/orders_by_pickup_point/{id}/show', 'show')->name('pick_up_point.order_show');

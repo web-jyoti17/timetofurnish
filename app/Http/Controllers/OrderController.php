@@ -18,10 +18,14 @@ use App\Models\SmsTemplate;
 use Auth;
 use Mail;
 use App\Mail\InvoiceEmailManager;
+use App\Exports\AllOrdersReportExport;
+use App\Services\OrderInvoiceService;
 use App\Utility\NotificationUtility;
 use CoreComponentRepository;
 use App\Utility\SmsUtility;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 use Session;
 use Carbon\Carbon;
 
@@ -32,6 +36,8 @@ class OrderController extends Controller
     {
         // Staff Permission Check
         $this->middleware(['permission:view_all_orders|view_inhouse_orders|view_seller_orders|view_pickup_point_orders'])->only('all_orders');
+        $this->middleware(['permission:view_all_orders'])->only('all_orders_export');
+        $this->middleware(['permission:view_order_details'])->only('invoice_copy_view', 'invoice_copy_download');
         $this->middleware(['permission:view_order_details'])->only('show');
         $this->middleware(['permission:delete_order'])->only('destroy','bulk_order_delete');
     }
@@ -47,6 +53,9 @@ class OrderController extends Controller
         $payment_status = '';
 
         $orders = Order::orderBy('id', 'desc');
+        if (Schema::hasTable('order_invoices')) {
+            $orders->with('invoices');
+        }
         $admin_user_id = User::where('user_type', 'admin')->first()->id;
 
 
@@ -104,6 +113,110 @@ class OrderController extends Controller
         }
         $orders = $orders->paginate(15);
         return view('backend.sales.index', compact('orders', 'sort_search', 'payment_status', 'delivery_status', 'date'));
+    }
+
+    public function invoice_copy_download($orderId, $copyType, OrderInvoiceService $invoiceService)
+    {
+        $order = Order::findOrFail($orderId);
+        $invoice = $invoiceService->ensureInvoice($order, $copyType);
+
+        if (!$invoice) {
+            flash(translate('Please run the order invoice migration before downloading invoice copies.'))->warning();
+            return back();
+        }
+
+        return response()->download(
+            $invoiceService->absolutePath($invoice->file_path),
+            $invoiceService->downloadName($invoice)
+        );
+    }
+
+    public function invoice_copy_view($orderId, $copyType, OrderInvoiceService $invoiceService)
+    {
+        $order = Order::findOrFail($orderId);
+        $invoice = $invoiceService->ensureInvoice($order, $copyType);
+
+        if (!$invoice) {
+            flash(translate('Please run the order invoice migration before viewing invoice copies.'))->warning();
+            return back();
+        }
+
+        return response()->file($invoiceService->absolutePath($invoice->file_path), [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    public function all_orders_export(Request $request, OrderInvoiceService $invoiceService)
+    {
+        if (!Auth::user()->can('view_all_orders')) {
+            abort(403);
+        }
+
+        $orders = $this->allOrdersExportQuery($request)->get();
+
+        if (Schema::hasTable('order_invoices')) {
+            foreach ($orders as $order) {
+                try {
+                    $invoiceService->ensureInvoicesForOrder($order);
+                } catch (\Exception $e) {
+                    \Log::error('Order invoice export generation failed: ' . $e->getMessage(), [
+                        'order_id' => $order->id,
+                    ]);
+                }
+            }
+
+            $orders->load('invoices');
+        } else {
+            foreach ($orders as $order) {
+                $order->setRelation('invoices', collect());
+            }
+        }
+
+        return Excel::download(
+            new AllOrdersReportExport($orders, $invoiceService),
+            'all-orders-with-invoice-links.xlsx'
+        );
+    }
+
+    private function allOrdersExportQuery(Request $request)
+    {
+        $relations = [
+            'orderDetails.product.stocks',
+            'user',
+            'shop.user.addresses.country',
+            'shop.user.addresses.state',
+            'shop.user.addresses.city',
+        ];
+
+        if (Schema::hasTable('order_invoices')) {
+            $relations[] = 'invoices';
+        }
+
+        $orders = Order::with($relations);
+        $admin_user_id = User::where('user_type', 'admin')->first()->id;
+
+        if (get_setting('vendor_system_activation') != 1) {
+            $orders = $orders->where('orders.seller_id', '=', $admin_user_id);
+        }
+
+        if ($request->search) {
+            $orders = $orders->where('code', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->payment_status != null) {
+            $orders = $orders->where('payment_status', $request->payment_status);
+        }
+
+        if ($request->delivery_status != null) {
+            $orders = $orders->where('delivery_status', $request->delivery_status);
+        }
+
+        if ($request->date != null) {
+            $orders = $orders->where('created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $request->date)[0])) . '  00:00:00')
+                ->where('created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $request->date)[1])) . '  23:59:59');
+        }
+
+        return $orders->orderBy('id', 'desc');
     }
 
     public function show($id)

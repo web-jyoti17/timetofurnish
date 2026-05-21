@@ -627,6 +627,15 @@ $rtl = get_session_language()->rtl;
         }
 
         function showLoginModal() {
+            if ($('#option-choice-form').length && $('#option-choice-form input[name="id"]').length) {
+                $.post('{{ route('cart.savePendingSelection') }}', $('#option-choice-form').serializeArray())
+                    .always(function() {
+                        $('#login_modal').modal();
+                    });
+
+                return;
+            }
+
             $('#login_modal').modal();
         }
 

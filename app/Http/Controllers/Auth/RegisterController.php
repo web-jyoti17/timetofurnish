@@ -17,6 +17,7 @@ use App\OtpConfiguration;
 use Illuminate\Http\Request;
 use App\Models\BusinessSetting;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
@@ -159,6 +160,10 @@ class RegisterController extends Controller
                     flash(translate('Registration failed. Please try again later.'))->error();
                 }
             }
+        }
+
+        if (app(CartController::class)->addPendingSelectionToCart()) {
+            return redirect()->route('cart');
         }
 
         return $this->registered($request, $user)

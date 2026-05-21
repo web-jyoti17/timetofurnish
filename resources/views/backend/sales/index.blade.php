@@ -3,13 +3,23 @@
 @section('content')
     <div class="card">
         <form class="" action="" id="sort_orders" method="GET">
-            <div class="card-header row gutters-5">
-                <div class="col">
-                    <h5 class="mb-md-0 h6">{{ translate('All Orders') }}</h5>
+            <div class="card-header order-filter-toolbar">
+                <div class="order-filter-title">
+                    <h5 class="mb-0 h6">{{ translate('All Orders') }}</h5>
                 </div>
 
+                @if (Route::currentRouteName() == 'all_orders.index')
+                    <div class="order-filter-control order-filter-export">
+                        <a href="{{ route('all_orders.export_with_invoices', request()->query()) }}"
+                            class="btn btn-soft-success">
+                            <i class="las la-file-excel"></i>
+                            {{ translate('Download Orders Excel') }}
+                        </a>
+                    </div>
+                @endif
+
                 @can('delete_order')
-                    <div class="dropdown mb-2 mb-md-0">
+                    <div class="dropdown order-filter-control">
                         <button class="btn border dropdown-toggle" type="button" data-toggle="dropdown">
                             {{ translate('Bulk Action') }}
                         </button>
@@ -20,7 +30,7 @@
                     </div>
                 @endcan
 
-                <div class="col-lg-2 ml-auto">
+                <div class="order-filter-control">
                     <select class="form-control aiz-selectpicker" name="delivery_status" id="delivery_status">
                         <option value="">{{ translate('Filter by Delivery Status') }}</option>
                         <option value="pending" @if ($delivery_status == 'pending') selected @endif>{{ translate('Pending') }}
@@ -37,7 +47,7 @@
                             {{ translate('Cancel') }}</option>
                     </select>
                 </div>
-                <div class="col-lg-2 ml-auto">
+                <div class="order-filter-control">
                     <select class="form-control aiz-selectpicker" name="payment_status" id="payment_status">
                         <option value="">{{ translate('Filter by Payment Status') }}</option>
                         <option value="paid"
@@ -48,21 +58,21 @@
                             {{ translate('Unpaid') }}</option>
                     </select>
                 </div>
-                <div class="col-lg-2">
+                <div class="order-filter-control">
                     <div class="form-group mb-0">
                         <input type="text" class="aiz-date-range form-control" value="{{ $date }}"
                             name="date" placeholder="{{ translate('Filter by date') }}" data-format="DD-MM-Y"
                             data-separator=" to " data-advanced-range="true" autocomplete="off">
                     </div>
                 </div>
-                <div class="col-lg-2">
+                <div class="order-filter-control">
                     <div class="form-group mb-0">
                         <input type="text" class="form-control" id="search"
                             name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset
                             placeholder="{{ translate('Type Order code & hit Enter') }}">
                     </div>
                 </div>
-                <div class="col-auto">
+                <div class="order-filter-action">
                     <div class="form-group mb-0">
                         <button type="submit" class="btn btn-primary">{{ translate('Filter') }}</button>
                     </div>
@@ -70,6 +80,7 @@
             </div>
 
             <div class="card-body">
+                <div class="orders-table-wrap">
                 <table class="table aiz-table mb-0">
                     <thead>
                         <tr>
@@ -97,6 +108,7 @@
                             <th data-breakpoints="md">{{ translate('Delivery Status') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment method') }}</th>
                             <th data-breakpoints="md">{{ translate('Payment Status') }}</th>
+                            <th data-breakpoints="md">{{ translate('Invoices') }}</th>
                             @if (addon_is_activated('refund_request'))
                                 <th>{{ translate('Refund') }}</th>
                             @endif
@@ -163,6 +175,33 @@
                                         <span class="badge badge-inline badge-danger">{{ translate('Unpaid') }}</span>
                                     @endif
                                 </td>
+                                <td class="order-invoice-actions">
+                                    @foreach (\App\Services\OrderInvoiceService::copyTypes() as $copyType => $copy)
+                                        @php
+                                            $invoice = $order->relationLoaded('invoices') ? $order->invoices->firstWhere('copy_type', $copyType) : null;
+                                        @endphp
+                                        <div class="btn-group mb-1">
+                                            <button type="button" class="btn btn-xs dropdown-toggle text-white"
+                                                data-toggle="dropdown"
+                                                style="background: {{ $copy['color'] }};">
+                                                {{ translate($copy['label']) }}
+                                                @if ($invoice)
+                                                    <i class="las la-check-circle"></i>
+                                                @endif
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" target="_blank"
+                                                    href="{{ route('orders.invoice.copy.view', [$order->id, $copyType]) }}">
+                                                    {{ translate('View PDF') }}
+                                                </a>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('orders.invoice.copy.download', [$order->id, $copyType]) }}">
+                                                    {{ translate('Download PDF') }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </td>
                                 @if (addon_is_activated('refund_request'))
                                     <td>
                                         @if (count($order->refund_requests) > 0)
@@ -200,8 +239,8 @@
                                     
                                    @if ($order->payment_status == 'paid')
                                     <a class="btn btn-soft-info btn-icon btn-circle btn-sm"
-                                        href="{{ route('invoice.download', $order->id) }}"
-                                        title="{{ translate('Download Invoice') }}">
+                                        href="{{ route('orders.invoice.copy.download', [$order->id, 'customer']) }}"
+                                        title="{{ translate('Download Customer Invoice') }}">
                                         <i class="las la-download"></i>
                                     </a>
                                     @endif
@@ -231,6 +270,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
 
                 <div class="aiz-pagination">
                     {{ $orders->appends(request()->input())->links() }}
@@ -248,6 +288,58 @@
     @include('modals.bulk_delete_modal')
 @endsection
 <style>
+.order-filter-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+.order-filter-title {
+    flex: 0 0 120px;
+    min-width: 120px;
+}
+.order-filter-title h5 {
+    white-space: nowrap;
+}
+.order-filter-control {
+    flex: 0 0 210px;
+    max-width: 260px;
+}
+.order-filter-export {
+    flex-basis: 260px;
+}
+.order-filter-control .btn,
+.order-filter-control .form-control,
+.order-filter-control .bootstrap-select {
+    width: 100% !important;
+}
+.order-filter-action {
+    flex: 0 0 auto;
+}
+.order-filter-action .btn {
+    min-width: 96px;
+}
+.orders-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+.order-invoice-actions .btn-group {
+    display: block;
+    width: 190px;
+}
+.order-invoice-actions .btn {
+    width: 100%;
+    text-align: left;
+}
+@media (max-width: 767.98px) {
+    .order-filter-title,
+    .order-filter-control,
+    .order-filter-export,
+    .order-filter-action {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
    table td {
     font-size: 12px !important;
 }

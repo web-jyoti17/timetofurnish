@@ -60,4 +60,9 @@ class Order extends Model
     {
         return $this->hasMany(CheckoutService::class);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(OrderInvoice::class);
+    }
 }

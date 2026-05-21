@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Currency;
 use App\Models\Language;
 use App\Models\Order;
+use App\Services\OrderInvoiceService;
 use Session;
 use PDF;
 use Config;
@@ -14,6 +15,29 @@ class InvoiceController extends Controller
    // Download Invoice
 public function invoice_download($id)
 {
+    $order = Order::findOrFail($id);
+    $user = auth()->user();
+
+    if ($user && !in_array($user->user_type, ['admin', 'staff']) && (int) $order->user_id !== (int) $user->id) {
+        abort(403);
+    }
+
+    $invoiceService = app(OrderInvoiceService::class);
+    try {
+        $invoice = $invoiceService->ensureInvoice($order, OrderInvoiceService::CUSTOMER);
+
+        if ($invoice) {
+            return response()->download(
+                $invoiceService->absolutePath($invoice->file_path),
+                $invoiceService->downloadName($invoice)
+            );
+        }
+    } catch (\Exception $e) {
+        \Log::error('Customer invoice copy download failed: ' . $e->getMessage(), [
+            'order_id' => $order->id,
+        ]);
+    }
+
     ini_set('memory_limit', '512M');
 
     // Currency
@@ -72,9 +96,13 @@ public function invoice_download($id)
         'mode' => 'utf-8',
         'format' => 'A4',
         'tempDir' => $tempDir,
+        'margin_left' => 0,
+        'margin_right' => 0,
+        'margin_top' => 0,
+        'margin_bottom' => 0,
         'default_font' => 'sans-serif',
         'instanceConfigurator' => function ($mpdf) {
-            $mpdf->showImageErrors = true;
+            $mpdf->showImageErrors = false;
             $mpdf->SetAutoPageBreak(true, 15);
         }
     ];

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Seshac\Shiprocket\Shiprocket;
 use Illuminate\Support\Facades\Mail;
 use App\Utility\CartUtility;
+use App\Services\OrderInvoiceService;
 
 class CheckoutController extends Controller
 {
@@ -203,13 +204,46 @@ class CheckoutController extends Controller
             return;
         }
 
-        foreach ($orders as $order) {
+        $invoiceService = app(OrderInvoiceService::class);
 
-            $mailData = [
+        foreach ($orders as $order) {
+            $copyTypes = OrderInvoiceService::copyTypes();
+            try {
+                $invoiceService->ensureInvoicesForOrder($order);
+            } catch (\Exception $e) {
+                Log::error('Order invoice PDF generation error: ' . $e->getMessage(), [
+                    'order_id' => $order->id,
+                ]);
+            }
+
+            $sellerMailData = [
                 'order' => $order,
+                'invoiceCopyType' => OrderInvoiceService::SELLER,
+                'invoiceCopy' => $copyTypes[OrderInvoiceService::SELLER],
+                'invoiceNumber' => $invoiceService->invoiceNumber($order),
+                'invoiceName' => $copyTypes[OrderInvoiceService::SELLER]['name'],
+                'invoiceGeneratedAt' => now(),
             ];
 
-            Log::info('onlinr payment success', [$mailData]);
+            $customerMailData = [
+                'order' => $order,
+                'invoiceCopyType' => OrderInvoiceService::CUSTOMER,
+                'invoiceCopy' => $copyTypes[OrderInvoiceService::CUSTOMER],
+                'invoiceNumber' => $invoiceService->invoiceNumber($order),
+                'invoiceName' => $copyTypes[OrderInvoiceService::CUSTOMER]['name'],
+                'invoiceGeneratedAt' => now(),
+            ];
+
+            $adminMailData = [
+                'order' => $order,
+                'invoiceCopyType' => OrderInvoiceService::ADMIN,
+                'invoiceCopy' => $copyTypes[OrderInvoiceService::ADMIN],
+                'invoiceNumber' => $invoiceService->invoiceNumber($order),
+                'invoiceName' => $copyTypes[OrderInvoiceService::ADMIN]['name'],
+                'invoiceGeneratedAt' => now(),
+            ];
+
+            Log::info('onlinr payment success', ['order_id' => $order->id]);
             /*
         |--------------------------------------------------------------------------
         | SELLER EMAIL
@@ -228,7 +262,7 @@ class CheckoutController extends Controller
                     Log::info('oDASFGsaS', [$seller_email]);
                     Mail::send(
                         'emails.order-mail',
-                        $mailData,
+                        $sellerMailData,
                         function ($message) use ($seller_email, $order) {
 
                             $message->to($seller_email)
@@ -261,7 +295,7 @@ class CheckoutController extends Controller
                     Log::info('customer_email', [$customer_email]);
                     Mail::send(
                         'emails.order-mail',
-                        $mailData,
+                        $customerMailData,
                         function ($message) use ($customer_email, $order) {
 
                             $message->to($customer_email)
@@ -283,12 +317,12 @@ class CheckoutController extends Controller
         */
             try {
 
-                $admin_email = 'sales@timetofurnish.com';
+                $admin_email = 'manpreetsdev@gmail.com';
                 $bcc_email = 'manpreetsdev@gmail.com'; // Set your BCC email here
                 Log::info('admin_email', [$admin_email]);
                 Mail::send(
                     'emails.order-mail',
-                    $mailData,
+                    $adminMailData,
                     function ($message) use ($admin_email, $order, $bcc_email) {
                         $message->to($admin_email)
                             ->bcc($bcc_email)

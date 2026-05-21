@@ -15,6 +15,36 @@ use App\Models\ProductAddonOption;
 
 class CartController extends Controller
 {
+    public function savePendingSelection(Request $request)
+    {
+        $data = $request->except('_token');
+
+        if (empty($data['id'])) {
+            return response()->json(['status' => 0]);
+        }
+
+        Session::put('pending_cart_selection', $data);
+
+        return response()->json(['status' => 1]);
+    }
+
+    public function addPendingSelectionToCart(): bool
+    {
+        if (!auth()->check() || auth()->user()->user_type != 'customer' || !Session::has('pending_cart_selection')) {
+            return false;
+        }
+
+        $pendingSelection = Session::pull('pending_cart_selection');
+
+        if (empty($pendingSelection['id']) || empty($pendingSelection['quantity'])) {
+            return false;
+        }
+
+        $response = $this->addToCart(new Request($pendingSelection));
+
+        return is_array($response) && (int) ($response['status'] ?? 0) === 1;
+    }
+
     public function index(Request $request)
     {
         if (auth()->user() != null) {

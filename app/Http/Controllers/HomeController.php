@@ -162,6 +162,7 @@ class HomeController extends Controller
     public function cart_login(Request $request)
     {
         $user = null;
+        $loggedIn = false;
         if ($request->get('phone') != null) {
             $user = User::whereIn('user_type', ['customer', 'seller'])->where('phone', "+{$request['country_code']}{$request['phone']}")->first();
         } elseif ($request->get('email') != null) {
@@ -175,12 +176,18 @@ class HomeController extends Controller
                 } else {
                     auth()->login($user, false);
                 }
+                $loggedIn = true;
             } else {
                 flash(translate('Invalid email or password!'))->warning();
             }
         } else {
             flash(translate('Invalid email or password!'))->warning();
         }
+
+        if ($loggedIn && app(CartController::class)->addPendingSelectionToCart()) {
+            return redirect()->route('cart');
+        }
+
         return back();
     }
 
