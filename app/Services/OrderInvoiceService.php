@@ -64,21 +64,6 @@ class OrderInvoiceService
             ->where('copy_type', $copyType)
             ->first();
 
-        $templateUpdatedAt = max(
-            File::lastModified(resource_path('views/emails/order-mail.blade.php')),
-            File::lastModified(resource_path('views/backend/invoices/invoice.blade.php')),
-            File::lastModified(resource_path('views/backend/invoices/pdf.blade.php'))
-        );
-
-        if (
-            $invoice &&
-            File::exists($this->absolutePath($invoice->file_path)) &&
-            $invoice->updated_at &&
-            $invoice->updated_at->timestamp >= $templateUpdatedAt
-        ) {
-            return $invoice;
-        }
-
         $generatedAt = $invoice && $invoice->generated_at ? Carbon::parse($invoice->generated_at) : now();
         $invoiceNumber = $this->invoiceNumber($order);
         $invoiceName = self::copyTypes()[$copyType]['name'];
@@ -149,7 +134,7 @@ class OrderInvoiceService
 
     private function pdfConfig(): array
     {
-        $tempDir = storage_path('app/mpdf-invoices-v2');
+        $tempDir = storage_path('app/mpdf-invoices-v2/' . uniqid('run-', true));
         File::ensureDirectoryExists($tempDir);
 
         $currencyCode = Session::get('currency_code', optional(Currency::find(get_setting('system_default_currency')))->code);
