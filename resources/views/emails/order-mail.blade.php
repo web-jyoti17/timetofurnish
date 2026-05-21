@@ -307,7 +307,8 @@
                                             {{ $invoiceCopy['label'] }}
                                         </div>
                                         @if (($invoiceCopyType ?? '') === \App\Services\OrderInvoiceService::ADMIN)
-                                            <div class="muted" style="font-size:13px;margin-top:6px;">
+                                            <div class="muted"
+                                                style="font-size:9px;margin-top:6px;color:#000;font-weight:900;">
                                                 For office use only
                                             </div>
                                         @endif

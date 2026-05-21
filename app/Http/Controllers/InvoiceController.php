@@ -86,7 +86,7 @@ public function invoice_download($id)
     }
 
     // Ensure mPDF temp directory exists
-    $tempDir = storage_path('app/mpdf');
+    $tempDir = storage_path('app/mpdf-invoices-v2');
     if (!file_exists($tempDir)) {
         mkdir($tempDir, 0777, true);
     }
