@@ -299,7 +299,7 @@
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                     <td width="50%" align="left" valign="middle">
-                                        <img src="{{ $assetPath('assets/img/TTF.jpg') }}" width="128"
+                                        <img src="{{ asset('public/assets/img/TTF.jpg') }}" width="128"
                                             alt="Time To Furnish" style="display:block;width:128px;height:auto;">
                                     </td>
                                     <td width="50%" align="right" valign="middle" class="right">
@@ -579,19 +579,19 @@
                                 style="margin-top:17px;">
                                 <tr>
                                     <td width="33.33%" align="center" class="center" style="font-size:11px;">
-                                        <img src="{{ $assetPath('assets/img/email.jpeg') }}" alt="Email"
+                                        <img src="{{ asset('public/assets/img/email.jpeg') }}" alt="Email"
                                             width="28" height="28"
                                             style="display:block;margin:0 auto 5px;width:28px;height:28px;">
                                         {{ $companyEmail }}
                                     </td>
                                     <td width="33.33%" align="center" class="center" style="font-size:11px;">
-                                        <img src="{{ $assetPath('assets/img/website.jpeg') }}" alt="Website"
+                                        <img src="{{ asset('public/assets/img/website.jpeg') }}" alt="Website"
                                             width="28" height="28"
                                             style="display:block;margin:0 auto 5px;width:28px;height:28px;">
                                         {{ $companyWebsite }}
                                     </td>
                                     <td width="33.33%" align="center" class="center" style="font-size:11px;">
-                                        <img src="{{ $assetPath('assets/img/whatsapp.jpeg') }}" alt="Phone"
+                                        <img src="{{ asset('public/assets/img/whatsapp.jpeg') }}" alt="Phone"
                                             width="28" height="28"
                                             style="display:block;margin:0 auto 5px;width:28px;height:28px;">
                                         {{ $companyPhone }}
