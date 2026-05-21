@@ -14,7 +14,7 @@
             padding: 0;
             background: #f2f2f0;
             color: #222222;
-            font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.45;
         }

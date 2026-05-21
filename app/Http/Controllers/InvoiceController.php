@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Currency;
-use App\Models\Language;
 use App\Models\Order;
 use App\Services\OrderInvoiceService;
-use Session;
-use PDF;
-use Config;
 
 class InvoiceController extends Controller
 {
@@ -40,51 +35,6 @@ public function invoice_download($id)
 
     ini_set('memory_limit', '512M');
 
-    // Currency
-    $currency_code = Session::get(
-        'currency_code',
-        Currency::findOrFail(get_setting('system_default_currency'))->code
-    );
-
-    // Language
-    $language_code = Session::get('locale', Config::get('app.locale'));
-
-    // Language Model
-    $language = Language::where('code', $language_code)->first();
-
-    // RTL Support
-    if (optional($language)->rtl == 1) {
-        $direction = 'rtl';
-        $text_align = 'right';
-        $not_text_align = 'left';
-    } else {
-        $direction = 'ltr';
-        $text_align = 'left';
-        $not_text_align = 'right';
-    }
-
-    // Font Selection
-    if ($currency_code == 'BDT' || $language_code == 'bd') {
-        $font_family = "'Hind Siliguri','sans-serif'";
-    } elseif ($currency_code == 'KHR' || $language_code == 'kh') {
-        $font_family = "'Hanuman','sans-serif'";
-    } elseif ($currency_code == 'AMD') {
-        $font_family = "'arnamu','sans-serif'";
-    } elseif (
-        in_array($currency_code, ['AED', 'EGP', 'IQD', 'ROM', 'SDG', 'ILS']) ||
-        in_array($language_code, ['sa', 'ir', 'om', 'jo'])
-    ) {
-        $font_family = "'Baloo Bhaijaan 2','sans-serif'";
-    } elseif ($currency_code == 'THB' || $language_code == 'th') {
-        $font_family = "'Kanit','sans-serif'";
-    } elseif ($currency_code == 'CNY' || $language_code == 'zh') {
-        $font_family = "'yahei','sans-serif'";
-    } elseif ($currency_code == 'kyat' || $language_code == 'mm') {
-        $font_family = "'pyidaungsu','sans-serif'";
-    } else {
-        $font_family = "'Roboto','sans-serif'";
-    }
-
     // Ensure mPDF temp directory exists
     $tempDir = storage_path('app/mpdf-invoices-v2/' . uniqid('run-', true));
     if (!file_exists($tempDir)) {
@@ -96,11 +46,19 @@ public function invoice_download($id)
         'mode' => 'utf-8',
         'format' => 'A4',
         'tempDir' => $tempDir,
+        'font_path' => public_path('assets/fonts/'),
+        'font_data' => [
+            'roboto' => [
+                'R' => 'Roboto-Regular.ttf',
+                'useOTL' => 0xFF,
+                'useKashida' => 75,
+            ],
+        ],
         'margin_left' => 0,
         'margin_right' => 0,
         'margin_top' => 0,
         'margin_bottom' => 0,
-        'default_font' => 'sans-serif',
+        'default_font' => 'roboto',
         'instanceConfigurator' => function ($mpdf) {
             $mpdf->showImageErrors = false;
             $mpdf->SetAutoPageBreak(true, 15);
@@ -112,18 +70,27 @@ public function invoice_download($id)
 
     $html = view('backend.invoices.invoice', [
         'order' => $order,
-        'font_family' => $font_family,
-        'direction' => $direction,
-        'text_align' => $text_align,
-        'not_text_align' => $not_text_align,
     ])->render();
 
-    $mpdf = new \Mpdf\Mpdf($config);
-    $mpdf->showImageErrors = false;
-    $mpdf->SetAutoPageBreak(true, 15);
-    $mpdf->WriteHTML($html);
+    set_error_handler(function ($severity, $message, $file, $line) {
+        if (str_contains($message, 'unserialize(): Extra data starting at offset')) {
+            return true;
+        }
 
-    return response($mpdf->Output('order-' . $order->code . '.pdf', \Mpdf\Output\Destination::STRING_RETURN), 200, [
+        return false;
+    });
+
+    try {
+        $mpdf = new \Mpdf\Mpdf($config);
+        $mpdf->showImageErrors = false;
+        $mpdf->SetAutoPageBreak(true, 15);
+        $mpdf->WriteHTML($html);
+        $output = $mpdf->Output('order-' . $order->code . '.pdf', \Mpdf\Output\Destination::STRING_RETURN);
+    } finally {
+        restore_error_handler();
+    }
+
+    return response($output, 200, [
         'Content-Type' => 'application/pdf',
         'Content-Disposition' => 'attachment; filename="order-' . $order->code . '.pdf"',
     ]);

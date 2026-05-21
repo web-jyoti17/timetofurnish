@@ -2,15 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\Currency;
-use App\Models\Language;
 use App\Models\Order;
 use App\Models\OrderInvoice;
 use Carbon\Carbon;
-use Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Session;
 
 class OrderInvoiceService
 {
@@ -81,11 +77,7 @@ class OrderInvoiceService
             'isPdf' => true,
         ])->render();
 
-        $mpdf = new \Mpdf\Mpdf($this->pdfConfig());
-        $mpdf->showImageErrors = false;
-        $mpdf->SetAutoPageBreak(true, 15);
-        $mpdf->WriteHTML($html);
-        $mpdf->Output($absolutePath, \Mpdf\Output\Destination::FILE);
+        $this->renderPdfToFile($html, $absolutePath);
 
         return OrderInvoice::updateOrCreate(
             [
@@ -130,58 +122,57 @@ class OrderInvoiceService
         return trim($value, '-');
     }
 
+    private function renderPdfToFile(string $html, string $absolutePath): void
+    {
+        $this->withMpdfUnserializeWarningSuppressed(function () use ($html, $absolutePath) {
+            $mpdf = new \Mpdf\Mpdf($this->pdfConfig());
+            $mpdf->showImageErrors = false;
+            $mpdf->SetAutoPageBreak(true, 15);
+            $mpdf->WriteHTML($html);
+            $mpdf->Output($absolutePath, \Mpdf\Output\Destination::FILE);
+        });
+    }
+
+    private function withMpdfUnserializeWarningSuppressed(callable $callback)
+    {
+        set_error_handler(function ($severity, $message, $file, $line) {
+            if (str_contains($message, 'unserialize(): Extra data starting at offset')) {
+                return true;
+            }
+
+            return false;
+        });
+
+        try {
+            return $callback();
+        } finally {
+            restore_error_handler();
+        }
+    }
+
     private function pdfConfig(): array
     {
         $tempDir = storage_path('app/mpdf-invoices-v2/' . uniqid('run-', true));
         File::ensureDirectoryExists($tempDir);
 
-        $currencyCode = Session::get('currency_code', optional(Currency::find(get_setting('system_default_currency')))->code);
-        $languageCode = Session::get('locale', Config::get('app.locale'));
-        $language = Language::where('code', $languageCode)->first();
-
         return [
             'mode' => 'utf-8',
             'format' => 'A4',
             'tempDir' => $tempDir,
+            'font_path' => public_path('assets/fonts/'),
+            'font_data' => [
+                'roboto' => [
+                    'R' => 'Roboto-Regular.ttf',
+                    'useOTL' => 0xFF,
+                    'useKashida' => 75,
+                ],
+            ],
             'margin_left' => 0,
             'margin_right' => 0,
             'margin_top' => 0,
             'margin_bottom' => 0,
-            'default_font' => $this->fontFamily($currencyCode, $languageCode),
-            'directionality' => optional($language)->rtl == 1 ? 'rtl' : 'ltr',
+            'default_font' => 'roboto',
+            'directionality' => 'ltr',
         ];
-    }
-
-    private function fontFamily(?string $currencyCode, ?string $languageCode): string
-    {
-        if ($currencyCode == 'BDT' || $languageCode == 'bd') {
-            return 'Hind Siliguri';
-        }
-
-        if ($currencyCode == 'KHR' || $languageCode == 'kh') {
-            return 'Hanuman';
-        }
-
-        if ($currencyCode == 'AMD') {
-            return 'arnamu';
-        }
-
-        if (in_array($currencyCode, ['AED', 'EGP', 'IQD', 'ROM', 'SDG', 'ILS']) || in_array($languageCode, ['sa', 'ir', 'om', 'jo'])) {
-            return 'Baloo Bhaijaan 2';
-        }
-
-        if ($currencyCode == 'THB' || $languageCode == 'th') {
-            return 'Kanit';
-        }
-
-        if ($currencyCode == 'CNY' || $languageCode == 'zh') {
-            return 'yahei';
-        }
-
-        if ($currencyCode == 'kyat' || $languageCode == 'mm') {
-            return 'pyidaungsu';
-        }
-
-        return 'DejaVu Sans';
     }
 }
