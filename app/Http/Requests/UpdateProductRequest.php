@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use App\Models\Attribute;
 
 
 class UpdateProductRequest extends FormRequest
@@ -75,6 +76,24 @@ class UpdateProductRequest extends FormRequest
         $rules['specification'] = 'nullable';
         $rules['dimensions_enabled'] = 'nullable|boolean';
 
+        if (auth()->check() && auth()->user()->user_type == 'seller') {
+            $rules['choice_no'] = 'required|array|min:1';
+
+            foreach ((array) $this->input('choice_no', []) as $choiceNo) {
+                $rules['choice_options_' . $choiceNo] = 'required|array|min:1';
+            }
+
+            foreach ($this->all() as $key => $value) {
+                if (str_starts_with($key, 'price_')) {
+                    $rules[$key] = ['required', 'numeric', 'gt:0', 'max:99999'];
+                }
+
+                if (str_starts_with($key, 'qty_')) {
+                    $rules[$key] = ['required', 'integer', 'min:1', 'max:9999'];
+                }
+            }
+        }
+
 
 
     foreach ($this->all() as $key => $value) {
@@ -104,7 +123,7 @@ class UpdateProductRequest extends FormRequest
 
     public function messages()
     {
-        return [
+        $messages = [
             'name.required'             => translate('Product name is required'),
             'category_ids.required'     => translate('Product category is required'),
             'category_id.required'      => translate('Main Category is required'),
@@ -125,6 +144,11 @@ class UpdateProductRequest extends FormRequest
             'starting_bid.numeric'      => translate('Starting Bid must be numeric'),
             'starting_bid.required'     => translate('Minimum Starting Bid is 1'),
             'auction_date_range.required' => translate('Auction Date Range is required'),
+            'choice_no.required' => translate('At least one product attribute is required'),
+            'price_*.required' => translate('Variant price is required'),
+            'price_*.gt' => translate('Variant price must be greater than 0'),
+            'qty_*.required' => translate('Variant quantity is required'),
+            'qty_*.min' => translate('Variant quantity must be greater than 0'),
 
 
             'unit'=> translate( 'Unit  must be a 10-digit number'),
@@ -139,6 +163,38 @@ class UpdateProductRequest extends FormRequest
 
            // 'sku.unique' => translate('SKU already exists'),
         ];
+
+        foreach ((array) $this->input('choice_no', []) as $choiceNo) {
+            $attribute = Attribute::find($choiceNo);
+            $label = $attribute ? $attribute->getTranslation('name') : translate('attribute');
+            $messages['choice_options_' . $choiceNo . '.required'] = translate('Please select at least one value for') . ' ' . $label;
+            $messages['choice_options_' . $choiceNo . '.min'] = translate('Please select at least one value for') . ' ' . $label;
+        }
+
+        return $messages;
+    }
+
+    public function attributes()
+    {
+        $attributes = [];
+
+        foreach ((array) $this->input('choice_no', []) as $choiceNo) {
+            $attribute = Attribute::find($choiceNo);
+            $label = $attribute ? $attribute->getTranslation('name') : translate('attribute');
+            $attributes['choice_options_' . $choiceNo] = translate('values for') . ' ' . $label;
+        }
+
+        foreach ($this->all() as $key => $value) {
+            if (str_starts_with($key, 'price_')) {
+                $attributes[$key] = translate('variant price');
+            }
+
+            if (str_starts_with($key, 'qty_')) {
+                $attributes[$key] = translate('variant quantity');
+            }
+        }
+
+        return $attributes;
     }
 
     /**

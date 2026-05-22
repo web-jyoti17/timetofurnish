@@ -20,6 +20,7 @@
 
         table {
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         td,
@@ -112,28 +113,36 @@
                 $sellerAddressLines[] = $sellerProfileAddress->landline_no;
             }
         }
+        $addressColumnWidth = !empty($sellerAddressLines) ? '33.33%' : '50%';
     @endphp
 
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f0;">
         <tr>
             <td align="center" style="padding:18px 0;">
-                <table width="760" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #ded8d0;">
+                <table width="680" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #ded8d0;">
                     <tr>
-                        <td style="padding:28px 34px;background:#fbfaf8;border-bottom:1px solid #e3ddd5;">
+                        <td style="padding:24px;background:#fbfaf8;border-bottom:1px solid #e3ddd5;">
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
-                                    <td width="50%" style="vertical-align:middle;">
+                                    <td width="50%" align="left" style="vertical-align:start;">
                                         <img src="{{ $assetPath('assets/img/TTF.jpg') }}" width="128"
                                             style="width:128px;height:auto;">
                                     </td>
                                     <td width="50%" align="right" style="vertical-align:middle;text-align:right;">
                                         <span
-                                            style="display:inline-block;background:{{ $invoiceCopy['color'] }};color:#fff;font-size:11px;font-weight:bold;padding:7px 11px;text-transform:uppercase;">{{ $invoiceCopy['label'] }}</span>
+                                            style="background:{{ $invoiceCopy['color'] }};color:#fff;font-size:11px;font-weight:bold;padding:7px 11px;text-transform:uppercase;width:100px;height:100px;display:block;">{{ $invoiceCopy['label'] }}</span>
                                         <div
                                             style="font-size:26px;font-weight:bold;line-height:1.2;color:{{ $invoiceCopy['color'] }};margin-top:9px;">
                                             Invoice</div>
-                                        <div style="font-size:11px;color:#687076;margin-top:4px;">{{ $invoiceName }}</div>
-                                        <div style="font-size:11px;color:#687076;margin-top:3px;">Order {{ $order->code }}
+                                        @if (($invoiceCopyType ?? '') === \App\Services\OrderInvoiceService::ADMIN)
+                                            <div class="muted"
+                                                style="font-size:9px;margin-top:6px;color:#000;font-weight:900;">
+                                                For office use only
+                                            </div>
+                                        @endif
+
+                                        <div style="font-size:11px;color:#687076;margin-top:3px;">Order
+                                            {{ $order->code }}
                                         </div>
                                     </td>
                                 </tr>
@@ -142,10 +151,10 @@
                     </tr>
 
                     <tr>
-                        <td style="padding:26px 34px 16px;">
+                        <td style="padding:24px 24px 12px;">
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
-                                    <td width="56%" style="padding-right:24px;">
+                                    <td width="56%" style="padding-right:22px;text-align:left;">
                                         <div
                                             style="font-size:10px;color:#8a6f4d;text-transform:uppercase;font-weight:bold;">
                                             Invoice to</div>
@@ -164,40 +173,45 @@
                                             <div style="font-size:11px;color:#555;">{{ $deliveryAddress->phone }}</div>
                                         @endif
                                     </td>
-                                    <td width="44%">
+                                    <td width="44%" style="text-align:left;">
                                         <table width="100%" cellpadding="0" cellspacing="0"
                                             style="background:#f5efe7;border:1px solid #d7c8b8;">
                                             <tr>
                                                 <td style="padding:14px 16px;">
                                                     <table width="100%" cellpadding="0" cellspacing="0">
                                                         <tr>
-                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">Payment
+                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">
+                                                                Payment
                                                                 status</td>
                                                             <td align="right"
                                                                 style="font-size:11px;font-weight:bold;padding:4px 0;">
                                                                 {{ ucfirst($order->payment_status ?? '') }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">Invoice
+                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">
+                                                                Invoice
                                                                 no.</td>
                                                             <td align="right" style="font-size:11px;padding:4px 0;">
                                                                 {{ $invoiceNumber }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">Invoice
+                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">
+                                                                Invoice
                                                                 date</td>
                                                             <td align="right" style="font-size:11px;padding:4px 0;">
                                                                 {{ date('d F Y', $order->date) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">Generated
+                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">
+                                                                Generated
                                                                 at</td>
                                                             <td align="right" style="font-size:11px;padding:4px 0;">
                                                                 {{ \Carbon\Carbon::parse($invoiceGeneratedAt)->format('d F Y, h:i A') }}
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">Payment
+                                                            <td style="font-size:11px;color:#6b5a45;padding:4px 0;">
+                                                                Payment
                                                                 method</td>
                                                             <td align="right" style="font-size:11px;padding:4px 0;">
                                                                 {{ $paymentMethod }}</td>
@@ -221,32 +235,38 @@
                     </tr>
 
                     <tr>
-                        <td style="padding:8px 34px 18px;">
+                        <td style="padding:8px 24px 18px;">
                             <table width="100%" cellpadding="0" cellspacing="0"
                                 style="border-top:1px solid #e1ded9;border-bottom:1px solid #e1ded9;">
                                 <tr>
-                                    <td width="33.33%" style="padding:14px 16px 14px 0;">
+                                    <td width="{{ $addressColumnWidth }}"
+                                        style="padding:14px 16px 14px 0;text-align:left;">
                                         <div style="font-size:13px;font-weight:bold;margin-bottom:7px;">Delivery address
                                         </div>
                                         @foreach ($formatAddress($deliveryAddress) as $line)
                                             <div style="font-size:11px;line-height:1.55;">{{ $line }}</div>
                                         @endforeach
                                     </td>
-                                    <td width="33.33%" style="padding:14px 16px;">
-                                        <div style="font-size:13px;font-weight:bold;margin-bottom:7px;">Billing address
-                                        </div>
-                                        @foreach ($sellerAddressLines as $line)
-                                            <div style="font-size:11px;line-height:1.55;">{{ $line }}</div>
-                                        @endforeach
-                                    </td>
-                                    <td width="33.33%" style="padding:14px 0 14px 16px;">
+                                    @if (!empty($sellerAddressLines))
+                                        <td width="33.33%" style="padding:14px 16px;text-align:left;">
+                                            <div style="font-size:13px;font-weight:bold;margin-bottom:7px;">Billing
+                                                address
+                                            </div>
+                                            @foreach ($sellerAddressLines as $line)
+                                                <div style="font-size:11px;line-height:1.55;">{{ $line }}</div>
+                                            @endforeach
+                                        </td>
+                                    @endif
+                                    <td width="{{ $addressColumnWidth }}"
+                                        style="padding:14px 0 14px 16px;text-align:left;">
                                         <div style="font-size:13px;font-weight:bold;margin-bottom:7px;">Sold by</div>
                                         <div style="font-size:11px;line-height:1.55;">
                                             {{ $order->shop->name ?? 'Time To Furnish' }}</div>
                                         @foreach (array_slice($sellerAddressLines, 1) as $line)
                                             <div style="font-size:11px;line-height:1.55;">{{ $line }}</div>
                                         @endforeach
-                                        <div style="font-size:11px;line-height:1.55;color:#0052cc;">{{ $companyEmail }}</div>
+                                        <div style="font-size:11px;line-height:1.55;color:#0052cc;">{{ $companyEmail }}
+                                        </div>
                                         <div style="font-size:11px;line-height:1.55;">{{ $companyPhone }}</div>
                                     </td>
                                 </tr>
@@ -255,26 +275,37 @@
                     </tr>
 
                     <tr>
-                        <td style="padding:0 34px 18px;">
+                        <td style="padding:0 24px 18px;">
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
-                                    <td width="50%">
-                                        <div style="font-size:13px;font-weight:bold;margin-bottom:7px;">Order information
+                                    <td width="50%" align="left" style="text-align:left;">
+                                        <div style="font-size:13px;font-weight:bold;margin-bottom:7px;text-align:left;">
+                                            Order information
                                         </div>
-                                        <table cellpadding="0" cellspacing="0">
+                                        <table width="100%" cellpadding="0" cellspacing="0" align="left"
+                                            style="text-align:left;">
                                             <tr>
-                                                <td style="font-size:11px;color:#666;padding:2px 38px 2px 0;">Order date
+                                                <td width="20%" align="left"
+                                                    style="font-size:11px;color:#666;padding:2px 0;text-align:left;">
+                                                    Order date
                                                 </td>
-                                                <td style="font-size:11px;padding:2px 0;">{{ date('d F Y', $order->date) }}
+                                                <td width="80%" align="left"
+                                                    style="font-size:11px;padding:2px 0;text-align:left;">
+                                                    {{ date('d F Y', $order->date) }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td style="font-size:11px;color:#666;padding:2px 38px 2px 0;">Order #</td>
-                                                <td style="font-size:11px;padding:2px 0;">{{ $order->code }}</td>
+                                                <td width="20%" align="left"
+                                                    style="font-size:11px;color:#666;padding:2px 0;text-align:left;">
+                                                    Order #</td>
+                                                <td width="80%" align="left"
+                                                    style="font-size:11px;padding:2px 0;text-align:left;">
+                                                    {{ $order->code }}</td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td width="50%" align="right" style="font-size:11px;color:#666;text-align:right;">
+                                    <td width="50%" align="right"
+                                        style="font-size:11px;color:#666;text-align:right;">
                                         For support: <span style="color:#8a6f4d;">{{ $companyEmail }}</span>
                                     </td>
                                 </tr>
@@ -283,9 +314,9 @@
                     </tr>
 
                     <tr>
-                        <td style="padding:0 34px 28px;">
+                        <td style="padding:0 24px 26px;">
                             <div
-                                style="font-size:18px;font-weight:bold;padding-bottom:9px;border-bottom:2px solid #222;">
+                                style="font-size:18px;font-weight:bold;padding-bottom:9px;border-bottom:2px solid #222;text-align:left;">
                                 Invoice details</div>
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
@@ -318,7 +349,8 @@
                                             }
                                         @endphp
                                         <tr>
-                                            <td style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;">
+                                            <td
+                                                style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;">
                                                 <div style="font-weight:bold;">{{ $orderDetail->product->name }}</div>
                                                 @if ($orderDetail->variation)
                                                     <div style="font-size:11px;color:#666;margin-top:2px;">Variant:
@@ -333,7 +365,8 @@
                                                                     style="font-size:10px;color:#6b5a45;padding:4px 6px;">
                                                                     {{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}
                                                                 </td>
-                                                                <td width="44%" style="font-size:10px;padding:4px 6px;">
+                                                                <td width="44%"
+                                                                    style="font-size:10px;padding:4px 6px;">
                                                                     {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
                                                                 </td>
                                                                 <td width="22%" align="right"
@@ -358,7 +391,8 @@
                                     @endif
                                 @endforeach
                                 <tr>
-                                    <td style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;">Shipping
+                                    <td style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;">
+                                        Shipping
                                         charges</td>
                                     <td style="border-bottom:1px solid #ececec;"></td>
                                     <td style="border-bottom:1px solid #ececec;"></td>
@@ -366,6 +400,18 @@
                                         style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;">
                                         {{ single_price($shippingTotal) }}</td>
                                 </tr>
+                                @if ((float) $order->coupon_discount > 0)
+                                    <tr>
+                                        <td
+                                            style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;background:#faf8f5;">
+                                            Promotion / coupon</td>
+                                        <td style="border-bottom:1px solid #ececec;background:#faf8f5;"></td>
+                                        <td style="border-bottom:1px solid #ececec;background:#faf8f5;"></td>
+                                        <td align="right"
+                                            style="font-size:12px;padding:11px 7px;border-bottom:1px solid #ececec;background:#faf8f5;">
+                                            -{{ single_price($order->coupon_discount) }}</td>
+                                    </tr>
+                                @endif
                             </table>
 
                             <table width="100%" cellpadding="0" cellspacing="0"
@@ -375,24 +421,29 @@
                                     <td width="44%">
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
-                                                <td style="font-size:12px;color:#666;padding:5px 0;">Items subtotal</td>
+                                                <td style="font-size:12px;color:#666;padding:5px 0;">Items subtotal
+                                                </td>
                                                 <td align="right" style="font-size:12px;padding:5px 0;">
                                                     {{ single_price($itemsSubtotal) }}</td>
                                             </tr>
                                             <tr>
-                                                <td style="font-size:12px;color:#666;padding:5px 0;">Addons subtotal</td>
+                                                <td style="font-size:12px;color:#666;padding:5px 0;">Addons subtotal
+                                                </td>
                                                 <td align="right" style="font-size:12px;padding:5px 0;">
                                                     {{ single_price($addonsSubtotal) }}</td>
                                             </tr>
                                             <tr>
-                                                <td style="font-size:12px;color:#666;padding:5px 0;">Shipping charges</td>
+                                                <td style="font-size:12px;color:#666;padding:5px 0;">Shipping charges
+                                                </td>
                                                 <td align="right" style="font-size:12px;padding:5px 0;">
                                                     {{ single_price($shippingTotal) }}</td>
                                             </tr>
                                             <tr>
-                                                <td style="font-size:18px;font-weight:bold;padding-top:11px;">Invoice total
+                                                <td style="font-size:18px;font-weight:bold;padding-top:11px;">Invoice
+                                                    total
                                                 </td>
-                                                <td align="right" style="font-size:18px;font-weight:bold;padding-top:11px;">
+                                                <td align="right"
+                                                    style="font-size:18px;font-weight:bold;padding-top:11px;">
                                                     {{ single_price($order->grand_total) }}</td>
                                             </tr>
                                         </table>
@@ -404,24 +455,62 @@
 
                     <tr>
                         <td align="center"
-                            style="padding:16px 34px 22px;border-top:1px solid #e3ddd5;text-align:center;">
-                            <div style="font-size:11px;color:#555;line-height:1.6;">You will receive an email notification
+                            style="padding:16px 24px 22px;border-top:1px solid #e3ddd5;text-align:center;">
+                            <div style="font-size:11px;color:#555;line-height:1.6;">You will receive an email
+                                notification
                                 once your goods have been dispatched by the seller.</div>
-                            <div style="font-size:12px;font-weight:bold;margin-top:7px;">Thank you for shopping with Time
+                            <div style="font-size:12px;font-weight:bold;margin-top:7px;">Thank you for shopping with
+                                Time
                                 To Furnish.</div>
-                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:17px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
                                 <tr>
-                                    <td width="33.33%" align="center" style="font-size:11px;text-align:center;">
-                                        <img src="{{ $assetPath('assets/img/email.jpeg') }}" width="28" height="28"
-                                            style="width:28px;height:28px;"><br>{{ $companyEmail }}
+                                    <td width="33.33%" align="left"
+                                        style="font-size:11px;text-align:left;padding:0 8px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td width="40" align="right"
+                                                    style="padding-right:10px;vertical-align:middle;">
+                                                    <img src="{{ $assetPath('assets/img/email.jpeg') }}"
+                                                        width="32" style="width:32px;height:auto;">
+                                                </td>
+                                                <td align="left"
+                                                    style="font-size:11px;vertical-align:middle;text-align:left;">
+                                                    {{ $companyEmail }}
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
-                                    <td width="33.33%" align="center" style="font-size:11px;text-align:center;">
-                                        <img src="{{ $assetPath('assets/img/website.jpeg') }}" width="28" height="28"
-                                            style="width:28px;height:28px;"><br>{{ $companyWebsite }}
+                                    <td width="33.33%" align="left"
+                                        style="font-size:11px;text-align:left;padding:0 8px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td width="40" align="right"
+                                                    style="padding-right:10px;vertical-align:middle;">
+                                                    <img src="{{ $assetPath('assets/img/website.jpeg') }}"
+                                                        width="32" style="width:32px;height:auto;">
+                                                </td>
+                                                <td align="left"
+                                                    style="font-size:11px;vertical-align:middle;text-align:left;">
+                                                    {{ $companyWebsite }}
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
-                                    <td width="33.33%" align="center" style="font-size:11px;text-align:center;">
-                                        <img src="{{ $assetPath('assets/img/whatsapp.jpeg') }}" width="28" height="28"
-                                            style="width:28px;height:28px;"><br>{{ $companyPhone }}
+                                    <td width="33.33%" align="left"
+                                        style="font-size:11px;text-align:left;padding:0 8px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td width="40" align="right"
+                                                    style="padding-right:10px;vertical-align:middle;">
+                                                    <img src="{{ $assetPath('assets/img/whatsapp.jpeg') }}"
+                                                        width="32" style="width:32px;height:auto;">
+                                                </td>
+                                                <td align="left"
+                                                    style="font-size:11px;vertical-align:middle;text-align:left;white-space:nowrap;">
+                                                    {{ $companyPhone }}
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>

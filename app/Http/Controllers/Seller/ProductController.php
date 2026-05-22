@@ -6,8 +6,10 @@ use AizPackages\CombinationGenerate\Services\CombinationService;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Http\Request;
+use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\AttributeCategory;
+use App\Models\AttributeTranslation;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
@@ -59,6 +61,7 @@ class ProductController extends Controller
         $search = null;
 
         $products = Product::where('user_id', Auth::user()->id)
+            ->with('stocks')
             ->where('digital', 0)
             ->where('auction_product', 0)
             ->where('wholesale_product', 0)
@@ -211,6 +214,7 @@ class ProductController extends Controller
 
         ///Product categories
         $product->categories()->attach($request->category_ids);
+        $this->syncSelectedAttributesToCategories($request->choice_no ?? [], $request->category_ids ?? []);
         /*
         |--------------------------------------------------------------------------
         | AUTO ASSIGN CATEGORY SERVICES
@@ -561,6 +565,7 @@ class ProductController extends Controller
 
         //Product categories
         $product->categories()->sync($request->category_ids);
+        $this->syncSelectedAttributesToCategories($request->choice_no ?? [], $request->category_ids ?? []);
         // Product checkout services
         /*
         |--------------------------------------------------------------------------
@@ -880,8 +885,10 @@ class ProductController extends Controller
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_' . $no;
                 $data = array();
-                foreach ($request[$name] as $key => $item) {
-                    array_push($data, $item);
+                if (!empty($request[$name])) {
+                    foreach ($request[$name] as $key => $item) {
+                        array_push($data, $item);
+                    }
                 }
                 array_push($options, $data);
             }
@@ -902,6 +909,83 @@ class ProductController extends Controller
         }
 
         echo json_encode($html);
+    }
+
+    public function storeAttribute(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'values' => 'required',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'integer',
+        ]);
+
+        $name = trim($request->name);
+        $attribute = Attribute::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
+
+        if (!$attribute) {
+            $attribute = new Attribute;
+            $attribute->name = $name;
+            $attribute->save();
+
+            AttributeTranslation::firstOrCreate(
+                ['lang' => env('DEFAULT_LANGUAGE'), 'attribute_id' => $attribute->id],
+                ['name' => $name]
+            );
+        }
+
+        $values = is_array($request->values)
+            ? $request->values
+            : preg_split('/\s*,\s*/', (string) $request->values, -1, PREG_SPLIT_NO_EMPTY);
+
+        $savedValues = [];
+
+        foreach ($values as $value) {
+            $cleanValue = trim((string) $value);
+
+            if ($cleanValue === '') {
+                continue;
+            }
+
+            $savedValue = ucfirst($cleanValue);
+
+            AttributeValue::firstOrCreate([
+                'attribute_id' => $attribute->id,
+                'value' => $savedValue,
+            ]);
+
+            $savedValues[] = $savedValue;
+        }
+
+        $this->syncSelectedAttributesToCategories([$attribute->id], $request->category_ids ?? []);
+
+        return response()->json([
+            'message' => translate('Attribute added successfully.'),
+            'attribute' => [
+                'id' => $attribute->id,
+                'name' => $attribute->getTranslation('name'),
+            ],
+            'values' => array_values(array_unique($savedValues)),
+        ]);
+    }
+
+    private function syncSelectedAttributesToCategories($attributeIds, $categoryIds): void
+    {
+        $attributeIds = collect((array) $attributeIds)->filter()->unique()->values();
+        $categoryIds = collect((array) $categoryIds)->filter()->unique()->values();
+
+        if ($attributeIds->isEmpty() || $categoryIds->isEmpty()) {
+            return;
+        }
+
+        foreach ($attributeIds as $attributeId) {
+            foreach ($categoryIds as $categoryId) {
+                AttributeCategory::firstOrCreate([
+                    'attribute_id' => $attributeId,
+                    'category_id' => $categoryId,
+                ]);
+            }
+        }
     }
 
     public function updatePublished(Request $request)

@@ -58,7 +58,7 @@
                     <label for="" class="control-label">{{ $str }}</label>
                 </td>
                <td> 
-                    <input type="number" lang="en" name="price_{{ $str }}" value="{{ old('price_'.$str, ($product->unit_price == $unit_price) ? ($stock != null ? $stock->price : $unit_price) : $unit_price) }}" min="0" max="99999" step="0.01" class="form-control var_price"   oninput="
+                    <input type="number" lang="en" name="price_{{ $str }}" value="{{ old('price_'.$str, ($product->unit_price == $unit_price) ? ($stock != null && $stock->price > 0 ? $stock->price : ($unit_price > 0 ? $unit_price : '')) : ($unit_price > 0 ? $unit_price : '')) }}" min="0.01" max="99999" step="0.01" class="form-control var_price"   oninput="
                         // allow only numbers and dot
                         this.value = this.value.replace(/[^0-9.]/g, '').slice(0,5);
                         // allow only one dot
@@ -77,7 +77,7 @@
                     <input type="text" name="sku_{{ $str }}" value="{{ old('sku_'.$str, ($stock != null ? $stock->sku : $str)) }}" class="form-control"> 
                 </td>
                 <td> 
-                    <input type="number" lang="en" name="qty_{{ $str }}" value="{{ old('qty_'.$str, ($stock != null ? $stock->qty : 1)) }}" min="0" step="1"  max="9999" class="form-control var_qty" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" required> 
+                    <input type="number" lang="en" name="qty_{{ $str }}" value="{{ old('qty_'.$str, ($stock != null && $stock->qty > 0 ? $stock->qty : 1)) }}" min="1" step="1"  max="9999" class="form-control var_qty" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';" required> 
                 </td>
                 <td>
                     <div class="input-group" data-toggle="aizuploader" data-type="image">

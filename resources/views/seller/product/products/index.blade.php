@@ -129,7 +129,7 @@
                           <th class="text-left text-nowrap">
     {{ translate('Current Qty')}}
 </th>
-                            <th >{{ translate('Base Price')}}</th>
+                            <th>{{ translate('Price')}}</th>
                        {{--     <th data-breakpoints="md" class="text-left text-nowrap">{{translate('Total Stock')}}</th>--}}
                             @if(get_setting('product_approve_by_admin') == 1)
                                 <th data-breakpoints="md" class="text-left text-nowrap">{{ translate('Approval')}}</th>
@@ -181,7 +181,11 @@
                                     @endphp
                                 </td>
                                 
-                                <td>{{ $product->unit_price }}</td>
+                                <td>
+                                    <span class="seller-product-price">
+                                        {!! home_base_price($product) !!}
+                                    </span>
+                                </td>
                               {{--  <td>
                                     @if($product->digital == 1)
                                     <span class="badge badge-inline badge-info">{{ translate('Digital Product') }}</span>
@@ -271,6 +275,17 @@
 
 }
 
+</style>
+<style>
+    .seller-product-price {
+        display: inline-flex;
+        align-items: center;
+        min-width: 86px;
+        color: #111827;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
 </style>
 @section('script')
     <script type="text/javascript">

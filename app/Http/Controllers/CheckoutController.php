@@ -208,8 +208,9 @@ class CheckoutController extends Controller
 
         foreach ($orders as $order) {
             $copyTypes = OrderInvoiceService::copyTypes();
+            $invoices = [];
             try {
-                $invoiceService->ensureInvoicesForOrder($order);
+                $invoices = $invoiceService->ensureInvoicesForOrder($order);
             } catch (\Exception $e) {
                 Log::error('Order invoice PDF generation error: ' . $e->getMessage(), [
                     'order_id' => $order->id,
@@ -263,10 +264,16 @@ class CheckoutController extends Controller
                     Mail::send(
                         'emails.order-mail',
                         $sellerMailData,
-                        function ($message) use ($seller_email, $order) {
+                        function ($message) use ($seller_email, $order, $invoiceService, $invoices) {
 
                             $message->to($seller_email)
                                 ->subject('New Order Received - ' . $order->code);
+
+                            $this->attachOrderInvoice(
+                                $message,
+                                $invoiceService,
+                                $invoices[OrderInvoiceService::SELLER] ?? null
+                            );
                         }
                     );
                     Log::info('onlinr payment success', [$seller_email]);
@@ -296,10 +303,16 @@ class CheckoutController extends Controller
                     Mail::send(
                         'emails.order-mail',
                         $customerMailData,
-                        function ($message) use ($customer_email, $order) {
+                        function ($message) use ($customer_email, $order, $invoiceService, $invoices) {
 
                             $message->to($customer_email)
                                 ->subject('Order Confirmation - ' . $order->code);
+
+                            $this->attachOrderInvoice(
+                                $message,
+                                $invoiceService,
+                                $invoices[OrderInvoiceService::CUSTOMER] ?? null
+                            );
                         }
                     );
                     Log::info('customer_email', [$customer_email]);
@@ -323,10 +336,16 @@ class CheckoutController extends Controller
                 Mail::send(
                     'emails.order-mail',
                     $adminMailData,
-                    function ($message) use ($admin_email, $order, $bcc_email) {
+                    function ($message) use ($admin_email, $order, $bcc_email, $invoiceService, $invoices) {
                         $message->to($admin_email)
                             ->bcc($bcc_email)
                             ->subject('New Order Placed - GB - ' . $order->id);
+
+                        $this->attachOrderInvoice(
+                            $message,
+                            $invoiceService,
+                            $invoices[OrderInvoiceService::ADMIN] ?? null
+                        );
                     }
                 );
 
@@ -338,6 +357,24 @@ class CheckoutController extends Controller
                 \Log::error('Admin mail error: ' . $e->getMessage());
             }
         }
+    }
+
+    private function attachOrderInvoice($message, OrderInvoiceService $invoiceService, $invoice = null): void
+    {
+        if (!$invoice || empty($invoice->file_path)) {
+            return;
+        }
+
+        $absolutePath = $invoiceService->absolutePath($invoice->file_path);
+
+        if (!file_exists($absolutePath)) {
+            return;
+        }
+
+        $message->attach($absolutePath, [
+            'as' => $invoiceService->downloadName($invoice),
+            'mime' => 'application/pdf',
+        ]);
     }
 
 

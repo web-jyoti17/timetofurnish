@@ -2,7 +2,7 @@
     $cart_added = [];
 @endphp
 <div class="aiz-card-box h-auto bg-white p-3 hov-scale-img">
-    <div class="position-relative h-140px h-md-200px img-fit overflow-hidden">
+    <div class="position-relative h-140px h-md-200px img-fit overflow-hidden hg">
         @php
             $product_url = route('product', $product->slug);
             if ($product->auction_product == 1) {
@@ -11,10 +11,9 @@
         @endphp
         <!-- Image -->
         <a href="{{ $product_url }}" class="d-block h-100">
-            <img class="lazyload mx-auto img-fit has-transition"
-            style="height: 100% !important;"
-                src="{{ get_image($product->thumbnail) }}"
-                alt="{{ $product->getTranslation('name') }}" title="{{ $product->getTranslation('name') }}"
+            <img class="lazyload mx-auto img-fit has-transition" style="height: 100% !important;"
+                src="{{ get_image($product->thumbnail) }}" alt="{{ $product->getTranslation('name') }}"
+                title="{{ $product->getTranslation('name') }}"
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>
 
@@ -92,7 +91,7 @@
         <!-- Product name -->
         <h3 class="fw-400 fs-13 text-truncate-2 lh-1-4 mb-0 h-35px text-center">
             <a href="{{ $product_url }}" class="d-block text-reset hov-text-primary"
-            style="letter-spacing:0.5px !important;"
+                style="letter-spacing:0.5px !important;"
                 title="{{ $product->getTranslation('name') }}">{{ $product->getTranslation('name') }}</a>
         </h3>
         <div class="fs-14 d-flex justify-content-center mt-3">
@@ -105,13 +104,13 @@
                 @endif
                 <!-- price -->
                 <div class="">
-                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
+                    <span class="fw-700 text-primary kk">{{ home_discounted_base_price($product) }}</span>
                 </div>
             @endif
             @if ($product->auction_product == 1)
                 <!-- Bid Amount -->
                 <div class="">
-                    <span class="fw-700 text-primary">{{ single_price($product->starting_bid) }}</span>
+                    <span class="fw-700 text-primary i">{{ single_price($product->starting_bid) }}</span>
                 </div>
             @endif
         </div>

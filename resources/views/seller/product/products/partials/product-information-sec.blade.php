@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card seller-product-info-card">
 
     <div class="card-header bg-light border-bottom-0 pb-2">
         <h5 class="mb-0 h6 text-black">{{ translate('Product Information') }}</h5>
@@ -114,7 +114,7 @@
         @endif
     </div>
 </div>
-<div class="card">
+<div class="card seller-product-details-card">
     <div class="card-header bg-light border-bottom-0 pb-2">
         <h5 class="mb-0 h6 text-black">
             {{ translate('Product Details') }}
@@ -156,7 +156,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card seller-product-images-card">
     <div class="card-header bg-light border-bottom-0 pb-2">
         <h5 class="mb-0 h6 text-black">{{ translate('Product Images') }}</h5>
     </div>

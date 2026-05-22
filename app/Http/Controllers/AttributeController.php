@@ -282,7 +282,11 @@ class AttributeController extends Controller
         $parentIds =  getParentCategoryIds($categoryIds);
         $attributes = Attribute::whereHas('categories', function ($query) use ($parentIds) {
             $query->whereIn('category_id', $parentIds);
-        })->get();
+        })
+        ->orWhereRaw('LOWER(name) = ?', ['size'])
+        ->get()
+        ->unique('id')
+        ->values();
     
         return response()->json($attributes);
     }

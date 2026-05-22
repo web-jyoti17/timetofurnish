@@ -42,7 +42,7 @@
                             <label for="" class="control-label">{{ $str }} </label>
                         </td>
                        <td>
-                            <input type="number" lang="en" name="price_{{ $str }}" value="{{ $old_values->{'price_'.$str} ?? '' }}" min="0" step="0.01" class="form-control var_price" oninput="
+                            <input type="number" lang="en" name="price_{{ $str }}" value="{{ $old_values->{'price_'.$str} ?? '' }}" min="0.01" step="0.01" class="form-control var_price" oninput="
                         // allow only numbers and dot
                         this.value = this.value.replace(/[^0-9.]/g, '').slice(0,5);
                         // allow only one dot
@@ -61,7 +61,7 @@
                             <input type="text" name="sku_{{ $str }}" value="{{ $old_values->{'sku_'.$str} ?? $sku }}" class="form-control">
                         </td>
                         <td>
-                            <input type="number" lang="en" name="qty_{{ $str }}" value="{{ $old_values->{'qty_'.$str} ?? '' }}" min="0" step="1"  class="form-control var_qty" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)" required>
+                            <input type="number" lang="en" name="qty_{{ $str }}" value="{{ $old_values->{'qty_'.$str} ?? 1 }}" min="1" step="1"  class="form-control var_qty" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';" required>
                         </td>
                         <td>
                             <div class="input-group" data-toggle="aizuploader" data-type="image">

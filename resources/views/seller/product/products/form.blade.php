@@ -364,6 +364,210 @@
     #choice_form .sticky-action-container .card {
         border-radius: 8px;
     }
+
+    #choice_form .seller-form-layout {
+        align-items: stretch;
+        margin-top: 6px;
+    }
+
+    #choice_form .seller-main-stack,
+    #choice_form .seller-sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    #choice_form .seller-form-layout .card {
+        margin-bottom: 0;
+        border-color: #dfe3e8;
+        border-radius: 8px;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+        overflow: visible;
+    }
+
+    #choice_form .seller-form-layout .card-header {
+        min-height: 58px;
+        padding: 16px 20px;
+        background: #fff !important;
+        border-bottom: 1px solid #edf0f2 !important;
+        gap: 12px;
+    }
+
+    #choice_form .seller-form-layout .card-header h5,
+    #choice_form .seller-form-layout .card-header .h6 {
+        display: flex;
+        align-items: center;
+        min-height: 22px;
+        line-height: 1.3;
+    }
+
+    #choice_form .seller-form-layout .card-body {
+        padding: 20px;
+    }
+
+    #choice_form .seller-product-info-card,
+    #choice_form .seller-product-images-card,
+    #choice_form .seller-delivery-card,
+    #choice_form .seller-low-stock-card,
+    #choice_form .seller-stock-visibility,
+    #choice_form .seller-dimensions-card,
+    #choice_form .seller-price-stock-card {
+        background: #fff;
+    }
+
+    #choice_form .seller-product-info-card .card-body,
+    #choice_form .seller-product-images-card .card-body,
+    #choice_form .seller-delivery-card .card-body {
+        display: grid;
+        gap: 2px;
+    }
+
+    #choice_form .seller-form-layout .form-group {
+        margin-bottom: 16px;
+    }
+
+    #choice_form .seller-form-layout .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    #choice_form .seller-form-layout label,
+    #choice_form .seller-form-layout .col-from-label,
+    #choice_form .seller-form-layout .control-label {
+        margin-bottom: 6px;
+        color: #202223;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.35;
+    }
+
+    #choice_form .seller-form-layout .form-control,
+    #choice_form .seller-form-layout .bootstrap-select .dropdown-toggle,
+    #choice_form .seller-form-layout .input-group-text {
+        min-height: 42px;
+        border-color: #c9cccf;
+        border-radius: 6px;
+    }
+
+    #choice_form .seller-form-layout .input-group .form-control,
+    #choice_form .seller-form-layout .input-group .input-group-text,
+    #choice_form .seller-form-layout .input-group .input-group-prepend .input-group-text {
+        border-radius: 0;
+    }
+
+    #choice_form .seller-form-layout .input-group .input-group-prepend:first-child .input-group-text {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+    }
+
+    #choice_form .seller-form-layout .input-group .input-group-append:last-child .input-group-text,
+    #choice_form .seller-form-layout .input-group .form-control:last-child {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+
+    #choice_form .seller-sidebar-stack .card:not(.seller-category-card) .card-body {
+        min-height: 128px;
+    }
+
+    #choice_form .seller-product-info-card .card-body {
+        min-height: 330px;
+    }
+
+    #choice_form .seller-product-images-card .card-body,
+    #choice_form .seller-delivery-card .card-body,
+    #choice_form .seller-low-stock-card .card-body {
+        min-height: 150px;
+    }
+
+    #choice_form .seller-product-details-card .card-body {
+        min-height: 430px;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs {
+        border-bottom: 1px solid #dfe3e8;
+        gap: 8px;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs .nav-link {
+        border: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        color: #6d7175;
+        font-weight: 600;
+        padding: 10px 4px;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs .nav-link.active {
+        border-bottom-color: #2c6ecb;
+        color: #202223;
+        background: transparent;
+    }
+
+    #choice_form .seller-form-layout .input-group[data-toggle="aizuploader"] {
+        align-items: stretch;
+    }
+
+    #choice_form .seller-form-layout .file-preview {
+        margin-top: 10px;
+    }
+
+    #choice_form .seller-sidebar-stack .seller-category-card {
+        flex: 1 1 auto;
+    }
+
+    #choice_form .seller-sidebar-stack .seller-category-card .card-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #choice_form .seller-sidebar-stack .seller-category-card .category-tree-scroll {
+        flex: 1 1 auto;
+        min-height: 360px;
+    }
+
+    #choice_form .seller-stock-visibility .form-group,
+    #choice_form .seller-price-stock-card .form-group,
+    #choice_form .seller-dimensions-card .form-group {
+        padding: 10px 0;
+        margin-bottom: 0;
+        border-bottom: 1px solid #edf0f2;
+    }
+
+    #choice_form .seller-stock-visibility .form-group:last-child,
+    #choice_form .seller-price-stock-card .form-group:last-child,
+    #choice_form .seller-dimensions-card .form-group:last-child {
+        border-bottom: 0;
+    }
+
+    #choice_form .seller-price-stock-card #show-hide-div .form-group {
+        padding-top: 14px;
+    }
+
+    #choice_form .seller-action-card {
+        margin-top: 16px;
+    }
+
+    @media (min-width: 992px) {
+
+        #choice_form .seller-main-stack,
+        #choice_form .seller-sidebar-stack {
+            height: 100%;
+        }
+    }
+
+    @media (max-width: 991px) {
+        #choice_form .seller-sidebar-stack {
+            margin-top: 16px;
+        }
+
+        #choice_form .seller-product-info-card .card-body,
+        #choice_form .seller-product-images-card .card-body,
+        #choice_form .seller-delivery-card .card-body,
+        #choice_form .seller-low-stock-card .card-body,
+        #choice_form .seller-product-details-card .card-body {
+            min-height: auto;
+        }
+    }
 </style>
 
 @if ($errors->any())
@@ -382,6 +586,7 @@
     data-shipping-charges-route="{{ route('seller.products.shipping-charges') }}"
     data-get-attributes-route="{{ route('get-attributes-by-categories') }}"
     data-add-more-choice-route="{{ route('seller.products.add-more-choice-option') }}"
+    data-store-attribute-route="{{ route('seller.products.attributes.store') }}"
     data-sku-combination-route="{{ isset($product) && $product->id ? route('seller.products.sku_combination_edit') : route('seller.products.sku_combination') }}"
     data-old-addons='@json(old(' addons', $addons ?? []))' data-existing-addons='@json($addons ?? [])'
     data-product-id="{{ $product->id ?? '' }}" data-choice-attributes-old='@json(old(' choice_attributes', isset($product) && $product->attributes != null ? json_decode($product->attributes) : []))'>
@@ -399,7 +604,7 @@
         @method('POST')
     @endif
     <div class="sticky-action-container">
-        <div class="container p-0">
+        <div class=" p-0">
             <div class="flex flex-row card align-items-center">
                 <div class="card-body d-flex justify-content-between align-items-center w-100">
                     <h3 class="mb-0">
@@ -418,18 +623,46 @@
                 </div>
 
                 <div class="card-body">
-                    <div id="shipping-charges-wrapper" class="row gutters-2">
-                        @include('seller.product.products.partials.shipping-charges', [
-                            'shippingCharges' =>
-                                isset($product) && $product->id ? getProductShippingCharges($product) : collect(),
-                        ])
+                    <div class="row gutters-2">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="h-100">
+                                <div class="card-header bg-light border-bottom-0 pb-2">
+                                    <h5 class="mb-0 h6 text-black">
+                                        {{ translate('Matched Shipping Charges') }}
+                                    </h5>
+                                </div>
+                                <div id="shipping-charges-wrapper">
+                                    @include('seller.product.products.partials.shipping-charges', [
+                                        'shippingCharges' =>
+                                            isset($product) && $product->id
+                                                ? getProductShippingCharges($product)
+                                                : collect(),
+                                    ])
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="h-100">
+                                <div class="card-header bg-light border-bottom-0 pb-2">
+                                    <h5 class="mb-0 h6 text-black">
+                                        {{ translate('Delivery & Assembly Services') }}
+                                    </h5>
+                                </div>
+                                <div id="checkout-services-wrapper">
+                                    @include('seller.product.products.partials.checkout-services', [
+                                        'services' => $services ?? collect(),
+                                    ])
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-    <div class="row gutters-5">
-        <div class="col-lg-8">
+    <div class="row gutters-5 seller-form-layout">
+        <div class="col-lg-8 seller-main-stack">
             <input type="hidden" name="added_by" value="seller">
             <input type="hidden" name="old_values" value="{{ json_encode(old()) }}">
 
@@ -438,31 +671,7 @@
 
 
 
-            <div>
-                @include('seller.product.products.partials.product-variation')
-                @include('seller.product.products.partials.scripts.product-variation-script')
-            </div>
 
-            <div class="card">
-                <div class="card-header bg-light border-bottom-0 pb-2">
-                    <h5 class="mb-0 h6 text-black">
-                        {{ translate('Delivery & Assembly Services') }}
-                    </h5>
-                </div>
-
-                <div class="card-body">
-
-                    <div id="checkout-services-wrapper" class="row gutters-2">
-
-                        @include('seller.product.products.partials.checkout-services', [
-                            'services' => $services ?? collect(),
-                        ])
-
-                    </div>
-
-                </div>
-
-            </div>
 
 
             <div class="card" style="display:none;">
@@ -489,8 +698,8 @@
             </div>
 
         </div>
-        <div class="col-lg-4">
-            <div class="card">
+        <div class="col-lg-4 seller-sidebar-stack">
+            <div class="card seller-category-card">
                 <div class="card-header bg-light border-bottom-0 pb-2">
                     <h5 class="mb-0 h6 text-black">{{ translate('Product Category') }}</h5>
                     <h6 class="float-right mb-0 fs-13">
@@ -499,7 +708,7 @@
                             <i class="las la-question-circle fs-18 text-info"></i>
                             <span
                                 class="p-2 border main-category-info bg-soft-info position-absolute d-none">{{ translate('This will be used for commission based calculations and homepage category
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
                         </span>
                     </h6>
                 </div>
@@ -535,7 +744,7 @@
 
                     </div>
 
-                    <div class="overflow-auto c-scrollbar-light" style="max-height: 450px;">
+                    <div class="overflow-auto c-scrollbar-light category-tree-scroll" style="max-height: 450px;">
 
                         <ul id="treeview" class="hummingbird-treeview-converter list-unstyled"
                             data-checkbox-name="category_ids[]">
@@ -559,7 +768,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card seller-low-stock-card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">{{ translate('Low Stock Quantity Warning') }}</h5>
                 </div>
@@ -575,7 +784,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card seller-stock-visibility">
                 <div class="card-header">
                     <h5 class="mb-0 h6">
                         {{ translate('Stock Visibility State') }}
@@ -645,7 +854,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card seller-dimensions-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0 h6 mb-0" id="dimension-title">Dimensions (<span id="unit-label">Inches</span>)
                     </h5>
@@ -803,7 +1012,7 @@
                     unitToggle.addEventListener('change', updateUnitsUI);
                 });
             </script>
-            <div class="card">
+            <div class="card seller-price-stock-card">
                 <div class="card-header">
                     <h5 class="mb-0 h6">{{ 'Product Price and Stock' }}</h5>
                 </div>
@@ -925,7 +1134,7 @@
                         <div class="col-md-12">
                             <small class="text-muted discount">
                                 <span>(</span>{{ translate('If you do want to sell the items in discounted price or
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
                             </small>
                         </div>
                     </div>
@@ -960,6 +1169,9 @@
 
     </div> {{-- ✅ END row gutters-5 --}}
 
+    @include('seller.product.products.partials.seller-product-variation')
+    @include('seller.product.products.partials.scripts.product-variation-script')
+
     <div class="card">
         @include('seller.product.products.partials.addons', [
             'addons' => old('addons', $addons ?? []),
@@ -968,7 +1180,7 @@
     </div>
 
     </div>
-    <div class="flex flex-row card align-items-center" style="justify-content: end !important;">
+    <div class="flex flex-row card align-items-center seller-action-card" style="justify-content: end !important;">
         <div class="card-body d-flex justify-content-between align-items-center w-100"
             style="justify-content: end !important;">
             <button type="submit" name="button" value="publish"
@@ -1071,6 +1283,9 @@
         }
 
         function initProductFormScripts() {
+            @php
+                $sellerProductFormJsVersion = file_exists(public_path('assets/js/seller-product-form.js')) ? filemtime(public_path('assets/js/seller-product-form.js')) : time();
+            @endphp
             const hummingbirdUrls = [
                 "{{ static_asset('assets/js/hummingbird-treeview.js') }}",
                 "{{ asset('assets/js/hummingbird-treeview.js') }}",
@@ -1090,12 +1305,12 @@
             ];
 
             const formUrls = [
-                "{{ static_asset('assets/js/seller-product-form.js') }}",
-                "{{ asset('assets/js/seller-product-form.js') }}",
-                "/assets/js/seller-product-form.js",
-                "{{ static_asset('js/seller-product-form.js') }}",
-                "{{ asset('js/seller-product-form.js') }}",
-                "/js/seller-product-form.js"
+                "{{ static_asset('assets/js/seller-product-form.js') }}?v={{ $sellerProductFormJsVersion }}",
+                "{{ asset('assets/js/seller-product-form.js') }}?v={{ $sellerProductFormJsVersion }}",
+                "/assets/js/seller-product-form.js?v={{ $sellerProductFormJsVersion }}",
+                "{{ static_asset('js/seller-product-form.js') }}?v={{ $sellerProductFormJsVersion }}",
+                "{{ asset('js/seller-product-form.js') }}?v={{ $sellerProductFormJsVersion }}",
+                "/js/seller-product-form.js?v={{ $sellerProductFormJsVersion }}"
             ];
 
             loadScriptSequentially(hummingbirdUrls, function() {

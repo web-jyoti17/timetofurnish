@@ -798,22 +798,57 @@ if (!function_exists('carts_coupon_discount')) {
 }
 
 //Shows Price on page based on low to high
+if (!function_exists('product_variant_price_range')) {
+    function product_variant_price_range($product)
+    {
+        if (!$product || !$product->variant_product) {
+            return null;
+        }
+
+        $prices = $product->stocks
+            ->pluck('price')
+            ->filter(function ($price) {
+                return is_numeric($price) && (float) $price > 0;
+            })
+            ->map(function ($price) {
+                return (float) $price;
+            })
+            ->values();
+
+        if ($prices->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'lowest' => $prices->min(),
+            'highest' => $prices->max(),
+        ];
+    }
+}
+
+if (!function_exists('format_price_range')) {
+    function format_price_range($lowest_price, $highest_price, $formatted = true)
+    {
+        if ($formatted) {
+            if ((float) $lowest_price == (float) $highest_price) {
+                return format_price(convert_price($lowest_price));
+            }
+
+            return format_price(convert_price($lowest_price)) . ' - ' . format_price(convert_price($highest_price));
+        }
+
+        return (float) $lowest_price == (float) $highest_price
+            ? convert_price($lowest_price)
+            : convert_price($lowest_price) . ' - ' . convert_price($highest_price);
+    }
+}
+
 if (!function_exists('home_price')) {
     function home_price($product, $formatted = true)
     {
-        $lowest_price = $product->unit_price;
-        $highest_price = $product->unit_price;
-
-        if ($product->variant_product) {
-            foreach ($product->stocks as $key => $stock) {
-                if ($lowest_price > $stock->price) {
-                    $lowest_price = $stock->price;
-                }
-                if ($highest_price < $stock->price) {
-                    $highest_price = $stock->price;
-                }
-            }
-        }
+        $variant_range = product_variant_price_range($product);
+        $lowest_price = $variant_range['lowest'] ?? $product->unit_price;
+        $highest_price = $variant_range['highest'] ?? $product->unit_price;
 
         // foreach ($product->taxes as $product_tax) {
         //     if ($product_tax->tax_type == 'percent') {
@@ -825,15 +860,7 @@ if (!function_exists('home_price')) {
         //     }
         // }
 
-        if ($formatted) {
-            if ($lowest_price == $highest_price) {
-                return format_price(convert_price($lowest_price));
-            } else {
-                return format_price(convert_price($lowest_price)) . ' - ' . format_price(convert_price($highest_price));
-            }
-        } else {
-            return $lowest_price . ' - ' . $highest_price;
-        }
+        return format_price_range($lowest_price, $highest_price, $formatted);
     }
 }
 
@@ -841,19 +868,9 @@ if (!function_exists('home_price')) {
 if (!function_exists('home_discounted_price')) {
     function home_discounted_price($product, $formatted = true)
     {
-        $lowest_price = $product->unit_price;
-        $highest_price = $product->unit_price;
-
-        if ($product->variant_product) {
-            foreach ($product->stocks as $key => $stock) {
-                if ($lowest_price > $stock->price) {
-                    $lowest_price = $stock->price;
-                }
-                if ($highest_price < $stock->price) {
-                    $highest_price = $stock->price;
-                }
-            }
-        }
+        $variant_range = product_variant_price_range($product);
+        $lowest_price = $variant_range['lowest'] ?? $product->unit_price;
+        $highest_price = $variant_range['highest'] ?? $product->unit_price;
 
         $discount_applicable = false;
 
@@ -886,15 +903,7 @@ if (!function_exists('home_discounted_price')) {
         //     }
         // }
 
-        if ($formatted) {
-            if ($lowest_price == $highest_price) {
-                return format_price(convert_price($lowest_price));
-            } else {
-                return format_price(convert_price($lowest_price)) . ' - ' . format_price(convert_price($highest_price));
-            }
-        } else {
-            return $lowest_price . ' - ' . $highest_price;
-        }
+        return format_price_range($lowest_price, $highest_price, $formatted);
     }
 }
 
@@ -923,6 +932,13 @@ if (!function_exists('home_base_price_by_stock_id')) {
 if (!function_exists('home_base_price')) {
     function home_base_price($product, $formatted = true)
     {
+        $variant_range = product_variant_price_range($product);
+        if ($variant_range && (float) $product->unit_price <= 0) {
+            return $formatted
+                ? format_price_range($variant_range['lowest'], $variant_range['highest'], true)
+                : convert_price($variant_range['lowest']);
+        }
+
         $price = $product->unit_price;
         $tax = 0;
 
@@ -984,7 +1000,14 @@ if (!function_exists('home_discounted_base_price_by_stock_id')) {
 if (!function_exists('home_discounted_base_price')) {
     function home_discounted_base_price($product, $formatted = true)
     {
-        $price = $product->unit_price;
+        $variant_range = product_variant_price_range($product);
+        if ($variant_range && (float) $product->unit_price <= 0) {
+            $lowest_price = $variant_range['lowest'];
+            $highest_price = $variant_range['highest'];
+        } else {
+            $lowest_price = $product->unit_price;
+            $highest_price = $product->unit_price;
+        }
         $tax = 0;
 
         $discount_applicable = false;
@@ -1000,9 +1023,11 @@ if (!function_exists('home_discounted_base_price')) {
 
         if ($discount_applicable) {
             if ($product->discount_type == 'percent') {
-                $price -= ($price * $product->discount) / 100;
+                $lowest_price -= ($lowest_price * $product->discount) / 100;
+                $highest_price -= ($highest_price * $product->discount) / 100;
             } elseif ($product->discount_type == 'amount') {
-                $price -= $product->discount;
+                $lowest_price -= $product->discount;
+                $highest_price -= $product->discount;
             }
         }
 
@@ -1013,10 +1038,12 @@ if (!function_exists('home_discounted_base_price')) {
         //         $tax += $product_tax->tax;
         //     }
         // }
-        $price += $tax;
+        $lowest_price += $tax;
+        $highest_price += $tax;
 
-
-        return $formatted ? format_price(convert_price($price)) : convert_price($price);
+        return $formatted
+            ? format_price_range($lowest_price, $highest_price, true)
+            : convert_price($lowest_price);
     }
 }
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductAddon extends Model
 {
     protected $table = 'product_addons';
-    protected $fillable = ['product_id', 'name'];
+    protected $fillable = ['product_id', 'name', 'sort_order'];
 
     public function options()
     {

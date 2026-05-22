@@ -52,7 +52,7 @@ class OrderController extends Controller
         $delivery_status = null;
         $payment_status = '';
 
-        $orders = Order::orderBy('id', 'desc');
+        $orders = Order::with(['orderDetails', 'user', 'shop'])->orderBy('id', 'desc');
         if (Schema::hasTable('order_invoices')) {
             $orders->with('invoices');
         }
