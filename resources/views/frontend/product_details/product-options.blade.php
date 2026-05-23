@@ -21,8 +21,9 @@
                             <h5 class="mb-2">
                                 {{ ucfirst(get_single_attribute_name($choice->attribute_id)) }}
                             </h5>
-
                         </div>
+
+
 
                         <div class="col-sm-12">
 
@@ -30,7 +31,6 @@
                                 name="attribute_id_{{ $choice->attribute_id }}"
                                 data-attribute="{{ $choice->attribute_id }}"
                                 onchange="getVariantPrice(); updateVariantOptionPrice(this);">
-
 
                                 <option value="" selected>Choose Option</option>
                                 @foreach ($choice->values as $key => $value)
@@ -438,7 +438,7 @@
                 <div class="col-sm-3">
                     <div class="mt-1 text-secondary fs-15 fw-500" style="color:#333 !important">
                         {{ translate('Dispatch
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
                     </div>
                 </div>
                 <div class="col-sm-9">
@@ -470,38 +470,7 @@
         var isAutoSelecting = false;
 
         function autoSelectRemainingAddons() {
-            if (isAutoSelecting) return;
-            isAutoSelecting = true;
-
-            try {
-                // Auto select unselected variant dropdowns
-                $('.variant-dropdown').each(function() {
-                    var $select = $(this);
-                    if (!$select.val() || $select.val() === '') {
-                        var firstValOption = $select.find('option').filter(function() {
-                            return $(this).val() !== '';
-                        }).first();
-                        if (firstValOption.length) {
-                            $select.val(firstValOption.val()).trigger('change');
-                        }
-                    }
-                });
-
-                // Auto select unselected addon dropdowns
-                $('.addon-block select').each(function() {
-                    var $select = $(this);
-                    if (!$select.val() || $select.val() === '') {
-                        var firstValOption = $select.find('option').filter(function() {
-                            return $(this).val() !== '';
-                        }).first();
-                        if (firstValOption.length) {
-                            $select.val(firstValOption.val()).trigger('change');
-                        }
-                    }
-                });
-            } finally {
-                isAutoSelecting = false;
-            }
+            return;
         }
 
         // ---------------------------------
@@ -575,11 +544,13 @@
             // Set hidden input for form
             var name = `addons[${addonId}]`;
             var $input = $(`input[type=hidden][name="${name}"]`);
+
             if ($input.length === 0) {
                 $input = $(`<input type="hidden" name="${name}" />`);
                 $(`select[name="addons[${addonId}]"]`).after($input);
             }
             $input.val($(optionBtn).data('optionid'));
+            $input.trigger('change');
 
             // Refresh pricing
             if (typeof getVariantPrice === 'function') {

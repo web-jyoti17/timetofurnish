@@ -1030,14 +1030,6 @@ if (!function_exists('home_discounted_base_price')) {
                 $highest_price -= $product->discount;
             }
         }
-
-        // foreach ($product->taxes as $product_tax) {
-        //     if ($product_tax->tax_type == 'percent') {
-        //         $tax += ($price * $product_tax->tax) / 100;
-        //     } elseif ($product_tax->tax_type == 'amount') {
-        //         $tax += $product_tax->tax;
-        //     }
-        // }
         $lowest_price += $tax;
         $highest_price += $tax;
 

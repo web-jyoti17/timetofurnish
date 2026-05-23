@@ -445,6 +445,7 @@
             filter: grayscale(40%) !important;
             box-shadow: none !important;
         }
+
         .disabled-wishlist {
             opacity: 0.55 !important;
             cursor: not-allowed !important;
@@ -601,12 +602,12 @@
             </div>
         @endif
         @if ($detailedProduct->auction_product != 1)
-            <div class="mt-1 col-12 col-md-6 col-lg-6" style="text-align: justify;">
+            <div class="mt-1 col-12 col-md-6 col-lg-6" style="text-align: right;">
                 @php
                     $total = 0;
                     $total += $detailedProduct->reviews->count();
                 @endphp
-                <span class="rating rating-mr-1">
+                <span class="rating rating-mr-0">
                     {{ renderStarRating($detailedProduct->rating) }}
                 </span>
                 <span class="ml-1 opacity-50 fs-14">({{ $total }}
@@ -738,7 +739,7 @@
                 </div>
             @else
                 <div class="mb-3 row no-gutters">
-                    <div class="col-sm-2 col-2">
+                    <div class="col-sm-1 col-1">
                         <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
                         </div>
                     </div>
@@ -845,7 +846,8 @@
                 @else
                     @if ($in_stock)
                         <div class="mb-2 d-flex w-100">
-                            <button type="button" class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                            <button type="button"
+                                class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
                                 style="background: #fff; border: 1.5px solid #242121; color: #242121 !important; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;"
                                 disabled
                                 @if (Auth::check()) onclick="validatedAddToCart()" @else onclick="showLoginModal()" @endif>
@@ -853,7 +855,8 @@
                             </button>
                         </div>
                         <div class="mb-2 d-flex w-100">
-                            <button type="button" class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                            <button type="button"
+                                class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
                                 disabled
                                 @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
                                 style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
@@ -862,9 +865,9 @@
                         </div>
                     @else
                         <div class="mb-2 d-flex w-100">
-                            <button type="button" class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300"
-                                style="border-radius: 6px; height: 50px;"
-                                disabled>
+                            <button type="button"
+                                class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300"
+                                style="border-radius: 6px; height: 50px;" disabled>
                                 <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
                             </button>
                         </div>
@@ -872,22 +875,22 @@
                 @endif
             @elseif ($detailedProduct->digital == 1)
                 <div class="mb-2 d-flex w-100">
-                    <button type="button" class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
-                        style="border-radius: 6px; height: 50px;"
-                        disabled
+                    <button type="button"
+                        class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                        style="border-radius: 6px; height: 50px;" disabled
                         @if (Auth::check()) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
                         <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
                     </button>
                 </div>
-                <button type="button" class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
-                    style="border-radius: 6px; height: 50px;"
-                    disabled
+                <button type="button"
+                    class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                    style="border-radius: 6px; height: 50px;" disabled
                     @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
                     <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
                 </button>
             @endif
         </div>
-    </div>
+</div>
 
 
 <!-- Promote Link -->

@@ -571,7 +571,7 @@ class HomeController extends Controller
         }
 
         $price += $tax;
-
+        // dd(single_price($price * $request->quantity));
         return array(
             'price' => single_price($price * $request->quantity),
             'quantity' => $quantity,
