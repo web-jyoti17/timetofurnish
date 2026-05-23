@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 
 @php
-$rtl = get_session_language()->rtl;
+    $rtl = get_session_language()->rtl;
 @endphp
 
 @if ($rtl == 1)
-<html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <html dir="rtl" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @else
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @endif
 
 <head>
@@ -27,20 +27,20 @@ $rtl = get_session_language()->rtl;
     @yield('meta')
 
     @if (!isset($detailedProduct) && !isset($customer_product) && !isset($shop) && !isset($page) && !isset($blog))
-    @php
-    $meta_image = uploaded_asset(get_setting('meta_image'));
-    @endphp
-    <!-- Schema.org markup for Google+ -->
-    <meta itemprop="name" content="{{ get_setting('meta_title') }}">
-    <meta itemprop="description" content="{{ get_setting('meta_description') }}">
-    <meta itemprop="image" content="{{ $meta_image }}">
+        @php
+            $meta_image = uploaded_asset(get_setting('meta_image'));
+        @endphp
+        <!-- Schema.org markup for Google+ -->
+        <meta itemprop="name" content="{{ get_setting('meta_title') }}">
+        <meta itemprop="description" content="{{ get_setting('meta_description') }}">
+        <meta itemprop="image" content="{{ $meta_image }}">
 
-    <!-- Twitter Card data -->
-    <meta name="twitter:card" content="product">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="{{ get_setting('meta_title') }}">
-    <meta name="twitter:description" content="{{ get_setting('meta_description') }}">
-    <meta name="twitter:creator" content="@author_handle">
+        <!-- Twitter Card data -->
+        <meta name="twitter:card" content="product">
+        <meta name="twitter:site" content="@publisher_handle">
+        <meta name="twitter:title" content="{{ get_setting('meta_title') }}">
+        <meta name="twitter:description" content="{{ get_setting('meta_description') }}">
+        <meta name="twitter:creator" content="@author_handle">
     <meta name="twitter:image" content="{{ $meta_image }}">
 
     <!-- Open Graph data -->
@@ -234,7 +234,7 @@ $rtl = get_session_language()->rtl;
 
 <body>
     <!-- aiz-main-wrapper -->
-    <div class="aiz-main-wrapper d-flex flex-column bg-white">
+    <div class="aiz-main-wrapper d-flex flex-column bg-white iuygh">
         @php
         $user = auth()->user();
         $user_avatar = null;
@@ -245,9 +245,6 @@ $rtl = get_session_language()->rtl;
 
         $system_language = get_system_language();
 
-        // if ($user != null) {
-        // $carts = App\Models\Cart::where('user_id', auth()->user()->id)->get();
-        // }
         @endphp
         <!-- Header -->
         @include('frontend.inc.nav')
@@ -406,13 +403,13 @@ $rtl = get_session_language()->rtl;
     @endif
 
     <script>
-        @foreach(session('flash_notification', collect())->toArray() as $message)
+        @foreach (session('flash_notification', collect())->toArray() as $message)
         AIZ.plugins.notify('{{ $message['level'] }}', '{{ $message['message'] }}');
         @endforeach
     </script>
 
     <script>
-        @if(Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
+        @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
 
         $.post('{{ route('home.section.featured') }}', {
                 _token: '{{ csrf_token() }}'
@@ -652,7 +649,7 @@ $rtl = get_session_language()->rtl;
         }
 
         function addToWishList(id) {
-            @if(Auth::check() && Auth::user()->user_type == 'customer')
+            @if (Auth::check() && Auth::user()->user_type == 'customer')
             $.post('{{ route('wishlists.store') }}', {
                     _token: AIZ.data.csrf,
                     id: id
@@ -734,6 +731,15 @@ $rtl = get_session_language()->rtl;
                     ) || 0;
 
                     let addon_total = 0;
+                    let variant_ready = true;
+                    let has_addon_selection = false;
+
+                    $('#option-choice-form .variant-dropdown')
+                        .each(function() {
+                            if (!$(this).val()) {
+                                variant_ready = false;
+                            }
+                        });
 
                     /*
                     ONLY ADD ADDONS
@@ -747,6 +753,8 @@ $rtl = get_session_language()->rtl;
                                 $(this).find('option:selected');
 
                             if (!selected.val()) return;
+
+                            has_addon_selection = true;
 
                             let price =
                                 parseFloat(
@@ -768,6 +776,8 @@ $rtl = get_session_language()->rtl;
 
                             if (!optionId) return;
 
+                            has_addon_selection = true;
+
                             let fabricBtn =
                                 $('.fabric-color-box[data-optionid="' + optionId + '"]');
 
@@ -782,6 +792,21 @@ $rtl = get_session_language()->rtl;
                             }
 
                         });
+
+                    if (!variant_ready && base_price <= 0) {
+                        base_price = parseFloat($('.js-product-base-price').data('base-price')) || 0;
+                    }
+
+                    if (!variant_ready && !has_addon_selection) {
+                        let default_price_text = $('.js-product-total-price').first().data('default-price-text');
+
+                        if (default_price_text) {
+                            $('.js-product-total-price').html(default_price_text);
+                            $('#chosen_price').html(default_price_text);
+                        }
+
+                        return;
+                    }
 
 
                     /*
@@ -894,7 +919,7 @@ $rtl = get_session_language()->rtl;
         });
 
         function addToCart() {
-            @if(Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && Auth::user()->user_type != 'customer')
             AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
             return false;
             @endif
@@ -927,7 +952,7 @@ $rtl = get_session_language()->rtl;
         }
 
         function buyNow() {
-            @if(Auth::check() && Auth::user()->user_type != 'customer')
+            @if (Auth::check() && Auth::user()->user_type != 'customer')
             AIZ.plugins.notify('warning', "{{ translate('Please Login as a customer to add products to the Cart.') }}");
             return false;
             @endif
@@ -964,7 +989,7 @@ $rtl = get_session_language()->rtl;
         }
 
         function bid_single_modal(bid_product_id, min_bid_amount) {
-            @if(Auth::check() && (isCustomer() || isSeller()))
+            @if (Auth::check() && (isCustomer() || isSeller()))
             var min_bid_amount_text = "({{ translate('Min Bid Amount: ') }}" + min_bid_amount + ")";
             $('#min_bid_amount').text(min_bid_amount_text);
             $('#bid_product_id').val(bid_product_id);
@@ -1157,7 +1182,7 @@ $rtl = get_session_language()->rtl;
     @yield('script')
 
     @php
-    echo get_setting('footer_script');
+        echo get_setting('footer_script');
     @endphp
 
 </body>

@@ -5,7 +5,7 @@ use App;
 use Illuminate\Database\Eloquent\Model;
 class ProductAddonOption extends Model
 {
-    protected $fillable = ['product_addon_id', 'option_name','img', 'price'];
+    protected $fillable = ['product_addon_id', 'option_name','img', 'price', 'quantity'];
 
     public function addon()
     {

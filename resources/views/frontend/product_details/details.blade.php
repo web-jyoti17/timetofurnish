@@ -745,21 +745,14 @@
                     <div class="col-sm-10 col-10 ">
                         <div class="flex-wrap d-flex align-items-center">
                             <!-- Regular Price (with Addon total UI dynamic addition) -->
-                            <strong class="fs-20 fw-600 text-primary js-product-total-price">
-                                £
-                                {{ number_format(
-                                    floatval(
-                                        filter_var(home_discounted_price($detailedProduct), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
-                                    ),
-                                    2,
-                                ) }}
+                            <strong class="fs-20 fw-600 text-primary js-product-total-price"
+                                data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
+                                {{ home_discounted_base_price($detailedProduct) }}
                             </strong>
                             <!-- Hidden span to store the base price -->
                             <span class="d-none js-product-base-price"
-                                data-base-price="{{ floatval(filter_var(home_discounted_price($detailedProduct), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)) }}">
-                                {{ floatval(
-                                    filter_var(home_discounted_price($detailedProduct), FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
-                                ) }}
+                                data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}">
+                                {{ home_discounted_base_price($detailedProduct, false) }}
                             </span>
                             @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
                                 <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"

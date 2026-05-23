@@ -11,6 +11,7 @@ class ProductAddonOptionGlobal extends Model
         'product_addon_id',
         'option_name',
         'price',
+        'quantity',
         'img',
         'sort_order'
 

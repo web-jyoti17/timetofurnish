@@ -2433,6 +2433,153 @@ if (!function_exists('get_single_attribute_name')) {
     }
 }
 
+if (!function_exists('normalize_product_variant_part')) {
+    function normalize_product_variant_part($value)
+    {
+        return strtolower(str_replace(' ', '', trim((string) $value)));
+    }
+}
+
+if (!function_exists('discounted_product_stock_price')) {
+    function discounted_product_stock_price($product, $price)
+    {
+        $price = (float) $price;
+        $discount_applicable = false;
+
+        if ($product->discount_start_date == null) {
+            $discount_applicable = true;
+        } elseif (
+            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        ) {
+            $discount_applicable = true;
+        }
+
+        if ($discount_applicable) {
+            if ($product->discount_type == 'percent') {
+                $price -= ($price * (float) $product->discount) / 100;
+            } elseif ($product->discount_type == 'amount') {
+                $price -= (float) $product->discount;
+            }
+        }
+
+        return max($price, 0);
+    }
+}
+
+if (!function_exists('get_product_attribute_option_details')) {
+    function get_product_attribute_option_details($product, $attributeId, $value, $selectedOptions = [])
+    {
+        $choices = collect(json_decode($product->choice_options ?? '[]', true));
+        $attributeIds = $choices->pluck('attribute_id')->map(function ($id) {
+            return (string) $id;
+        })->values();
+        $attributeIndex = $attributeIds->search((string) $attributeId);
+        $normalizedValue = normalize_product_variant_part($value);
+
+        $stocks = $product->relationLoaded('stocks') ? $product->stocks : $product->stocks()->get();
+
+        $matchedStocks = $stocks->filter(function ($stock) use ($attributeIndex, $attributeIds, $normalizedValue, $selectedOptions) {
+            $variantParts = collect(explode('-', (string) $stock->variant))->map(function ($part) {
+                return normalize_product_variant_part($part);
+            });
+
+            if ($attributeIndex === false || $variantParts->get($attributeIndex) !== $normalizedValue) {
+                return false;
+            }
+
+            foreach ($selectedOptions as $selectedAttributeId => $selectedValue) {
+                if ($selectedValue === null || $selectedValue === '') {
+                    continue;
+                }
+
+                $selectedIndex = $attributeIds->search((string) $selectedAttributeId);
+                if ($selectedIndex === false || $selectedIndex === $attributeIndex) {
+                    continue;
+                }
+
+                if ($variantParts->get($selectedIndex) !== normalize_product_variant_part($selectedValue)) {
+                    return false;
+                }
+            }
+
+            return true;
+        })->values();
+
+        $prices = $matchedStocks->pluck('price')->filter(function ($price) {
+            return is_numeric($price) && (float) $price > 0;
+        })->map(function ($price) use ($product) {
+            return discounted_product_stock_price($product, $price);
+        })->values();
+
+        $lowestPrice = $prices->isNotEmpty() ? $prices->min() : 0;
+        $highestPrice = $prices->isNotEmpty() ? $prices->max() : 0;
+        $displayPrice = $lowestPrice;
+        $formattedPrice = $displayPrice > 0 ? single_price($displayPrice) : '';
+        $displayStock = $matchedStocks->sortBy(function ($stock) use ($product) {
+            return discounted_product_stock_price($product, $stock->price);
+        })->first();
+        $imageId = $displayStock->image ?? $matchedStocks->pluck('image')->filter()->first();
+        $imageUrl = $imageId ? uploaded_asset($imageId) : '';
+
+        return [
+            'attribute_id' => $attributeId,
+            'attribute_name' => get_single_attribute_name($attributeId),
+            'value' => $value,
+            'price' => $displayPrice,
+            'highest_price' => $highestPrice,
+            'formatted_price' => $formattedPrice,
+            'quantity' => (int) $matchedStocks->sum('qty'),
+            'image' => $imageId,
+            'image_url' => $imageUrl,
+            'stocks' => $matchedStocks,
+            'label' => $formattedPrice !== '' ? $value . ' (+' . $formattedPrice . ')' : $value,
+        ];
+    }
+}
+
+if (!function_exists('get_product_addon_option_details')) {
+    function get_product_addon_option_details($option)
+    {
+        $price = isset($option->price) ? (float) $option->price : 0;
+        $quantity = isset($option->quantity) ? (int) $option->quantity : 0;
+        $image = $option->img ?? '';
+        $imageUrl = $image ? my_asset($image) : '';
+        $formattedPrice = $price > 0 ? single_price($price) : '';
+
+        return [
+            'id' => $option->id ?? null,
+            'value' => $option->option_name ?? '',
+            'price' => $price,
+            'formatted_price' => $formattedPrice,
+            'quantity' => $quantity,
+            'image' => $image,
+            'image_url' => $imageUrl,
+            'label' => $formattedPrice !== '' ? ($option->option_name ?? '') . ' (+' . $formattedPrice . ')' : ($option->option_name ?? ''),
+        ];
+    }
+}
+
+if (!function_exists('get_product_option_display_details')) {
+    function get_product_option_display_details($type, $source, $context = [])
+    {
+        if ($type === 'attribute') {
+            return get_product_attribute_option_details(
+                $context['product'] ?? null,
+                $context['attribute_id'] ?? null,
+                $source,
+                $context['selected_options'] ?? []
+            );
+        }
+
+        if ($type === 'addon') {
+            return get_product_addon_option_details($source);
+        }
+
+        return [];
+    }
+}
+
 // Get user cart
 if (!function_exists('get_user_cart')) {
     function get_user_cart()

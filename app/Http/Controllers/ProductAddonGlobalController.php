@@ -74,6 +74,7 @@ class ProductAddonGlobalController extends Controller
                             'product_addon_id' => $addonModel->id,
                             'option_name' => $option['option_name'] ?? '',
                             'price' => $option['price'] ?? 0,
+                            'quantity' => $option['quantity'] ?? 0,
                             'img' => $imgPath,
                             'sort_order' => $option['sort_order'] ?? 0
                         ]

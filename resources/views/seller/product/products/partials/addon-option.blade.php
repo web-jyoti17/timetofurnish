@@ -1,6 +1,7 @@
 @php
     $name = $option['name'] ?? '';
     $price = $option['price'] ?? '';
+    $quantity = $option['quantity'] ?? '';
     $img = $option['img'] ?? '';
 
     $isOptChecked = false;
@@ -49,7 +50,19 @@
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-2">
+
+        <input type="number"
+               name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][quantity]"
+               class="form-control option-input"
+               value="{{ old('addons.'.$groupIndex.'.options.'.$optIndex.'.quantity', $quantity) }}"
+               min="0"
+               step="1"
+               placeholder="Quantity">
+
+    </div>
+
+    <div class="col-md-3">
 
         <input type="file"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][img]"

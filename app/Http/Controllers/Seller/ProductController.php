@@ -161,6 +161,7 @@ class ProductController extends Controller
                             "id"    => 'new',
                             "name"  => $opt->option_name,
                             "price" => (float) $opt->price,
+                            "quantity" => (int) ($opt->quantity ?? 0),
                             "img"   => $opt->img ?? ''
                         ];
 
@@ -350,7 +351,8 @@ class ProductController extends Controller
                                 'product_addon_id' => $addonModel->id,
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
-                                'price'            => $option['price'] ?? 0
+                                'price'            => $option['price'] ?? 0,
+                                'quantity'         => $option['quantity'] ?? 0
                             ]);
                         } else {
 
@@ -360,7 +362,8 @@ class ProductController extends Controller
                                     'product_addon_id' => $addonModel->id,
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
-                                    'price'            => $option['price'] ?? 0
+                                    'price'            => $option['price'] ?? 0,
+                                    'quantity'         => $option['quantity'] ?? 0
                                 ]
                             );
                         }
@@ -452,6 +455,7 @@ class ProductController extends Controller
                         return [
                             "name"  => $opt->option_name,
                             "price" => (float) $opt->price,
+                            "quantity" => (int) ($opt->quantity ?? 0),
                             "img"   => $opt->img ?? ''   // ✅ added image
                         ];
                     })->toArray()
@@ -476,6 +480,7 @@ class ProductController extends Controller
                             "id"    => $opt->id,
                             "name"  => $opt->option_name,
                             "price" => (float) $opt->price,
+                            "quantity" => (int) ($opt->quantity ?? 0),
                             "img"   => $opt->img ?? ''   // ✅ added image
                         ];
                     })->toArray()
@@ -724,7 +729,8 @@ class ProductController extends Controller
                                 'product_addon_id' => $addonModel->id,
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
-                                'price'            => $option['price'] ?? 0
+                                'price'            => $option['price'] ?? 0,
+                                'quantity'         => $option['quantity'] ?? 0
                             ]);
                         } else {
 
@@ -734,7 +740,8 @@ class ProductController extends Controller
                                     'product_addon_id' => $addonModel->id,
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
-                                    'price'            => $option['price'] ?? 0
+                                    'price'            => $option['price'] ?? 0,
+                                    'quantity'         => $option['quantity'] ?? 0
                                 ]
                             );
                         }
