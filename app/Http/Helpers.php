@@ -2425,7 +2425,7 @@ if (!function_exists('get_single_attribute_name')) {
         if ($attribute_model) {
             return $attribute_model->getTranslation('name');
         }
-        return null;
+        return 'Sizes';
     }
 }
 

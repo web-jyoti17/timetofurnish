@@ -797,16 +797,44 @@
                         base_price = parseFloat($('.js-product-base-price').data('base-price')) || 0;
                     }
 
-                    if (!variant_ready && !has_addon_selection) {
-                        let default_price_text = $('.js-product-total-price').first().data('default-price-text');
+                    // if (!variant_ready && !has_addon_selection) {
+                    //     let default_price_text = $('.js-product-total-price').first().data('default-price-text');
 
-                        if (default_price_text) {
-                            $('.js-product-total-price').html(default_price_text);
-                            $('#chosen_price').html(default_price_text);
+                    //     if (default_price_text) {
+                    //         $('.js-product-total-price').html(default_price_text);
+                    //         $('#chosen_price').html(default_price_text);
+                    //     }
+
+                    //     return;
+                    // }
+                        /*
+                        CHECK IF ANY ATTRIBUTE SELECTED
+                        */
+                        let has_variant_selection = false;
+
+                        $('#option-choice-form .variant-dropdown').each(function () {
+                            if ($(this).val()) {
+                                has_variant_selection = true;
+                            }
+                        });
+
+
+                        /*
+                        SHOW "-" UNTIL USER SELECTS
+                        */
+
+                        if (!has_variant_selection && !has_addon_selection) {
+
+                            $('#total-pricing').html('-');
+
+                            $('#chosen_price_div').addClass('d-none');
+
+                            return;
+
+                        } else {
+
+                            $('#chosen_price_div').removeClass('d-none');
                         }
-
-                        return;
-                    }
 
 
                     /*

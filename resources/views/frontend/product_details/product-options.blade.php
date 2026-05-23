@@ -400,7 +400,7 @@
             <div class="col-sm-10">
                 <div class="flex-wrap d-flex align-items-center">
                     <!-- Regular Price (with Addon total UI dynamic addition) -->
-                    <strong class="fs-20 fw-600 text-primary js-product-total-price"
+                    <strong class="fs-20 fw-600 text-primary js-product-total-price" id="total-pricing"
                         data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
                         {{ home_discounted_base_price($detailedProduct) }}
                     </strong>
@@ -438,7 +438,7 @@
                 <div class="col-sm-3">
                     <div class="mt-1 text-secondary fs-15 fw-500" style="color:#333 !important">
                         {{ translate('Dispatch
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
                     </div>
                 </div>
                 <div class="col-sm-9">

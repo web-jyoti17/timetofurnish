@@ -746,7 +746,7 @@
                     <div class="col-sm-10 col-10 ">
                         <div class="flex-wrap d-flex align-items-center">
                             <!-- Regular Price (with Addon total UI dynamic addition) -->
-                            <strong class="fs-20 fw-600 text-primary js-product-total-price"
+                            <strong class="fs-18 fw-600 text-primary js-product-total-price"
                                 data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
                                 {{ home_discounted_base_price($detailedProduct) }}
                             </strong>
