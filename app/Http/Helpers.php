@@ -2429,7 +2429,11 @@ if (!function_exists('get_single_attribute_name')) {
     function get_single_attribute_name($attribute)
     {
         $attribute_query = Attribute::query();
-        return $attribute_query->find($attribute)->getTranslation('name');
+        $attribute_model = $attribute_query->find($attribute);
+        if ($attribute_model) {
+            return $attribute_model->getTranslation('name');
+        }
+        return null;
     }
 }
 
@@ -3067,14 +3071,15 @@ if (!function_exists('timezones')) {
 }
 
 if (!function_exists('sync_cart_prices')) {
-    function sync_cart_prices($carts) {
+    function sync_cart_prices($carts)
+    {
         foreach ($carts as $cart) {
             $product = \App\Models\Product::find($cart->product_id);
             if (!$product) continue;
 
             $cartItem_addons = !empty($cart->addons) ? json_decode($cart->addons, true) : [];
             $cartItem_attributes = !empty($cart->attributes) ? json_decode($cart->attributes, true) : [];
-            
+
             $attributeNames = [];
             if (is_array($cartItem_attributes)) {
                 foreach ($cartItem_attributes as $attr) {
@@ -3085,7 +3090,7 @@ if (!function_exists('sync_cart_prices')) {
             }
 
             $variation_string = $cart->variation ?? '';
-            $variation_parts = array_map(function($v) {
+            $variation_parts = array_map(function ($v) {
                 return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
             }, explode('-', $variation_string));
 
@@ -3112,7 +3117,7 @@ if (!function_exists('sync_cart_prices')) {
             }
 
             $base_product_price = cart_product_price($cart, $product, false, false);
-            
+
             // Re-calculate tax if needed
             $tax = \App\Utility\CartUtility::tax_calculation($product, $base_product_price + $addon_total);
 

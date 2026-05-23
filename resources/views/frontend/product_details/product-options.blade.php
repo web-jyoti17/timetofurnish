@@ -170,9 +170,9 @@
                                                                 +{{ $addonOptionDetails['formatted_price'] }}
                                                             </span>
                                                         @else
-                                                            <span class="fabric-price-text free">
+                                                            {{-- <span class="fabric-price-text free">
                                                                 Free
-                                                            </span>
+                                                            </span> --}}
                                                         @endif
                                                     </div>
                                                 </div>
@@ -438,7 +438,7 @@
                 <div class="col-sm-3">
                     <div class="mt-1 text-secondary fs-15 fw-500" style="color:#333 !important">
                         {{ translate('Dispatch
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Time') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
                     </div>
                 </div>
                 <div class="col-sm-9">
