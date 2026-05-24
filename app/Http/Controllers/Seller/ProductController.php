@@ -146,40 +146,16 @@ class ProductController extends Controller
             ->where('digital', 0)
             ->with('childrenCategories')
             ->get();
-            $addons = ProductAddonGlobal::with('options')
-                    ->orderBy('sort_order', 'asc')
-                    ->get()
-            ->map(function ($addon) {
-
-                return [
-                    "id"   => 'new',
-                    "name" => $addon->name,
-
-                    "options" => $addon->options->map(function ($opt) {
-
-                        return [
-                            "id"    => 'new',
-                            "name"  => $opt->option_name,
-                            "price" => (float) $opt->price,
-                            "quantity" => (int) ($opt->quantity ?? 0),
-                            "img"   => $opt->img ?? ''
-                        ];
-
-                    })->toArray()
-
-                ];
-
-            })
-            ->toArray();
-            return view(
-                'seller.product.products.create',
-                compact(
-                    'categories',
-                    'addons',
-                    'services',
-                    'selectedServices'
-                )
-            );
+        $addons = [];
+        return view(
+            'seller.product.products.create',
+            compact(
+                'categories',
+                'addons',
+                'services',
+                'selectedServices'
+            )
+        );
     }
 
     public function store(ProductRequest $request)
@@ -446,22 +422,25 @@ class ProductController extends Controller
         | 1. Global Addons (NO ID)
         |--------------------------------------------------------------------------
         */
-        $globalAddons = ProductAddonGlobal::with('options')
-            ->get()
-            ->map(function ($addon) {
-                return [
-                    "name" => $addon->name,
-                    "options" => $addon->options->map(function ($opt) {
-                        return [
-                            "name"  => $opt->option_name,
-                            "price" => (float) $opt->price,
-                            "quantity" => (int) ($opt->quantity ?? 0),
-                            "img"   => $opt->img ?? ''   // ✅ added image
-                        ];
-                    })->toArray()
-                ];
-            })
-            ->toArray();
+        $globalAddons = ProductAddonGlobal::whereHas('categories', function ($query) use ($parentIds) {
+            $query->whereIn('category_id', $parentIds);
+        })
+        ->with('options')
+        ->get()
+        ->map(function ($addon) {
+            return [
+                "name" => $addon->name,
+                "options" => $addon->options->map(function ($opt) {
+                    return [
+                        "name"  => $opt->option_name,
+                        "price" => (float) $opt->price,
+                        "quantity" => (int) ($opt->quantity ?? 0),
+                        "img"   => $opt->img ?? ''   // ✅ added image
+                    ];
+                })->toArray()
+            ];
+        })
+        ->toArray();
 
         /*
         |--------------------------------------------------------------------------
@@ -869,7 +848,15 @@ class ProductController extends Controller
             }
         }
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
         return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'old_values'));
     }
 
@@ -901,7 +888,15 @@ class ProductController extends Controller
             }
         }
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
         return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
 
@@ -974,6 +969,43 @@ class ProductController extends Controller
             ],
             'values' => array_values(array_unique($savedValues)),
         ]);
+    }
+
+    public function getAddonsByCategories(Request $request)
+    {
+        $categoryIds = $request->input('category_ids') ?? [];
+        if (empty($categoryIds)) {
+            return response()->json([]);
+        }
+        $parentIds = getParentCategoryIds($categoryIds);
+        if (empty($parentIds)) {
+            return response()->json([]);
+        }
+
+        $addons = ProductAddonGlobal::whereHas('categories', function ($query) use ($parentIds) {
+            $query->whereIn('category_id', $parentIds);
+        })
+        ->with('options')
+        ->orderBy('sort_order', 'asc')
+        ->get()
+        ->map(function ($addon) {
+            return [
+                "id"   => 'new',
+                "name" => $addon->name,
+                "options" => $addon->options->map(function ($opt) {
+                    return [
+                        "id"    => 'new',
+                        "name"  => $opt->option_name,
+                        "price" => (float) $opt->price,
+                        "quantity" => (int) ($opt->quantity ?? 0),
+                        "img"   => $opt->img ?? ''
+                    ];
+                })->toArray()
+            ];
+        })
+        ->toArray();
+
+        return response()->json($addons);
     }
 
     private function syncSelectedAttributesToCategories($attributeIds, $categoryIds): void

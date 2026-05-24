@@ -2420,12 +2420,30 @@ if (!function_exists('get_single_color_name')) {
 if (!function_exists('get_single_attribute_name')) {
     function get_single_attribute_name($attribute)
     {
-        $attribute_query = Attribute::query();
-        $attribute_model = $attribute_query->find($attribute);
-        if ($attribute_model) {
-            return $attribute_model->getTranslation('name');
+        if (empty($attribute)) {
+            return '';
         }
-        return 'Sizes';
+
+        if (!is_numeric($attribute)) {
+            return $attribute;
+        }
+
+        // Direct DB query first (gets exact name as stored in `attributes` table, e.g. "Sizes")
+        $raw_attr = \DB::table('attributes')->where('id', $attribute)->first();
+        if ($raw_attr && !empty($raw_attr->name)) {
+            return $raw_attr->name;
+        }
+
+        // Fallback to translation model
+        $attribute_model = \App\Models\Attribute::find($attribute);
+        if ($attribute_model) {
+            $name = $attribute_model->getTranslation('name');
+            if (!empty($name)) {
+                return $name;
+            }
+        }
+
+        return '';
     }
 }
 
@@ -2480,7 +2498,14 @@ if (!function_exists('get_product_attribute_option_details')) {
                 return normalize_product_variant_part($part);
             });
 
-            if ($attributeIndex === false || $variantParts->get($attributeIndex) !== $normalizedValue) {
+            $matched = false;
+            if ($attributeIndex !== false && $variantParts->get($attributeIndex) === $normalizedValue) {
+                $matched = true;
+            } elseif (normalize_product_variant_part($stock->variant) === $normalizedValue) {
+                $matched = true;
+            }
+
+            if (!$matched) {
                 return false;
             }
 

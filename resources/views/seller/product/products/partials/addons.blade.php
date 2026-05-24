@@ -1,17 +1,15 @@
-<div class="card">
+<div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Product Add-ons</h5>
 
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Product Add-ons</h5>
+    <button type="button"
+            class="btn btn-soft-primary btn-sm"
+            id="add-addon-group">
+        <i class="las la-plus"></i>
+        Add New Addon
+    </button>
+</div>
 
-        <button type="button"
-                class="btn btn-soft-primary btn-sm"
-                id="add-addon-group">
-            <i class="las la-plus"></i>
-            Add New Addon
-        </button>
-    </div>
-
-    <div class="card-body">
+<div class="card-body seller-addons-body">
 
         <div id="addon-wrapper">
 
@@ -20,10 +18,16 @@
             @endphp
 
             @forelse($addons as $index => $addon)
-
+                @php
+                    $isGlobal = false;
+                    if (isset($addon['name'])) {
+                        $isGlobal = \App\Models\ProductAddonGlobal::where('name', $addon['name'])->exists();
+                    }
+                @endphp
                 @include('seller.product.products.partials.addon-group', [
                     'addon' => $addon,
-                    'index' => $index
+                    'index' => $index,
+                    'isGlobal' => $isGlobal
                 ])
 
             @empty
@@ -36,8 +40,6 @@
             @endforelse
 
         </div>
-
-    </div>
 
 </div>
 
@@ -406,6 +408,129 @@
                 updateSelectAllButton(block);
             }
         }, true);
+
+        function addAddon(addon, forceEnabled, isGlobal) {
+            var wrapper = document.getElementById('addon-wrapper');
+            if (!wrapper) return;
+
+            var groupIndex = nextGroupIndex();
+            var blockHtml = templateHtml('addon-group-template', {
+                '__GROUP_INDEX__': groupIndex
+            });
+
+            var holder = document.createElement('div');
+            holder.innerHTML = blockHtml.trim();
+            var block = holder.firstElementChild;
+            if (!block) return;
+
+            if (isGlobal) {
+                block.classList.add('is-global-addon');
+            }
+
+            var nameInput = block.querySelector('.group-name');
+            if (nameInput) {
+                nameInput.value = addon.name;
+            }
+
+            var groupToggle = block.querySelector('.group-toggle');
+            if (groupToggle) {
+                groupToggle.checked = forceEnabled;
+                if (addon.db_id) {
+                    groupToggle.value = addon.db_id;
+                }
+            }
+
+            var optionsContainer = block.querySelector('.addon-options');
+            if (optionsContainer) {
+                optionsContainer.innerHTML = '';
+            }
+
+            if (addon.options && addon.options.length > 0) {
+                addon.options.forEach(function (opt, optIndex) {
+                    var optHtml = templateHtml('addon-option-template', {
+                        '__GROUP_INDEX__': groupIndex,
+                        '__OPTION_INDEX__': optIndex
+                    });
+
+                    var optHolder = document.createElement('div');
+                    optHolder.innerHTML = optHtml.trim();
+                    var optRow = optHolder.firstElementChild;
+                    if (optRow) {
+                        var optName = optRow.querySelector('input[name*="[name]"]');
+                        if (optName) optName.value = opt.name;
+
+                        var optPrice = optRow.querySelector('input[name*="[price]"]');
+                        if (optPrice) optPrice.value = opt.price;
+
+                        var optQty = optRow.querySelector('input[name*="[quantity]"]');
+                        if (optQty) optQty.value = opt.quantity;
+
+                        var existingImg = optRow.querySelector('input[name*="[existing_img]"]');
+                        if (existingImg) existingImg.value = opt.img;
+
+                        var optToggle = optRow.querySelector('.option-toggle');
+                        if (optToggle) {
+                            optToggle.checked = forceEnabled;
+                            if (opt.db_id) {
+                                optToggle.value = opt.db_id;
+                            }
+                        }
+
+                        if (opt.img) {
+                            var imgCol = optRow.querySelector('.col-md-3');
+                            if (imgCol) {
+                                var preview = document.createElement('div');
+                                preview.className = 'mt-1';
+                                preview.innerHTML = '<img src="' + $('#product-form-data').data('base-url') + '/' + opt.img + '" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">';
+                                imgCol.appendChild(preview);
+                            }
+                        }
+
+                        optionsContainer.appendChild(optRow);
+                    }
+                });
+            }
+
+            wrapper.appendChild(block);
+            initializeBlock(block, forceEnabled);
+        }
+
+        function loadCategoryAddons() {
+            var categoryIds = [];
+            document.querySelectorAll('#treeview input[type="checkbox"]:checked').forEach(function (input) {
+                categoryIds.push(input.value);
+            });
+
+            var getAddonsRoute = $('#product-form-data').data('get-addons-route');
+            if (!getAddonsRoute) return;
+
+            $.ajax({
+                type: 'POST',
+                url: getAddonsRoute,
+                data: {
+                    category_ids: categoryIds,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (addons) {
+                    var wrapper = document.getElementById('addon-wrapper');
+                    if (!wrapper) return;
+
+                    // Remove all existing global addon blocks
+                    wrapper.querySelectorAll('.addon-block.is-global-addon').forEach(function (block) {
+                        block.remove();
+                    });
+
+                    // Add the new global addons
+                    addons.forEach(function (addon) {
+                        addAddon(addon, false, true);
+                    });
+                }
+            });
+        }
+
+        $(document).on('change', '#treeview input[type="checkbox"]', function () {
+            loadCategoryAddons();
+        });
 
         document.querySelectorAll('#addon-wrapper .addon-block').forEach(function (block) {
             initializeBlock(block, false);

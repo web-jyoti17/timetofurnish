@@ -5,16 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProductAddonGlobal;
 use App\Models\ProductAddonOptionGlobal;
+use App\Models\Category;
 
 class ProductAddonGlobalController extends Controller
 {
     public function index()
     {
-        $addons = ProductAddonGlobal::with('options')
+        $addons = ProductAddonGlobal::with(['options', 'categories'])
                     ->orderBy('sort_order', 'asc')
                     ->get();
+        $categories = Category::where('parent_id', 0)->with('childrenCategories')->get();
 
-        return view('backend.addons.global', compact('addons'));
+        return view('backend.addons.global', compact('addons', 'categories'));
     }
 
     public function store(Request $request)
@@ -29,6 +31,7 @@ class ProductAddonGlobalController extends Controller
                 if ($addon) {
 
                     ProductAddonOptionGlobal::where('product_addon_id', $addon->id)->delete();
+                    $addon->categories()->detach();
 
                     $addon->delete();
                 }
@@ -47,6 +50,9 @@ class ProductAddonGlobalController extends Controller
                     'sort_order' => $addon['sort_order'] ?? 0
                 ]
             );
+
+            // Sync Categories
+            $addonModel->categories()->sync($addon['category_ids'] ?? []);
 
             $optionIds = [];
 

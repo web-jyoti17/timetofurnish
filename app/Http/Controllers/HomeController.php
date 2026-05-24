@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductStock;
 use App\Models\FlashDeal;
 use App\Models\OrderDetail;
 use App\Models\PickupPoint;
@@ -481,38 +482,129 @@ class HomeController extends Controller
     public function variant_price(Request $request)
     {
         $product = Product::find($request->id);
-        $str = '';
+
         $quantity = 0;
         $tax = 0;
         $max_limit = 0;
 
-        if ($request->has('color')) {
-            $str = $request['color'];
-        }
+        /*
+    --------------------------------------
+    GET SELECTED ATTRIBUTE
+    Example:
+    Single3ftBed
+    Double4ftBed
+    Res
+    --------------------------------------
+    */
 
-        if (json_decode($product->choice_options) != null) {
-            foreach (json_decode($product->choice_options) as $key => $choice) {
-                if ($str != null) {
-                    $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
-                } else {
-                    $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+        $selected_attributes = [];
+
+        if ($product->choice_options != null) {
+
+            foreach (
+                json_decode($product->choice_options)
+                as $choice
+            ) {
+
+                $field =
+                    'attribute_id_' .
+                    $choice->attribute_id;
+
+                if (
+                    $request->has($field)
+                    &&
+                    !empty($request->$field)
+                ) {
+
+                    $selected_attributes[] =
+                        str_replace(
+                            ' ',
+                            '',
+                            trim(
+                                $request->$field
+                            )
+                        );
                 }
             }
         }
 
-        $product_stock = $product->stocks
-            ->where('variant', $str)
+        $str = implode('-', $selected_attributes);
+
+        /*
+    FIND EXACT STOCK
+    */
+
+        $product_stock =
+            ProductStock::where(
+                'product_id',
+                $product->id
+            )
+            ->where(
+                'variant',
+                $str
+            )
             ->first();
 
-        if (!$product_stock) {
+        /*
+    IF NOT FOUND, TRY INDIVIDUAL STOCKS SUMMATION
+    */
+        $price = 0;
+        $quantity = 0;
+        $max_limit = 0;
+        $in_stock = 0;
+        $has_stocks = false;
+
+        if ($product_stock) {
+            $price = $product_stock->price;
+            $quantity = $product_stock->qty;
+            $max_limit = $product_stock->qty;
+            $has_stocks = true;
+
+            /*
+            WHOLESALE (ONLY IF COMBINED/SINGLE EXACT MATCH FOUND)
+            */
+            if ($product->wholesale_product) {
+                $wholesalePrice = $product_stock
+                    ->wholesalePrices
+                    ->where('min_qty', '<=', $request->quantity)
+                    ->where('max_qty', '>=', $request->quantity)
+                    ->first();
+
+                if ($wholesalePrice) {
+                    $price = $wholesalePrice->price;
+                }
+            }
+        } else {
+            $quantity = 99999;
+            foreach ($selected_attributes as $attr) {
+                $individual_stock = ProductStock::where('product_id', $product->id)
+                    ->where('variant', $attr)
+                    ->first();
+                if ($individual_stock) {
+                    $price += $individual_stock->price;
+                    $quantity = min($quantity, $individual_stock->qty);
+                    $has_stocks = true;
+                }
+            }
+            if ($has_stocks) {
+                $max_limit = $quantity;
+            }
+        }
+
+        /*
+    NO STOCK FOUND
+    */
+
+        if (!$has_stocks) {
 
             return response()->json([
 
-                'price' => single_price(0),
+                'price' => '-',
 
                 'quantity' => 0,
 
-                'digital' => $product->digital,
+                'digital' =>
+                $product->digital,
 
                 'variation' => $str,
 
@@ -522,65 +614,289 @@ class HomeController extends Controller
 
             ]);
         }
-        $price = $product_stock->price;
 
+        /*
+    STOCK STATUS
+    */
+        if (
+            $quantity >= 1
+            &&
+            $product->min_qty <= $quantity
+        ) {
 
-        if ($product->wholesale_product) {
-            $wholesalePrice = $product_stock->wholesalePrices->where('min_qty', '<=', $request->quantity)->where('max_qty', '>=', $request->quantity)->first();
-            if ($wholesalePrice) {
-                $price = $wholesalePrice->price;
-            }
-        }
-
-        $quantity = $product_stock->qty;
-        $max_limit = $product_stock->qty;
-
-        if ($quantity >= 1 && $product->min_qty <= $quantity) {
             $in_stock = 1;
         } else {
+
             $in_stock = 0;
         }
 
-        //Product Stock Visibility
-        if ($product->stock_visibility_state == 'text') {
-            if ($quantity >= 1 && $product->min_qty < $quantity) {
-                $quantity = translate('In Stock');
+        /*
+    STOCK VISIBILITY
+    */
+
+        if (
+            $product
+            ->stock_visibility_state
+            == 'text'
+        ) {
+
+            if (
+                $quantity >= 1
+                &&
+                $product->min_qty
+                <= $quantity
+            ) {
+
+                $quantity =
+                    translate(
+                        'In Stock'
+                    );
             } else {
-                $quantity = translate('Out Of Stock');
+
+                $quantity =
+                    translate(
+                        'Out Of Stock'
+                    );
             }
         }
 
-        //discount calculation
-        $discount_applicable = false;
+        /*
+    DISCOUNT
+    */
 
-        if ($product->discount_start_date == null) {
-            $discount_applicable = true;
-        } elseif (
-            strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
-            strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+        $discount_applicable =
+            false;
+
+        if (
+            $product
+            ->discount_start_date
+            == null
         ) {
-            $discount_applicable = true;
+
+            $discount_applicable =
+                true;
+        } elseif (
+
+            strtotime(
+                date(
+                    'd-m-Y H:i:s'
+                )
+            ) >=
+            $product
+            ->discount_start_date
+
+            &&
+
+            strtotime(
+                date(
+                    'd-m-Y H:i:s'
+                )
+            ) <=
+            $product
+            ->discount_end_date
+        ) {
+
+            $discount_applicable =
+                true;
         }
 
-        if ($discount_applicable) {
-            if ($product->discount_type == 'percent') {
-                $price -= ($price * $product->discount) / 100;
-            } elseif ($product->discount_type == 'amount') {
-                $price -= $product->discount;
+        if (
+            $discount_applicable
+        ) {
+
+            if (
+                $product
+                ->discount_type
+                == 'percent'
+            ) {
+
+                $price -=
+                    (
+                        $price *
+                        $product
+                        ->discount
+                    ) / 100;
+            } elseif (
+                $product
+                ->discount_type
+                == 'amount'
+            ) {
+
+                $price -=
+                    $product
+                    ->discount;
             }
         }
 
         $price += $tax;
-        // dd(single_price($price * $request->quantity));
-        return array(
-            'price' => single_price($price * $request->quantity),
-            'quantity' => $quantity,
-            'digital' => $product->digital,
-            'variation' => $str,
-            'max_limit' => $max_limit,
-            'in_stock' => $in_stock
-        );
+
+        return [
+
+            'price' =>
+            single_price(
+                $price *
+                    (
+                        $request->quantity
+                        ?? 1
+                    )
+            ),
+
+            'quantity' =>
+            $quantity,
+
+            'digital' =>
+            $product->digital,
+
+            'variation' =>
+            $str,
+
+            'max_limit' =>
+            $max_limit,
+
+            'in_stock' =>
+            $in_stock
+        ];
     }
+
+    // public function variant_price(Request $request)
+    // {
+    //     $product = Product::find($request->id);
+    //     // $str = '';
+    //     $quantity = 0;
+    //     $tax = 0;
+    //     $max_limit = 0;
+
+    //     if ($request->has('color')) {
+    //         $str = $request['color'];
+    //     }
+    //     // print_r($product->choice_options);
+    //     // if (json_decode($product->choice_options) != null) {
+    //     //     foreach (json_decode($product->choice_options) as $key => $choice) {
+    //     //         if ($str != null) {
+    //     //             $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+    //     //         } else {
+    //     //             $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+    //     //         }
+    //     //     }
+    //     // }
+    //     $selected_attributes = [];
+
+    //     if ($product->choice_options) {
+
+    //         foreach (json_decode($product->choice_options) as $choice) {
+
+    //             $field = 'attribute_id_' . $choice->attribute_id;
+
+    //             if (
+    //                 $request->has($field)
+    //                 && !empty($request->$field)
+    //             ) {
+
+    //                 $selected_attributes[] =
+    //                     str_replace(
+    //                         ' ',
+    //                         '',
+    //                         $request->$field
+    //                     );
+    //             }
+    //         }
+    //     }
+
+    //     $str = implode('-', $selected_attributes);
+    //     // $product_stock = $product->stocks
+    //     //     ->where('variant', $str)
+    //     //     ->first();
+    //     $product_stock = $product->stocks
+    //         ->filter(function ($stock) use ($str) {
+
+    //             if (empty($str)) {
+    //                 return false;
+    //             }
+
+    //             return str_contains(
+    //                 $stock->variant,
+    //                 $str
+    //             );
+    //         })
+    //         ->first();
+
+    //     if (!$product_stock) {
+
+    //         return response()->json([
+
+    //             'price' => single_price(0),
+
+    //             'quantity' => 0,
+
+    //             'digital' => $product->digital,
+
+    //             'variation' => $str,
+
+    //             'max_limit' => 0,
+
+    //             'in_stock' => 0
+
+    //         ]);
+    //     }
+    //     $price = $product_stock->price;
+
+
+    //     if ($product->wholesale_product) {
+    //         $wholesalePrice = $product_stock->wholesalePrices->where('min_qty', '<=', $request->quantity)->where('max_qty', '>=', $request->quantity)->first();
+    //         if ($wholesalePrice) {
+    //             $price = $wholesalePrice->price;
+    //         }
+    //     }
+
+    //     $quantity = $product_stock->qty;
+    //     $max_limit = $product_stock->qty;
+
+    //     if ($quantity >= 1 && $product->min_qty <= $quantity) {
+    //         $in_stock = 1;
+    //     } else {
+    //         $in_stock = 0;
+    //     }
+
+    //     //Product Stock Visibility
+    //     if ($product->stock_visibility_state == 'text') {
+    //         if ($quantity >= 1 && $product->min_qty < $quantity) {
+    //             $quantity = translate('In Stock');
+    //         } else {
+    //             $quantity = translate('Out Of Stock');
+    //         }
+    //     }
+
+    //     //discount calculation
+    //     $discount_applicable = false;
+
+    //     if ($product->discount_start_date == null) {
+    //         $discount_applicable = true;
+    //     } elseif (
+    //         strtotime(date('d-m-Y H:i:s')) >= $product->discount_start_date &&
+    //         strtotime(date('d-m-Y H:i:s')) <= $product->discount_end_date
+    //     ) {
+    //         $discount_applicable = true;
+    //     }
+
+    //     if ($discount_applicable) {
+    //         if ($product->discount_type == 'percent') {
+    //             $price -= ($price * $product->discount) / 100;
+    //         } elseif ($product->discount_type == 'amount') {
+    //             $price -= $product->discount;
+    //         }
+    //     }
+
+    //     $price += $tax;
+    //     // dd(single_price($price * $request->quantity));
+    //     return array(
+    //         'price' => single_price($price * $request->quantity),
+    //         'quantity' => $quantity,
+    //         'digital' => $product->digital,
+    //         'variation' => $str,
+    //         'max_limit' => $max_limit,
+    //         'in_stock' => $in_stock
+    //     );
+    // }
 
     public function sellerpolicy()
     {

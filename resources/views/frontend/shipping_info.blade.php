@@ -17,8 +17,7 @@
                         </div>
                         <div class="col active">
                             <div class="text-center border border-bottom-6px p-2 text-primary">
-                                <i class="la-3x mb-2 las la-map-marker cart-animate"
-                                    style="margin-right: -100px; transition: 2s;"></i>
+                                <i class="la-3x mb-2 las la-map-marker cart-animate"></i>
                                 <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('2. Shipping info') }}
                                 </h3>
                             </div>
@@ -121,9 +120,9 @@
 
                                 <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2 "
                                     style="gap:10px;">
-                                    <a href="{{ route('home') }}"
+                                    <a href="{{ url('cart') }}"
                                         class="btn borderbtn  rounded-2 py-3 px-4 w-100 w-lg-auto custom_checkout_button_design filled">
-                                        <i class="las la-arrow-left"></i> {{ translate('Return to shop') }}
+                                        <i class="las la-arrow-left"></i> {{ translate('Back') }}
                                     </a>
                                     <button type="submit"
                                         class="btn borderbtn py-3 px-5  w-100 w-lg-auto custom_checkout_button_design unfilled rounded-2">

@@ -97,12 +97,13 @@
                     success: function (response) {
                         const currentSelected = ($('#choice_attributes').val() || []).map(String);
                         const oldSelected = (formData.choiceAttributesOld || []).map(String);
+                        const sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
+                        
                         $('#choice_attributes').empty();
                         $.each(response, function (index, attribute) {
                             let isSelected = currentSelected.includes(attribute.id
                                 .toString()) || oldSelected.includes(attribute
                                     .id.toString());
-                            let sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
                             if (sizeAttributeId && String(attribute.id) === sizeAttributeId) {
                                 isSelected = true;
                             }
@@ -121,6 +122,25 @@
                         ensureRequiredSizeAttribute();
                     }
                 });
+            } else {
+                let attributeSelect = $('#choice_attributes');
+                let sizeAttributeId = String(attributeSelect.data('size-attribute-id') || '');
+                let sizeAttributeName = attributeSelect.data('size-attribute-name') || 'Size';
+
+                attributeSelect.empty();
+                if (sizeAttributeId) {
+                    attributeSelect.append(
+                        $('<option></option>').val(sizeAttributeId).text(sizeAttributeName).prop('selected', true)
+                    );
+                }
+
+                attributeSelect.prop('disabled', false);
+                if ($.fn && $.fn.selectpicker) {
+                    $('#choice_attributes').selectpicker('refresh');
+                } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
+                    AIZ.plugins.bootstrapSelect('refresh');
+                }
+                ensureRequiredSizeAttribute();
             }
         }
 
@@ -169,7 +189,7 @@
             update_sku();
         });
 
-        bindSellerAttributeBuilder(formData);
+        // bindSellerAttributeBuilder(formData);
 
         // Colors active toggle
         $('input[name="colors_active"]').on('change', function () {
@@ -244,20 +264,221 @@
             });
         });
 
-        // Sticky Header Scroll Logic
-        window.addEventListener('scroll', function () {
-            const header = document.querySelector('.sticky-action-container');
-            if (header) {
-                if (window.pageYOffset > 50) {
-                    header.classList.add('stuck');
-                } else {
-                    header.classList.remove('stuck');
-                }
-            }
-        });
-
         bindProductAjaxSubmit();
         bindProductGlobalAjaxErrors();
+
+        // Category selection state only controls the inline notice. All form sections stay visible.
+        function updateSectionsVisibility() {
+            var categoryIds = [];
+            $('input[name="category_ids[]"]:checked').each(function () {
+                categoryIds.push($(this).val());
+            });
+            var form = $('#choice_form');
+            
+            if (categoryIds.length > 0) {
+                form.removeClass('seller-category-pending').addClass('seller-category-ready');
+            } else {
+                form.removeClass('seller-category-ready').addClass('seller-category-pending');
+            }
+        }
+
+        // Trigger sections visibility check on any category checkbox change
+        $(document).on('change', 'input[name="category_ids[]"]', function () {
+            updateSectionsVisibility();
+        });
+
+        // Initialize visibility on load
+        updateSectionsVisibility();
+
+        function selectpickerInstanceFromSearch(searchInput) {
+            let menu = searchInput.closest('.dropdown-menu');
+            let instance = menu.data('this') || menu.data('selectpicker');
+
+            if (!instance) {
+                let picker = searchInput.closest('.bootstrap-select');
+                instance = picker.data('this') || picker.data('selectpicker');
+            }
+
+            if (!instance) {
+                let select = searchInput.closest('.bootstrap-select').children('select');
+                if (!select.length) {
+                    select = searchInput.closest('.bootstrap-select').prev('select');
+                }
+                if (select.length) {
+                    instance = select.data('this') || select.data('selectpicker') || {
+                        $element: select,
+                        $menu: searchInput.closest('.dropdown-menu')
+                    };
+                }
+            }
+
+            if (!instance) {
+                let openPicker = $('.bootstrap-select.show').first();
+                let select = openPicker.children('select');
+                if (!select.length) {
+                    select = openPicker.prev('select');
+                }
+                if (select.length) {
+                    instance = select.data('this') || select.data('selectpicker') || {
+                        $element: select,
+                        $menu: menu
+                    };
+                }
+            }
+
+            return instance || null;
+        }
+
+        function closeSelectpicker(select) {
+            if ($.fn && $.fn.selectpicker && select && select.length) {
+                select.selectpicker('toggle');
+            }
+        }
+
+        function addSearchedAttribute(select, query) {
+            $.ajax({
+                type: 'POST',
+                url: formData.storeAttributeRoute,
+                data: {
+                    name: query,
+                    values: ['Default'],
+                    category_ids: selectedCategoryIds(),
+                    _token: (typeof AIZ !== 'undefined' && AIZ.data && AIZ.data.csrf) ? AIZ.data.csrf : (formData.csrf || $('meta[name="csrf-token"]').attr('content'))
+                },
+                success: function (response) {
+                    var newAttr = response.attribute;
+                    var optionExists = select.find('option[value="' + newAttr.id + '"]').length > 0;
+                    if (!optionExists) {
+                        select.append($('<option></option>').val(newAttr.id).text(newAttr.name).prop('selected', true));
+                    } else {
+                        select.find('option[value="' + newAttr.id + '"]').prop('selected', true);
+                    }
+
+                    select.prop('disabled', false);
+                    refreshProductSelects(select);
+                    select.trigger('change');
+                    closeSelectpicker(select);
+                    notifyProductForm('success', 'Attribute "' + query + '" added successfully.');
+                },
+                error: function (xhr) {
+                    notifyProductForm('danger', sellerAttributeError(xhr, 'Unable to add custom attribute.'));
+                }
+            });
+        }
+
+        function addSearchedAttributeValue(select, query) {
+            var choiceRow = select.closest('.form-group.row');
+            var attributeName = $.trim(choiceRow.find('input[name="choice[]"]').val());
+            var previousValues = (select.val() || []).map(function (value) {
+                return String(value);
+            });
+
+            if (!attributeName) {
+                notifyProductForm('danger', 'Please choose an attribute before adding values.');
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: formData.storeAttributeRoute,
+                data: {
+                    name: attributeName,
+                    values: [query],
+                    category_ids: selectedCategoryIds(),
+                    _token: (typeof AIZ !== 'undefined' && AIZ.data && AIZ.data.csrf) ? AIZ.data.csrf : (formData.csrf || $('meta[name="csrf-token"]').attr('content'))
+                },
+                success: function (response) {
+                    var newValue = response.values[0] || query;
+                    var finalValues = previousValues.slice();
+                    if (!finalValues.includes(String(newValue))) {
+                        finalValues.push(String(newValue));
+                    }
+                    var optionExists = select.find('option[value="' + newValue + '"]').length > 0;
+                    if (!optionExists) {
+                        select.append($('<option></option>').val(newValue).text(newValue));
+                    } else {
+                        select.find('option[value="' + newValue + '"]').text(newValue);
+                    }
+
+                    select.val(finalValues);
+                    refreshProductSelects(select);
+                    closeSelectpicker(select);
+                    notifyProductForm('success', 'Value "' + query + '" added successfully.');
+                    update_sku();
+                },
+                error: function (xhr) {
+                    notifyProductForm('danger', sellerAttributeError(xhr, 'Unable to add custom value.'));
+                }
+            });
+        }
+
+        function injectSearchedOptionAction(searchInput) {
+            let query = $.trim(searchInput.val());
+            let instance = selectpickerInstanceFromSearch(searchInput);
+            if (!instance || !instance.$element) return;
+
+            let menu = instance.$menu || searchInput.closest('.dropdown-menu');
+            menu.find('.injected-add-custom-option-wrap').remove();
+            if (!query) return;
+
+            let originalSelect = instance.$element;
+            let selectName = originalSelect.attr('name') || '';
+            let isAttributeSelect = originalSelect.attr('id') === 'choice_attributes';
+            let isAttributeValueSelect = selectName.indexOf('choice_options_') === 0;
+
+            if (!isAttributeSelect && !isAttributeValueSelect) return;
+
+            let exists = false;
+            originalSelect.find('option').each(function () {
+                if ($.trim($(this).text()).toLowerCase() === query.toLowerCase()) {
+                    exists = true;
+                }
+            });
+
+            if (exists) return;
+
+            let inner = menu.find('.inner').first();
+            if (!inner.length) return;
+
+            let label = isAttributeSelect
+                ? 'Add new attribute "' + query + '"'
+                : 'Add new option "' + query + '"';
+            let actionWrap = $('<div class="injected-add-custom-option-wrap"></div>');
+            let action = $('<button type="button" class="injected-add-custom-option"><i class="las la-plus-circle"></i><span></span></button>');
+            action.find('span').text(label);
+            actionWrap.append(action);
+            inner.after(actionWrap);
+
+            action.on('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                if (isAttributeSelect) {
+                    addSearchedAttribute(originalSelect, query);
+                } else {
+                    addSearchedAttributeValue(originalSelect, query);
+                }
+            });
+        }
+
+        // Search & Add Custom Option / Attribute within the Bootstrap Selectpicker Search Input
+        $(document).on('input keyup', '.bootstrap-select .bs-searchbox input, .bs-container .bs-searchbox input', function () {
+            let searchInput = $(this);
+            [0, 40, 120].forEach(function (delay) {
+                setTimeout(function () {
+                    injectSearchedOptionAction(searchInput);
+                }, delay);
+            });
+        });
+
+        $(document).on('shown.bs.select refreshed.bs.select', '.aiz-selectpicker', function () {
+            let instance = $(this).data('this') || $(this).data('selectpicker');
+            let menu = instance && instance.$menu;
+            let searchInput = menu ? menu.find('.bs-searchbox input') : $();
+            if (searchInput.length && $.trim(searchInput.val())) {
+                injectSearchedOptionAction(searchInput);
+            }
+        });
     });
 
     function clearProductFormErrors() {
@@ -304,6 +525,7 @@
             console.log(list.join('\n'));
         }
     }
+    window.notifyProductForm = notifyProductForm;
 
     function refreshProductSelects(target) {
         if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
@@ -312,6 +534,7 @@
             (target ? $(target) : $('.aiz-selectpicker')).selectpicker('refresh');
         }
     }
+    window.refreshProductSelects = refreshProductSelects;
 
     function selectedCategoryIds() {
         let categoryIds = [];
@@ -322,6 +545,7 @@
 
         return categoryIds;
     }
+    window.selectedCategoryIds = selectedCategoryIds;
 
     function sellerAttributeError(xhr, fallback) {
         if (xhr.responseJSON) {
@@ -344,6 +568,7 @@
 
         return fallback;
     }
+    window.sellerAttributeError = sellerAttributeError;
 
     function addOrUpdateVariationAttribute(attribute, values) {
         if (!attribute || !attribute.id) return;
@@ -567,11 +792,85 @@
         }
     }
 
+    function validateProductVariations() {
+        let messages = [];
+        let attributeSelect = $('#choice_attributes');
+        let selectedAttributes = (attributeSelect.val() || []).filter(function (value) {
+            return String(value || '').length > 0;
+        });
+
+        $('#attributes_enable_toggle').prop('checked', true);
+        $('#attributes-container').show();
+        attributeSelect.prop('disabled', false);
+        refreshProductSelects(attributeSelect);
+
+        if (!selectedAttributes.length) {
+            messages.push('Please choose at least one product attribute.');
+            addFieldError('choice_attributes', 'Please choose at least one product attribute.');
+        }
+
+        $('input[name="choice_no[]"]').each(function () {
+            let attributeId = $(this).val();
+            let row = $(this).closest('.form-group.row');
+            let label = $.trim(row.find('input[name="choice[]"]').val()) || 'Attribute';
+            let optionSelect = $('select[name="choice_options_' + attributeId + '[]"]');
+
+            if (optionSelect.length) {
+                optionSelect.prop('disabled', false);
+                optionSelect.attr('required', 'required');
+                refreshProductSelects(optionSelect);
+                let values = optionSelect.val() || [];
+                if (!values.length) {
+                    messages.push('Please choose at least one value for ' + label + '.');
+                    addFieldError('choice_options_' + attributeId, 'Please choose at least one value for ' + label + '.');
+                }
+            }
+        });
+
+        if ($('#sku_combination').find('.variant').length > 0) {
+            $('#sku_combination').find('.var_price:visible, .var_qty:visible').each(function () {
+                let input = $(this);
+                let label = input.hasClass('var_price') ? 'Variant price is required.' : 'Variant quantity is required.';
+                if (!$.trim(input.val())) {
+                    messages.push(label);
+                    input.addClass('is-invalid-field');
+                    if (!input.next('.product-form-field-error').length) {
+                        input.after($('<span class="product-form-field-error"></span>').text(label));
+                    }
+                }
+            });
+        }
+
+        if (messages.length) {
+            let uniqueMessages = messages.filter(function (message, index, list) {
+                return list.indexOf(message) === index;
+            });
+            showProductFormAlert('danger', uniqueMessages);
+            notifyProductForm('danger', uniqueMessages);
+            $('html, body').animate({
+                scrollTop: $('.productvariation').offset().top - 90
+            }, 250);
+            return false;
+        }
+
+        return true;
+    }
+
     function bindProductAjaxSubmit() {
         $('#choice_form[data-ajax-submit="true"]').on('submit', function (e) {
             e.preventDefault();
 
             let form = $(this);
+            if (this.checkValidity && !this.checkValidity()) {
+                this.reportValidity();
+                return;
+            }
+
+            clearProductFormErrors();
+            if (!validateProductVariations()) {
+                return;
+            }
+
             let submitButton = $(document.activeElement).is('[type="submit"]')
                 ? $(document.activeElement)
                 : form.find('[type="submit"]').first();
@@ -581,7 +880,6 @@
                 formData.set(submitButton.attr('name'), submitButton.val());
             }
 
-            clearProductFormErrors();
             submitButton.prop('disabled', true).data('original-text', submitButton.html());
             submitButton.html('Saving...');
 
@@ -688,12 +986,6 @@
                         }
                     });
                     obj = optionHolder.html();
-                } else if (isSizeAttribute) {
-                    var sizeOptionHolder = $('<select multiple>' + obj + '</select>');
-                    if (!sizeOptionHolder.find('option:selected').length) {
-                        sizeOptionHolder.find('option').first().attr('selected', 'selected');
-                    }
-                    obj = sizeOptionHolder.html();
                 }
 
                 name = name.trim();
@@ -705,12 +997,11 @@
                         <input type="text" class="form-control-plaintext font-weight-bold" name="choice[]" value="' + name +
                     '" placeholder="Choice Title" readonly>\
                     </div>\
-                    <div class="col-lg-8">\
-                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' +
-                    i +
-                    '[]" multiple data-container="body">\                                ' +
-                    obj + '\
+                    <div class="col-lg-8 seller-variation-select-col">\
+                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body" required>\
+                            ' + obj + '\
                         </select>\
+                        <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
                     </div>\
                     <div class="col-lg-1 text-center">\
                         ' + (isSizeAttribute ? '<input type="hidden" name="attribute_choice_active_' + i + '" value="1">' : '') + '\
@@ -760,6 +1051,25 @@
     };
     window.delete_variant = function (em) {
         $(em).closest('.variant').remove();
+    };
+    window.remove_variant_value = function (button) {
+        let row = $(button).closest('.variant');
+        let values = row.data('variant-values') || [];
+        if (!Array.isArray(values)) {
+            values = [values];
+        }
+
+        values.forEach(function (value) {
+            $('.attribute_choice option:selected, #colors option:selected').each(function () {
+                let option = $(this);
+                if (String(option.val()) === String(value) || $.trim(option.text()) === String(value)) {
+                    option.prop('selected', false);
+                }
+            });
+        });
+
+        refreshProductSelects($('.attribute_choice, #colors'));
+        update_sku();
     };
     window.toggleDiscount = function () {
         let boxes = $('.discount-box');

@@ -42,8 +42,13 @@ class ProductUtility
                 $str .= '-' . str_replace(' ', '', $item);
             } else {
                 if (isset($collection['colors_active']) && $collection['colors_active'] && $collection['colors'] && count($collection['colors']) > 0) {
-                    $color_name = Color::where('code', $item)->first()->name;
-                    $str .= $color_name;
+                    $color = Color::where('code', $item)->first();
+                    if ($color) {
+                        $color_name = $color->name;
+                        $str .= $color_name;
+                    } else {
+                        $str .= str_replace(' ', '', $item);
+                    }
                 } else {
                     $str .= str_replace(' ', '', $item);
                 }

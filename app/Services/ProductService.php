@@ -81,7 +81,14 @@ class ProductService
 
         $options = ProductUtility::get_attribute_options($collection);
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
 
         if (count($combinations) > 0) {
             foreach ($combinations as $key => $combination) {
@@ -244,7 +251,14 @@ class ProductService
 
         $options = ProductUtility::get_attribute_options($collection);
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
         if (count($combinations) > 0) {
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);

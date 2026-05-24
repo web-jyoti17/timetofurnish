@@ -533,11 +533,6 @@ class CheckoutController extends Controller
 
     public function store_shipping_info(Request $request)
     {
-        if ($request->address_id == null) {
-            flash(translate("Please add shipping address"))->warning();
-            return back();
-        }
-
         $carts = Cart::where('user_id', Auth::user()->id)->get();
         sync_cart_prices($carts);
         if ($carts->isEmpty()) {
@@ -545,8 +540,18 @@ class CheckoutController extends Controller
             return redirect()->route('home');
         }
 
+        $address_id = $request->address_id;
+        if ($address_id == null) {
+            $address_id = $carts[0]->address_id;
+        }
+
+        if ($address_id == null) {
+            flash(translate("Please add shipping address"))->warning();
+            return redirect()->route('checkout.shipping_info');
+        }
+
         foreach ($carts as $key => $cartItem) {
-            $cartItem->address_id = $request->address_id;
+            $cartItem->address_id = $address_id;
             $cartItem->save();
         }
 
@@ -643,6 +648,69 @@ class CheckoutController extends Controller
             ));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function get_payment_info(Request $request)
+    {
+        try {
+            $carts = Cart::where('user_id', Auth::id())->get();
+            sync_cart_prices($carts);
+            syncCartShippingCharges($carts);
+
+            if ($carts->isEmpty()) {
+                return redirect()->route('home');
+            }
+
+            // Calculations
+            $subtotal = 0;
+            $tax = 0;
+            $totalWeight = 0;
+
+            foreach ($carts as $cartItem) {
+                $product = Product::find($cartItem->product_id);
+                if (!$product) {
+                    return redirect()->route('home')->with('error', translate('Product not found in cart.'));
+                }
+                $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem->quantity;
+                $tax += cart_product_tax($cartItem, $product, false) * $cartItem->quantity;
+                $totalWeight += ($product->weight ?? 0) * $cartItem->quantity;
+            }
+
+            // Read saved services from cart
+            $service_total = 0;
+            $service_details = [];
+            
+            if (!empty($carts[0]->services)) {
+                $service_details = json_decode($carts[0]->services, true);
+                if (is_array($service_details)) {
+                    foreach ($service_details as $service) {
+                        $service_total += ($service['price'] ?? 0);
+                    }
+                }
+            }
+
+            $weight = $totalWeight;
+            $shipping = $carts->sum('shipping_cost');
+            $shipping_rates = ShippingRate::where('min_weight', '<=', $weight)
+                ->where('max_weight', '>=', $weight)
+                ->first();
+
+            $total = $subtotal + $tax + $shipping + $service_total;
+
+            return view('frontend.payment_select', compact(
+                'carts',
+                'subtotal',
+                'tax',
+                'shipping',
+                'total',
+                'totalWeight',
+                'shipping_rates',
+                'service_total',
+                'service_details'
+            ));
+        } catch (\Exception $e) {
+            return redirect()->route('home')->with('error', $e->getMessage());
         }
     }
 

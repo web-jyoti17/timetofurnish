@@ -16,7 +16,7 @@
         </div>
 
         <div class="form-group row">
-            <label class="col-md-3 col-from-label">{{ translate('Unit') }} <span
+            <label class="col-md-3 col-from-label">{{ translate('Number of Boxes') }} <span
                     class="text-danger">*</span> <span class="position-relative main-category-info-icon">
                     <i class="las la-question-circle fs-18 " style="color:#685b4e;"></i>
                     <span class="p-2 border main-category-info bg-soft-info position-absolute d-none"

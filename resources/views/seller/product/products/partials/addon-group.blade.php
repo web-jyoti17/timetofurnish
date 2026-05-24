@@ -10,7 +10,7 @@
     }
 @endphp
 
-<div class="addon-block card border mb-4 shadow-none safdg">
+<div class="addon-block card border mb-4 shadow-none {{ ($isGlobal ?? false) ? 'is-global-addon' : '' }}">
 
     <div class="card-header bg-light py-3 px-3 addon-collapse-header">
         <div class="d-flex align-items-center justify-content-between" style="width:100%;">
@@ -63,6 +63,15 @@
     </div>
 
     <div class="card-body addon-body"  style="display:none;">
+
+        <div class="seller-addon-option-head">
+            <span></span>
+            <span>Option name</span>
+            <span>Price</span>
+            <span>Quantity</span>
+            <span>Image</span>
+            <span></span>
+        </div>
 
         <div class="addon-options">
 

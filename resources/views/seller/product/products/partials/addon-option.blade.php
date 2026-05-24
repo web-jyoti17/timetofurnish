@@ -12,9 +12,9 @@
     }
 @endphp
 
-<div class="row align-items-center mb-3 addon-option-row">
+<div class="addon-option-row">
 
-    <div class="col-md-auto">
+    <div class="addon-option-toggle-cell" data-label="Use">
 
         <label class="aiz-switch aiz-switch-success mb-0">
 
@@ -30,7 +30,7 @@
 
     </div>
 
-    <div class="col-md-4">
+    <div data-label="Option name">
 
         <input type="text"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][name]"
@@ -40,7 +40,7 @@
 
     </div>
 
-    <div class="col-md-2">
+    <div data-label="Price">
 
         <input type="number"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][price]"
@@ -50,7 +50,7 @@
 
     </div>
 
-    <div class="col-md-2">
+    <div data-label="Quantity">
 
         <input type="number"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][quantity]"
@@ -62,7 +62,7 @@
 
     </div>
 
-    <div class="col-md-3">
+    <div data-label="Image">
 
         <input type="file"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][img]"
@@ -74,7 +74,7 @@
 
     </div>
 
-    <div class="col-md-auto">
+    <div data-label="Remove">
 
         <button type="button"
                 class="btn btn-soft-danger remove-option">

@@ -212,6 +212,357 @@
         .pac-container {
             z-index: 100000;
         }
+
+        /* ----------------------------------------------------
+           PREMIUM CUSTOM CHECKOUT & CART RESPONSIVE DESIGN STYLES
+           ---------------------------------------------------- */
+        /* Unify Checkout Steps to use warm-gold theme color (#b57a45) exclusively */
+        .cart_tabs .col.active .border-bottom-6px,
+        .cart_tabs .col.done .border-bottom-6px {
+            border-bottom-color: #b57a45 !important;
+            border-color: #b57a45 !important;
+        }
+
+        .cart_tabs .col.active .text-primary,
+        .cart_tabs .col.done .text-success,
+        .cart_tabs .col.active .text-primary a,
+        .cart_tabs .col.done .text-success a {
+            color: #b57a45 !important;
+        }
+
+        .cart_tabs .col.active svg path,
+        .cart_tabs .col.done svg path,
+        .cart_tabs .col.active svg [fill="#d43533"],
+        .cart_tabs .col.done svg [fill="#d43533"],
+        .cart_tabs .col.active svg g path,
+        .cart_tabs .col.done svg g path {
+            fill: #b57a45 !important;
+        }
+
+        /* Fix clipping or shifting checkout step icons on mobile */
+        .cart-animate {
+            margin: 0 auto !important;
+            transform: none !important;
+            float: none !important;
+        }
+
+        /* Premium, Minimalist Checkout Stepper (Soft Background Colors) */
+        .cart_tabs {
+            background: #ffffff !important;
+            padding: 25px 0 15px 0 !important;
+        }
+
+        .cart_tabs .row.gutters-5 {
+            border-bottom: 0 !important; /* Remove baseline line */
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        .cart_tabs .col .text-center {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 85px !important;
+            border-radius: 16px !important; /* Premium rounded cards */
+            background: #faf8f5 !important; /* Default soft warm-gray background */
+            border: none !important; /* Eliminate hard borders completely */
+            box-shadow: none !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 12px 18px !important;
+            position: relative !important;
+        }
+
+        .cart_tabs .col .text-center::after {
+            display: none !important; /* Remove baseline underlines */
+        }
+
+        /* Hide the old-fashioned heavy 6px bottom border completely */
+        .cart_tabs .col .border-bottom-6px,
+        .cart_tabs .col.active .border-bottom-6px,
+        .cart_tabs .col.done .border-bottom-6px {
+            border-bottom: 0 !important;
+            border-bottom-width: 0 !important;
+        }
+
+        /* Active tab: Soft warm pastel gold background */
+        .cart_tabs .col.active .text-center {
+            background: #fdf2e3 !important; /* Soft warm-gold pastel */
+            border: none !important;
+            box-shadow: 0 6px 20px rgba(181, 122, 69, 0.08) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .cart_tabs .col.active .text-center i {
+            color: #b57a45 !important;
+            font-size: 2.2rem !important;
+            opacity: 1 !important;
+            transform: scale(1.05) !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .cart_tabs .col.active .text-center h3,
+        .cart_tabs .col.active .text-center a {
+            color: #b57a45 !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            margin-top: 8px !important;
+            letter-spacing: 0.3px !important;
+        }
+
+        /* Done/Completed tab: Soft muted pastel green background */
+        .cart_tabs .col.done .text-center {
+            background: #f1f8f3 !important; /* Soft pastel green indicating completion */
+            border: none !important;
+            box-shadow: none !important;
+            opacity: 1 !important;
+        }
+
+        .cart_tabs .col.done .text-center i {
+            color: #4e824e !important; /* Soft green icon */
+            font-size: 2rem !important;
+        }
+
+        .cart_tabs .col.done .text-center h3,
+        .cart_tabs .col.done .text-center a {
+            color: #4e824e !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin-top: 8px !important;
+        }
+
+        /* Inactive/Pending tabs: Soft warm off-white background */
+        .cart_tabs .col:not(.active):not(.done) .text-center {
+            background: #faf8f5 !important; /* Soft off-white */
+            border: none !important;
+            opacity: 0.65 !important;
+        }
+
+        .cart_tabs .col:not(.active):not(.done) .text-center i {
+            color: #a59f96 !important; /* Soft gray icon */
+            font-size: 2rem !important;
+        }
+
+        .cart_tabs .col:not(.active):not(.done) .text-center h3,
+        .cart_tabs .col:not(.active):not(.done) .text-center a {
+            color: #a59f96 !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            margin-top: 8px !important;
+        }
+
+        .cart_tabs .col:not(.active):not(.done) .text-center:hover {
+            opacity: 0.9 !important;
+            background: #f5f2eb !important; /* Slightly warmer gray on hover */
+        }
+
+        /* Sleek horizontal timeline connector running exactly behind the step cards on desktop */
+        @media (min-width: 992px) {
+            .cart_tabs .row.gutters-5 {
+                position: relative;
+                z-index: 1;
+            }
+            .cart_tabs .row.gutters-5::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 10%;
+                right: 10%;
+                height: 2px;
+                background: #f2ebe1; /* Very light timeline connection line */
+                z-index: 0;
+                transform: translateY(-50%);
+            }
+            .cart_tabs .col {
+                z-index: 2;
+                position: relative;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+        }
+
+        /* Align and prevent mobile overflow for Variation & Addon Selected Tables */
+        .addon-details {
+            width: 100% !important;
+            padding: 0 !important;
+        }
+
+        /* Premium, Ultra-Modern Table Styling for Checkout Addons / Variations */
+        .addon-details table {
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-radius: 12px !important;
+            border: 1px solid #f0e6da !important;
+            background: #ffffff !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 12px rgba(181, 122, 69, 0.02) !important;
+            margin-bottom: 15px !important;
+            table-layout: fixed !important;
+        }
+
+        .addon-details table th,
+        .addon-details table td {
+            word-break: break-word !important;
+            white-space: normal !important;
+        }
+
+        .addon-details table th.addon-header,
+        .addon-details table th {
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.8px !important;
+            background: #faf8f5 !important;
+            color: #8b7a6b !important;
+            font-weight: 700 !important;
+            padding: 12px 18px !important;
+            border-bottom: 1px solid #f0e6da !important;
+            border-top: none !important;
+        }
+
+        .addon-details table td {
+            font-size: 13px !important;
+            color: #3e3327 !important;
+            font-weight: 500 !important;
+            padding: 14px 18px !important;
+            background: #ffffff !important;
+            border-bottom: 1px solid #f8f5f0 !important;
+            border-top: none !important;
+        }
+
+        /* Last row td should not have bottom border */
+        .addon-details table tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .addon-details table td .addon-separator {
+            color: #d1c6b8 !important;
+            margin: 0 8px !important;
+        }
+
+        /* Sleek custom modern pill quantity selector */
+        .modern-qty-selector {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            background: #faf8f5 !important;
+            border: 1px solid #e5dec9 !important;
+            border-radius: 8px !important;
+            height: 38px !important;
+            width: 110px !important;
+            overflow: hidden !important;
+            padding: 2px !important;
+        }
+
+        .modern-qty-selector .qty-btn {
+            border: none !important;
+            background: transparent !important;
+            color: #b57a45 !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            outline: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .modern-qty-selector .qty-btn:hover:not(:disabled) {
+            background: #f1e9dc !important;
+            color: #8b5a30 !important;
+        }
+
+        .modern-qty-selector .qty-btn:disabled {
+            color: #ccc !important;
+            cursor: not-allowed !important;
+            background: transparent !important;
+        }
+
+        .modern-qty-selector .qty-input {
+            border: none !important;
+            background: transparent !important;
+            color: #2e241c !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            text-align: center !important;
+            width: 38px !important;
+            height: 32px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            outline: none !important;
+            pointer-events: none !important; /* Force button click controls */
+            box-shadow: none !important;
+        }
+
+        /* Disable default arrows in number inputs */
+        .modern-qty-selector input[type=number]::-webkit-inner-spin-button, 
+        .modern-qty-selector input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0; 
+        }
+
+        /* Map text-success inside checkout tables and totals to warm-gold theme color */
+        .addon-details table td .text-success,
+        .addon-details table td.text-success {
+            color: #b57a45 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Force checkout buttons to use our theme color exclusively */
+        .custom_checkout_button_design.filled {
+            background: #b57a45 !important;
+            border-color: #b57a45 !important;
+            color: #fff !important;
+            box-shadow: 0 4px 10px rgba(181, 122, 69, 0.15) !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .custom_checkout_button_design.filled:hover {
+            background: #8b5a30 !important;
+            border-color: #8b5a30 !important;
+            color: #fff !important;
+            transform: translateY(-1.5px) !important;
+        }
+
+        .custom_checkout_button_design.unfilled {
+            background: transparent !important;
+            border: 2px solid #b57a45 !important;
+            color: #b57a45 !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .custom_checkout_button_design.unfilled:hover {
+            background: #b57a45 !important;
+            color: #fff !important;
+            border-color: #b57a45 !important;
+            transform: translateY(-1.5px) !important;
+        }
+
+        /* General layout adjustments for mobile screens */
+        @media (max-width: 575.98px) {
+            .cart_tabs {
+                padding: 15px 0 5px 0 !important;
+            }
+            .cart_tabs .col {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+            }
+            .cart_tabs .col .text-center {
+                min-height: 70px !important;
+                border-radius: 12px !important;
+                padding: 8px !important;
+            }
+            .cart_tabs .col .text-center i {
+                font-size: 1.6rem !important;
+                margin-bottom: 0 !important;
+            }
+        }
     </style>
 
     @if (get_setting('google_analytics') == 1)
@@ -411,13 +762,17 @@
     <script>
         @if (Route::currentRouteName() == 'home' || Route::currentRouteName() == '/')
 
-        $.post('{{ route('home.section.featured') }}', {
-                _token: '{{ csrf_token() }}'
-            },
+        $.post('{{ route('home.section.featured') }}', { _token: '{{ csrf_token() }}'},
             function(data) {
-                $('#section_featured').html(data);
-                AIZ.plugins.slickCarousel();
+                if ($.trim(data)) {
+                    console.log(data);
+                    $('#section_featured').html(data).show();
+                    AIZ.plugins.slickCarousel();
+                } else {
+                    $('#section_featured').hide();
+                }
             });
+
 
         $.post('{{ route('home.section.todays_deal') }}', {
                 _token: '{{ csrf_token() }}'
@@ -748,6 +1103,7 @@
 
                     $('#option-choice-form .addon-block .custom-dropdown')
                         .each(function() {
+                            if ($(this).hasClass('fabric-dropdown')) return;
 
                             let selected =
                                 $(this).find('option:selected');
@@ -793,48 +1149,73 @@
 
                         });
 
-                    if (!variant_ready && base_price <= 0) {
-                        base_price = parseFloat($('.js-product-base-price').data('base-price')) || 0;
+                    // Calculate selected attributes price on frontend
+                    let selected_attributes_price = 0;
+                    $('#option-choice-form .variant-dropdown').each(function() {
+                        let selected = $(this).find('option:selected');
+                        if (selected.val()) {
+                            let price = parseFloat(selected.data('price')) || 0;
+                            selected_attributes_price += price;
+                        }
+                    });
+
+                    if (!variant_ready) {
+                        let original_actual = parseFloat($('.js-product-base-price').first().attr('data-original-actual-base-price'));
+                        if (isNaN(original_actual)) {
+                            original_actual = parseFloat($('.js-product-base-price').first().data('actual-base-price')) || 0;
+                            $('.js-product-base-price').first().attr('data-original-actual-base-price', original_actual);
+                        }
+                        base_price = original_actual + selected_attributes_price;
+                    } else {
+                        if (base_price > 0) {
+                            base_price = base_price / qty;
+                        }
                     }
 
-                    // if (!variant_ready && !has_addon_selection) {
-                    //     let default_price_text = $('.js-product-total-price').first().data('default-price-text');
+                    // Dynamically update the .js-product-base-price elements
+                    $('.js-product-base-price').each(function() {
+                        $(this).html(base_price.toFixed(2));
+                        $(this).attr('data-base-price', base_price.toFixed(2));
+                        $(this).attr('data-actual-base-price', base_price);
+                    });
 
-                    //     if (default_price_text) {
-                    //         $('.js-product-total-price').html(default_price_text);
-                    //         $('#chosen_price').html(default_price_text);
-                    //     }
+                    /*
+                    CHECK IF ANY ATTRIBUTE SELECTED
+                    */
+                    let has_variant_selection = false;
 
-                    //     return;
-                    // }
-                        /*
-                        CHECK IF ANY ATTRIBUTE SELECTED
-                        */
-                        let has_variant_selection = false;
-
-                        $('#option-choice-form .variant-dropdown').each(function () {
-                            if ($(this).val()) {
-                                has_variant_selection = true;
-                            }
-                        });
-
-
-                        /*
-                        SHOW "-" UNTIL USER SELECTS
-                        */
-
-                        if (!has_variant_selection && !has_addon_selection) {
-
-                            $('#total-pricing').html('-');
-
-                            $('#chosen_price_div').addClass('d-none');
-
-                            return;
-
-                        } else {
-
-                            $('#chosen_price_div').removeClass('d-none');
+                    $('#option-choice-form .variant-dropdown').each(function () {
+                        if ($(this).val()) {
+                            has_variant_selection = true;
                         }
+                    });
+
+
+                    /*
+                    SHOW DEFAULT BASE PRICE UNTIL USER SELECTS
+                    */
+
+                    if (!has_variant_selection && !has_addon_selection) {
+                        let default_price_text = $('.js-product-total-price').first().data('default-price-text');
+                        if (!default_price_text) {
+                            let basePriceVal = parseFloat($('.js-product-base-price').data('base-price')) || 0;
+                            default_price_text = '£ ' + basePriceVal.toFixed(2);
+                        }
+
+                        $('.js-product-total-price').html(default_price_text);
+
+                        $('#chosen_price').html(default_price_text);
+
+                        $('#chosen_price_div').addClass('d-none');
+                        $('#total-price-div').addClass('d-none');
+
+                        return;
+
+                    } else {
+
+                        $('#chosen_price_div').removeClass('d-none');
+                        $('#total-price-div').removeClass('d-none');
+                    }
 
 
                     /*

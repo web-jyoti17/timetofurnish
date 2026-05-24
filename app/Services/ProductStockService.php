@@ -14,8 +14,15 @@ class ProductStockService
 
         $options = ProductUtility::get_attribute_options($collection);
         
-        //Generates the combinations of customer choice options
-        $combinations = (new CombinationService())->generate_combination($options);
+        //Generates the flat combinations of customer choice options
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
         
         $variant = '';
         if (count($combinations) > 0) {

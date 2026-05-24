@@ -144,9 +144,7 @@ class OrderController extends Controller
                     $variant = '';
                 }
 
-                $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                    ->where('variant', $variant)
-                    ->first();
+                $product_stock = $orderDetail->product ? $orderDetail->product->stocks->where('variant', $variant)->first() : null;
 
                 if ($product_stock != null) {
                     $product_stock->qty += $orderDetail->quantity;

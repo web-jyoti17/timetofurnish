@@ -2,14 +2,14 @@
 
 @section('content')
     <!-- Steps -->
-    <section class="pt-5 mb-4">
+    <section class="pt-5 mb-4 cart_tabs">
         <div class="container">
             <div class="row">
                 <div class="col-xl-8 mx-auto">
                     <div class="row gutters-5 sm-gutters-10">
                         <div class="col active">
                             <div class="text-center border border-bottom-6px p-2 text-primary">
-                                <i class="la-3x mb-2 las la-shopping-bag cart-animate" style="margin-left: -100px; transition: 2s;"></i>
+                                <i class="la-3x mb-2 las la-shopping-bag cart-animate"></i>
                                 <h3 class="fs-14 fw-600 d-none d-lg-block"><a href="{{url('cart')}}">{{ translate('1. My Cart') }}</a></h3>
                             </div>
                         </div>

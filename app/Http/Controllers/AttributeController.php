@@ -37,9 +37,42 @@ class AttributeController extends Controller
     {
         CoreComponentRepository::instantiateShopRepository();
         CoreComponentRepository::initializeCache();
-        $attributes = Attribute::with('attribute_values')->orderBy('created_at', 'desc')->paginate(15);
-        $categories = Category::where('parent_id', 0)->where('digital', 0)->get();
+        $attributes = Attribute::with(['attribute_values', 'categories'])->orderBy('created_at', 'desc')->get();
+        $categories = Category::where('parent_id', 0)->where('digital', 0)->with('childrenCategories')->get();
         return view('backend.product.attribute.index', compact('attributes','categories'));
+    }
+
+    /**
+     * AJAX: Store a new attribute value inline.
+     */
+    public function ajax_store_attribute_value(Request $request)
+    {
+        $request->validate([
+            'attribute_id' => 'required|exists:attributes,id',
+            'value' => 'required|string|max:255',
+        ]);
+
+        $attribute_value = new AttributeValue;
+        $attribute_value->attribute_id = $request->attribute_id;
+        $attribute_value->value = ucfirst($request->value);
+        $attribute_value->save();
+
+        return response()->json([
+            'success' => true,
+            'id' => $attribute_value->id,
+            'value' => $attribute_value->value,
+        ]);
+    }
+
+    /**
+     * AJAX: Delete an attribute value inline.
+     */
+    public function ajax_destroy_attribute_value($id)
+    {
+        $attribute_value = AttributeValue::findOrFail($id);
+        $attribute_value->delete();
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -94,8 +127,6 @@ class AttributeController extends Controller
         $data['attribute'] = Attribute::findOrFail($id);
         $data['all_attribute_values'] = AttributeValue::with('attribute')->where('attribute_id', $id)->get();
 
-        // echo '<pre>';print_r($data['all_attribute_values']);die;
-
         return view("backend.product.attribute.attribute_value.index", $data);
     }
 
@@ -109,7 +140,7 @@ class AttributeController extends Controller
     {
         $lang      = $request->lang;
         $attribute = Attribute::findOrFail($id);
-        $categories = Category::where('parent_id', 0)->where('digital', 0)->get();
+        $categories = Category::where('parent_id', 0)->where('digital', 0)->with('childrenCategories')->get();
         $AttributeCategory = AttributeCategory::where('attribute_id', $id)->pluck('category_id')->toArray();
         return view('backend.product.attribute.edit', compact('attribute','lang','AttributeCategory','categories'));
     }
@@ -129,14 +160,15 @@ class AttributeController extends Controller
         }
         $attribute->save();
         
+        AttributeCategory::where('attribute_id', $attribute->id)->delete();
+
         if (!empty($request->categories)) {
             $categories = $request->categories;
+            $categories_arr = [];
             foreach ($categories as $categories_val) {
                 $categories_arr[] = array('category_id' => $categories_val, 'attribute_id' => $attribute->id);
             }
-            // Delete existing records
-            AttributeCategory::where('attribute_id', $attribute->id)->delete();
-            // Insert new records
+
             AttributeCategory::insert($categories_arr);
         }
         

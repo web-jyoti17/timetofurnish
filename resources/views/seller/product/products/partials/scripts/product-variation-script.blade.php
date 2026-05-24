@@ -6,13 +6,18 @@
         var choiceAttr = document.getElementById('choice_attributes');
 
         function updateAttributesState() {
-            if (toggle.checked) {
-                container.style.display = 'block';
-                choiceAttr.disabled = false;
-            } else {
-                container.style.display = 'none';
-                choiceAttr.disabled = true;
+            if (toggle) {
+                toggle.checked = true;
             }
+
+            if (container) {
+                container.style.display = 'block';
+            }
+
+            if (choiceAttr) {
+                choiceAttr.disabled = false;
+            }
+
             if (window.jQuery && window.jQuery.fn && window.jQuery.fn.selectpicker) {
                 $(choiceAttr).selectpicker('refresh');
             } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
@@ -22,7 +27,9 @@
                 update_sku();
             }
         }
-        toggle.addEventListener('change', updateAttributesState);
+        if (toggle) {
+            toggle.addEventListener('change', updateAttributesState);
+        }
         updateAttributesState();
     });
 </script>

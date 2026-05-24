@@ -2,8 +2,29 @@
     <form id="option-choice-form">
         @csrf
         <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
+        @php
+            $actual_base_price = $detailedProduct->unit_price;
+            $discount_applicable = false;
+            if ($detailedProduct->discount_start_date == null) {
+                $discount_applicable = true;
+            } elseif (
+                strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
+                strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
+            ) {
+                $discount_applicable = true;
+            }
+            if ($discount_applicable) {
+                if ($detailedProduct->discount_type == 'percent') {
+                    $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
+                } elseif ($detailedProduct->discount_type == 'amount') {
+                    $actual_base_price -= $detailedProduct->discount;
+                }
+            }
+            $actual_base_price = max(0, $actual_base_price);
+        @endphp
         <span class="d-none js-product-base-price"
-            data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}">
+            data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}"
+            data-actual-base-price="{{ $actual_base_price }}">
             {{ home_discounted_base_price($detailedProduct, false) }}
         </span>
         @php
@@ -19,7 +40,9 @@
 
                         <div class="col-sm-12">
                             <h5 class="mb-2">
+                               
                                 {{ ucfirst(get_single_attribute_name($choice->attribute_id)) }}
+                                <span style="color: red;">*</span>
                             </h5>
                         </div>
 
@@ -115,7 +138,7 @@
                         @if ($isFabric)
                             {{-- FABRIC DESIGN --}}
                             <select class="form-select custom-dropdown fabric-dropdown"
-                                name="addons[{{ $addon->id }}]" data-addonid="{{ $addon->id }}"
+                                name="addons_group[{{ $addon->id }}]" data-addonid="{{ $addon->id }}"
                                 onchange="updateFabricPreview({{ $addon->id }}, this);">
 
                                 <option value="">Choose Option</option>
@@ -391,7 +414,7 @@
             <input type="hidden" name="quantity" value="1">
         @endif
 
-        <div class="mb-3 row no-gutters">
+        <div class="mb-3 row no-gutters d-none" id="total-price-div">
             <div class="col-sm-2">
                 <div class="text-black fs-18 fw-600" style="color: #333 !important;">
                     {{ translate('Total Price') }}
@@ -473,6 +496,43 @@
             return;
         }
 
+        function focusNextSelect(currSelect) {
+            if (!currSelect || currSelect.length === 0) return;
+            
+            var configSelects = $('.variant-dropdown, .addon-block select');
+            var currentIndex = configSelects.index(currSelect);
+            
+            if (currentIndex !== -1) {
+                // Find the next select that is NOT already selected
+                for (var i = currentIndex + 1; i < configSelects.length; i++) {
+                    var nextSelect = configSelects.eq(i);
+                    var addonId = nextSelect.data('addonid');
+                    
+                    var isAlreadySelected = false;
+                    
+                    if (nextSelect.hasClass('fabric-dropdown')) {
+                        // Check if fabric hidden input has value
+                        var fabricVal = $(`input[type="hidden"][name="addons[${addonId}]"]`).val();
+                        if (fabricVal && fabricVal !== '') {
+                            isAlreadySelected = true;
+                        }
+                    } else {
+                        var val = nextSelect.val();
+                        if (val && val !== '') {
+                            isAlreadySelected = true;
+                        }
+                    }
+                    
+                    if (!isAlreadySelected) {
+                        setTimeout(function() {
+                            nextSelect.select2('open');
+                        }, 300);
+                        break;
+                    }
+                }
+            }
+        }
+
         // ---------------------------------
         // Fabric Preview logic
         // ---------------------------------
@@ -496,6 +556,10 @@
                 // Hide all groups for this addon
                 $previewBlock.find('.fabric-preview-group').addClass('d-none');
 
+                // ALWAYS remove previous selections and reset hidden input when group changes
+                $previewBlock.find('.fabric-color-box').removeClass('selected');
+                $(`input[type=hidden][name="addons[${addonId}]"]`).val('');
+
                 // Clear stored fabric selection name when changing group
                 $(selectElem).data('selected-fabric', '');
 
@@ -515,10 +579,6 @@
                     var groupSelector = '#fabric-preview-group-' + addonId + '-' + slugify(groupName);
                     var $groupDiv = $(groupSelector);
                     $groupDiv.removeClass('d-none');
-                } else {
-                    // Remove previous selections and reset hidden input when group changes
-                    $previewBlock.find('.fabric-color-box').removeClass('selected');
-                    $(`input[type=hidden][name="addons[${addonId}]"]`).val('');
                 }
 
                 var $priceInfo = $('#addon-price-info-' + addonId);
@@ -547,7 +607,7 @@
 
             if ($input.length === 0) {
                 $input = $(`<input type="hidden" name="${name}" />`);
-                $(`select[name="addons[${addonId}]"]`).after($input);
+                $(`.fabric-dropdown[data-addonid="${addonId}"]`).after($input);
             }
             $input.val($(optionBtn).data('optionid'));
             $input.trigger('change');
@@ -559,8 +619,15 @@
 
             // Update dropdown text with selected fabric name
             var fabricName = $(optionBtn).data('fabricname');
+            var price = parseFloat($(optionBtn).data('price')) || 0;
+            var priceText = $(optionBtn).data('price-text') || '';
+
+            if (price > 0 && priceText) {
+                fabricName = fabricName + ' (+' + priceText + ')';
+            }
+
             var groupValue = $(optionBtn).data('group');
-            var $groupDropdown = $(`select[name="addons[${addonId}]"]`);
+            var $groupDropdown = $(`.fabric-dropdown[data-addonid="${addonId}"]`);
 
             if ($groupDropdown.length) {
                 // Store selected fabric full name as data on the select element
@@ -612,6 +679,10 @@
 
             if (typeof checkEnableDisableButtons === 'function') {
                 checkEnableDisableButtons();
+            }
+
+            if (typeof focusNextSelect === 'function') {
+                focusNextSelect($(`.fabric-dropdown[data-addonid="${addonId}"]`));
             }
         }
 
@@ -814,7 +885,7 @@
             let totalAddonsAvailable = $('.addon-block select').length;
 
             // Dynamic thresholds based on product specifications
-            let requiredAttributes = Math.min(1, totalAttributesAvailable);
+            let requiredAttributes = totalAttributesAvailable;
             let requiredAddons = Math.min(3, totalAddonsAvailable);
 
             let selectedAttributesCount = 0;
@@ -969,6 +1040,9 @@
                 }
                 $('.selection-error, .global-addon-error').remove();
                 $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
+                if (typeof focusNextSelect === 'function') {
+                    focusNextSelect($(this));
+                }
             });
 
             // Addon dropdown change
@@ -991,6 +1065,9 @@
                 }
                 $('.selection-error, .global-addon-error').remove();
                 $(this).next('.select2').find('.select2-selection').removeClass('is-invalid-addon');
+                if (!$(this).hasClass('fabric-dropdown') && typeof focusNextSelect === 'function') {
+                    focusNextSelect($(this));
+                }
             });
 
             // Fabric color box clicks

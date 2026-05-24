@@ -691,7 +691,7 @@
                             {{ translate('Price') }}</div>
                     </div>
                     <div class="col-sm-10">
-                        <div class="flex-wrap d-flex align-items-center">
+                        <div class="flex-wrap d-flex align-items-center yfgyhkj">
                             <!-- Discount Price -->
                             <strong class="fs-20 fw-600 text-primary">
                                 {{ home_discounted_price($detailedProduct) }}
@@ -739,20 +739,41 @@
                 </div>
             @else
                 <div class="mb-3 row no-gutters">
-                    <div class="col-sm-1 col-1">
-                        <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
-                        </div>
-                    </div>
+                    
                     <div class="col-sm-10 col-10 ">
-                        <div class="flex-wrap d-flex align-items-center">
+                        <div class="flex-wrap d-flex align-items-center" style="gap:15px;">
+                            <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
+                        </div>
+                            <div>
                             <!-- Regular Price (with Addon total UI dynamic addition) -->
                             <strong class="fs-18 fw-600 text-primary js-product-total-price"
                                 data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
                                 {{ home_discounted_base_price($detailedProduct) }}
                             </strong>
+                            @php
+                                $actual_base_price = $detailedProduct->unit_price;
+                                $discount_applicable = false;
+                                if ($detailedProduct->discount_start_date == null) {
+                                    $discount_applicable = true;
+                                } elseif (
+                                    strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
+                                    strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
+                                ) {
+                                    $discount_applicable = true;
+                                }
+                                if ($discount_applicable) {
+                                    if ($detailedProduct->discount_type == 'percent') {
+                                        $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
+                                    } elseif ($detailedProduct->discount_type == 'amount') {
+                                        $actual_base_price -= $detailedProduct->discount;
+                                    }
+                                }
+                                $actual_base_price = max(0, $actual_base_price);
+                            @endphp
                             <!-- Hidden span to store the base price -->
                             <span class="d-none js-product-base-price"
-                                data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}">
+                                data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}"
+                                data-actual-base-price="{{ $actual_base_price }}">
                                 {{ home_discounted_base_price($detailedProduct, false) }}
                             </span>
                             @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
@@ -777,6 +798,7 @@
                                     </small>
                                 </div>
                             @endif
+                            </div>
                         </div>
                     </div>
 

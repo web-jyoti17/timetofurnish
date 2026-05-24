@@ -10,7 +10,6 @@ class ProductAddonGlobal extends Model
     protected $fillable = [
         'name',
         'sort_order'
-
     ];
 
     // Relationship: One Addon has many options
@@ -18,5 +17,10 @@ class ProductAddonGlobal extends Model
     {
         return $this->hasMany(ProductAddonOptionGlobal::class, 'product_addon_id')
                     ->orderBy('sort_order', 'asc');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'product_addon_global_category', 'product_addon_global_id', 'category_id');
     }
 }

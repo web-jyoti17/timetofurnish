@@ -749,11 +749,9 @@ public function exportPdf(Request $request)
         if ($request->has('choice_no')) {
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_' . $no;
-                // foreach (json_decode($request[$name][0]) as $key => $item) {
                 if (isset($request[$name])) {
                     $data = array();
                     foreach ($request[$name] as $key => $item) {
-                        // array_push($data, $item->value);
                         array_push($data, $item);
                     }
                     array_push($options, $data);
@@ -761,7 +759,15 @@ public function exportPdf(Request $request)
             }
         }
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
         return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
     }
 
@@ -783,11 +789,9 @@ public function exportPdf(Request $request)
         if ($request->has('choice_no')) {
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_' . $no;
-                // foreach (json_decode($request[$name][0]) as $key => $item) {
                 if (isset($request[$name])) {
                     $data = array();
                     foreach ($request[$name] as $key => $item) {
-                        // array_push($data, $item->value);
                         array_push($data, $item);
                     }
                     array_push($options, $data);
@@ -795,7 +799,15 @@ public function exportPdf(Request $request)
             }
         }
 
-        $combinations = (new CombinationService())->generate_combination($options);
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
         return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
 }

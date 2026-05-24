@@ -511,7 +511,7 @@ class OrderController extends Controller
             foreach ($order->orderDetails as $key => $orderDetail) {
                 try {
 
-                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)->where('variant', $orderDetail->variation)->first();
+                    $product_stock = $orderDetail->product ? $orderDetail->product->stocks->where('variant', $orderDetail->variation)->first() : null;
                     if ($product_stock != null) {
                         $product_stock->qty += $orderDetail->quantity;
                         $product_stock->save();
@@ -571,9 +571,7 @@ class OrderController extends Controller
                         $variant = '';
                     }
 
-                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                        ->where('variant', $variant)
-                        ->first();
+                    $product_stock = $orderDetail->product ? $orderDetail->product->stocks->where('variant', $variant)->first() : null;
 
                     if ($product_stock != null) {
                         $product_stock->qty += $orderDetail->quantity;
@@ -593,9 +591,7 @@ class OrderController extends Controller
                         $variant = '';
                     }
 
-                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                        ->where('variant', $variant)
-                        ->first();
+                    $product_stock = $orderDetail->product ? $orderDetail->product->stocks->where('variant', $variant)->first() : null;
 
                     if ($product_stock != null) {
                         $product_stock->qty += $orderDetail->quantity;

@@ -22,6 +22,18 @@
     border-radius: 5px !important;
 }
 
+.custom-header-class .col-md-12 {
+    padding: 0 !important;
+}
+
+.banner-category.custom-banner-category .slick-track {
+    margin: 0 !important;
+}
+
+.custom-header-class {
+    box-shadow: 0 0 8px 0 #c5925961;
+}
+
 .custom_checkout_button_design.unfilled:hover {
     background: #685c4e !important;
     color: #fff !important;
@@ -1550,7 +1562,7 @@ ul.social.colored [class*="linkedin"] {
 }
 
 /* Checked styling for custom service cards */
-.aiz-megabox > input:checked ~ .custom-service-card {
+.aiz-megabox>input:checked~.custom-service-card {
     border-color: #685b4e !important;
     background-color: #fcfbfa !important;
     box-shadow: 0 4px 12px rgba(104, 91, 78, 0.06) !important;
@@ -1564,12 +1576,12 @@ ul.social.colored [class*="linkedin"] {
     transition: all 0.3s ease !important;
 }
 
-.aiz-megabox > input:checked ~ span .aiz-rounded-check {
+.aiz-megabox>input:checked~span .aiz-rounded-check {
     border-color: #685b4e !important;
     background-color: #685b4e !important;
 }
 
-.aiz-megabox > input:checked ~ span .aiz-rounded-check:after {
+.aiz-megabox>input:checked~span .aiz-rounded-check:after {
     background-color: #ffffff !important;
     width: 8px !important;
     height: 8px !important;

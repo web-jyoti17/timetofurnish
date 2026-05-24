@@ -448,6 +448,10 @@ Route::resource('sellers', SellerController::class);
         Route::post('/update-attribute-value/{id}', 'update_attribute_value')->name('update-attribute-value');
         Route::get('/destroy-attribute-value/{id}', 'destroy_attribute_value')->name('destroy-attribute-value');
 
+        // AJAX Attribute Value (inline from index page)
+        Route::post('/ajax-store-attribute-value', 'ajax_store_attribute_value')->name('ajax.store-attribute-value');
+        Route::delete('/ajax-destroy-attribute-value/{id}', 'ajax_destroy_attribute_value')->name('ajax.destroy-attribute-value');
+
         //Colors
         Route::get('/colors', 'colors')->name('colors');
         Route::post('/colors/store', 'store_color')->name('colors.store');

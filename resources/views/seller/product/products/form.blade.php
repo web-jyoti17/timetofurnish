@@ -1,574 +1,759 @@
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
-    :root {
-        --primary: #c59259;
-        --primary-soft: rgba(108, 92, 231, 0.1);
-        --secondary: #debd96ff;
-        --success: #00b894;
-        --info: #0984e3;
-        --warning: #fdcb6e;
-        --danger: #d63031;
-        --dark: #2d3436;
-        --light: #f9f9fb;
-        --card-bg: #ffffff;
-        --border-radius: 12px;
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    body {
+    #choice_form {
+        --seller-primary: #c59259;
+        --seller-primary-soft: rgba(197, 146, 89, 0.1);
+        --seller-bg: #f5f6f7;
+        --seller-surface: #ffffff;
+        --seller-section: #fafafa;
+        --seller-border: #d9dee3;
+        --seller-border-strong: #bcc5cf;
+        --seller-text: #202223;
+        --seller-muted: #6d7175;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        color: var(--seller-text);
         font-family: 'Outfit', sans-serif;
-        background-color: #f4f7f6;
-        color: var(--dark);
     }
 
-    .card {
-        border: none;
-        border-radius: var(--border-radius);
-        margin-bottom: 1.5rem;
-        transition: var(--transition);
+    #choice_form *,
+    #choice_form *::before,
+    #choice_form *::after {
+        letter-spacing: 0;
+    }
+
+    #product-form-alert {
+        margin-bottom: 14px;
+        border-radius: 6px;
+    }
+
+    .product-form-field-error {
+        display: block;
+        margin-top: 6px;
+        color: var(--seller-primary);
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .is-invalid-field,
+    .is-invalid-field .dropdown-toggle {
+        border-color: var(--seller-primary) !important;
+    }
+
+    #choice_form .seller-listing-topbar {
+        margin-bottom: 14px;
+    }
+
+    #choice_form .seller-listing-title-card {
+        margin: 0;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    #choice_form .seller-listing-title-card .card-body {
+        min-height: auto;
+        padding: 0;
+    }
+
+    #choice_form .seller-listing-kicker,
+    #choice_form .seller-category-gate-card {
+        display: none !important;
+    }
+
+    #choice_form .seller-listing-title-card h3 {
+        margin: 0;
+        color: var(--seller-text);
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    #choice_form .card,
+    #choice_form .productvariation,
+    #choice_form .seller-shipping-services-card,
+    #choice_form .seller-addons-card-wrapper>.card,
+    #choice_form .seller-action-card {
+        margin: 0 0 14px;
+        border: 1px solid var(--seller-border) !important;
+        border-radius: 8px !important;
+        background: var(--seller-surface) !important;
+        box-shadow: 0 1px 0 rgba(32, 34, 35, 0.04) !important;
         overflow: hidden;
-        background: var(--card-bg);
+        animation: none !important;
+        transform: none !important;
     }
 
+    .note-editor.note-frame.card .note-toolbar.card-header {
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }   
 
-    .card-header {
-        background: transparent;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 1.25rem 1.5rem;
+    #choice_form .card-header {
+        min-height: 48px;
+        padding: 13px 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-    }
-
-    .card-header h5 {
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0;
-        font-size: 1.1rem;
-    }
-
-    .card {
-        border-radius: 14px;
-        border: 1px solid #eae9e9;
-    }
-
-    .form-control {
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-        padding: 0.6rem 1rem;
-        transition: var(--transition);
-        font-size: 0.95rem;
-    }
-
-    .form-control:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--primary-soft);
-    }
-
-    .btn {
-        border-radius: 8px;
-        padding: 0.6rem 1.5rem;
-        font-weight: 500;
-        transition: var(--transition);
-        text-transform: none;
-        letter-spacing: 0.3px;
-    }
-
-
-    .aiz-switch input:checked+span {
-        background-color: var(--success);
-    }
-
-    /* Section Toggle Styles */
-    .section-toggle-btn {
-        background: var(--primary-soft);
-        color: var(--primary);
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .section-toggle-btn.collapsed {
-        transform: rotate(-90deg);
-    }
-
-    .collapsible-content {
-        transition: max-height 0.5s ease-out, opacity 0.3s ease;
-        max-height: 2000px;
-        opacity: 1;
-        overflow: scroll;
-    }
-
-    .collapsible-content.collapsed {
-        max-height: 0;
-        opacity: 0;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-
-    /* Addon Specific Styles */
-    .addon-block {
-        background: #fcfcfd;
-        border: 1px solid #eee !important;
-        border-radius: 10px;
-        padding: 1.25rem !important;
-        margin-bottom: 1rem;
-        position: relative;
-    }
-
-    .select-all-addon {
-        font-size: 0.85rem;
-        color: var(--primary);
-        cursor: pointer;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 10px;
-        border-radius: 6px;
-        transition: var(--transition);
-        background: var(--primary-soft);
-    }
-
-    .select-all-addon:hover {
-        background: var(--primary);
-        color: white;
-        text-decoration: none;
-    }
-
-    /* Animation */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .card {
-        animation: fadeInUp 0.5s ease-out forwards;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .card-header {
-            padding: 1rem;
-        }
-
-        .card-body {
-            padding: 1rem;
-        }
-    }
-
-    /* Category Treeview Styling */
-    .category-search-container {
-        position: relative;
-        margin-bottom: 1rem;
-    }
-
-    .category-search-container .form-control {
-        padding-left: 2.5rem;
-        background: #f8f9fa;
-        border: 1px solid #eee;
-    }
-
-    .category-search-container i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #adb5bd;
-    }
-
-    .hummingbird-treeview-converter {
-        max-height: 400px;
-        overflow-y: auto;
-        padding: 0.5rem;
-    }
-
-    .hummingbird-treeview-converter li {
-        margin: 5px 0;
-        position: relative;
-        padding-left: 5px;
-    }
-
-    .hummingbird-treeview-converter label {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 6px;
-        transition: var(--transition);
-    }
-
-    .hummingbird-treeview-converter label:hover {
-        background: var(--primary-soft);
-    }
-
-    /* Custom Checkbox Styling for Treeview */
-    .hummingbird-treeview-converter input[type="checkbox"] {
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border: 2px solid #ddd;
-        border-radius: 4px;
-        margin-right: 10px;
-        position: relative;
-        cursor: pointer;
-        transition: var(--transition);
-        background: #fff;
-    }
-
-    .hummingbird-treeview-converter input[type="checkbox"]:checked {
-        background: var(--primary);
-        border-color: var(--primary);
-    }
-
-    .hummingbird-treeview-converter input[type="checkbox"]:checked::after {
-        content: '\2713';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 12px;
-    }
-
-    .hummingbird-treeview-converter input[type="radio"] {
-        display: none !important;
-    }
-
-    /* Hummingbird renders radios next to labels inside #treeview */
-    #treeview input[type="radio"] {
-        display: none !important;
-    }
-
-    .hummingbird-treeview-converter input[type="radio"]:checked {
-        border-color: var(--primary);
-    }
-
-    .hummingbird-treeview-converter input[type="radio"]:checked::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 8px;
-        height: 8px;
-        background: var(--primary);
-        border-radius: 50%;
-    }
-
-    .hummingbird-treeview-converter ul {
-        border-left: 1px dashed #ddd;
-        margin-left: 10px;
-        padding-left: 15px;
-    }
-
-    /* Sticky Header Styles */
-    .sticky-action-container {
-        top: 65px;
-        z-index: 1000;
-        background: #faf7f2;
-        /* Matches aiz-main-wrapper */
-
-        transition: all 0.3s ease;
-        padding: 10px 0;
-        margin-top: -10px;
-    }
-
-    @media (max-width: 991px) {
-        .sticky-action-container {
-            top: 55px;
-        }
-    }
-
-    .sticky-action-container.stuck {
-        background: rgba(250, 247, 242, 0.98);
-        backdrop-filter: blur(10px);
-        padding: 15px 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .sticky-action-container.stuck .card {
-        border-color: transparent;
-    }
-
-    #choice_form {
-        color: #202223;
-    }
-
-    #choice_form .card {
-        border: 1px solid #dfe3e8;
-        border-radius: 8px;
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
-    }
-
-    #choice_form .card-header {
-        background: #fff;
-        border-bottom: 1px solid #edf0f2;
-        padding: 16px 20px;
+        gap: 12px;
+        background: #f0e6d9 ;
+        border-bottom: 1px solid #eadfd2 !important;
+        box-shadow: inset 3px 0 0 var(--seller-primary);
     }
 
     #choice_form .card-header h5,
     #choice_form .card-header .h6 {
-        color: #202223;
+        margin: 0;
+        color: var(--seller-text) !important;
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 700;
+        line-height: 1.35;
     }
 
     #choice_form .card-body {
-        padding: 20px;
-    }
-
-    #choice_form .form-control,
-    #choice_form .bootstrap-select .dropdown-toggle {
-        border-color: #c9cccf;
-        border-radius: 6px;
-        min-height: 38px;
-        box-shadow: none;
-    }
-
-    #choice_form .form-control:focus,
-    #choice_form .bootstrap-select.show .dropdown-toggle {
-        border-color: #2c6ecb;
-        box-shadow: 0 0 0 1px #2c6ecb;
-    }
-
-    #choice_form label,
-    #choice_form .col-from-label,
-    #choice_form .control-label {
-        color: #202223;
-        font-size: 13px;
-        font-weight: 500;
-    }
-
-
-    #choice_form .btn-soft-primary {
-        background: #eaf4ff;
-        color: #2c6ecb;
-    }
-
-    #choice_form .sticky-action-container .card {
-        border-radius: 8px;
+        padding: 16px;
     }
 
     #choice_form .seller-form-layout {
-        align-items: stretch;
-        margin-top: 6px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 16px;
+        align-items: start;
+        margin: 0;
+    }
+
+    #choice_form .seller-form-layout>[class*="col-"] {
+        width: auto;
+        max-width: none;
+        padding: 0;
+        flex: none;
     }
 
     #choice_form .seller-main-stack,
     #choice_form .seller-sidebar-stack {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
     }
 
-    #choice_form .seller-form-layout .card {
-        margin-bottom: 0;
-        border-color: #dfe3e8;
-        border-radius: 8px;
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    #choice_form .seller-sidebar-stack {
+        position: sticky;
+        top: 82px;
+        max-height: none;
         overflow: visible;
+        padding-bottom: 2px;
     }
 
-    #choice_form .seller-form-layout .card-header {
-        min-height: 58px;
-        padding: 16px 20px;
-        background: #fff !important;
-        border-bottom: 1px solid #edf0f2 !important;
-        gap: 12px;
-    }
-
-    #choice_form .seller-form-layout .card-header h5,
-    #choice_form .seller-form-layout .card-header .h6 {
-        display: flex;
-        align-items: center;
-        min-height: 22px;
-        line-height: 1.3;
-    }
-
-    #choice_form .seller-form-layout .card-body {
-        padding: 20px;
-    }
-
-    #choice_form .seller-product-info-card,
-    #choice_form .seller-product-images-card,
-    #choice_form .seller-delivery-card,
-    #choice_form .seller-low-stock-card,
-    #choice_form .seller-stock-visibility,
-    #choice_form .seller-dimensions-card,
-    #choice_form .seller-price-stock-card {
-        background: #fff;
-    }
-
-    #choice_form .seller-product-info-card .card-body,
-    #choice_form .seller-product-images-card .card-body,
-    #choice_form .seller-delivery-card .card-body {
-        display: grid;
-        gap: 2px;
-    }
-
-    #choice_form .seller-form-layout .form-group {
-        margin-bottom: 16px;
-    }
-
-    #choice_form .seller-form-layout .form-group:last-child {
+    #choice_form .seller-main-stack>.card,
+    #choice_form .seller-sidebar-stack>.card,
+    #choice_form .productvariation,
+    #choice_form .seller-addons-card-wrapper>.card,
+    #choice_form .seller-shipping-services-card,
+    #choice_form .seller-action-card {
         margin-bottom: 0;
     }
 
-    #choice_form .seller-form-layout label,
-    #choice_form .seller-form-layout .col-from-label,
-    #choice_form .seller-form-layout .control-label {
-        margin-bottom: 6px;
-        color: #202223;
+    #choice_form label,
+    #choice_form .col-from-label,
+    #choice_form .control-label,
+    #choice_form .col-form-label {
+        margin-bottom: 0;
+        color: var(--seller-text);
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 650;
         line-height: 1.35;
     }
 
-    #choice_form .seller-form-layout .form-control,
-    #choice_form .seller-form-layout .bootstrap-select .dropdown-toggle,
-    #choice_form .seller-form-layout .input-group-text {
+    #choice_form .form-group {
+        margin-bottom: 12px;
+    }
+
+    #choice_form .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    #choice_form .form-group.row {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 12px 20px;
+        align-items: center;
+        margin: 0;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf0f2;
+    }
+
+    #choice_form .form-group.row:last-child {
+        border-bottom: 0;
+    }
+
+    #choice_form .form-group.row>[class*="col-"] {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        flex: none;
+    }
+
+    #choice_form .form-group.row>label,
+    #choice_form .form-group.row>.col-from-label,
+    #choice_form .form-group.row>.control-label {
+        grid-column: 1;
+    }
+
+    #choice_form .form-group.row>label+[class*="col-"],
+    #choice_form .form-group.row>.col-from-label+[class*="col-"],
+    #choice_form .form-group.row>.control-label+[class*="col-"] {
+        grid-column: 2;
+    }
+
+    #choice_form .seller-product-details-card .form-group.row,
+    #choice_form .seller-stock-visibility .form-group.row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #choice_form .seller-product-details-card .form-group.row {
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    #choice_form .seller-stock-visibility .form-group.row>[class*="col-"] {
+        width: auto;
+        max-width: none;
+        padding-left: 0;
+        padding-right: 0;
+        flex: 1 1 140px;
+    }
+
+    #choice_form .seller-stock-visibility .form-group.row>label {
+        flex: 1 1 100%;
+        padding: 0;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px 18px;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row>[class*="col-"] {
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        flex: none;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row>label {
+        grid-column: 1;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row>label+[class*="col-"] {
+        grid-column: 2;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row>label+[class*="col-"]+[class*="col-"] {
+        grid-column: 3;
+    }
+
+    #choice_form .seller-price-stock-card .form-group.row .col-md-9,
+    #choice_form .seller-price-stock-card .form-group.row .col-md-12,
+    #choice_form .seller-price-stock-card #show-hide-div .form-group.row>div {
+        grid-column: 2 / -1;
+    }
+
+    #choice_form .seller-price-stock-card .text-muted.discount {
+        display: block;
+        color: var(--seller-muted) !important;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    #choice_form .form-control,
+    #choice_form .bootstrap-select .dropdown-toggle,
+    #choice_form .input-group-text {
+        min-height: 40px;
+        border: 1px solid var(--seller-border-strong) !important;
+        border-radius: 6px !important;
+        background: #fff !important;
+        color: var(--seller-text);
+        box-shadow: none !important;
+        font-size: 14px;
+    }
+
+    #choice_form .bootstrap-select:not(.disabled) .dropdown-toggle,
+    #choice_form .bootstrap-select:not(.disabled) .dropdown-toggle * {
+        cursor: pointer;
+    }
+
+    #choice_form .bootstrap-select.disabled .dropdown-toggle {
+        cursor: not-allowed;
+        opacity: 0.72;
+    }
+
+    #choice_form .form-control:focus,
+    #choice_form .bootstrap-select.show .dropdown-toggle {
+        border-color: var(--seller-primary) !important;
+        box-shadow: 0 0 0 2px var(--seller-primary-soft) !important;
+    }
+
+    #choice_form .form-control::placeholder {
+        color: #8b949e;
+    }
+
+    #choice_form .input-group .form-control,
+    #choice_form .input-group .input-group-text {
+        border-radius: 0 !important;
+    }
+
+    #choice_form .input-group .input-group-prepend:first-child .input-group-text {
+        border-top-left-radius: 6px !important;
+        border-bottom-left-radius: 6px !important;
+    }
+
+    #choice_form .input-group .input-group-append:last-child .input-group-text,
+    #choice_form .input-group .form-control:last-child {
+        border-top-right-radius: 6px !important;
+        border-bottom-right-radius: 6px !important;
+    }
+
+    #choice_form .btn {
+        min-height: 38px;
+        border-radius: 6px !important;
+        box-shadow: none !important;
+        font-weight: 700;
+    }
+
+    #choice_form .btn-primary {
         min-height: 42px;
-        border-color: #c9cccf;
-        border-radius: 6px;
+        padding: 9px 20px;
+        background: var(--seller-primary) !important;
+        border-color: var(--seller-primary) !important;
+        color: #fff !important;
     }
 
-    #choice_form .seller-form-layout .input-group .form-control,
-    #choice_form .seller-form-layout .input-group .input-group-text,
-    #choice_form .seller-form-layout .input-group .input-group-prepend .input-group-text {
+    #choice_form .btn-primary:hover,
+    #choice_form .btn-primary:focus {
+        transform: none !important;
+    }
+
+    #choice_form .btn-soft-primary,
+    #choice_form .btn-soft-secondary,
+    #choice_form .btn-soft-success,
+    #choice_form .btn-soft-danger,
+    #choice_form .btn-soft-info {
+        background: var(--seller-primary-soft) !important;
+        border-color: transparent !important;
+        color: var(--seller-primary) !important;
+    }
+
+    #choice_form .aiz-switch input:checked+span {
+        background-color: var(--seller-primary);
+    }
+
+    #choice_form .seller-shipping-services-card {
+        margin-bottom: 16px;
+    }
+
+    #choice_form .seller-shipping-services-card .card-body {
+        padding: 14px 16px 16px;
+    }
+
+    #choice_form .seller-service-panel,
+    #choice_form .seller-variation-options,
+    #choice_form .sku_combination,
+    #choice_form #customer_choice_options>.form-group,
+    #choice_form .addon-block,
+    #choice_form .addon-group,
+    #choice_form .addon-option-row {
+        border: 1px solid var(--seller-border) !important;
+        border-radius: 6px !important;
+        background: #fff !important;
+        box-shadow: none !important;
+    }
+
+    #choice_form .seller-service-panel {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #choice_form .seller-service-panel-title,
+    #choice_form .addon-block>.card-header,
+    #choice_form .sku_combination thead td {
+        padding: 11px 13px;
+        background: #fff !important;
+        border-color: var(--seller-border) !important;
+        color: var(--seller-text) !important;
+    }
+
+    #choice_form .seller-service-panel-title h5 {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    #choice_form .seller-service-panel .alert,
+    #choice_form #shipping-charges-wrapper .alert,
+    #choice_form #checkout-services-wrapper .alert {
+        margin: 0;
+        padding: 12px 13px;
+        border: 0;
+        border-top: 1px solid var(--seller-border);
         border-radius: 0;
+        background: var(--seller-primary-soft);
+        color: #6f563a;
+        font-weight: 600;
     }
 
-    #choice_form .seller-form-layout .input-group .input-group-prepend:first-child .input-group-text {
-        border-top-left-radius: 6px;
-        border-bottom-left-radius: 6px;
+    #choice_form .seller-category-card .card-header h6 {
+        color: var(--seller-muted);
+        font-size: 12px;
+        font-weight: 700;
     }
 
-    #choice_form .seller-form-layout .input-group .input-group-append:last-child .input-group-text,
-    #choice_form .seller-form-layout .input-group .form-control:last-child {
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6px;
+    #choice_form .main-category-info-icon .text-info {
+        color: var(--seller-primary) !important;
     }
 
-    #choice_form .seller-sidebar-stack .card:not(.seller-category-card) .card-body {
-        min-height: 128px;
+    #choice_form .seller-category-card .card-body>.mb-2 {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 10px !important;
     }
 
-    #choice_form .seller-product-info-card .card-body {
-        min-height: 330px;
+    #choice_form .seller-category-card .card-body>.mb-2 .btn {
+        width: 100%;
+        min-height: 36px;
+        margin: 0;
+        padding: 7px 8px;
     }
 
-    #choice_form .seller-product-images-card .card-body,
-    #choice_form .seller-delivery-card .card-body,
-    #choice_form .seller-low-stock-card .card-body {
-        min-height: 150px;
+    #choice_form .category-tree-scroll {
+        min-height: 0 !important;
+        max-height: 250px !important;
+        padding: 8px !important;
+        border: 1px solid var(--seller-border) !important;
+        border-radius: 6px !important;
+        background: #fff !important;
     }
 
-    #choice_form .seller-product-details-card .card-body {
-        min-height: 430px;
+    #choice_form .hummingbird-treeview-converter {
+        max-height: none;
+        padding: 0;
+    }
+
+    #choice_form .hummingbird-treeview-converter ul {
+        margin-left: 7px;
+        padding-left: 11px;
+        border-left: 1px solid #edf0f2;
+    }
+
+    #choice_form .hummingbird-treeview-converter li {
+        margin: 1px 0;
+        padding-left: 0;
+    }
+
+    #choice_form .hummingbird-treeview-converter label {
+        min-height: 29px;
+        padding: 5px 6px;
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        color: var(--seller-text);
+        font-size: 13px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    #choice_form .hummingbird-treeview-converter label:hover {
+        background: var(--seller-primary-soft);
+    }
+
+    #choice_form .hummingbird-treeview-converter input[type="checkbox"] {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        margin-right: 8px;
+        border: 1px solid var(--seller-border-strong);
+        border-radius: 4px;
+        background: #fff;
+        position: relative;
+        cursor: pointer;
+    }
+
+    #choice_form .hummingbird-treeview-converter input[type="checkbox"]:checked {
+        background: var(--seller-primary);
+        border-color: var(--seller-primary);
+    }
+
+    #choice_form .hummingbird-treeview-converter input[type="checkbox"]:checked::after {
+        content: '\2713';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    #choice_form #treeview input[type="radio"],
+    #choice_form .hummingbird-treeview-converter input[type="radio"] {
+        display: none !important;
+    }
+
+    #choice_form .seller-sidebar-stack .card-body {
+        padding: 14px;
+    }
+
+    #choice_form .seller-dimensions-card .card-header>div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     #choice_form .seller-product-details-card .nav-tabs {
-        border-bottom: 1px solid #dfe3e8;
-        gap: 8px;
+        border-bottom: 1px solid var(--seller-border);
+        gap: 12px;
+    }
+
+    #choice_form .seller-product-details-card .note-editor .note-editing-area .note-editable,
+    #choice_form .seller-product-details-card .note-editor.note-frame .note-editing-area .note-editable {
+        min-height: 180px !important;
+        max-height: 240px;
+        overflow-y: auto;
     }
 
     #choice_form .seller-product-details-card .nav-tabs .nav-link {
         border: 0;
         border-bottom: 2px solid transparent;
         border-radius: 0;
-        color: #6d7175;
-        font-weight: 600;
-        padding: 10px 4px;
+        color: var(--seller-muted);
+        font-weight: 650;
+        padding: 9px 0;
     }
 
     #choice_form .seller-product-details-card .nav-tabs .nav-link.active {
-        border-bottom-color: #2c6ecb;
-        color: #202223;
+        border-bottom-color: var(--seller-primary);
+        color: var(--seller-text);
         background: transparent;
     }
 
-    #choice_form .seller-form-layout .input-group[data-toggle="aizuploader"] {
-        align-items: stretch;
+    #choice_form .sku_combination {
+        overflow-x: auto;
     }
 
-    #choice_form .seller-form-layout .file-preview {
-        margin-top: 10px;
+    #choice_form .sku_combination:empty {
+        display: none;
     }
 
-    #choice_form .seller-sidebar-stack .seller-category-card {
-        flex: 1 1 auto;
-    }
-
-    #choice_form .seller-sidebar-stack .seller-category-card .card-body {
-        display: flex;
-        flex-direction: column;
-    }
-
-    #choice_form .seller-sidebar-stack .seller-category-card .category-tree-scroll {
-        flex: 1 1 auto;
-        min-height: 360px;
-    }
-
-    #choice_form .seller-stock-visibility .form-group,
-    #choice_form .seller-price-stock-card .form-group,
-    #choice_form .seller-dimensions-card .form-group {
-        padding: 10px 0;
+    #choice_form .sku_combination table {
         margin-bottom: 0;
-        border-bottom: 1px solid #edf0f2;
+        min-width: 760px;
     }
 
-    #choice_form .seller-stock-visibility .form-group:last-child,
-    #choice_form .seller-price-stock-card .form-group:last-child,
-    #choice_form .seller-dimensions-card .form-group:last-child {
-        border-bottom: 0;
+    #choice_form .variant-option-badge,
+    #choice_form .admin-catalog-chip {
+        color: var(--seller-text) !important;
+        background: #f6f6f7 !important;
+        border: 1px solid var(--seller-border) !important;
+        border-radius: 6px;
     }
 
-    #choice_form .seller-price-stock-card #show-hide-div .form-group {
-        padding-top: 14px;
+    #choice_form .seller-addons-body,
+    #choice_form .productvariation .card-body {
+        padding: 16px;
     }
 
-    #choice_form .seller-action-card {
-        margin-top: 16px;
+    #choice_form #addon-wrapper {
+        display: grid;
+        gap: 12px;
     }
 
-    @media (min-width: 992px) {
+    #choice_form .addon-block {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden;
+    }
 
-        #choice_form .seller-main-stack,
-        #choice_form .seller-sidebar-stack {
-            height: 100%;
+    #choice_form .addon-block .group-name {
+        min-height: 34px;
+        color: var(--seller-text);
+        font-weight: 700;
+    }
+
+    #choice_form .addon-block>.card-body {
+        padding: 14px;
+        background: #fff;
+    }
+
+    #choice_form .seller-addon-option-head,
+    #choice_form .addon-option-row {
+        display: grid;
+        grid-template-columns: 44px minmax(160px, 2fr) minmax(96px, 0.8fr) minmax(96px, 0.8fr) minmax(150px, 1.2fr) 40px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    #choice_form .seller-addon-option-head {
+        margin-bottom: 8px;
+        padding: 0 10px;
+        color: var(--seller-muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    #choice_form .addon-option-row {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #fbfcfd !important;
+    }
+
+    #choice_form .addon-option-toggle-cell {
+        display: flex;
+        justify-content: center;
+    }
+
+    #choice_form .addon-option-row .remove-option,
+    #choice_form .variant-value-remove {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    #choice_form .option-disabled {
+        background: #f6f6f7 !important;
+        opacity: 0.72;
+    }
+
+    #choice_form .bootstrap-select .no-results,
+    .bs-container .no-results {
+        padding: 10px 12px;
+        font-weight: 600;
+        color: var(--seller-text);
+        background: #f6f7f8;
+        border-radius: 6px;
+        white-space: normal;
+    }
+
+    .bootstrap-select .injected-add-custom-option-wrap,
+    .bs-container .injected-add-custom-option-wrap {
+        padding: 8px 0 0;
+    }
+
+    .bootstrap-select .injected-add-custom-option,
+    .bs-container .injected-add-custom-option {
+        width: 100%;
+        min-height: 40px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid rgba(197, 146, 89, 0.18);
+        border-radius: 6px;
+        background: rgba(197, 146, 89, 0.06);
+        color: var(--seller-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+        white-space: normal;
+    }
+
+    input[type="file"]::-webkit-file-upload-button,
+    input[type="file"]::file-selector-button {
+        display: none;
+    }
+
+    input[type="file"] {
+        padding-left: 15px;
+    }
+
+    @media (max-width: 1199px) {
+        #choice_form .seller-form-layout {
+            grid-template-columns: minmax(0, 1fr) 340px;
         }
     }
 
     @media (max-width: 991px) {
-        #choice_form .seller-sidebar-stack {
-            margin-top: 16px;
+        #choice_form {
+            padding: 12px;
         }
 
-        #choice_form .seller-product-info-card .card-body,
-        #choice_form .seller-product-images-card .card-body,
-        #choice_form .seller-delivery-card .card-body,
-        #choice_form .seller-low-stock-card .card-body,
-        #choice_form .seller-product-details-card .card-body {
-            min-height: auto;
+        #choice_form .seller-listing-title-card .card-body {
+            align-items: stretch !important;
+            gap: 12px;
+            flex-direction: column;
+        }
+
+        #choice_form .seller-listing-title-card .btn-primary {
+            width: 100%;
+        }
+
+        #choice_form .seller-form-layout {
+            grid-template-columns: 1fr;
+        }
+
+        #choice_form .seller-sidebar-stack {
+            position: static;
+            max-height: none;
+            overflow: visible;
+        }
+
+        #choice_form .form-group.row,
+        #choice_form .seller-product-details-card .form-group.row,
+        #choice_form .seller-price-stock-card .form-group.row,
+        #choice_form .seller-stock-visibility .form-group.row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        #choice_form .form-group.row>label,
+        #choice_form .form-group.row>.col-from-label,
+        #choice_form .form-group.row>.control-label,
+        #choice_form .form-group.row>label+[class*="col-"],
+        #choice_form .form-group.row>.col-from-label+[class*="col-"],
+        #choice_form .form-group.row>.control-label+[class*="col-"] {
+            grid-column: 1;
+        }
+
+        #choice_form .seller-category-card .card-body>.mb-2 {
+            grid-template-columns: 1fr;
+        }
+
+        #choice_form .category-tree-scroll {
+            max-height: 280px !important;
+        }
+
+        #choice_form .seller-addon-option-head {
+            display: none;
+        }
+
+        #choice_form .addon-option-row {
+            grid-template-columns: 1fr;
+        }
+
+        #choice_form .addon-option-row>div::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 5px;
+            color: var(--seller-muted);
+            font-size: 12px;
+            font-weight: 700;
         }
     }
 </style>
+
+
 
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -585,6 +770,7 @@
     data-checkout-services-route="{{ route('seller.products.checkout-services') }}"
     data-shipping-charges-route="{{ route('seller.products.shipping-charges') }}"
     data-get-attributes-route="{{ route('get-attributes-by-categories') }}"
+    data-get-addons-route="{{ route('seller.products.get-addons-by-categories') }}"
     data-add-more-choice-route="{{ route('seller.products.add-more-choice-option') }}"
     data-store-attribute-route="{{ route('seller.products.attributes.store') }}"
     data-sku-combination-route="{{ isset($product) && $product->id ? route('seller.products.sku_combination_edit') : route('seller.products.sku_combination') }}"
@@ -593,8 +779,13 @@
 </div>
 {{-- {{ dd($addons) }} --}}
 
+@php
+    $selectedCategories = old('category_ids', isset($product) ? $product->categories->pluck('id')->toArray() : []);
+@endphp
+
 <form action="{{ $action }}" method="POST" enctype="multipart/form-data" id="choice_form"
-    data-ajax-submit="true">
+    data-ajax-submit="true"
+    class="{{ empty($selectedCategories) ? 'seller-category-pending' : 'seller-category-ready' }}">
     @csrf
     @if (isset($product) && $product->id)
         <input type="hidden" name="id" value="{{ $product->id }}">
@@ -603,61 +794,72 @@
     @if (isset($method) && $method == 'POST')
         @method('POST')
     @endif
-    <div class="sticky-action-container">
-        <div class=" p-0">
-            <div class="flex flex-row card align-items-center">
-                <div class="card-body d-flex justify-content-between align-items-center w-100">
+    <div class="seller-listing-topbar">
+        <div class="card seller-listing-title-card">
+            <div class="card-body d-flex justify-content-between align-items-center w-100 p-2">
+                <div>
+                    <span class="seller-listing-kicker">{{ translate('Seller listing') }}</span>
                     <h3 class="mb-0">
                         {{ isset($product) && $product->id ? translate('Edit Your Product') : translate('Add Your Product') }}
                     </h3>
-                    <button type="submit" name="button" value="publish"
-                        class="btn btn-primary">{{ translate('Upload Product') }}</button>
                 </div>
+                <button type="submit" name="button" value="publish"
+                    class="btn btn-primary">{{ translate('Upload Product') }}</button>
             </div>
+        </div>
+    </div>
 
-            <div class="card">
-                <div class="card-header bg-light border-bottom-0 pb-2">
-                    <h5 class="mb-0 h6 text-black">
-                        {{ translate('Matched Shipping Charges') }}
-                    </h5>
-                </div>
+    <div class="seller-category-gate-card">
+        <div class="seller-category-gate-icon">
+            <i class="las la-sitemap"></i>
+        </div>
+        <div>
+            <h4>{{ translate('Choose a product category first') }}</h4>
+            <p>{{ translate('You can continue filling the listing, but choose a category so attributes, addons, shipping and services match this product.') }}
+            </p>
+        </div>
+    </div>
 
-                <div class="card-body">
-                    <div class="row gutters-2">
-                        <div class="col-md-6 mb-3 mb-md-0">
-                            <div class="h-100">
-                                <div class="card-header bg-light border-bottom-0 pb-2">
-                                    <h5 class="mb-0 h6 text-black">
-                                        {{ translate('Matched Shipping Charges') }}
-                                    </h5>
-                                </div>
-                                <div id="shipping-charges-wrapper">
-                                    @include('seller.product.products.partials.shipping-charges', [
-                                        'shippingCharges' =>
-                                            isset($product) && $product->id
-                                                ? getProductShippingCharges($product)
-                                                : collect(),
-                                    ])
-                                </div>
-                            </div>
+    <div class="card seller-shipping-services-card">
+        <div class="card-header bg-light border-bottom-0 pb-2">
+            <h5 class="mb-0 h6 text-black">
+                {{ translate('Shipping and services') }}
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row gutters-2">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="seller-service-panel h-100">
+                        <div class="seller-service-panel-title">
+                            <h5 class="mb-0 h6 text-black">
+                                {{ translate('Matched Shipping Charges') }}
+                            </h5>
                         </div>
-                        <div class="col-md-6">
-                            <div class="h-100">
-                                <div class="card-header bg-light border-bottom-0 pb-2">
-                                    <h5 class="mb-0 h6 text-black">
-                                        {{ translate('Delivery & Assembly Services') }}
-                                    </h5>
-                                </div>
-                                <div id="checkout-services-wrapper">
-                                    @include('seller.product.products.partials.checkout-services', [
-                                        'services' => $services ?? collect(),
-                                    ])
-                                </div>
-                            </div>
+                        <div id="shipping-charges-wrapper">
+                            @include('seller.product.products.partials.shipping-charges', [
+                                'shippingCharges' =>
+                                    isset($product) && $product->id
+                                        ? getProductShippingCharges($product)
+                                        : collect(),
+                            ])
                         </div>
                     </div>
                 </div>
-
+                <div class="col-md-6">
+                    <div class="seller-service-panel h-100">
+                        <div class="seller-service-panel-title">
+                            <h5 class="mb-0 h6 text-black">
+                                {{ translate('Delivery & Assembly Services') }}
+                            </h5>
+                        </div>
+                        <div id="checkout-services-wrapper">
+                            @include('seller.product.products.partials.checkout-services', [
+                                'services' => $services ?? collect(),
+                            ])
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -668,11 +870,156 @@
 
             @include('seller.product.products.partials.product-information-sec')
 
+            <div class="card seller-price-stock-card">
+                <div class="card-header">
+                    <h5 class="mb-0 h6">{{ 'Product Price and Stock' }}</h5>
+                </div>
+                <div class="card-body">
+                    @php
+                        $unit_price_enabled = (bool) old(
+                            'unit_price_enabled',
+                            trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
+                        );
+                    @endphp
+                    <div class="form-group row align-items-center">
+                        <label class="col-md-3 col-from-label">
+                            {{ 'Unit Price (GBP)' }} <span>£</span>
+                        </label>
+                        <div class="col-md-4 d-flex align-items-center">
+                            <label class="mb-0 aiz-switch aiz-switch-success">
+                                <input type="checkbox" id="toggleUnitPrice" name="unit_price_enabled" value="1"
+                                    {{ $unit_price_enabled ? 'checked' : '' }}>
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="ml-2" id="toggleUnitPriceLabel">{{ translate('Show') }}</span>
+                        </div>
+                        <div class="col-md-4" id="unitPriceInputWrapper"
+                            style="{{ $unit_price_enabled ? '' : 'display:none;' }}">
+                            <input type="text" name="unit_price" inputmode="decimal"
+                                placeholder="{{ translate('Unit price') }}"
+                                value="{{ old('unit_price', $product->unit_price ?? '') }}" class="form-control"
+                                oninput="
+                            // allow only numbers and dot
+                            this.value = this.value.replace(/[^0-9.]/g, '').slice(0, 5);
+                            // allow only one dot
+                            this.value = this.value.replace(/(\..*)\./g, '$1');
+                            // block leading zero like 01, 00 (except 0.)
+                            if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
+                                this.value = this.value.replace(/^0+/, '');
+                            }
+                        "
+                                onblur="if(this.value > 99999) alert('Unit price cannot exceed 99999')"
+                                onchange="update_sku()" id="unit_price_input">
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var toggle = document.getElementById('toggleUnitPrice');
+                            var unitPriceInputWrapper = document.getElementById('unitPriceInputWrapper');
+                            var label = document.getElementById('toggleUnitPriceLabel');
+                            var unitPriceInput = document.getElementById('unit_price_input');
 
+                            function updateUnitPriceVisibility() {
+                                if (toggle.checked) {
+                                    unitPriceInputWrapper.style.display = '';
+                                    label.innerText = "{{ translate('Show') }}";
+                                    // Enable the input (not required)
+                                    if (unitPriceInput) {
+                                        unitPriceInput.removeAttribute('disabled');
+                                        unitPriceInput.tabIndex = 0;
+                                    }
+                                } else {
+                                    unitPriceInputWrapper.style.display = 'none';
+                                    label.innerText = "{{ translate('Hide') }}";
+                                    // Keep the empty value submitted so update can save null.
+                                    if (unitPriceInput) {
+                                        unitPriceInput.value = '';
+                                        unitPriceInput.removeAttribute('disabled');
+                                        unitPriceInput.tabIndex = -1;
+                                    }
+                                }
+                            }
+                            toggle.addEventListener('change', updateUnitPriceVisibility);
+                            updateUnitPriceVisibility();
+                        });
+                    </script>
+                    <div class="form-group row">
+                        <label class="col-md-3 control-label" for="start_date">{{ translate('Discount Date Range') }}
+                        </label>
+                        <div class="col-md-9">
+                            @php
+                                $discount_enabled = (bool) old(
+                                    'discount_enabled',
+                                    (float) old('discount', $product->discount ?? 0) > 0 ||
+                                        !empty(old('date_range', $product->date_range ?? '')),
+                                );
+                            @endphp
+                            <input type="text" class="form-control aiz-date-range" name="date_range"
+                                id="date_range" value="{{ old('date_range', $product->date_range ?? '') }}"
+                                placeholder="{{ translate('Select Date') }}" data-time-picker="true"
+                                data-format="DD-MM-Y HH:mm" data-separator=" to " autocomplete="off"
+                                {{ $discount_enabled ? '' : 'disabled' }}>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3 col-from-label">
+                            {{ translate('Discount') }}
+                        </label>
+                        <!-- Enable / Disable Button -->
+                        <div class="mb-2 col-md-2 mb-md-0">
+                            <label class="mb-0 aiz-switch aiz-switch-success">
+                                <input id="discountToggleBtn" name="discount_enabled" onchange="toggleDiscount()"
+                                    value="1" type="checkbox" {{ $discount_enabled ? 'checked' : '' }}>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <!-- Discount Input -->
+                        <div class="col-md-4 discount-box" style="{{ $discount_enabled ? '' : 'display:none;' }}">
+                            <input type="number" lang="en" min="0" step="0.01"
+                                placeholder="{{ translate('Discount') }}" name="discount" id="discountInput"
+                                value="{{ old('discount', $product->discount ?? '') }}" class="form-control"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+                        </div>
+                        <!-- Discount Type -->
+                        <div class="col-md-6 discount-box" style="{{ $discount_enabled ? '' : 'display:none;' }}">
+                            <select class="form-control aiz-selectpicker" name="discount_type">
+                                <option value="amount">{{ translate('Flat') }}</option>
+                                <option value="percent">{{ translate('Percent') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <small class="text-muted discount">
+                                <span>(</span>{{ translate('If you do want to sell the items in discounted price or
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div id="show-hide-div">
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">{{ translate('Quantity') }} <span
+                                    class="text-danger">*</span></label>
+                            <div class="col-md-6">
+                                <input type="number" lang="en" min="1" step="1"
+                                    placeholder="{{ translate('Quantity') }}" name="current_stock"
+                                    value="{{ old('current_stock', $product->current_stock ?? 1) }}"
+                                    class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-3 col-from-label">
+                                {{ translate('SKU') }} <span class="text-danger"></span>
+                            </label>
+                            <div class="col-md-6">
+                                <input type="text" placeholder="{{ translate('SKU') }}" name="sku"
+                                    value="{{ old('sku', $product->sku ?? '') }}" class="form-control">
+                            </div>
+                        </div>
+                    </div>
 
-
-
-
+                </div>
+            </div>
 
             <div class="card" style="display:none;">
                 <div class="card-header bg-light border-bottom-0 pb-2">
@@ -708,17 +1055,10 @@
                             <i class="las la-question-circle fs-18 text-info"></i>
                             <span
                                 class="p-2 border main-category-info bg-soft-info position-absolute d-none">{{ translate('This will be used for commission based calculations and homepage category
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
                         </span>
                     </h6>
                 </div>
-                @php
-                    $selectedCategories = old(
-                        'category_ids',
-                        isset($product) ? $product->categories->pluck('id')->toArray() : [],
-                    );
-                @endphp
-
                 <input type="hidden" name="old_categories_string" value="{{ implode(',', $selectedCategories) }}">
 
                 <input type="hidden" name="category_id" id="main_category_id"
@@ -1012,158 +1352,7 @@
                     unitToggle.addEventListener('change', updateUnitsUI);
                 });
             </script>
-            <div class="card seller-price-stock-card">
-                <div class="card-header">
-                    <h5 class="mb-0 h6">{{ 'Product Price and Stock' }}</h5>
-                </div>
-                <div class="card-body">
-                    @php
-                        $unit_price_enabled = (bool) old(
-                            'unit_price_enabled',
-                            trim((string) old('unit_price', $product->unit_price ?? '')) !== '',
-                        );
-                    @endphp
-                    <div class="form-group row align-items-center">
-                        <label class="col-md-3 col-from-label">
-                            {{ 'Unit Price (GBP)' }} <span>£</span>
-                        </label>
-                        <div class="col-md-4 d-flex align-items-center">
-                            <label class="mb-0 aiz-switch aiz-switch-success">
-                                <input type="checkbox" id="toggleUnitPrice" name="unit_price_enabled" value="1"
-                                    {{ $unit_price_enabled ? 'checked' : '' }}>
-                                <span class="slider round"></span>
-                            </label>
-                            <span class="ml-2" id="toggleUnitPriceLabel">{{ translate('Show') }}</span>
-                        </div>
-                        <div class="col-md-4" id="unitPriceInputWrapper"
-                            style="{{ $unit_price_enabled ? '' : 'display:none;' }}">
-                            <input type="text" name="unit_price" inputmode="decimal"
-                                placeholder="{{ translate('Unit price') }}"
-                                value="{{ old('unit_price', $product->unit_price ?? '') }}" class="form-control"
-                                oninput="
-                            // allow only numbers and dot
-                            this.value = this.value.replace(/[^0-9.]/g, '').slice(0, 5);
-                            // allow only one dot
-                            this.value = this.value.replace(/(\..*)\./g, '$1');
-                            // block leading zero like 01, 00 (except 0.)
-                            if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
-                                this.value = this.value.replace(/^0+/, '');
-                            }
-                        "
-                                onblur="if(this.value > 99999) alert('Unit price cannot exceed 99999')"
-                                onchange="update_sku()" id="unit_price_input">
-                        </div>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            var toggle = document.getElementById('toggleUnitPrice');
-                            var unitPriceInputWrapper = document.getElementById('unitPriceInputWrapper');
-                            var label = document.getElementById('toggleUnitPriceLabel');
-                            var unitPriceInput = document.getElementById('unit_price_input');
 
-                            function updateUnitPriceVisibility() {
-                                if (toggle.checked) {
-                                    unitPriceInputWrapper.style.display = '';
-                                    label.innerText = "{{ translate('Show') }}";
-                                    // Enable the input (not required)
-                                    if (unitPriceInput) {
-                                        unitPriceInput.removeAttribute('disabled');
-                                        unitPriceInput.tabIndex = 0;
-                                    }
-                                } else {
-                                    unitPriceInputWrapper.style.display = 'none';
-                                    label.innerText = "{{ translate('Hide') }}";
-                                    // Keep the empty value submitted so update can save null.
-                                    if (unitPriceInput) {
-                                        unitPriceInput.value = '';
-                                        unitPriceInput.removeAttribute('disabled');
-                                        unitPriceInput.tabIndex = -1;
-                                    }
-                                }
-                            }
-                            toggle.addEventListener('change', updateUnitPriceVisibility);
-                            updateUnitPriceVisibility();
-                        });
-                    </script>
-                    <div class="form-group row">
-                        <label class="col-md-3 control-label" for="start_date">{{ translate('Discount Date Range') }}
-                        </label>
-                        <div class="col-md-9">
-                            @php
-                                $discount_enabled = (bool) old(
-                                    'discount_enabled',
-                                    (float) old('discount', $product->discount ?? 0) > 0 ||
-                                        !empty(old('date_range', $product->date_range ?? '')),
-                                );
-                            @endphp
-                            <input type="text" class="form-control aiz-date-range" name="date_range"
-                                id="date_range" value="{{ old('date_range', $product->date_range ?? '') }}"
-                                placeholder="{{ translate('Select Date') }}" data-time-picker="true"
-                                data-format="DD-MM-Y HH:mm" data-separator=" to " autocomplete="off"
-                                {{ $discount_enabled ? '' : 'disabled' }}>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-md-3 col-from-label">
-                            {{ translate('Discount') }}
-                        </label>
-                        <!-- Enable / Disable Button -->
-                        <div class="mb-2 col-md-2 mb-md-0">
-                            <label class="mb-0 aiz-switch aiz-switch-success">
-                                <input id="discountToggleBtn" name="discount_enabled" onchange="toggleDiscount()"
-                                    value="1" type="checkbox" {{ $discount_enabled ? 'checked' : '' }}>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <!-- Discount Input -->
-                        <div class="col-md-4 discount-box" style="{{ $discount_enabled ? '' : 'display:none;' }}">
-                            <input type="number" lang="en" min="0" step="0.01"
-                                placeholder="{{ translate('Discount') }}" name="discount" id="discountInput"
-                                value="{{ old('discount', $product->discount ?? '') }}" class="form-control"
-                                oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
-                        </div>
-                        <!-- Discount Type -->
-                        <div class="col-md-6 discount-box" style="{{ $discount_enabled ? '' : 'display:none;' }}">
-                            <select class="form-control aiz-selectpicker" name="discount_type">
-                                <option value="amount">{{ translate('Flat') }}</option>
-                                <option value="percent">{{ translate('Percent') }}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <small class="text-muted discount">
-                                <span>(</span>{{ translate('If you do want to sell the items in discounted price or
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
-                            </small>
-                        </div>
-                    </div>
-                    <div id="show-hide-div">
-                        <div class="form-group row">
-                            <label class="col-md-3 col-from-label">{{ translate('Quantity') }} <span
-                                    class="text-danger">*</span></label>
-                            <div class="col-md-6">
-                                <input type="number" lang="en" min="1" step="1"
-                                    placeholder="{{ translate('Quantity') }}" name="current_stock"
-                                    value="{{ old('current_stock', $product->current_stock ?? 1) }}"
-                                    class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-md-3 col-from-label">
-                                {{ translate('SKU') }} <span class="text-danger"></span>
-                            </label>
-                            <div class="col-md-6">
-                                <input type="text" placeholder="{{ translate('SKU') }}" name="sku"
-                                    value="{{ old('sku', $product->sku ?? '') }}" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-
-                    <br>
-
-                </div>
-            </div>
 
         </div>
 
@@ -1172,14 +1361,15 @@
     @include('seller.product.products.partials.seller-product-variation')
     @include('seller.product.products.partials.scripts.product-variation-script')
 
-    <div class="card">
-        @include('seller.product.products.partials.addons', [
-            'addons' => old('addons', $addons ?? []),
-            'oldAddonsJson' => old('addons', $addons ?? []),
-        ])
+    <div class="seller-addons-card-wrapper">
+        <div class="card">
+            @include('seller.product.products.partials.addons', [
+                'addons' => old('addons', $addons ?? []),
+                'oldAddonsJson' => old('addons', $addons ?? []),
+            ])
+        </div>
     </div>
 
-    </div>
     <div class="flex flex-row card align-items-center seller-action-card" style="justify-content: end !important;">
         <div class="card-body d-flex justify-content-between align-items-center w-100"
             style="justify-content: end !important;">
@@ -1189,55 +1379,7 @@
     </div>
 </form>
 
-<style>
-    .addon-collapse-header {
-        cursor: pointer;
-    }
 
-    .group-name {
-        cursor: text !important;
-    }
-
-    .addon-arrow {
-        font-size: 18px;
-        transition: 0.2s;
-    }
-
-    .disabled-addon {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    input[type="file"]::-webkit-file-upload-button {
-        display: none;
-    }
-
-    input[type="file"]::file-selector-button {
-        display: none;
-    }
-
-    input[type="file"] {
-        padding-left: 15px;
-    }
-
-    .product-form-field-error {
-        display: block;
-        margin-top: 6px;
-        color: #d63031;
-        font-size: 12px;
-        line-height: 1.4;
-    }
-
-    .is-invalid-field,
-    .is-invalid-field .dropdown-toggle {
-        border-color: #d63031 !important;
-    }
-
-    #product-form-alert {
-        border-radius: 8px;
-        margin-bottom: 16px;
-    }
-</style>
 @section('script')
     <!-- Fallback-friendly script loading with sequential guarantee -->
     <script>
@@ -1283,6 +1425,11 @@
         }
 
         function initProductFormScripts() {
+            if (typeof jQuery === 'undefined') {
+                setTimeout(initProductFormScripts, 50);
+                return;
+            }
+
             @php
                 $sellerProductFormJsVersion = file_exists(public_path('assets/js/seller-product-form.js')) ? filemtime(public_path('assets/js/seller-product-form.js')) : time();
             @endphp
@@ -1319,7 +1466,9 @@
                 loadScriptSequentially(addonUrls, null, function(success) {
                     loadScriptSequentially(formUrls, null, function(success) {
                         console.log("All custom product form JS files loaded successfully!");
-                        jQuery(document).trigger('seller-scripts-loaded');
+                        if (typeof jQuery !== 'undefined') {
+                            jQuery(document).trigger('seller-scripts-loaded');
+                        }
                     });
                 });
             });

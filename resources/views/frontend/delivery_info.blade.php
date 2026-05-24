@@ -2,7 +2,7 @@
 
 @section('content')
 
-<section class="pt-5 mb-4">
+<section class="pt-5 mb-4 cart_tabs">
     <div class="container">
         <style>
             .addon-toggle-btn {
@@ -53,8 +53,7 @@
 
                     <div class="col active">
                         <div class="text-center border border-bottom-6px p-2 text-primary">
-                            <i class="la-3x mb-2 las la-shipping-fast cart-animate"
-                                style="margin-left:-100px;transition:2s;"></i>
+                            <i class="la-3x mb-2 las la-shipping-fast cart-animate"></i>
                             <h3 class="fs-14 fw-600 d-none d-lg-block">
                                 {{ translate('3. Delivery info') }}
                             </h3>
@@ -271,7 +270,7 @@
                                                         class="addon-details d-flex flex-column gap-1 mt-2 p-0">
                                                         {{-- Variation Table --}}
                                                         @if ($hasVariation)
-                                                        <table class="table table-sm mb-3 w-auto" style="min-width: 300px; max-width: 600px; background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
+                                                        <table class="table table-sm mb-3 w-100" style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
                                                             <tr style="background: #faf7f2;">
                                                                 <th class="fw-600 px-3 py-2"
                                                                     style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
@@ -299,9 +298,7 @@
 
                                                         {{-- Addon Table --}}
                                                         @if ($hasAddons)
-                                                        <table
-
-                                                            class="table table-sm mb-2 addon-table w-auto" style="min-width: 400px; max-width: 600px; background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
+                                                        <table class="table table-sm mb-2 addon-table w-100" style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
                                                             <tr style="background: #faf7f2;">
                                                                 <th class="fw-600 px-3 py-2 addon-name-text addon-header"
                                                                     style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
@@ -501,10 +498,10 @@
                 <div class="checkout-btn-row mb-4 d-flex flex-wrap justify-content-between">
                     <!-- Return to shop -->
                     <div class="mb-2 mb-md-0 w-100 w-lg-auto">
-                        <a href="{{ route('home') }}"
+                        <a href="{{ url('checkout') }}"
                             class="btn btn-outline-secondary  borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
                             <i class="las la-arrow-left fs-17"></i>
-                            {{ translate('Return to shop') }}
+                            {{ translate('Back') }}
                         </a>
                     </div>
                     <!-- Continue to Payment -->

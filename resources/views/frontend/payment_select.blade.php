@@ -3,7 +3,7 @@
 @section('content')
 
     <!-- Steps -->
-    <section class="pt-5 mb-4">
+    <section class="pt-5 mb-4 cart_tabs">
         <div class="container">
             <div class="row">
                 <div class="col-xl-8 mx-auto">
@@ -27,14 +27,13 @@
                             <div class="text-center border border-bottom-6px p-2 text-success">
                                 <i class="la-3x mb-2 las la-truck"></i>
                                 <h3 class="fs-14 fw-600 d-none d-lg-block"><a
-                                        href="{{ url('checkout') }}">{{ translate('3. Delivery info') }}</a>
+                                        href="{{ url('checkout/delivery-info') }}">{{ translate('3. Delivery info') }}</a>
                                 </h3>
                             </div>
                         </div>
                         <div class="col active">
                             <div class="text-center border border-bottom-6px p-2 text-primary">
-                                <i class="la-3x mb-2 las la-credit-card cart-animate"
-                                    style="margin-right: -100px; transition: 2s;"></i>
+                                <i class="la-3x mb-2 las la-credit-card cart-animate"></i>
                                 <h3 class="fs-14 fw-600 d-none d-lg-block">{{ translate('4. Payment') }}</h3>
                             </div>
                         </div>
@@ -665,10 +664,10 @@
                             <div class="row g-2 checkout-btn-row mb-4 flex-wrap pt-3 px-4">
                                 <!-- Return to shop -->
                                 <div class="col-12 col-md-6 mb-2 mb-md-0">
-                                    <a href="{{ route('home') }}"
-                                        class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3">
+                                    <a href="{{ url('checkout/delivery-info') }}"
+                                        class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
                                         <i class="las la-arrow-left fs-17"></i>
-                                        {{ translate('Return to shop') }}
+                                        {{ translate('Back') }}
                                     </a>
                                 </div>
                                 <!-- Complete Order -->

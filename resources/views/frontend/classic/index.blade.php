@@ -268,9 +268,7 @@
     @endif
 
     <!-- Featured Products -->
-    <div id="section_featured">
-
-    </div>
+    <div id="section_featured" style="display: none;"></div>
 
     <!-- Banner Section 2 -->
     @if (get_setting('home_banner2_images') != null)
