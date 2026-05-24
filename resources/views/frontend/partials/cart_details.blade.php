@@ -330,8 +330,9 @@
                                                             @if (isset($addon['price']) && floatval($addon['price']) > 0)
                                                             +£{{ number_format($addon['price'], 2) }}
                                                             @else
-                                                            <span
-                                                                class="text-success">{{ translate('Free of cost') }}</span>
+                                                            {{-- <span
+                                                                class="text-success">{{ translate('Free of cost') }}
+                                                            </span> --}}
                                                             @endif
                                                         </td>
                                                     </tr>

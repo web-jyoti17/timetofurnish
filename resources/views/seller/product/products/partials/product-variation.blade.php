@@ -1,5 +1,4 @@
 @php
-    $sizeAttribute = \App\Models\Attribute::whereRaw('LOWER(name) = ?', ['size'])->first();
     $attribute_values = old(
         'choice_attributes',
         isset($product) && $product->attributes != null && $product->attributes != '[]'
@@ -7,18 +6,11 @@
             : [],
     );
 
-    if ($sizeAttribute && !in_array($sizeAttribute->id, (array) $attribute_values)) {
-        $attribute_values[] = $sizeAttribute->id;
-    }
-
     $selected_choice_no = old('choice_no');
     if (!$selected_choice_no && isset($product) && $product->attributes != '[]' && $product->attributes != null) {
         $selected_choice_no = json_decode($product->attributes);
     }
 
-    if ($sizeAttribute && !in_array($sizeAttribute->id, (array) $selected_choice_no)) {
-        $selected_choice_no = array_merge((array) $selected_choice_no, [$sizeAttribute->id]);
-    }
     $selectedCategories = $selectedCategories ?? [];
 @endphp
 
@@ -70,9 +62,7 @@
                             class="form-control aiz-selectpicker rounded-pill" data-live-search="true"
                             data-selected-text-format="count" multiple
                             data-placeholder="{{ translate('Choose Attributes') }}"
-                            data-size-attribute-id="{{ $sizeAttribute->id ?? '' }}"
-                            data-size-attribute-name="{{ $sizeAttribute ? $sizeAttribute->getTranslation('name') : '' }}"
-                            data-container="body" required>
+                            data-container="body">
                             @foreach (\App\Models\Attribute::whereIn('id', (array) $attribute_values)->get() as $key => $attribute)
                                 <option value="{{ $attribute->id }}" selected>
                                     {{ $attribute->getTranslation('name') }}
@@ -136,13 +126,11 @@
                                             if (!$old_options) {
                                                 $old_options = [];
                                             }
-                                            $is_size_attribute =
-                                                $sizeAttribute && (int) $choice_no === (int) $sizeAttribute->id;
                                         @endphp
                                         <select class="form-control aiz-selectpicker attribute_choice rounded-pill"
                                             data-live-search="true" name="choice_options_{{ $choice_no }}[]"
-                                            multiple data-container="body" required
-                                            {{ !$is_size_attribute && !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
+                                            multiple data-container="body"
+                                            {{ !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
                                             @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_no)->get() as $row)
                                                 <option value="{{ $row->value }}"
                                                     @if (in_array($row->value, $old_options)) selected @endif>
@@ -155,17 +143,12 @@
                                         </small>
                                     </div>
                                     <div class="col-lg-1 text-center">
-                                        @if ($is_size_attribute)
-                                            <input type="hidden" name="attribute_choice_active_{{ $choice_no }}"
-                                                value="1">
-                                        @endif
                                         <div class="custom-control custom-switch">
                                             <input value="1" type="checkbox"
                                                 class="custom-control-input attribute_choice_toggle"
                                                 id="attribute_choice_active_{{ $choice_no }}"
                                                 name="attribute_choice_active_{{ $choice_no }}"
-                                                {{ $is_size_attribute || old('attribute_choice_active_' . $choice_no, 1) ? 'checked' : '' }}
-                                                {{ $is_size_attribute ? 'disabled' : '' }}>
+                                                {{ old('attribute_choice_active_' . $choice_no, 1) ? 'checked' : '' }}>
                                             <label class="custom-control-label"
                                                 for="attribute_choice_active_{{ $choice_no }}"></label>
                                         </div>

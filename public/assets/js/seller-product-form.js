@@ -40,7 +40,7 @@
                 }
             });
         }
-        var main_id = $('input[name="main_category_id"]').val() || 0;
+        var main_id = $('#main_category_id').val() || 0;
 
         function syncMainCategoryId(preferredId = null) {
             let checked = $('input[name="category_ids[]"]:checked').map(function () {
@@ -60,10 +60,8 @@
 
             if (next) {
                 $('#main_category_id').val(next);
-                $('input[name="main_category_id"]').val(next);
             } else {
                 $('#main_category_id').val('');
-                $('input[name="main_category_id"]').val('');
             }
         }
 
@@ -97,16 +95,12 @@
                     success: function (response) {
                         const currentSelected = ($('#choice_attributes').val() || []).map(String);
                         const oldSelected = (formData.choiceAttributesOld || []).map(String);
-                        const sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
                         
                         $('#choice_attributes').empty();
                         $.each(response, function (index, attribute) {
                             let isSelected = currentSelected.includes(attribute.id
                                 .toString()) || oldSelected.includes(attribute
                                     .id.toString());
-                            if (sizeAttributeId && String(attribute.id) === sizeAttributeId) {
-                                isSelected = true;
-                            }
                             let selectedAttr = isSelected ? 'selected' : '';
                             $('#choice_attributes').append(
                                 `<option value="${attribute.id}" ${selectedAttr}>${attribute.name}</option>`
@@ -119,20 +113,12 @@
                             AIZ.plugins.bootstrapSelect('refresh');
                         }
                         $('#choice_attributes').prop('disabled', false);
-                        ensureRequiredSizeAttribute();
                     }
                 });
             } else {
                 let attributeSelect = $('#choice_attributes');
-                let sizeAttributeId = String(attributeSelect.data('size-attribute-id') || '');
-                let sizeAttributeName = attributeSelect.data('size-attribute-name') || 'Size';
 
                 attributeSelect.empty();
-                if (sizeAttributeId) {
-                    attributeSelect.append(
-                        $('<option></option>').val(sizeAttributeId).text(sizeAttributeName).prop('selected', true)
-                    );
-                }
 
                 attributeSelect.prop('disabled', false);
                 if ($.fn && $.fn.selectpicker) {
@@ -140,7 +126,6 @@
                 } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
                     AIZ.plugins.bootstrapSelect('refresh');
                 }
-                ensureRequiredSizeAttribute();
             }
         }
 
@@ -158,7 +143,6 @@
 
         // Attributes change
         $('#choice_attributes').on('change', function () {
-            ensureRequiredSizeAttribute();
             $.each($("#choice_attributes option:selected"), function (j, attribute) {
                 let flag = false;
                 $('input[name="choice_no[]"]').each(function (i, choice_no) {
@@ -175,10 +159,6 @@
             $('input[name="choice_no[]"]').each(function () {
                 let val = $(this).val();
                 let isSelected = false;
-                let sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
-                if (sizeAttributeId && String(val) === sizeAttributeId) {
-                    isSelected = true;
-                }
                 $("#choice_attributes option:selected").each(function () {
                     if ($(this).val() == val) isSelected = true;
                 });
@@ -204,8 +184,7 @@
 
         $(document).on('change', '.attribute_choice_toggle', function () {
             let attrId = this.id.replace('attribute_choice_active_', '');
-            let sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
-            if (!$(this).is(':checked') && (!sizeAttributeId || String(attrId) !== sizeAttributeId)) {
+            if (!$(this).is(':checked')) {
                 $('#choice_attributes option[value="' + attrId + '"]').prop('selected', false);
                 $(this).closest('.form-group.row').remove();
                 refreshProductSelects($('#choice_attributes'));
@@ -610,28 +589,6 @@
         update_sku();
     }
 
-    function ensureRequiredSizeAttribute() {
-        let attributeSelect = $('#choice_attributes');
-        let sizeAttributeId = String(attributeSelect.data('size-attribute-id') || '');
-        if (!sizeAttributeId) return;
-
-        let sizeOption = attributeSelect.find('option[value="' + sizeAttributeId + '"]');
-        if (!sizeOption.length) {
-            let sizeName = attributeSelect.data('size-attribute-name') || 'Size';
-            attributeSelect.append($('<option></option>').val(sizeAttributeId).text(sizeName));
-            sizeOption = attributeSelect.find('option[value="' + sizeAttributeId + '"]');
-        }
-
-        attributeSelect.prop('disabled', false);
-        sizeOption.prop('selected', true);
-        $('#attributes_enable_toggle').prop('checked', true);
-        refreshProductSelects(attributeSelect);
-
-        if (!$('input[name="choice_no[]"][value="' + sizeAttributeId + '"]').length) {
-            add_more_customer_choice_option(sizeAttributeId, $.trim(sizeOption.text()), [], false);
-        }
-    }
-
     function sellerAttributeDraftTemplate(index) {
         return `
             <div class="seller-attribute-draft" data-index="${index}">
@@ -809,15 +766,14 @@
             addFieldError('choice_attributes', 'Please choose at least one product attribute.');
         }
 
-        $('input[name="choice_no[]"]').each(function () {
-            let attributeId = $(this).val();
-            let row = $(this).closest('.form-group.row');
+        selectedAttributes.forEach(function (attributeId) {
+            let row = $('input[name="choice_no[]"][value="' + attributeId + '"]').closest('.form-group.row');
             let label = $.trim(row.find('input[name="choice[]"]').val()) || 'Attribute';
             let optionSelect = $('select[name="choice_options_' + attributeId + '[]"]');
 
             if (optionSelect.length) {
                 optionSelect.prop('disabled', false);
-                optionSelect.attr('required', 'required');
+                optionSelect.removeAttr('required');
                 refreshProductSelects(optionSelect);
                 let values = optionSelect.val() || [];
                 if (!values.length) {
@@ -972,8 +928,6 @@
             },
             success: function (data) {
                 var obj = JSON.parse(data);
-                let sizeAttributeId = String($('#choice_attributes').data('size-attribute-id') || '');
-                let isSizeAttribute = sizeAttributeId && String(i) === sizeAttributeId;
                 var selected = (selectedValues || []).map(function (value) {
                     return String(value).toLowerCase();
                 });
@@ -998,15 +952,14 @@
                     '" placeholder="Choice Title" readonly>\
                     </div>\
                     <div class="col-lg-8 seller-variation-select-col">\
-                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body" required>\
+                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
                             ' + obj + '\
                         </select>\
                         <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
                     </div>\
                     <div class="col-lg-1 text-center">\
-                        ' + (isSizeAttribute ? '<input type="hidden" name="attribute_choice_active_' + i + '" value="1">' : '') + '\
                         <div class="custom-control custom-switch">\
-                            <input value="1" type="checkbox" class="custom-control-input attribute_choice_toggle" id="attribute_choice_active_' + i + '" name="attribute_choice_active_' + i + '" checked ' + (isSizeAttribute ? 'disabled' : '') + '>\
+                            <input value="1" type="checkbox" class="custom-control-input attribute_choice_toggle" id="attribute_choice_active_' + i + '" name="attribute_choice_active_' + i + '" checked>\
                             <label class="custom-control-label" for="attribute_choice_active_' + i + '"></label>\
                         </div>\
                     </div>\
@@ -1154,6 +1107,13 @@ function loadShippingCharges(categoryIds = []) {
     });
 }
 
+function loadProductAddons(categoryIds = []) {
+
+    if (typeof window.loadProductAddonsByCategories === 'function') {
+        window.loadProductAddonsByCategories(categoryIds);
+    }
+}
+
 function getSelectedCategoryIds() {
 
     let selected = [];
@@ -1179,6 +1139,7 @@ $(document).ready(function () {
 
         loadCheckoutServices(initialCategories);
         loadShippingCharges(initialCategories);
+        loadProductAddons(initialCategories);
     }
 
     // CATEGORY CHANGE
@@ -1188,6 +1149,7 @@ $(document).ready(function () {
 
         loadCheckoutServices(categoryIds);
         loadShippingCharges(categoryIds);
+        loadProductAddons(categoryIds);
     });
 
 });

@@ -185,7 +185,8 @@ class ProductController extends Controller
             'flash_deal_id',
             'flash_discount',
             'flash_discount_type',
-            'meta_img'
+            'meta_img',
+            'addons'
         ]));
         $request->merge(['product_id' => $product->id]);
 
@@ -412,6 +413,7 @@ class ProductController extends Controller
 
         $selectedServices = $serviceIds;
         $parentIds =  getParentCategoryIds($old_categories);
+        $addonCategoryIds = $this->getAddonCategoryMatchIds($old_categories);
         $attribute_values = AttributeCategory::whereIn('category_id', $parentIds)->pluck('attribute_id')->toArray();
 
 
@@ -422,8 +424,8 @@ class ProductController extends Controller
         | 1. Global Addons (NO ID)
         |--------------------------------------------------------------------------
         */
-        $globalAddons = ProductAddonGlobal::whereHas('categories', function ($query) use ($parentIds) {
-            $query->whereIn('category_id', $parentIds);
+        $globalAddons = ProductAddonGlobal::whereHas('categories', function ($query) use ($addonCategoryIds) {
+            $query->whereIn('categories.id', $addonCategoryIds);
         })
         ->with('options')
         ->get()
@@ -542,7 +544,8 @@ class ProductController extends Controller
             'flash_deal_id',
             'flash_discount',
             'flash_discount_type',
-            'meta_img'
+            'meta_img',
+            'addons'
         ]), $product);
 
         $request->merge(['product_id' => $product->id]);
@@ -768,6 +771,13 @@ class ProductController extends Controller
 
                 $addon->delete();
             }
+        } else {
+            $removedAddons = ProductAddon::where('product_id', $product->id)->get();
+
+            foreach ($removedAddons as $addon) {
+                ProductAddonOption::where('product_addon_id', $addon->id)->delete();
+                $addon->delete();
+            }
         }
         // DELETE SERVICES FROM DATABASE
         if ($request->deleted_services) {
@@ -977,13 +987,13 @@ class ProductController extends Controller
         if (empty($categoryIds)) {
             return response()->json([]);
         }
-        $parentIds = getParentCategoryIds($categoryIds);
-        if (empty($parentIds)) {
+        $addonCategoryIds = $this->getAddonCategoryMatchIds($categoryIds);
+        if (empty($addonCategoryIds)) {
             return response()->json([]);
         }
 
-        $addons = ProductAddonGlobal::whereHas('categories', function ($query) use ($parentIds) {
-            $query->whereIn('category_id', $parentIds);
+        $addons = ProductAddonGlobal::whereHas('categories', function ($query) use ($addonCategoryIds) {
+            $query->whereIn('categories.id', $addonCategoryIds);
         })
         ->with('options')
         ->orderBy('sort_order', 'asc')
@@ -1006,6 +1016,37 @@ class ProductController extends Controller
         ->toArray();
 
         return response()->json($addons);
+    }
+
+    private function getAddonCategoryMatchIds(array $categoryIds): array
+    {
+        $matchIds = collect($categoryIds)
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        $lookupIds = $matchIds;
+
+        while ($lookupIds->isNotEmpty()) {
+            $parentIds = Category::whereIn('id', $lookupIds)
+                ->pluck('parent_id')
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->diff($matchIds)
+                ->unique()
+                ->values();
+
+            if ($parentIds->isEmpty()) {
+                break;
+            }
+
+            $matchIds = $matchIds->merge($parentIds)->unique()->values();
+            $lookupIds = $parentIds;
+        }
+
+        return $matchIds->all();
     }
 
     private function syncSelectedAttributesToCategories($attributeIds, $categoryIds): void

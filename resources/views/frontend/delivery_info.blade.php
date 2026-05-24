@@ -2,655 +2,698 @@
 
 @section('content')
 
-<section class="pt-5 mb-4 cart_tabs">
-    <div class="container">
-        <style>
-            .addon-toggle-btn {
-                background: #f5eee6 !important;
-                border: 1px solid #e2d2c0 !important;
-                color: #8b5e34 !important;
-                font-size: 13px !important;
-                font-weight: 600 !important;
-                border-radius: 6px !important;
-                padding: 6px 12px !important;
-                transition: all .3s ease;
-            }
+    <section class="pt-5 mb-4 cart_tabs">
+        <div class="container">
+            <style>
+                .addon-toggle-btn {
+                    background: #f5eee6 !important;
+                    border: 1px solid #e2d2c0 !important;
+                    color: #8b5e34 !important;
+                    font-size: 13px !important;
+                    font-weight: 600 !important;
+                    border-radius: 6px !important;
+                    padding: 6px 12px !important;
+                    transition: all .3s ease;
+                }
 
-            .addon-toggle-btn:hover {
-                background: #8b5e34 !important;
-                color: #fff !important;
-            }
+                .addon-toggle-btn:hover {
+                    background: #8b5e34 !important;
+                    color: #fff !important;
+                }
 
-            .addon-toggle-btn:focus {
-                box-shadow: none !important;
-            }
-        </style>
-        <div class="row">
-            <div class="col-xl-8 mx-auto">
-                <div class="row gutters-5 sm-gutters-10">
+                .addon-toggle-btn:focus {
+                    box-shadow: none !important;
+                }
+            </style>
+            <div class="row">
+                <div class="col-xl-8 mx-auto">
+                    <div class="row gutters-5 sm-gutters-10">
 
-                    <div class="col done">
-                        <div class="text-center border border-bottom-6px p-2 text-success">
-                            <i class="la-3x mb-2 las la-shopping-bag"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block">
-                                <a href="{{ url('cart') }}">
-                                    {{ translate('1. My Cart') }}
-                                </a>
-                            </h3>
+                        <div class="col done">
+                            <div class="text-center border border-bottom-6px p-2 text-success">
+                                <i class="la-3x mb-2 las la-shopping-bag"></i>
+                                <h3 class="fs-14 fw-600 d-none d-lg-block">
+                                    <a href="{{ url('cart') }}">
+                                        {{ translate('1. My Cart') }}
+                                    </a>
+                                </h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col done">
-                        <div class="text-center border border-bottom-6px p-2 text-success">
-                            <i class="la-3x mb-2 las la-map-marker"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block">
-                                <a href="{{ url('checkout') }}">
-                                    {{ translate('2. Shipping info') }}
-                                </a>
-                            </h3>
+                        <div class="col done">
+                            <div class="text-center border border-bottom-6px p-2 text-success">
+                                <i class="la-3x mb-2 las la-map-marker"></i>
+                                <h3 class="fs-14 fw-600 d-none d-lg-block">
+                                    <a href="{{ url('checkout') }}">
+                                        {{ translate('2. Shipping info') }}
+                                    </a>
+                                </h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col active">
-                        <div class="text-center border border-bottom-6px p-2 text-primary">
-                            <i class="la-3x mb-2 las la-shipping-fast cart-animate"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block">
-                                {{ translate('3. Delivery info') }}
-                            </h3>
+                        <div class="col active">
+                            <div class="text-center border border-bottom-6px p-2 text-primary">
+                                <i class="la-3x mb-2 las la-shipping-fast cart-animate"></i>
+                                <h3 class="fs-14 fw-600 d-none d-lg-block">
+                                    {{ translate('3. Delivery info') }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col">
-                        <div class="text-center border border-bottom-6px p-2">
-                            <i class="la-3x mb-2 opacity-50 las la-wallet"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">
-                                {{ translate('4. Payment') }}
-                            </h3>
+                        <div class="col">
+                            <div class="text-center border border-bottom-6px p-2">
+                                <i class="la-3x mb-2 opacity-50 las la-wallet"></i>
+                                <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">
+                                    {{ translate('4. Payment') }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col">
-                        <div class="text-center border border-bottom-6px p-2">
-                            <i class="la-3x mb-2 opacity-50 las la-clipboard-check"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">
-                                {{ translate('5. Confirmation') }}
-                            </h3>
+                        <div class="col">
+                            <div class="text-center border border-bottom-6px p-2">
+                                <i class="la-3x mb-2 opacity-50 las la-clipboard-check"></i>
+                                <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50">
+                                    {{ translate('5. Confirmation') }}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="py-4 gry-bg">
-    <div class="container">
-        <div class="row">
-            <div class="col-xxl-12 col-xl-12 mx-auto">
+    <section class="py-4 gry-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-xxl-12 col-xl-12 mx-auto">
 
-                <div class="border bg-white p-4 mb-4">
+                    <div class="border bg-white p-4 mb-4">
 
-                    <form class="form-default" id="delivery-form" action="{{ route('checkout.store_delivery_info') }}"
-                        method="POST">
+                        <form class="form-default" id="delivery-form" action="{{ route('checkout.store_delivery_info') }}"
+                            method="POST">
 
-                        @csrf
+                            @csrf
 
-                        @php
+                            @php
 
-                        $admin_products = [];
-                        $seller_products = [];
-                        $admin_product_variation = [];
-                        $seller_product_variation = [];
+                                $admin_products = [];
+                                $seller_products = [];
+                                $admin_product_variation = [];
+                                $seller_product_variation = [];
 
-                        foreach ($carts as $key => $cartItem) {
-                        $product = get_single_product($cartItem['product_id']);
+                                foreach ($carts as $key => $cartItem) {
+                                    $product = get_single_product($cartItem['product_id']);
 
-                        $variation = $cartItem['variation'];
+                                    $variation = $cartItem['variation'];
 
-                        // Get stock row
-                        $stock = $product->stocks->where('variant', $variation)->first();
+                                    // Get stock row
+                                    $stock = $product->stocks->where('variant', $variation)->first();
 
-                        $variant_price = $stock ? $stock->price : 0;
+                                    $variant_price = $stock ? $stock->price : 0;
 
-                        $variation_data = [
-                        'product_id' => $cartItem['product_id'],
-                        'variation' => $variation,
-                        'price' => $variant_price,
-                        'sku' => $stock ? $stock->sku : '',
-                        ];
+                                    $variation_data = [
+                                        'product_id' => $cartItem['product_id'],
+                                        'variation' => $variation,
+                                        'price' => $variant_price,
+                                        'sku' => $stock ? $stock->sku : '',
+                                    ];
 
-                        if ($product->added_by == 'admin') {
-                        array_push($admin_products, $cartItem['product_id']);
+                                    if ($product->added_by == 'admin') {
+                                        array_push($admin_products, $cartItem['product_id']);
 
-                        $admin_product_variation[] = $variation_data;
-                        } else {
-                        $product_ids = [];
+                                        $admin_product_variation[] = $variation_data;
+                                    } else {
+                                        $product_ids = [];
 
-                        if (isset($seller_products[$product->user_id])) {
-                        $product_ids = $seller_products[$product->user_id];
-                        }
-
-                        array_push($product_ids, $cartItem['product_id']);
-
-                        $seller_products[$product->user_id] = $product_ids;
-
-                        $seller_product_variation[] = $variation_data;
-                        }
-                        }
-
-                        $pickup_point_list = [];
-
-                        if (get_setting('pickup_point') == 1) {
-                        $pickup_point_list = get_all_pickup_points();
-                        }
-                        @endphp
-
-                        {{-- SELLER PRODUCTS --}}
-                        @if (!empty($seller_products))
-                        @foreach ($seller_products as $seller_id => $seller_product)
-                        <div class="card border-0 rounded-0 shadow-none mb-4">
-
-                            <div class="card-header py-3 px-0 border-bottom-0">
-                                <h5 class="fs-16 fw-700 text-dark mb-0">
-                                    {{ translate('Shop Name') }}: {{ get_shop_by_user_id($seller_id)->name }}
-                                    - {{ translate('Products') }}
-                                </h5>
-                            </div>
-
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush border p-3 mb-3">
-                                    @php
-                                    $physical = false;
-                                    $seller_subtotal = 0;
-                                    @endphp
-
-                                    @foreach ($seller_product as $key2 => $productId)
-                                    @php
-                                    $product = get_single_product($productId);
-
-                                    if ($product->digital == 0) {
-                                    $physical = true;
-                                    }
-
-                                    $cart = collect($carts)->firstWhere('product_id', $productId);
-
-                                    $price = 0;
-                                    $qty = 1;
-                                    $hasVariation = false;
-                                    $cartItem_addons = [];
-                                    $hasAddons = false;
-
-                                    if ($cart) {
-                                        $cartItem_addons = !empty($cart->addons) ? json_decode($cart->addons, true) : [];
-                                        $cartItem_attributes = !empty($cart->attributes) ? json_decode($cart->attributes, true) : [];
-                                        
-                                        $attributeNames = [];
-                                        if (is_array($cartItem_attributes)) {
-                                            foreach ($cartItem_attributes as $attr) {
-                                                if (!empty($attr['attribute_name'])) {
-                                                    $attributeNames[] = strtolower(trim($attr['attribute_name']));
-                                                }
-                                            }
+                                        if (isset($seller_products[$product->user_id])) {
+                                            $product_ids = $seller_products[$product->user_id];
                                         }
 
-                                        $variation_string = $seller_product_variation[$key2]['variation'] ?? '';
-                                        $variation_parts = array_map(function($v) {
-                                            return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $v));
-                                        }, explode('-', $variation_string));
+                                        array_push($product_ids, $cartItem['product_id']);
 
-                                        // Remove redundant variants that were injected into addons
-                                        $cartItem_addons = array_filter($cartItem_addons, function($addon) use ($attributeNames, $variation_parts) {
-                                            if (in_array(strtolower(trim($addon['addon_name'] ?? '')), $attributeNames)) {
-                                                return false;
-                                            }
-                                            $addon_value_clean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $addon['name'] ?? ''));
-                                            if (!empty($addon_value_clean) && in_array($addon_value_clean, $variation_parts)) {
-                                                return false;
-                                            }
-                                            return true;
-                                        });
+                                        $seller_products[$product->user_id] = $product_ids;
 
-                                        $calculated_addon_price = 0;
-                                        foreach($cartItem_addons as $addon) {
-                                            $calculated_addon_price += ($addon['price'] ?? 0);
-                                        }
-
-                                        $price = cart_product_price($cart, $product, false, false) + $calculated_addon_price;
-                                        $qty = $cart['quantity'];
-                                        $seller_subtotal += $price * $qty;
-                                        
-                                        $hasVariation = !empty($variation_string);
-                                        $hasAddons = !empty($cartItem_addons);
+                                        $seller_product_variation[] = $variation_data;
                                     }
-                                    @endphp
+                                }
 
-                                    <li class="list-group-item py-3 px-0" style="padding: 0; border: none;">
-                                        <div class="d-flex d-lg-flex flex-column flex-lg-row w-100 w-lg-auto"
-                                            style="gap:20px;">
-                                            <div class="flex-shrink-0" style="min-width: 120px;">
-                                                <img src="{{ get_image($product->thumbnail) }}"
-                                                    alt="{{ $product->getTranslation('name') }}"
-                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
-                                                    style="object-fit: cover;width:120px;height:120px;border-radius:4px;display:block;">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-700 fs-15 mb-1" style="margin-bottom:5px;">
-                                                    {{ $product->getTranslation('name') }}
-                                                </div>
+                                $pickup_point_list = [];
 
-                                                {{-- Variations & Addons (Toggleable) --}}
+                                if (get_setting('pickup_point') == 1) {
+                                    $pickup_point_list = get_all_pickup_points();
+                                }
+                            @endphp
+
+                            {{-- SELLER PRODUCTS --}}
+                            @if (!empty($seller_products))
+                                @foreach ($seller_products as $seller_id => $seller_product)
+                                    <div class="card border-0 rounded-0 shadow-none mb-4">
+
+                                        <div class="card-header py-3 px-0 border-bottom-0">
+                                            <h5 class="fs-16 fw-700 text-dark mb-0">
+                                                {{ translate('Shop Name') }}: {{ get_shop_by_user_id($seller_id)->name }}
+                                                - {{ translate('Products') }}
+                                            </h5>
+                                        </div>
+
+                                        <div class="card-body p-0">
+                                            <ul class="list-group list-group-flush border p-3 mb-3">
                                                 @php
-                                                $toggleId =
-                                                'addonCollapseDelivery' .
-                                                ($seller_id ?? '') .
-                                                ($key2 ?? '') .
-                                                ($cart->id ?? uniqid());
+                                                    $physical = false;
+                                                    $seller_subtotal = 0;
                                                 @endphp
 
-                                                @if ($hasVariation || $hasAddons)
-                                                <button
-                                                    class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center mb-2"
-                                                    type="button" data-toggle="collapse"
-                                                    data-target="#{{ $toggleId }}"
-                                                    aria-expanded="false"
-                                                    aria-controls="{{ $toggleId }}"
-                                                    style="background: none; border: none;">
-                                                    <i class="las la-plus-circle me-1"></i>
-                                                    <span class="flex-grow-1 text-left">
-                                                        {{ translate('View Details') }}
-                                                        @if ($hasAddons)
-                                                        ({{ count($cartItem_addons) }})
-                                                        @endif
-                                                    </span>
-                                                    <i class="las la-angle-down addon-arrow"></i>
-                                                </button>
-                                                <div class="collapse mt-2" id="{{ $toggleId }}">
-                                                    <div
-                                                        class="addon-details d-flex flex-column gap-1 mt-2 p-0">
-                                                        {{-- Variation Table --}}
-                                                        @if ($hasVariation)
-                                                        <table class="table table-sm mb-3 w-100" style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
-                                                            <tr style="background: #faf7f2;">
-                                                                <th class="fw-600 px-3 py-2"
-                                                                    style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                    {{ translate('Variation') }}
-                                                                </th>
-                                                                <th class="fw-600 px-3 py-2 text-right"
-                                                                    style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                    {{ translate('Price') }}
-                                                                </th>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="px-3 py-2 text-dark fw-500">
-                                                                    {{ $seller_product_variation[$key2]['variation'] }}
-                                                                </td>
-                                                                <td class="px-3 py-2 text-right text-dark fw-600">
-                                                                    @if ($seller_product_variation[$key2]['price'] > 0)
-                                                                    +{{ single_price($seller_product_variation[$key2]['price']) }}
-                                                                    @else
-                                                                    {{ single_price(0) }}
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                        @endif
+                                                @foreach ($seller_product as $key2 => $productId)
+                                                    @php
+                                                        $product = get_single_product($productId);
 
-                                                        {{-- Addon Table --}}
-                                                        @if ($hasAddons)
-                                                        <table class="table table-sm mb-2 addon-table w-100" style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
-                                                            <tr style="background: #faf7f2;">
-                                                                <th class="fw-600 px-3 py-2 addon-name-text addon-header"
-                                                                    style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                    {{ translate('Addons Selected') }}
-                                                                </th>
-                                                                <th class="fw-600 px-3 py-2 text-right addon-price-text addon-header"
-                                                                    style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                    {{ translate('Pricing') }}
-                                                                </th>
-                                                            </tr>
-                                                            @foreach ($cartItem_addons as $addon)
-                                                            <tr>
-                                                                <td class="px-3 py-2 text-dark fw-500 border-bottom" style="border-color: #f5eee6;">
-                                                                    {{ $addon['addon_name'] ?? '' }}
-                                                                    @if (!empty($addon['name']))
-                                                                    <span
-                                                                        class="mx-2 text-secondary addon-separator">|</span>
-                                                                    {{ $addon['name'] ?? '' }}
-                                                                    @endif
-                                                                </td>
-                                                                <td class="px-3 py-2 text-right text-dark fw-600 border-bottom" style="border-color: #f5eee6;">
-                                                                    @if (isset($addon['price']) && floatval($addon['price']) > 0)
-                                                                    +£{{ number_format($addon['price'], 2) }}
-                                                                    @else
-                                                                    <span
-                                                                        class="text-success">{{ translate('Free of cost') }}</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                        </table>
-                                                        @endif
+                                                        if ($product->digital == 0) {
+                                                            $physical = true;
+                                                        }
+
+                                                        $cart = collect($carts)->firstWhere('product_id', $productId);
+
+                                                        $price = 0;
+                                                        $qty = 1;
+                                                        $hasVariation = false;
+                                                        $cartItem_addons = [];
+                                                        $hasAddons = false;
+
+                                                        if ($cart) {
+                                                            $cartItem_addons = !empty($cart->addons)
+                                                                ? json_decode($cart->addons, true)
+                                                                : [];
+                                                            $cartItem_attributes = !empty($cart->attributes)
+                                                                ? json_decode($cart->attributes, true)
+                                                                : [];
+
+                                                            $attributeNames = [];
+                                                            if (is_array($cartItem_attributes)) {
+                                                                foreach ($cartItem_attributes as $attr) {
+                                                                    if (!empty($attr['attribute_name'])) {
+                                                                        $attributeNames[] = strtolower(
+                                                                            trim($attr['attribute_name']),
+                                                                        );
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            $variation_string =
+                                                                $seller_product_variation[$key2]['variation'] ?? '';
+                                                            $variation_parts = array_map(function ($v) {
+                                                                return strtolower(
+                                                                    preg_replace('/[^a-zA-Z0-9]/', '', $v),
+                                                                );
+                                                            }, explode('-', $variation_string));
+
+                                                            // Remove redundant variants that were injected into addons
+                                                            $cartItem_addons = array_filter($cartItem_addons, function (
+                                                                $addon,
+                                                            ) use ($attributeNames, $variation_parts) {
+                                                                if (
+                                                                    in_array(
+                                                                        strtolower(trim($addon['addon_name'] ?? '')),
+                                                                        $attributeNames,
+                                                                    )
+                                                                ) {
+                                                                    return false;
+                                                                }
+                                                                $addon_value_clean = strtolower(
+                                                                    preg_replace(
+                                                                        '/[^a-zA-Z0-9]/',
+                                                                        '',
+                                                                        $addon['name'] ?? '',
+                                                                    ),
+                                                                );
+                                                                if (
+                                                                    !empty($addon_value_clean) &&
+                                                                    in_array($addon_value_clean, $variation_parts)
+                                                                ) {
+                                                                    return false;
+                                                                }
+                                                                return true;
+                                                            });
+
+                                                            $calculated_addon_price = 0;
+                                                            foreach ($cartItem_addons as $addon) {
+                                                                $calculated_addon_price += $addon['price'] ?? 0;
+                                                            }
+
+                                                            $price =
+                                                                cart_product_price($cart, $product, false, false) +
+                                                                $calculated_addon_price;
+                                                            $qty = $cart['quantity'];
+                                                            $seller_subtotal += $price * $qty;
+
+                                                            $hasVariation = !empty($variation_string);
+                                                            $hasAddons = !empty($cartItem_addons);
+                                                        }
+                                                    @endphp
+
+                                                    <li class="list-group-item py-3 px-0" style="padding: 0; border: none;">
+                                                        <div class="d-flex d-lg-flex flex-column flex-lg-row w-100 w-lg-auto"
+                                                            style="gap:20px;">
+                                                            <div class="flex-shrink-0" style="min-width: 120px;">
+                                                                <img src="{{ get_image($product->thumbnail) }}"
+                                                                    alt="{{ $product->getTranslation('name') }}"
+                                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
+                                                                    style="object-fit: cover;width:120px;height:120px;border-radius:4px;display:block;">
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <div class="fw-700 fs-15 mb-1" style="margin-bottom:5px;">
+                                                                    {{ $product->getTranslation('name') }}
+                                                                </div>
+
+                                                                {{-- Variations & Addons (Toggleable) --}}
+                                                                @php
+                                                                    $toggleId =
+                                                                        'addonCollapseDelivery' .
+                                                                        ($seller_id ?? '') .
+                                                                        ($key2 ?? '') .
+                                                                        ($cart->id ?? uniqid());
+                                                                @endphp
+
+                                                                @if ($hasVariation || $hasAddons)
+                                                                    <button
+                                                                        class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center mb-2"
+                                                                        type="button" data-toggle="collapse"
+                                                                        data-target="#{{ $toggleId }}"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="{{ $toggleId }}"
+                                                                        style="background: none; border: none;">
+                                                                        <i class="las la-plus-circle me-1"></i>
+                                                                        <span class="flex-grow-1 text-left">
+                                                                            {{ translate('View Details') }}
+                                                                            @if ($hasAddons)
+                                                                                ({{ count($cartItem_addons) }})
+                                                                            @endif
+                                                                        </span>
+                                                                        <i class="las la-angle-down addon-arrow"></i>
+                                                                    </button>
+                                                                    <div class="collapse mt-2" id="{{ $toggleId }}">
+                                                                        <div
+                                                                            class="addon-details d-flex flex-column gap-1 mt-2 p-0">
+                                                                            {{-- Variation Table --}}
+                                                                            @if ($hasVariation)
+                                                                                <table class="table table-sm mb-3 w-100"
+                                                                                    style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
+                                                                                    <tr style="background: #faf7f2;">
+                                                                                        <th class="fw-600 px-3 py-2"
+                                                                                            style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
+                                                                                            {{ translate('Variation') }}
+                                                                                        </th>
+                                                                                        <th class="fw-600 px-3 py-2 text-right"
+                                                                                            style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
+                                                                                            {{ translate('Price') }}
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td
+                                                                                            class="px-3 py-2 text-dark fw-500">
+                                                                                            {{ $seller_product_variation[$key2]['variation'] }}
+                                                                                        </td>
+                                                                                        <td
+                                                                                            class="px-3 py-2 text-right text-dark fw-600">
+                                                                                            @if ($seller_product_variation[$key2]['price'] > 0)
+                                                                                                +{{ single_price($seller_product_variation[$key2]['price']) }}
+                                                                                            @else
+                                                                                                {{ single_price(0) }}
+                                                                                            @endif
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            @endif
+
+                                                                            {{-- Addon Table --}}
+                                                                            @if ($hasAddons)
+                                                                                <table
+                                                                                    class="table table-sm mb-2 addon-table w-100"
+                                                                                    style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
+                                                                                    <tr style="background: #faf7f2;">
+                                                                                        <th class="fw-600 px-3 py-2 addon-name-text addon-header"
+                                                                                            style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
+                                                                                            {{ translate('Addons Selected') }}
+                                                                                        </th>
+                                                                                        <th class="fw-600 px-3 py-2 text-right addon-price-text addon-header"
+                                                                                            style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
+                                                                                            {{ translate('Pricing') }}
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                    @foreach ($cartItem_addons as $addon)
+                                                                                        <tr>
+                                                                                            <td class="px-3 py-2 text-dark fw-500 border-bottom"
+                                                                                                style="border-color: #f5eee6;">
+                                                                                                {{ $addon['addon_name'] ?? '' }}
+                                                                                                @if (!empty($addon['name']))
+                                                                                                    <span
+                                                                                                        class="mx-2 text-secondary addon-separator">|</span>
+                                                                                                    {{ $addon['name'] ?? '' }}
+                                                                                                @endif
+                                                                                            </td>
+                                                                                            <td class="px-3 py-2 text-right text-dark fw-600 border-bottom"
+                                                                                                style="border-color: #f5eee6;">
+                                                                                                @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                                                                    +£{{ number_format($addon['price'], 2) }}
+                                                                                                @else
+                                                                                                    {{-- <span
+                                                                        class="text-success">{{ translate('Free of cost') }}</span> --}}
+                                                                                                @endif
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    @endforeach
+                                                                                </table>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+
+                                                                <div class="mb-1"><span
+                                                                        class="fw-600">{{ translate('Qty') }}:</span>
+                                                                    {{ $qty }}
+                                                                </div>
+
+                                                                @if ($product->dispatch_time)
+                                                                    <div><span
+                                                                            class="fw-600">{{ translate('Dispatch Time') }}:</span>
+                                                                        {{ $product->dispatch_time }}
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+
+                                            {{-- SERVICES SECTION --}}
+                                            @php
+                                                $allServices = collect();
+                                            @endphp
+
+                                            @foreach ($seller_product as $productId)
+                                                @php
+                                                    $serviceProduct = get_single_product($productId);
+
+                                                    if (
+                                                        $serviceProduct &&
+                                                        isset($serviceProduct->checkoutServices) &&
+                                                        $serviceProduct->checkoutServices->count() > 0
+                                                    ) {
+                                                        $allServices = $allServices->merge(
+                                                            $serviceProduct->checkoutServices,
+                                                        );
+                                                    }
+                                                @endphp
+                                            @endforeach
+
+                                            @php
+                                                $allServices = $allServices->unique('id')->values();
+
+                                                // Find selected services from the carts
+                                                $selectedServiceIds = [];
+                                                foreach ($seller_product as $productId) {
+                                                    $cart = collect($carts)->firstWhere('product_id', $productId);
+                                                    if ($cart && !empty($cart->services)) {
+                                                        $cartServices = json_decode($cart->services, true);
+                                                        foreach ($cartServices as $cs) {
+                                                            $selectedServiceIds[] = $cs['id'];
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+
+                                            @if ($allServices->count() > 0)
+                                                <div class="custom-services-section mb-4">
+
+                                                    <h5 class="custom-services-title">
+                                                        {{ translate('Additional Services') }}
+                                                    </h5>
+
+                                                    {{-- Error message for service selection --}}
+                                                    <div id="service-required-error"
+                                                        class="alert alert-danger custom-service-error mb-3 px-3 py-2 fw-600 d-flex align-items-center d-none"
+                                                        style="font-size: 15px;">
+                                                        <span class="mr-2" style="font-size: 1.4em;"><i
+                                                                class="las la-exclamation-circle"></i></span>
+                                                        <span>
+                                                            {{ translate('Please select at least one service to continue.') }}
+                                                        </span>
                                                     </div>
-                                                </div>
-                                                @endif
 
-                                                <div class="mb-1"><span
-                                                        class="fw-600">{{ translate('Qty') }}:</span>
-                                                    {{ $qty }}
-                                                </div>
+                                                    <div class="row">
+                                                        @foreach ($allServices as $service)
+                                                            <div class="col-md-6 mb-3">
+                                                                <label class="aiz-megabox d-block mb-0">
+                                                                    <input type="checkbox" name="selected_services[]"
+                                                                        value="{{ $service->id }}"
+                                                                        class="service-checkbox"
+                                                                        data-price="{{ $service->price }}"
+                                                                        @if (in_array($service->id, $selectedServiceIds)) checked @endif>
+                                                                    <span
+                                                                        class="d-flex aiz-megabox-elem custom-service-card p-3">
+                                                                        <span
+                                                                            class="aiz-rounded-check flex-shrink-0 mt-1"></span>
+                                                                        <span class="flex-grow-1 pl-3">
+                                                                            <span class="d-block fw-700 fs-14 text-dark"
+                                                                                style="color: #4a3e3d !important;">
+                                                                                {{ $service->name }}
+                                                                            </span>
+                                                                            @if (!empty($service->description))
+                                                                                <span class="d-block fs-13 text-muted mt-1"
+                                                                                    style="line-height: 1.4;">
+                                                                                    {{ $service->description }}
+                                                                                </span>
+                                                                            @endif
+                                                                            <span class="d-block fs-13 fw-700 mt-2"
+                                                                                style="color: #685b4e !important;">
+                                                                                {{ ucfirst(str_replace('_', ' ', $service->type)) }}
+                                                                                -
+                                                                                {{ single_price($service->price) }}
+                                                                            </span>
+                                                                        </span>
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
 
-                                                @if ($product->dispatch_time)
-                                                <div><span
-                                                        class="fw-600">{{ translate('Dispatch Time') }}:</span>
-                                                    {{ $product->dispatch_time }}
                                                 </div>
-                                                @endif
+                                            @endif
+
+                                            @php
+                                                $seller_shipping = 0;
+                                                foreach ($seller_product as $productId) {
+                                                    $shippingProduct = get_single_product($productId);
+                                                    $shippingCart = collect($carts)->firstWhere(
+                                                        'product_id',
+                                                        $productId,
+                                                    );
+                                                    $seller_shipping += getProductShippingChargeTotal(
+                                                        $shippingProduct,
+                                                        $shippingCart->quantity ?? 1,
+                                                    );
+                                                }
+                                            @endphp
+
+                                            <!-- Seller Subtotal -->
+                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
+                                                {{ translate('Subtotal') }} :
+                                                <span id="seller-subtotal">
+                                                    {{ single_price($seller_subtotal) }}
+                                                </span>
                                             </div>
 
-                                        </div>
-                                    </li>
-                                    @endforeach
-                                </ul>
-
-                                {{-- SERVICES SECTION --}}
-                                @php
-                                $allServices = collect();
-                                @endphp
-
-                                @foreach ($seller_product as $productId)
-                                @php
-                                $serviceProduct = get_single_product($productId);
-
-                                if (
-                                $serviceProduct &&
-                                isset($serviceProduct->checkoutServices) &&
-                                $serviceProduct->checkoutServices->count() > 0
-                                ) {
-                                $allServices = $allServices->merge(
-                                $serviceProduct->checkoutServices,
-                                );
-                                }
-                                @endphp
-                                @endforeach
-
-                                @php
-                                $allServices = $allServices->unique('id')->values();
-
-                                // Find selected services from the carts
-                                $selectedServiceIds = [];
-                                foreach ($seller_product as $productId) {
-                                    $cart = collect($carts)->firstWhere('product_id', $productId);
-                                    if ($cart && !empty($cart->services)) {
-                                        $cartServices = json_decode($cart->services, true);
-                                        foreach ($cartServices as $cs) {
-                                            $selectedServiceIds[] = $cs['id'];
-                                        }
-                                    }
-                                }
-                                @endphp
-
-                                @if ($allServices->count() > 0)
-                                <div class="custom-services-section mb-4">
-
-                                    <h5 class="custom-services-title">
-                                        {{ translate('Additional Services') }}
-                                    </h5>
-
-                                    {{-- Error message for service selection --}}
-                                    <div id="service-required-error"
-                                        class="alert alert-danger custom-service-error mb-3 px-3 py-2 fw-600 d-flex align-items-center d-none"
-                                        style="font-size: 15px;">
-                                        <span class="mr-2" style="font-size: 1.4em;"><i
-                                                class="las la-exclamation-circle"></i></span>
-                                        <span>
-                                            {{ translate('Please select at least one service to continue.') }}
-                                        </span>
-                                    </div>
-
-                                    <div class="row">
-                                        @foreach ($allServices as $service)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="aiz-megabox d-block mb-0">
-                                                <input type="checkbox" name="selected_services[]"
-                                                    value="{{ $service->id }}"
-                                                    class="service-checkbox"
-                                                    data-price="{{ $service->price }}"
-                                                    @if(in_array($service->id, $selectedServiceIds)) checked @endif>
-                                                <span class="d-flex aiz-megabox-elem custom-service-card p-3">
-                                                    <span
-                                                        class="aiz-rounded-check flex-shrink-0 mt-1"></span>
-                                                    <span class="flex-grow-1 pl-3">
-                                                        <span class="d-block fw-700 fs-14 text-dark" style="color: #4a3e3d !important;">
-                                                            {{ $service->name }}
-                                                        </span>
-                                                        @if (!empty($service->description))
-                                                        <span
-                                                            class="d-block fs-13 text-muted mt-1" style="line-height: 1.4;">
-                                                            {{ $service->description }}
-                                                        </span>
-                                                        @endif
-                                                        <span
-                                                            class="d-block fs-13 fw-700 mt-2" style="color: #685b4e !important;">
-                                                            {{ ucfirst(str_replace('_', ' ', $service->type)) }}
-                                                            -
-                                                            {{ single_price($service->price) }}
-                                                        </span>
-                                                    </span>
+                                            <!-- Shipping Total -->
+                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
+                                                {{ translate('Shipping Charges') }} :
+                                                <span class="shipping-total-display">
+                                                    {{ single_price($seller_shipping) }}
                                                 </span>
-                                            </label>
-                                        </div>
-                                        @endforeach
+                                            </div>
+
+                                            <!-- Services Total -->
+                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
+                                                {{ translate('Services') }} :
+                                                <span class="services-total-display">
+                                                    £0.00
+                                                </span>
+                                            </div>
+
+                                            <!-- Grand Total -->
+                                            <div class="text-right pr-3 pb-3 ms-5 fw-700 fs-18">
+                                                {{ translate('Total') }} :
+                                                <span class="grand-total-display"
+                                                    data-base-total="{{ $seller_subtotal + $seller_shipping }}">
+                                                    {{ single_price($seller_subtotal + $seller_shipping) }}
+                                                </span>
+                                            </div>
+                                        </div> {{-- end card-body --}}
                                     </div>
+                                @endforeach
+                            @endif
 
-                                </div>
-                                @endif
 
-                                @php
-                                    $seller_shipping = 0;
-                                    foreach ($seller_product as $productId) {
-                                        $shippingProduct = get_single_product($productId);
-                                        $shippingCart = collect($carts)->firstWhere('product_id', $productId);
-                                        $seller_shipping += getProductShippingChargeTotal($shippingProduct, $shippingCart->quantity ?? 1);
-                                    }
-                                @endphp
 
-                                <!-- Seller Subtotal -->
-                                <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                    {{ translate('Subtotal') }} :
-                                    <span id="seller-subtotal">
-                                        {{ single_price($seller_subtotal) }}
-                                    </span>
-                                </div>
+                    </div>
 
-                                <!-- Shipping Total -->
-                                <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                    {{ translate('Shipping Charges') }} :
-                                    <span class="shipping-total-display">
-                                        {{ single_price($seller_shipping) }}
-                                    </span>
-                                </div>
-
-                                <!-- Services Total -->
-                                <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                    {{ translate('Services') }} :
-                                    <span class="services-total-display">
-                                        £0.00
-                                    </span>
-                                </div>
-
-                                <!-- Grand Total -->
-                                <div class="text-right pr-3 pb-3 ms-5 fw-700 fs-18">
-                                    {{ translate('Total') }} :
-                                    <span class="grand-total-display" data-base-total="{{ $seller_subtotal + $seller_shipping }}">
-                                        {{ single_price($seller_subtotal + $seller_shipping) }}
-                                    </span>
-                                </div>
-                            </div> {{-- end card-body --}}
+                    <div class="checkout-btn-row mb-4 d-flex flex-wrap justify-content-between">
+                        <!-- Return to shop -->
+                        <div class="mb-2 mb-md-0 w-100 w-lg-auto">
+                            <a href="{{ url('checkout') }}"
+                                class="btn btn-outline-secondary  borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
+                                <i class="las la-arrow-left fs-17"></i>
+                                {{ translate('Back') }}
+                            </a>
                         </div>
-                        @endforeach
-                        @endif
+                        <!-- Continue to Payment -->
+                        <div class="w-100 w-lg-auto">
+                            <button type="submit" id="continue-to-payment-btn"
+                                class="btn fs-15 fw-600 borderbtn rounded-2 w-100 py-3 border-none custom_checkout_button_design unfilled">
+                                {{ translate('Continue to Payment') }}
+                            </button>
+                        </div>
+                        </form>
 
-
+                    </div>
 
                 </div>
-
-                <div class="checkout-btn-row mb-4 d-flex flex-wrap justify-content-between">
-                    <!-- Return to shop -->
-                    <div class="mb-2 mb-md-0 w-100 w-lg-auto">
-                        <a href="{{ url('checkout') }}"
-                            class="btn btn-outline-secondary  borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
-                            <i class="las la-arrow-left fs-17"></i>
-                            {{ translate('Back') }}
-                        </a>
-                    </div>
-                    <!-- Continue to Payment -->
-                    <div class="w-100 w-lg-auto">
-                        <button type="submit" id="continue-to-payment-btn"
-                            class="btn fs-15 fw-600 borderbtn rounded-2 w-100 py-3 border-none custom_checkout_button_design unfilled">
-                            {{ translate('Continue to Payment') }}
-                        </button>
-                    </div>
-                    </form>
-
-                </div>
-
             </div>
         </div>
-    </div>
-</section>
-<style>
-    #continue-to-payment-btn[disabled] {
-        background: #d9cbbb !important;
-        cursor: no-drop;
-        outline: none !important;
+    </section>
+    <style>
+        #continue-to-payment-btn[disabled] {
+            background: #d9cbbb !important;
+            cursor: no-drop;
+            outline: none !important;
 
-    }
+        }
 
-    #continue-to-payment-btn:focus-visible {
-        outline: none !important;
-    }
-</style>
+        #continue-to-payment-btn:focus-visible {
+            outline: none !important;
+        }
+    </style>
 @endsection
 
 
 @section('script')
-<script type="text/javascript">
-    $(document).ready(function() {
-        let $serviceCheckboxes = $('.service-checkbox');
-        let $continueBtn = $('#continue-to-payment-btn');
-        let $serviceError = $('#service-required-error');
+    <script type="text/javascript">
+        $(document).ready(function() {
+            let $serviceCheckboxes = $('.service-checkbox');
+            let $continueBtn = $('#continue-to-payment-btn');
+            let $serviceError = $('#service-required-error');
 
-        // Initial calculation for all cards
-        $('.card').each(function() {
-            let $card = $(this);
-            let $checkboxes = $card.find('.service-checkbox');
-            if ($checkboxes.length === 0) return;
-            
-            // If there is no checked service but there is a free one, select it by default
-            if ($card.find('.service-checkbox:checked').length === 0) {
-                let $freeService = $checkboxes.filter(function() {
-                    return parseFloat($(this).data('price')) === 0;
-                });
-                if ($freeService.length > 0) {
-                    $freeService.first().prop('checked', true);
+            // Initial calculation for all cards
+            $('.card').each(function() {
+                let $card = $(this);
+                let $checkboxes = $card.find('.service-checkbox');
+                if ($checkboxes.length === 0) return;
+
+                // If there is no checked service but there is a free one, select it by default
+                if ($card.find('.service-checkbox:checked').length === 0) {
+                    let $freeService = $checkboxes.filter(function() {
+                        return parseFloat($(this).data('price')) === 0;
+                    });
+                    if ($freeService.length > 0) {
+                        $freeService.first().prop('checked', true);
+                    }
                 }
-            }
-            
-            // Trigger a change to calculate initial totals
-            $card.find('.service-checkbox:checked').first().trigger('change');
-        });
 
-        // Ensure only one checkbox can be selected at a time per seller card
-        $serviceCheckboxes.on('change', function() {
-            let $card = $(this).closest('.card');
-            let $cardCheckboxes = $card.find('.service-checkbox');
-            
-            // Uncheck all others in this card
-            $cardCheckboxes.not(this).prop('checked', false);
+                // Trigger a change to calculate initial totals
+                $card.find('.service-checkbox:checked').first().trigger('change');
+            });
 
-            // Update service and grand total
-            let serviceTotal = 0;
-            let $checked = $card.find('.service-checkbox:checked');
-            if ($checked.length > 0) {
-                serviceTotal = parseFloat($checked.data('price')) || 0;
-            }
-            
-            let $grandTotal = $card.find('.grand-total-display');
-            let baseTotal = parseFloat($grandTotal.data('base-total'));
-            let finalTotal = baseTotal + serviceTotal;
+            // Ensure only one checkbox can be selected at a time per seller card
+            $serviceCheckboxes.on('change', function() {
+                let $card = $(this).closest('.card');
+                let $cardCheckboxes = $card.find('.service-checkbox');
 
-            $card.find('.services-total-display').html('£' + serviceTotal.toFixed(2));
-            $grandTotal.html('£' + finalTotal.toFixed(2));
+                // Uncheck all others in this card
+                $cardCheckboxes.not(this).prop('checked', false);
 
-            checkServiceSelection();
-        });
+                // Update service and grand total
+                let serviceTotal = 0;
+                let $checked = $card.find('.service-checkbox:checked');
+                if ($checked.length > 0) {
+                    serviceTotal = parseFloat($checked.data('price')) || 0;
+                }
 
-        // Hide or show button depending on if any service-checkbox must be chosen
-        function checkServiceSelection() {
-            if ($serviceCheckboxes.length > 0) {
-                // Services section present
-                if ($('.service-checkbox:checked').length > 0) {
-                    $continueBtn.removeAttr('disabled').show();
-                    $serviceError.addClass('d-none');
+                let $grandTotal = $card.find('.grand-total-display');
+                let baseTotal = parseFloat($grandTotal.data('base-total'));
+                let finalTotal = baseTotal + serviceTotal;
+
+                $card.find('.services-total-display').html('£' + serviceTotal.toFixed(2));
+                $grandTotal.html('£' + finalTotal.toFixed(2));
+
+                checkServiceSelection();
+            });
+
+            // Hide or show button depending on if any service-checkbox must be chosen
+            function checkServiceSelection() {
+                if ($serviceCheckboxes.length > 0) {
+                    // Services section present
+                    if ($('.service-checkbox:checked').length > 0) {
+                        $continueBtn.removeAttr('disabled').show();
+                        $serviceError.addClass('d-none');
+                    } else {
+                        $continueBtn.attr('disabled', 'disabled').show();
+                    }
                 } else {
-                    $continueBtn.attr('disabled', 'disabled').show();
+                    // No services - button is always visible
+                    $continueBtn.show();
+                    $serviceError.addClass('d-none');
                 }
-            } else {
-                // No services - button is always visible
-                $continueBtn.show();
-                $serviceError.addClass('d-none');
             }
-        }
 
-        // Initial state
-        checkServiceSelection();
+            // Initial state
+            checkServiceSelection();
 
-        // Prevent form submission if services required and none checked
-        $('#delivery-form').on('submit', function(e) {
-            if ($serviceCheckboxes.length > 0 && $('.service-checkbox:checked').length === 0) {
-                $serviceError.removeClass('d-none');
-                $continueBtn.hide();
-                e.preventDefault();
-            }
-        });
-
-        // If only one (free) option present, prevent unchecking it
-        if ($serviceCheckboxes.length === 1 && parseFloat($serviceCheckboxes.first().data('price')) === 0) {
-            $serviceCheckboxes.on('click', function(e) {
-                if ($(this).is(':checked')) {
+            // Prevent form submission if services required and none checked
+            $('#delivery-form').on('submit', function(e) {
+                if ($serviceCheckboxes.length > 0 && $('.service-checkbox:checked').length === 0) {
+                    $serviceError.removeClass('d-none');
+                    $continueBtn.hide();
                     e.preventDefault();
-                    // always keep checked if it's the only (free) option
-                    $(this).prop('checked', true);
                 }
             });
-        }
-    });
 
-    function display_option(key) {
-
-    }
-
-    function show_pickup_point(el, type) {
-
-        var value = $(el).val();
-
-        var target = $(el).data('target');
-
-        if (value == 'home_delivery' || value == 'carrier') {
-
-            if (!$(target).hasClass('d-none')) {
-                $(target).addClass('d-none');
+            // If only one (free) option present, prevent unchecking it
+            if ($serviceCheckboxes.length === 1 && parseFloat($serviceCheckboxes.first().data('price')) === 0) {
+                $serviceCheckboxes.on('click', function(e) {
+                    if ($(this).is(':checked')) {
+                        e.preventDefault();
+                        // always keep checked if it's the only (free) option
+                        $(this).prop('checked', true);
+                    }
+                });
             }
+        });
 
-            $('.carrier_id_' + type).removeClass('d-none');
+        function display_option(key) {
 
-        } else {
-
-            $(target).removeClass('d-none');
-
-            $('.carrier_id_' + type).addClass('d-none');
         }
-    }
-</script>
+
+        function show_pickup_point(el, type) {
+
+            var value = $(el).val();
+
+            var target = $(el).data('target');
+
+            if (value == 'home_delivery' || value == 'carrier') {
+
+                if (!$(target).hasClass('d-none')) {
+                    $(target).addClass('d-none');
+                }
+
+                $('.carrier_id_' + type).removeClass('d-none');
+
+            } else {
+
+                $(target).removeClass('d-none');
+
+                $('.carrier_id_' + type).addClass('d-none');
+            }
+        }
+    </script>
 @endsection

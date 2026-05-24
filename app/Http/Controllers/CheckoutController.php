@@ -680,7 +680,7 @@ class CheckoutController extends Controller
             // Read saved services from cart
             $service_total = 0;
             $service_details = [];
-            
+
             if (!empty($carts[0]->services)) {
                 $service_details = json_decode($carts[0]->services, true);
                 if (is_array($service_details)) {

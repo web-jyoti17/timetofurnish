@@ -20,7 +20,7 @@
             @forelse($addons as $index => $addon)
                 @php
                     $isGlobal = false;
-                    if (isset($addon['name'])) {
+                    if (empty($addon['id']) && isset($addon['name'])) {
                         $isGlobal = \App\Models\ProductAddonGlobal::where('name', $addon['name'])->exists();
                     }
                 @endphp
@@ -96,18 +96,33 @@
             }
         }
 
+        function normalizeAddonName(name) {
+            return String(name || '').trim().toLowerCase();
+        }
+
+        function existingAddonNames(wrapper) {
+            var names = [];
+
+            wrapper.querySelectorAll('.addon-block').forEach(function (block) {
+                var input = block.querySelector('.group-name');
+                var name = normalizeAddonName(input ? input.value : '');
+
+                if (name) {
+                    names.push(name);
+                }
+            });
+
+            return names;
+        }
+
         function setOptionState(row, checked) {
             row.classList.toggle('option-disabled', !checked);
-            row.querySelectorAll('.option-input').forEach(function (input) {
-                input.disabled = !checked;
-            });
         }
 
         function setGroupState(block, checked) {
             block.classList.toggle('addon-disabled', !checked);
 
             block.querySelectorAll('.option-toggle').forEach(function (toggle) {
-                toggle.disabled = !checked;
                 if (!checked) {
                     toggle.checked = false;
                 }
@@ -119,6 +134,28 @@
             });
 
             updateSelectAllButton(block);
+        }
+
+        function markGroupSelected(block) {
+            var groupToggle = block ? block.querySelector('.group-toggle') : null;
+
+            if (groupToggle && !groupToggle.checked) {
+                groupToggle.checked = true;
+                setGroupState(block, true);
+            }
+        }
+
+        function markOptionSelected(row) {
+            var block = closest(row, '.addon-block');
+
+            markGroupSelected(block);
+
+            var optionToggle = row ? row.querySelector('.option-toggle') : null;
+            if (optionToggle && !optionToggle.checked) {
+                optionToggle.checked = true;
+                setOptionState(row, true);
+                updateSelectAllButton(block);
+            }
         }
 
         function nextGroupIndex() {
@@ -203,7 +240,6 @@
                 }
 
                 var row = closest(toggle, '.addon-option-row');
-                toggle.disabled = !checked;
                 if (row) {
                     setOptionState(row, checked && toggle.checked);
                 }
@@ -296,8 +332,7 @@
                 var groupToggleForSelect = block.querySelector('.group-toggle');
 
                 if (groupToggleForSelect && !groupToggleForSelect.checked) {
-                    groupToggleForSelect.checked = true;
-                    setGroupState(block, true);
+                    markGroupSelected(block);
                 }
 
                 var toggles = optionToggles(block).filter(function (toggle) {
@@ -401,11 +436,47 @@
                 event.stopImmediatePropagation();
                 var row = closest(target, '.addon-option-row');
 
+                if (target.checked) {
+                    markGroupSelected(block);
+                }
+
                 if (row) {
                     setOptionState(row, target.checked);
                 }
 
                 updateSelectAllButton(block);
+            }
+        }, true);
+
+        document.addEventListener('input', function (event) {
+            var target = event.target;
+            var block = closest(target, '.addon-block');
+
+            if (!block) {
+                return;
+            }
+
+            if (target.classList.contains('group-name') && target.value.trim() !== '') {
+                markGroupSelected(block);
+                return;
+            }
+
+            if (target.classList.contains('option-input') && target.type !== 'file') {
+                var row = closest(target, '.addon-option-row');
+                if (row && target.value.trim() !== '') {
+                    markOptionSelected(row);
+                }
+            }
+        }, true);
+
+        document.addEventListener('change', function (event) {
+            var target = event.target;
+
+            if (target.classList && target.classList.contains('option-input') && target.type === 'file' && target.files && target.files.length) {
+                var row = closest(target, '.addon-option-row');
+                if (row) {
+                    markOptionSelected(row);
+                }
             }
         }, true);
 
@@ -435,8 +506,8 @@
             var groupToggle = block.querySelector('.group-toggle');
             if (groupToggle) {
                 groupToggle.checked = forceEnabled;
-                if (addon.db_id) {
-                    groupToggle.value = addon.db_id;
+                if (addon.id) {
+                    groupToggle.value = addon.id;
                 }
             }
 
@@ -471,8 +542,8 @@
                         var optToggle = optRow.querySelector('.option-toggle');
                         if (optToggle) {
                             optToggle.checked = forceEnabled;
-                            if (opt.db_id) {
-                                optToggle.value = opt.db_id;
+                            if (opt.id) {
+                                optToggle.value = opt.id;
                             }
                         }
 
@@ -495,12 +566,18 @@
             initializeBlock(block, forceEnabled);
         }
 
+        window.addProductAddonFromData = addAddon;
+
         function loadCategoryAddons() {
             var categoryIds = [];
             document.querySelectorAll('#treeview input[type="checkbox"]:checked').forEach(function (input) {
                 categoryIds.push(input.value);
             });
 
+            loadAddonsForCategories(categoryIds);
+        }
+
+        function loadAddonsForCategories(categoryIds) {
             var getAddonsRoute = $('#product-form-data').data('get-addons-route');
             if (!getAddonsRoute) return;
 
@@ -520,17 +597,26 @@
                         block.remove();
                     });
 
+                    var existingNames = existingAddonNames(wrapper);
+
                     // Add the new global addons
                     addons.forEach(function (addon) {
+                        var addonName = normalizeAddonName(addon.name);
+
+                        if (addonName && existingNames.indexOf(addonName) !== -1) {
+                            return;
+                        }
+
                         addAddon(addon, false, true);
+                        if (addonName) {
+                            existingNames.push(addonName);
+                        }
                     });
                 }
             });
         }
 
-        $(document).on('change', '#treeview input[type="checkbox"]', function () {
-            loadCategoryAddons();
-        });
+        window.loadProductAddonsByCategories = loadAddonsForCategories;
 
         document.querySelectorAll('#addon-wrapper .addon-block').forEach(function (block) {
             initializeBlock(block, false);
