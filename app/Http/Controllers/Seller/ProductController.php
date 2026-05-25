@@ -175,6 +175,8 @@ class ProductController extends Controller
         }
 
 
+        $this->syncSellerVariantAttributeUpdates($request);
+
         $product = $this->productService->store($request->except([
             '_token',
             'sku',
@@ -186,6 +188,7 @@ class ProductController extends Controller
             'flash_discount',
             'flash_discount_type',
             'meta_img',
+            'variant_value_renames',
             'addons'
         ]));
         $request->merge(['product_id' => $product->id]);
@@ -533,6 +536,8 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $this->syncSellerVariantAttributeUpdates($request);
+
         //Product
         $product = $this->productService->update($request->except([
             '_token',
@@ -545,6 +550,7 @@ class ProductController extends Controller
             'flash_discount',
             'flash_discount_type',
             'meta_img',
+            'variant_value_renames',
             'addons'
         ]), $product);
 
@@ -927,13 +933,42 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'values' => 'required',
+            'values' => 'nullable',
+            'old_value' => 'nullable|string|max:255',
+            'attribute_id' => 'nullable|integer|exists:attributes,id',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'integer',
         ]);
 
         $name = trim($request->name);
-        $attribute = Attribute::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
+        $attribute = null;
+
+        if ($request->filled('attribute_id')) {
+            $attribute = Attribute::findOrFail($request->attribute_id);
+
+            $duplicate = Attribute::whereRaw('LOWER(name) = ?', [strtolower($name)])
+                ->where('id', '!=', $attribute->id)
+                ->first();
+
+            if ($duplicate) {
+                return response()->json([
+                    'message' => translate('An attribute with this name already exists.'),
+                    'errors' => [
+                        'name' => [translate('An attribute with this name already exists.')],
+                    ],
+                ], 422);
+            }
+
+            $attribute->name = $name;
+            $attribute->save();
+
+            AttributeTranslation::updateOrCreate(
+                ['lang' => env('DEFAULT_LANGUAGE'), 'attribute_id' => $attribute->id],
+                ['name' => $name]
+            );
+        } else {
+            $attribute = Attribute::whereRaw('LOWER(name) = ?', [strtolower($name)])->first();
+        }
 
         if (!$attribute) {
             $attribute = new Attribute;
@@ -959,23 +994,63 @@ class ProductController extends Controller
                 continue;
             }
 
-            $savedValue = ucfirst($cleanValue);
+            $savedValue = $cleanValue;
 
-            AttributeValue::firstOrCreate([
-                'attribute_id' => $attribute->id,
-                'value' => $savedValue,
-            ]);
+            $oldValue = trim((string) $request->old_value);
+            if ($oldValue !== '' && $request->filled('attribute_id')) {
+                $existingValue = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($savedValue)])
+                    ->first();
+
+                $valueToRename = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($oldValue)])
+                    ->first();
+
+                if ($existingValue && $valueToRename && $existingValue->id !== $valueToRename->id) {
+                    $valueToRename->delete();
+                } elseif ($valueToRename) {
+                    $valueToRename->value = $savedValue;
+                    $valueToRename->save();
+                } elseif (!$existingValue) {
+                    AttributeValue::create([
+                        'attribute_id' => $attribute->id,
+                        'value' => $savedValue,
+                    ]);
+                }
+            } else {
+                $existingValue = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($savedValue)])
+                    ->first();
+
+                if ($existingValue) {
+                    if ($existingValue->value !== $savedValue) {
+                        $existingValue->value = $savedValue;
+                        $existingValue->save();
+                    }
+                } else {
+                    AttributeValue::create([
+                        'attribute_id' => $attribute->id,
+                        'value' => $savedValue,
+                    ]);
+                }
+            }
 
             $savedValues[] = $savedValue;
         }
 
         $this->syncSelectedAttributesToCategories([$attribute->id], $request->category_ids ?? []);
 
+        $message = $request->filled('old_value')
+            ? translate('Attribute value updated successfully.')
+            : ($request->filled('attribute_id')
+                ? translate('Attribute updated successfully.')
+                : translate('Attribute added successfully.'));
+
         return response()->json([
-            'message' => translate('Attribute added successfully.'),
+            'message' => $message,
             'attribute' => [
                 'id' => $attribute->id,
-                'name' => $attribute->getTranslation('name'),
+                'name' => $attribute->name,
             ],
             'values' => array_values(array_unique($savedValues)),
         ]);
@@ -1066,6 +1141,107 @@ class ProductController extends Controller
                 ]);
             }
         }
+    }
+
+    private function syncSellerVariantAttributeUpdates(Request $request): void
+    {
+        $choiceNos = collect((array) $request->input('choice_no', []))
+            ->filter()
+            ->values();
+
+        if ($choiceNos->isEmpty()) {
+            return;
+        }
+
+        $choiceNames = (array) $request->input('choice', []);
+
+        foreach ($choiceNos as $index => $attributeId) {
+            $attribute = Attribute::find($attributeId);
+
+            if (!$attribute) {
+                continue;
+            }
+
+            $nextName = trim((string) ($choiceNames[$index] ?? ''));
+
+            if ($nextName !== '') {
+                $duplicate = Attribute::whereRaw('LOWER(name) = ?', [strtolower($nextName)])
+                    ->where('id', '!=', $attribute->id)
+                    ->first();
+
+                if (!$duplicate && strtolower($attribute->name) !== strtolower($nextName)) {
+                    $attribute->name = $nextName;
+                    $attribute->save();
+
+                    AttributeTranslation::updateOrCreate(
+                        ['lang' => env('DEFAULT_LANGUAGE'), 'attribute_id' => $attribute->id],
+                        ['name' => $nextName]
+                    );
+                }
+            }
+
+            foreach ((array) $request->input('variant_value_renames.' . $attribute->id, []) as $renamePayload) {
+                $rename = is_array($renamePayload) ? $renamePayload : json_decode((string) $renamePayload, true);
+                $oldValue = trim((string) ($rename['old'] ?? ''));
+                $newValue = trim((string) ($rename['new'] ?? ''));
+
+                if ($oldValue === '' || $newValue === '') {
+                    continue;
+                }
+
+                $valueToRename = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($oldValue)])
+                    ->first();
+
+                $existingValue = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($newValue)])
+                    ->first();
+
+                if ($existingValue && $valueToRename && $existingValue->id !== $valueToRename->id) {
+                    $valueToRename->delete();
+                } elseif ($valueToRename) {
+                    $valueToRename->value = $newValue;
+                    $valueToRename->save();
+                } elseif (!$existingValue) {
+                    AttributeValue::create([
+                        'attribute_id' => $attribute->id,
+                        'value' => $newValue,
+                    ]);
+                }
+            }
+
+            $values = collect((array) $request->input('choice_options_' . $attribute->id, []))
+                ->map(function ($value) {
+                    return trim((string) $value);
+                })
+                ->filter()
+                ->unique(function ($value) {
+                    return strtolower($value);
+                })
+                ->values();
+
+            foreach ($values as $value) {
+                $existingValue = AttributeValue::where('attribute_id', $attribute->id)
+                    ->whereRaw('LOWER(value) = ?', [strtolower($value)])
+                    ->first();
+
+                if ($existingValue) {
+                    if ($existingValue->value !== $value) {
+                        $existingValue->value = $value;
+                        $existingValue->save();
+                    }
+
+                    continue;
+                }
+
+                AttributeValue::create([
+                    'attribute_id' => $attribute->id,
+                    'value' => $value,
+                ]);
+            }
+        }
+
+        $this->syncSelectedAttributesToCategories($choiceNos->all(), $request->category_ids ?? []);
     }
 
     public function updatePublished(Request $request)

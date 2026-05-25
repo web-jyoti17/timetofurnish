@@ -48,7 +48,27 @@
                    <tr class="variant" data-variant-values='@json($combination)'>
                         <td class="text-center font-weight-bold align-middle" style="border: 1px solid #eae9e9;">
                             <div class="variant-option-cell">
-                                <span class="badge badge-inline badge-md px-3 py-2 rounded-pill font-weight-bold variant-option-badge">{{ implode(' / ', $row_values) ?: $str }}</span>
+                                @forelse ($row_values as $row_value)
+                                    <span class="variant-option-item">
+                                        <span class="badge badge-inline badge-md px-3 py-2 rounded-pill font-weight-bold variant-option-badge variant-option-edit"
+                                            data-variant-value="{{ $row_value }}">
+                                            {{ $row_value }}
+                                        </span>
+                                        <button type="button" class="btn btn-icon btn-soft-primary btn-sm variant-option-edit-btn" title="{{ translate('Edit this option name') }}">
+                                            <i class="las la-pen"></i>
+                                        </button>
+                                    </span>
+                                @empty
+                                    <span class="variant-option-item">
+                                        <span class="badge badge-inline badge-md px-3 py-2 rounded-pill font-weight-bold variant-option-badge variant-option-edit"
+                                            data-variant-value="{{ $str }}">
+                                            {{ $str }}
+                                        </span>
+                                        <button type="button" class="btn btn-icon btn-soft-primary btn-sm variant-option-edit-btn" title="{{ translate('Edit this option name') }}">
+                                            <i class="las la-pen"></i>
+                                        </button>
+                                    </span>
+                                @endforelse
                                 <button type="button" class="btn btn-icon btn-soft-danger btn-sm variant-value-remove" onclick="remove_variant_value(this)" title="{{ translate('Remove this option') }}">
                                     <i class="las la-times"></i>
                                 </button>

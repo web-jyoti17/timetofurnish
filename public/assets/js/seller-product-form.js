@@ -1,6 +1,8 @@
 
 (function ($) {
     "use strict";
+    const sellerAttributeNameOverrides = {};
+
     $(document).ready(function () {
         const treeviewAvailable = $.fn && $.fn.hummingbird;
 
@@ -95,6 +97,14 @@
                     success: function (response) {
                         const currentSelected = ($('#choice_attributes').val() || []).map(String);
                         const oldSelected = (formData.choiceAttributesOld || []).map(String);
+                        const retainedOptions = {};
+
+                        $('#choice_attributes option').each(function () {
+                            const value = String($(this).val());
+                            if (value) {
+                                retainedOptions[value] = $(this).text();
+                            }
+                        });
                         
                         $('#choice_attributes').empty();
                         $.each(response, function (index, attribute) {
@@ -102,10 +112,20 @@
                                 .toString()) || oldSelected.includes(attribute
                                     .id.toString());
                             let selectedAttr = isSelected ? 'selected' : '';
+                            let attributeName = sellerAttributeNameOverrides[attribute.id] || attribute.name;
                             $('#choice_attributes').append(
-                                `<option value="${attribute.id}" ${selectedAttr}>${attribute.name}</option>`
+                                `<option value="${attribute.id}" ${selectedAttr}>${attributeName}</option>`
                             );
                         });
+
+                        $.each(retainedOptions, function (id, name) {
+                            if ((currentSelected.includes(id) || oldSelected.includes(id)) && !$('#choice_attributes option[value="' + id + '"]').length) {
+                                $('#choice_attributes').append(
+                                    $('<option></option>').val(id).text(name).prop('selected', true)
+                                );
+                            }
+                        });
+
                         if ($.fn && $.fn.selectpicker) {
                             $('#choice_attributes').selectpicker('refresh');
                         } else if (window.AIZ && AIZ.plugins && AIZ.plugins
@@ -245,6 +265,7 @@
 
         bindProductAjaxSubmit();
         bindProductGlobalAjaxErrors();
+        renderAllEditableAttributeValues();
 
         // Category selection state only controls the inline notice. All form sections stay visible.
         function updateSectionsVisibility() {
@@ -347,12 +368,13 @@
 
         function addSearchedAttributeValue(select, query) {
             var choiceRow = select.closest('.form-group.row');
+            var attributeId = choiceRow.find('input[name="choice_no[]"]').first().val();
             var attributeName = $.trim(choiceRow.find('input[name="choice[]"]').val());
             var previousValues = (select.val() || []).map(function (value) {
                 return String(value);
             });
 
-            if (!attributeName) {
+            if (!attributeId || !attributeName) {
                 notifyProductForm('danger', 'Please choose an attribute before adding values.');
                 return;
             }
@@ -361,6 +383,7 @@
                 type: 'POST',
                 url: formData.storeAttributeRoute,
                 data: {
+                    attribute_id: attributeId,
                     name: attributeName,
                     values: [query],
                     category_ids: selectedCategoryIds(),
@@ -381,6 +404,8 @@
 
                     select.val(finalValues);
                     refreshProductSelects(select);
+                    select.trigger('change');
+                    renderEditableAttributeValues(choiceRow);
                     closeSelectpicker(select);
                     notifyProductForm('success', 'Value "' + query + '" added successfully.');
                     update_sku();
@@ -515,6 +540,80 @@
     }
     window.refreshProductSelects = refreshProductSelects;
 
+    function productFormData() {
+        return $('#product-form-data').data() || {};
+    }
+
+    let pendingVariantInputRestores = [];
+
+    function variantValuesFromRow(row) {
+        let values = row.data('variant-values') || [];
+
+        if (!Array.isArray(values)) {
+            values = [values];
+        }
+
+        return values.map(function (value) {
+            return String(value);
+        });
+    }
+
+    function sameVariantValues(first, second) {
+        if (first.length !== second.length) return false;
+
+        for (let i = 0; i < first.length; i++) {
+            if (String(first[i]) !== String(second[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function snapshotVariantInputValues(oldValue, newValue) {
+        $('#sku_combination .variant').each(function () {
+            let row = $(this);
+            let values = variantValuesFromRow(row);
+
+            if (!values.some(function (value) {
+                return value === oldValue;
+            })) {
+                return;
+            }
+
+            pendingVariantInputRestores.push({
+                values: values.map(function (value) {
+                    return value === oldValue ? newValue : value;
+                }),
+                price: row.find('.var_price').first().val(),
+                sku: row.find('input[name^="sku_"]').first().val(),
+                qty: row.find('.var_qty').first().val(),
+                img: row.find('input[name^="img_"]').first().val()
+            });
+        });
+    }
+
+    function restorePendingVariantInputValues() {
+        if (!pendingVariantInputRestores.length) return;
+
+        pendingVariantInputRestores.forEach(function (saved) {
+            $('#sku_combination .variant').each(function () {
+                let row = $(this);
+
+                if (!sameVariantValues(variantValuesFromRow(row), saved.values)) {
+                    return;
+                }
+
+                row.find('.var_price').first().val(saved.price);
+                row.find('input[name^="sku_"]').first().val(saved.sku);
+                row.find('.var_qty').first().val(saved.qty);
+                row.find('input[name^="img_"]').first().val(saved.img);
+            });
+        });
+
+        pendingVariantInputRestores = [];
+    }
+
     function selectedCategoryIds() {
         let categoryIds = [];
 
@@ -557,6 +656,8 @@
 
         if (!option.length) {
             attributeSelect.append($('<option></option>').val(attribute.id).text(attribute.name));
+        } else {
+            option.text(attribute.name);
         }
 
         attributeSelect.prop('disabled', false);
@@ -587,6 +688,72 @@
 
         refreshProductSelects(select);
         update_sku();
+    }
+
+    function escapeHtml(value) {
+        return $('<div>').text(String(value)).html();
+    }
+
+    function selectedValueEditorHtml(value) {
+        return '<div class="seller-selected-value-row">' +
+            '<input type="text" class="form-control seller-selected-value-input" value="' + escapeHtml(value) + '" data-original-value="' + escapeHtml(value) + '" title="Double-click to edit this value">' +
+            '</div>';
+    }
+
+    function queueVariantValueRename(row, oldValue, newValue) {
+        let attributeId = row.find('input[name="choice_no[]"]').first().val();
+        if (!attributeId) return;
+
+        let payload = JSON.stringify({
+            old: oldValue,
+            new: newValue
+        });
+
+        $('#choice_form input[name="variant_value_renames[' + attributeId + '][]"]').filter(function () {
+            try {
+                let existing = JSON.parse($(this).val());
+                return existing && String(existing.old) === String(oldValue);
+            } catch (e) {
+                return false;
+            }
+        }).remove();
+
+        $('<input>', {
+            type: 'hidden',
+            name: 'variant_value_renames[' + attributeId + '][]',
+            value: payload
+        }).appendTo('#choice_form');
+    }
+
+    function renderEditableAttributeValues(row) {
+        let select = row.find('.attribute_choice').first();
+        let values = select.val() || [];
+        let holder = row.find('.seller-selected-values-editor');
+
+        if (!holder.length) {
+            holder = $('<div class="seller-selected-values-editor"></div>');
+            row.find('.seller-select-help').first().after(holder);
+        }
+
+        holder.empty();
+
+        if (!values.length) {
+            holder.addClass('d-none');
+            return;
+        }
+
+        holder.removeClass('d-none');
+        holder.append('<div class="seller-selected-values-title">Edit selected values</div>');
+
+        values.forEach(function (value) {
+            holder.append(selectedValueEditorHtml(value));
+        });
+    }
+
+    function renderAllEditableAttributeValues() {
+        $('#customer_choice_options .form-group.row').each(function () {
+            renderEditableAttributeValues($(this));
+        });
     }
 
     function sellerAttributeDraftTemplate(index) {
@@ -718,6 +885,385 @@
             });
         });
     }
+
+    $(document).on('click', '.rename-attribute-btn', function () {
+        let button = $(this);
+        let isEditing = button.data('editing') === true;
+        let row = button.closest('.form-group.row');
+        let labelInput = row.find('input[name="choice[]"]').first();
+
+        if (!isEditing) {
+            button.data('editing', true);
+            button.data('original-name', labelInput.val());
+            labelInput.prop('readonly', false)
+                .removeClass('form-control-plaintext')
+                .addClass('form-control seller-attribute-inline-name');
+            button.find('i').removeClass('la-pen').addClass('la-check');
+            labelInput.trigger('focus').trigger('select');
+            return;
+        }
+
+        saveInlineAttributeName(button);
+    });
+
+    $(document).on('dblclick', 'input[name="choice[]"]', function () {
+        let row = $(this).closest('.form-group.row');
+        let button = row.find('.rename-attribute-btn').first();
+
+        if (button.length && button.data('editing') !== true) {
+            button.trigger('click');
+        }
+    });
+
+    $(document).on('keydown', '.seller-attribute-inline-name', function (event) {
+        let input = $(this);
+        let row = input.closest('.form-group.row');
+        let button = row.find('.rename-attribute-btn').first();
+
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            saveInlineAttributeName(button);
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            input.val(button.data('original-name') || input.val());
+            finishInlineAttributeEdit(button, input.val());
+        }
+    });
+
+    $(document).on('blur', '.seller-attribute-inline-name', function () {
+        let input = $(this);
+        let row = input.closest('.form-group.row');
+        let button = row.find('.rename-attribute-btn').first();
+
+        setTimeout(function () {
+            if (button.data('editing') === true) {
+                saveInlineAttributeName(button);
+            }
+        }, 120);
+    });
+
+    function finishInlineAttributeEdit(button, finalName) {
+        let row = button.closest('.form-group.row');
+        let labelInput = row.find('input[name="choice[]"]').first();
+
+        labelInput.val(finalName)
+            .prop('readonly', true)
+            .removeClass('form-control seller-attribute-inline-name')
+            .addClass('form-control-plaintext');
+        button.data('editing', false);
+        button.data('attribute-name', finalName);
+        button.find('i').removeClass('la-check').addClass('la-pen');
+    }
+
+    function saveInlineAttributeName(button) {
+        let attributeId = button.data('attribute-id');
+        let row = button.closest('.form-group.row');
+        let labelInput = row.find('input[name="choice[]"]').first();
+        let currentName = $.trim(button.data('attribute-name') || button.data('original-name') || labelInput.val() || '');
+        let nextName = $.trim(labelInput.val());
+
+        if (!nextName) {
+            notifyProductForm('danger', 'Please enter an attribute name.');
+            labelInput.trigger('focus');
+            return;
+        }
+
+        if (nextName.toLowerCase() === currentName.toLowerCase()) {
+            finishInlineAttributeEdit(button, currentName);
+            return;
+        }
+
+        button.prop('disabled', true);
+
+        $.ajax({
+            type: 'POST',
+            url: productFormData().storeAttributeRoute,
+            data: {
+                attribute_id: attributeId,
+                name: nextName,
+                values: [],
+                category_ids: selectedCategoryIds(),
+                _token: (typeof AIZ !== 'undefined' && AIZ.data && AIZ.data.csrf) ? AIZ.data.csrf : (productFormData().csrf || $('meta[name="csrf-token"]').attr('content'))
+            },
+            success: function (response) {
+                let attribute = response.attribute || {};
+                let finalName = attribute.name || nextName;
+
+                sellerAttributeNameOverrides[attributeId] = finalName;
+                finishInlineAttributeEdit(button, finalName);
+                $('#choice_attributes option[value="' + attributeId + '"]').text(finalName);
+                refreshProductSelects($('#choice_attributes'));
+                update_sku();
+                notifyProductForm('success', response.message || 'Attribute updated.');
+            },
+            error: function (xhr) {
+                notifyProductForm('danger', sellerAttributeError(xhr, 'Unable to update attribute.'));
+            },
+            complete: function () {
+                button.prop('disabled', false);
+            }
+        });
+    }
+
+    $(document).on('change', '.attribute_choice', function () {
+        renderEditableAttributeValues($(this).closest('.form-group.row'));
+    });
+
+    $(document).on('keydown', '.seller-selected-value-input', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            $(this).trigger('change');
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            $(this).val($(this).data('original-value'));
+            this.blur();
+        }
+    });
+
+    $(document).on('dblclick', '.seller-selected-value-input', function () {
+        $(this).trigger('select');
+    });
+
+    function saveSelectedAttributeValue(row, select, oldValue, newValue, input) {
+        if (input && input.data('saving-value') === true) {
+            return;
+        }
+
+        if (input) {
+            input.data('saving-value', true);
+        }
+
+        snapshotVariantInputValues(oldValue, newValue);
+
+        let selectedValues = (select.val() || []).map(function (value) {
+            return String(value);
+        });
+        let duplicate = select.find('option').filter(function () {
+            return String($(this).val()).toLowerCase() === newValue.toLowerCase() && String($(this).val()) !== oldValue;
+        }).first();
+
+        if (duplicate.length) {
+            selectedValues = selectedValues.filter(function (value) {
+                return value !== oldValue;
+            });
+            if (selectedValues.indexOf(String(duplicate.val())) === -1) {
+                selectedValues.push(String(duplicate.val()));
+            }
+            select.find('option').filter(function () {
+                return String($(this).val()) === oldValue;
+            }).remove();
+            select.val(selectedValues);
+        } else {
+            select.find('option').each(function () {
+                if (String($(this).val()) === oldValue) {
+                    $(this).val(newValue).text(newValue).prop('selected', true);
+                }
+            });
+            selectedValues = selectedValues.map(function (value) {
+                return value === oldValue ? newValue : value;
+            });
+            select.val(selectedValues);
+        }
+
+        refreshProductSelects(select);
+        renderEditableAttributeValues(row);
+        queueVariantValueRename(row, oldValue, newValue);
+        update_sku();
+
+        $.ajax({
+            type: 'POST',
+            url: productFormData().storeAttributeRoute,
+            data: {
+                attribute_id: row.find('input[name="choice_no[]"]').first().val(),
+                name: $.trim(row.find('input[name="choice[]"]').first().val()),
+                old_value: oldValue,
+                values: [newValue],
+                category_ids: selectedCategoryIds(),
+                _token: (typeof AIZ !== 'undefined' && AIZ.data && AIZ.data.csrf) ? AIZ.data.csrf : (productFormData().csrf || $('meta[name="csrf-token"]').attr('content'))
+            },
+            success: function (response) {
+                let finalValue = response.values && response.values.length ? String(response.values[0]) : newValue;
+
+                if (finalValue !== newValue) {
+                    snapshotVariantInputValues(newValue, finalValue);
+
+                    let values = (select.val() || []).map(function (value) {
+                        return String(value) === newValue ? finalValue : String(value);
+                    });
+
+                    select.find('option').each(function () {
+                        if (String($(this).val()) === newValue) {
+                            $(this).val(finalValue).text(finalValue).prop('selected', true);
+                        }
+                    });
+
+                    select.val(values);
+                    refreshProductSelects(select);
+                    renderEditableAttributeValues(row);
+                    update_sku();
+                }
+
+                notifyProductForm('success', response.message || 'Attribute value updated.');
+            },
+            error: function (xhr) {
+                if (input && input.length) {
+                    input.val(oldValue);
+                }
+                notifyProductForm('danger', sellerAttributeError(xhr, 'Unable to save attribute value.'));
+            },
+            complete: function () {
+                if (input) {
+                    input.data('saving-value', false);
+                }
+            }
+        });
+    }
+
+    $(document).on('change blur', '.seller-selected-value-input', function () {
+        let input = $(this);
+        let row = input.closest('.form-group.row');
+        let select = row.find('.attribute_choice').first();
+        let oldValue = String(input.data('original-value') || '');
+        let newValue = $.trim(input.val());
+
+        if (!newValue) {
+            input.val(oldValue);
+            return;
+        }
+
+        if (newValue === oldValue) {
+            return;
+        }
+
+        saveSelectedAttributeValue(row, select, oldValue, newValue, input);
+    });
+
+    function setVariantOptionEditButtonState(item, isEditing) {
+        let button = $(item).find('.variant-option-edit-btn').first();
+
+        button.data('editing', isEditing === true);
+        button.find('i')
+            .toggleClass('la-pen', isEditing !== true)
+            .toggleClass('la-check', isEditing === true);
+    }
+
+    function openVariantOptionEditor(badge) {
+        badge = $(badge);
+
+        if (badge.find('.variant-option-inline-input').length) {
+            return;
+        }
+
+        let oldValue = String(badge.data('variant-value') || badge.text()).trim();
+        let input = $('<input type="text" class="variant-option-inline-input">').val(oldValue);
+        let inputWidth = Math.min(180, Math.max(72, (oldValue.length * 9) + 32));
+
+        badge.data('original-html', badge.html());
+        badge.addClass('variant-option-editing');
+        setVariantOptionEditButtonState(badge.closest('.variant-option-item'), true);
+        badge.empty().append(input);
+        input.css('width', inputWidth + 'px');
+        input.trigger('focus');
+        if (input[0] && input[0].setSelectionRange) {
+            input[0].setSelectionRange(oldValue.length, oldValue.length);
+        }
+    }
+
+    $(document).on('mousedown', '.variant-option-edit-btn', function (event) {
+        if ($(this).data('editing') === true) {
+            event.preventDefault();
+        }
+    });
+
+    $(document).on('click', '.variant-option-edit-btn', function () {
+        let button = $(this);
+        let item = button.closest('.variant-option-item');
+        let badge = item.find('.variant-option-edit').first();
+        let input = badge.find('.variant-option-inline-input').first();
+
+        if (button.data('editing') === true) {
+            if (input.length) {
+                input.trigger('change');
+            } else {
+                setVariantOptionEditButtonState(item, false);
+            }
+            return;
+        }
+
+        openVariantOptionEditor(badge);
+    });
+
+    $(document).on('keydown', '.variant-option-edit-btn', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            $(this).trigger('click');
+        }
+    });
+
+    $(document).on('keydown', '.variant-option-inline-input', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            $(this).trigger('change');
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            let badge = $(this).closest('.variant-option-edit');
+            $(this).data('variant-save-started', true);
+            badge.removeClass('variant-option-editing');
+            setVariantOptionEditButtonState(badge.closest('.variant-option-item'), false);
+            badge.html(badge.data('original-html'));
+        }
+    });
+
+    $(document).on('change blur', '.variant-option-inline-input', function () {
+        let input = $(this);
+        let badge = input.closest('.variant-option-edit');
+        let oldValue = String(badge.data('variant-value') || '').trim();
+        let newValue = $.trim(input.val());
+
+        if (input.data('variant-save-started') === true) {
+            return;
+        }
+
+        if (!newValue || newValue === oldValue) {
+            input.data('variant-save-started', true);
+            badge.removeClass('variant-option-editing');
+            setVariantOptionEditButtonState(badge.closest('.variant-option-item'), false);
+            badge.html(escapeHtml(oldValue));
+            return;
+        }
+
+        input.data('variant-save-started', true);
+
+        let matchedSelect = $();
+        $('.attribute_choice').each(function () {
+            let select = $(this);
+            let match = select.find('option:selected').filter(function () {
+                return String($(this).val()) === oldValue || $.trim($(this).text()) === oldValue;
+            }).first();
+
+            if (match.length) {
+                matchedSelect = select;
+                return false;
+            }
+        });
+
+        if (!matchedSelect.length) {
+            badge.removeClass('variant-option-editing');
+            setVariantOptionEditButtonState(badge.closest('.variant-option-item'), false);
+            badge.html(escapeHtml(oldValue));
+            notifyProductForm('danger', 'Unable to find the selected attribute value.');
+            return;
+        }
+
+        let row = matchedSelect.closest('.form-group.row');
+        saveSelectedAttributeValue(row, matchedSelect, oldValue, newValue, input);
+    });
 
     function addFieldError(field, message) {
         let normalized = field.replace(/\.\d+/g, '[]').replace(/\./g, '[').replace(/\[/g, '[').replace(/\]/g, ']');
@@ -948,8 +1494,13 @@
                 <div class="form-group row align-items-center mb-3">\
                     <div class="col-lg-3">\
                         <input type="hidden" name="choice_no[]" value="' + i + '">\
-                        <input type="text" class="form-control-plaintext font-weight-bold" name="choice[]" value="' + name +
+                        <div class="seller-attribute-title-cell">\
+                            <input type="text" class="form-control-plaintext font-weight-bold" name="choice[]" value="' + name +
                     '" placeholder="Choice Title" readonly>\
+                            <button type="button" class="btn btn-soft-primary btn-icon btn-circle btn-sm rename-attribute-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
+                                <i class="las la-pen"></i>\
+                            </button>\
+                        </div>\
                     </div>\
                     <div class="col-lg-8 seller-variation-select-col">\
                         <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
@@ -988,6 +1539,7 @@
             data: $('#choice_form').serialize(),
             success: function (data) {
                 $('#sku_combination').html(data);
+                restorePendingVariantInputValues();
                 AIZ.uploader.previewGenerate();
                 AIZ.plugins.fooTable();
                 if ($('#sku_combination').find('.variant').length > 0) {

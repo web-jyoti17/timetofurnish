@@ -90,7 +90,7 @@
         background: transparent !important;
         box-shadow: none !important;
         border: none !important;
-    }   
+    }
 
     #choice_form .card-header {
         min-height: 48px;
@@ -99,7 +99,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        background: #f0e6d9 ;
+        background: #f0e6d9;
         border-bottom: 1px solid #eadfd2 !important;
         box-shadow: inset 3px 0 0 var(--seller-primary);
     }
@@ -368,7 +368,7 @@
     #choice_form .addon-block,
     #choice_form .addon-group,
     #choice_form .addon-option-row {
-        border: 1px solid var(--seller-border) !important;
+        /* border: 1px solid var(--seller-border) !important; */
         border-radius: 6px !important;
         background: #fff !important;
         box-shadow: none !important;
@@ -561,6 +561,56 @@
         background: #f6f6f7 !important;
         border: 1px solid var(--seller-border) !important;
         border-radius: 6px;
+    }
+
+    #choice_form .variant-option-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #choice_form .variant-option-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #choice_form .variant-option-edit-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    #choice_form .variant-option-badge.variant-option-editing {
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    #choice_form .variant-option-inline-input {
+        max-width: 180px;
+        height: 34px;
+        padding: 2px 14px;
+        border: 1px solid var(--seller-border);
+        border-radius: 999px;
+        background: #f6f6f7;
+        color: var(--seller-text);
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        box-shadow: none;
+    }
+
+    #choice_form .variant-option-inline-input:focus {
+        border-color: var(--seller-border-strong);
+        background: #fff;
     }
 
     #choice_form .seller-addons-body,
@@ -992,7 +1042,7 @@
                         <div class="col-md-12">
                             <small class="text-muted discount">
                                 <span>(</span>{{ translate('If you do want to sell the items in discounted price or
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                clearance') }}<span>)</span>
                             </small>
                         </div>
                     </div>
@@ -1055,7 +1105,7 @@
                             <i class="las la-question-circle fs-18 text-info"></i>
                             <span
                                 class="p-2 border main-category-info bg-soft-info position-absolute d-none">{{ translate('This will be used for commission based calculations and homepage category
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wise product Show.') }}</span>
                         </span>
                     </h6>
                 </div>

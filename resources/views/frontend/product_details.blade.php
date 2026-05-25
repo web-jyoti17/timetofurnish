@@ -8,18 +8,17 @@
 
 @section('meta')
     @php
-        $availability = "out of stock";
+        $availability = 'out of stock';
         $qty = 0;
-        if($detailedProduct->variant_product) {
+        if ($detailedProduct->variant_product) {
             foreach ($detailedProduct->stocks as $key => $stock) {
                 $qty += $stock->qty;
             }
-        }
-        else {
+        } else {
             $qty = optional($detailedProduct->stocks->first())->qty;
         }
-        if($qty > 0){
-            $availability = "in stock";
+        if ($qty > 0) {
+            $availability = 'in stock';
         }
     @endphp
     <!-- Schema.org markup for Google+ -->
@@ -56,15 +55,65 @@
 @endsection
 
 @section('content')
+<style>
+    @media (max-width: 575.98px) {
+        .responsive-breadcrumb-row {
+            flex-wrap: nowrap !important;
+            gap: 0.5rem;
+        }
+        .responsive-breadcrumb-row nav {
+            min-width: 0;
+            flex-shrink: 1;
+        }
+        #viewSellerInfoBtn {
+            white-space: nowrap;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        .breadcrumb {
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
+    @media (max-width: 400px) {
+        .responsive-breadcrumb-row {
+            gap: 0.25rem;
+        }
+        #viewSellerInfoBtn {
+            padding-left: 0.85rem !important;
+            padding-right: 0.85rem !important;
+            font-size: 0.98rem;
+        }
+    }
+</style>
+
+<style>
+    #viewSellerInfoBtn{
+        background: linear-gradient(90deg, #deb887 0%, #c59259 100%);
+        color: #212529 !important;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: box-shadow .2s, background .2s;
+        padding: 6px 10px !important;
+
+    }
+    #viewSellerInfoBtn:hover{
+        background: linear-gradient(90deg, #c59259 0%, #deb887 100%);
+        color: #212529 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    }
+</style>
    <section class="pt-0 mb-4">
     <div class="container">
         <div class="py-0 bg-white">
 
             <div class="row">
-                <div class="pt-5 pb-5 col-12 d-flex flex-wrap justify-content-between flex-row image_gallery_section_shadow">
-                    <div class="d-flex align-items-center">
-                        <nav aria-label="breadcrumb" class="flex-grow-1">
-                            <ol class="breadcrumb bg-white pl-0 m-0 justify-content-start">
+                <div class="pt-5 pb-5 col-12 d-flex flex-wrap justify-content-between flex-column image_gallery_section_shadow">
+                    <div class="d-flex flex-row align-items-center w-100 justify-content-between flex-wrap flex-md-nowrap responsive-breadcrumb-row" style="gap: 0.75rem;">
+                        <nav aria-label="breadcrumb" class="flex-grow-1 min-width-0">
+                            <ol class="breadcrumb bg-white pl-0 p-0 m-0 justify-content-start mb-0">
                                 <li class="breadcrumb-item">
                                     <a class="text-dark-50" href="{{ route('home') }}">
                                         <i class="las la-home"></i> {{ translate('Home') }}
@@ -80,104 +129,170 @@
                                 </li>
                             </ol>
                         </nav>
-                    </div>
-
-                    <div class=" d-flex justify-content-lg-end align-items-center mt-0 mt-lg-0">
-                        <button type="button"
-                            class="btn shadow-sm px-4 py-2 d-flex align-items-center"
-                            id="viewSellerInfoBtn"
-                            title="{{ translate('View seller information') }}">
-                            <span style="font-size:20px;">
-                                <i class="las la-info-circle"></i>
-
-                            </span>
-                            <span class="d-inline-block ml-1">{{ translate('View Seller Info') }}</span>
-                        </button>
-                        <style>
-                            #viewSellerInfoBtn{
-                                background: linear-gradient(90deg, #deb887 0%, #c59259 100%);
-                                color: #212529 !important;
-                                border: none;
-                                border-radius: 25px;
-                                font-weight: 600;
-                                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                                transition: box-shadow .2s, background .2s;
-                            }
-                            #viewSellerInfoBtn:hover{
-                                background: linear-gradient(90deg, #c59259 0%, #deb887 100%);
-                                color: #212529 !important;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.10);
-                            }
-                        </style>
-                    </div>
-
-                    <!-- Seller Info Modal (initially hidden, JS will toggle) -->
-                    <div class="modal fade" id="sellerInfoModal" tabindex="-1" aria-labelledby="sellerInfoModalLabel" aria-hidden="true" style="display:none;">
-                        <div class="modal-dialog modal-dialog-centered" style="max-width: 1000px;">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="sellerInfoModalLabel">Seller Information</h5>
-                                    <i class="las la-times" style="font-size: 20px; cursor: pointer;"  id="sellerInfoModalClose"></i>
-                                </div>
-                                <div class="modal-body">
-                                    @include('frontend.product_details.seller_info')
+                        <div class="position-relative" id="viewSellerInfoMenuWrapper" style="display:inline-block;">
+                            <button type="button"
+                                class="btn shadow-sm px-4 py-2 d-flex align-items-center ms-0 ms-md-3"
+                                id="viewSellerInfoBtn"
+                                title="{{ translate('View seller information') }}">
+                                <span style="font-size:20px;">
+                                    <i class="las la-info-circle"></i>
+                                </span>
+                                <!-- Mobile: Show "Seller Info" next to icon (larger button text) -->
+                                <span class="d-inline-block d-sm-none ml-1 mobile_info_btn_text">{{ translate('Seller') }}</span>
+                                <!-- Desktop: Show standard text -->
+                                <span class="d-none d-sm-inline-block ml-1 desktop_info_btn_text">{{ translate('View Seller Info') }}</span>
+                            </button>
+                            <!-- Popover Seller Info Panel (hidden by default, toggled by JS, shown near button) -->
+                            <div id="sellerInfoPopover" class="seller-info-popover shadow" style="display:none;">
+                                <div class="seller-info-popover-content">
+                                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                                        <h5 class="mb-0" style="font-weight:600;" id="sellerInfoPopoverLabel">Seller Information</h5>
+                                        <i class="las la-times" style="font-size: 22px; cursor: pointer;" id="sellerInfoPopoverClose"></i>
+                                    </div>
+                                    <div>
+                                        @include('frontend.product_details.seller_info')
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div id="sellerInfoPopoverBackdrop" class="seller-info-popover-backdrop"></div>
                     </div>
                 </div>
             </div>
+
+            <style>
+                /* Seller Info Popover Styles */
+                .seller-info-popover {
+                    position: absolute;
+                    top: 110%;
+                    right: 0;
+                    z-index: 1081;
+                    background: transparent;
+                    pointer-events: none;
+                }
+                .seller-info-popover.active {
+                    display: block !important;
+                    pointer-events: auto;
+                }
+                .seller-info-popover-content {
+                    background: #fff;
+                    max-width: 430px;
+                    min-width: 300px;
+                    border-radius: 14px;
+                    box-shadow: 0 14px 34px rgba(60,60,60,0.15), 0 1.5px 8px #eaeaea;
+                    padding: 2.2rem 1.3rem 1.2rem 1.3rem;
+                    min-height: 180px;
+                }
+
+                @media (max-width: 575px) {
+                    .seller-info-popover-content {
+                        width: 92vw;
+                        max-width: 97vw;
+                        min-width: 0;
+                        left: 50%;
+                        transform: translateX(0%) !important;
+                        padding-left: 15px;
+                        padding-right: 15px;
+                    }
+                }
+                .seller-info-popover-backdrop {
+                    display: none;
+                    position: fixed;
+                    left: 0; right: 0; top: 0; bottom: 0;
+                    z-index: 1080;
+                    background: rgba(33,33,41,0.12);
+                    transition: opacity .25s;
+                    opacity: 0;
+                }
+                .seller-info-popover-backdrop.active {
+                    display: block;
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                body.seller-info-popover-open {
+                    overflow: hidden;
+                }
+            </style>
+
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const sellerInfoBtn = document.getElementById('viewSellerInfoBtn');
-                    const sellerInfoModal = document.getElementById('sellerInfoModal');
-                    const sellerInfoModalClose = document.getElementById('sellerInfoModalClose');
+                    const btn = document.getElementById('viewSellerInfoBtn');
+                    const popover = document.getElementById('sellerInfoPopover');
+                    const popoverClose = document.getElementById('sellerInfoPopoverClose');
+                    const backdrop = document.getElementById('sellerInfoPopoverBackdrop');
+                    const wrapper = document.getElementById('viewSellerInfoMenuWrapper');
 
-                    if (sellerInfoBtn && sellerInfoModal && sellerInfoModalClose) {
-                        function showModal() {
-                            sellerInfoModal.classList.add('show');
-                            sellerInfoModal.style.display = 'block';
-                            sellerInfoModal.removeAttribute('aria-hidden');
-                            document.body.classList.add('modal-open');
+                    function openPopover() {
+                        popover.classList.add('active');
+                        popover.style.display = 'block';
+                        backdrop.classList.add('active');
+                        document.body.classList.add('seller-info-popover-open');
+                    }
 
-                            // Check if backdrop already exists to avoid duplicating
-                            if (!document.getElementById('sellerInfoModalBackdrop')) {
-                                let backdrop = document.createElement('div');
-                                backdrop.className = 'modal-backdrop fade show';
-                                backdrop.id = 'sellerInfoModalBackdrop';
-                                document.body.appendChild(backdrop);
-                            }
-                        }
+                    function closePopover() {
+                        popover.classList.remove('active');
+                        popover.style.display = 'none';
+                        backdrop.classList.remove('active');
+                        document.body.classList.remove('seller-info-popover-open');
+                    }
 
-                        function hideModal() {
-                            sellerInfoModal.classList.remove('show');
-                            sellerInfoModal.style.display = 'none';
-                            sellerInfoModal.setAttribute('aria-hidden', 'true');
-                            document.body.classList.remove('modal-open');
-                            // Remove backdrop
-                            const backdrop = document.getElementById('sellerInfoModalBackdrop');
-                            if (backdrop) document.body.removeChild(backdrop);
-                        }
+                    if (btn && popover && popoverClose && backdrop) {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            // Position popover under button, prefer right-aligned
+                            setTimeout(function() {
+                                openPopover();
+                                // Responsive position
+                                if(window.innerWidth < 576) {
+                                    const popoverContent = popover.querySelector('.seller-info-popover-content');
+                                    popoverContent.style.left = '50%';
+                                    popoverContent.style.transform = 'translateX(-50%)';
+                                } else {
+                                    const rect = btn.getBoundingClientRect();
+                                    const popoverEl = popover;
+                                    // Reset popover styling
+                                    popoverEl.style.left = '';
+                                    popoverEl.style.right = '0';
+                                    popoverEl.style.top = '';
+                                    // Handle viewport overflow (right)
+                                    const popoverRect = popoverEl.getBoundingClientRect();
+                                    let overflowRight = (rect.right + (popoverRect.width || 360)) - window.innerWidth;
+                                    if (overflowRight > 0) {
+                                        popoverEl.style.right = '0';
+                                    } else {
+                                        popoverEl.style.right = '0';
+                                    }
+                                    // Align with button bottom
+                                    popoverEl.style.top = (btn.offsetHeight + 8) + "px";
+                                }
+                            }, 10);
+                        });
+                        popoverClose.addEventListener('click', closePopover);
+                        backdrop.addEventListener('click', closePopover);
 
-                        sellerInfoBtn.addEventListener('click', showModal);
-                        sellerInfoModalClose.addEventListener('click', hideModal);
-
-                        // Click outside modal-content to close
-                        sellerInfoModal.addEventListener('mousedown', function(e) {
-                            if (e.target === sellerInfoModal) {
-                                hideModal();
+                        // ESC closes popover
+                        document.addEventListener('keydown', function(e) {
+                            if (popover.classList.contains('active') && e.key === "Escape") {
+                                closePopover();
                             }
                         });
 
-                        // ESC key closes modal
-                        document.addEventListener('keydown', function(e) {
-                            if (sellerInfoModal.classList.contains('show') && e.key === "Escape") {
-                                hideModal();
+                        // Click outside closes popover
+                        document.addEventListener('mousedown', function(e) {
+                            if (popover.classList.contains('active')) {
+                                // Check click outside popover content and button
+                                if (
+                                    !popover.contains(e.target) &&
+                                    !btn.contains(e.target)
+                                ) {
+                                    closePopover();
+                                }
                             }
                         });
                     }
                 });
             </script>
+
 
             <div class="row">
                 <div class="col-xl-12 col-lg-12">
@@ -266,19 +381,21 @@
 
     <section class="mb-4">
         <div class="container">
-            @if (isset($detailedProduct) && property_exists($detailedProduct, 'auction_product') && $detailedProduct->auction_product)
+            @if (isset($detailedProduct) &&
+                    property_exists($detailedProduct, 'auction_product') &&
+                    $detailedProduct->auction_product)
                 <!-- Reviews & Ratings -->
                 {{-- @include('frontend.product_details.review_section') --}}
 
                 <!-- Description, Video, Downloads -->
-                {{--@include('frontend.product_details.description')--}}
+                {{-- @include('frontend.product_details.description') --}}
 
                 <!-- Product Query -->
                 @include('frontend.product_details.product_queries')
             @else
                 <div class="row gutters-16">
                     <!-- Left side -->
-                    {{--<div class="col-lg-3">
+                    {{-- <div class="col-lg-3">
                         <!-- Seller Info -->
                         @include('frontend.product_details.seller_info')
 
@@ -286,7 +403,7 @@
                        <div class="d-none d-lg-block">
                             @include('frontend.product_details.top_selling_products')
                        </div>
-                    </div>--}}
+                    </div> --}}
 
                     <!-- Right side -->
                     <div class="col-lg-12">
@@ -295,13 +412,13 @@
                         {{-- @include('frontend.product_details.review_section') --}}
 
                         <!-- Description, Video, Downloads -->
-                       {{-- @include('frontend.product_details.description')--}}
+                       {{-- @include('frontend.product_details.description') --}}
 
                         <!-- Related products -->
                         @include('frontend.product_details.related_products')
 
                         <!-- Product Query -->
-                        @if(!empty(\Illuminate\Support\Facades\Auth::id()))
+                        @if (!empty(\Illuminate\Support\Facades\Auth::id()))
                             @include('frontend.product_details.product_queries')
                         @endif
                         <!-- Top Selling Products -->
@@ -377,7 +494,7 @@
     </div>
 
     <!-- Bid Modal -->
-    @if($detailedProduct->auction_product == 1)
+    @if ($detailedProduct->auction_product == 1)
         @php
             $highest_bid = $detailedProduct->bids->max('amount');
             $min_bid_amount = $highest_bid != null ? $highest_bid+1 : $detailedProduct->starting_bid;
@@ -386,7 +503,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">{{ translate('Bid For Product') }} <small>({{ translate('Min Bid Amount: ').$min_bid_amount }})</small> </h5>
+                        <h5 class="modal-title" id="exampleModalLabel">{{ translate('Bid For Product') }} <small>({{ translate('Min Bid Amount: ') . $min_bid_amount }})</small> </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         </button>
                     </div>
@@ -396,7 +513,7 @@
                             <input type="hidden" name="product_id" value="{{ $detailedProduct->id }}">
                             <div class="form-group">
                                 <label class="form-label">
-                                    {{translate('Place Bid Price')}}
+                                    {{ translate('Place Bid Price') }}
                                     <span class="text-danger">*</span>
                                 </label>
                                 <div class="form-group">
@@ -514,7 +631,7 @@
             @if (isCustomer() || isSeller())
                 $('#bid_for_detail_product').modal('show');
           	@elseif (isAdmin())
-                AIZ.plugins.notify('warning', '{{ translate("Sorry, Only customers & Sellers can Bid.") }}');
+                AIZ.plugins.notify('warning', '{{ translate('Sorry, Only customers & Sellers can Bid.') }}');
             @else
                 $('#login_modal').modal('show');
             @endif
@@ -534,13 +651,12 @@
                         AIZ.extra.inputRating();
                     });
                 @else
-                    AIZ.plugins.notify('warning', '{{ translate("Sorry, You need to buy this product to give review.") }}');
+                    AIZ.plugins.notify('warning', '{{ translate('Sorry, You need to buy this product to give review.') }}');
                 @endif
             @elseif (Auth::check() && !isCustomer())
-                AIZ.plugins.notify('warning', '{{ translate("Sorry, Only customers can give review.") }}');
+                AIZ.plugins.notify('warning', '{{ translate('Sorry, Only customers can give review.') }}');
             @else
-                $('#login_modal').modal('show');
-            @endif
-        }
-    </script>
+                $('#login_modal').modal('show'); @endif
+                                                                                                                        }
+                                                                                                                    </script>
 @endsection

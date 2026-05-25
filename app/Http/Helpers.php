@@ -2443,7 +2443,7 @@ if (!function_exists('get_single_attribute_name')) {
             }
         }
 
-        return '';
+        return 'Sizes';
     }
 }
 

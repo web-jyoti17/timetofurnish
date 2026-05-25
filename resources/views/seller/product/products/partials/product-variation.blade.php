@@ -51,6 +51,8 @@
                 <div class="alert alert-info mb-3">
                     <i class="las la-info-circle mr-2"></i>
                     {{ translate('Choose the attributes of this product and then input values of each attribute') }}
+                    <br>
+                    <small>{{ translate('Double-click an attribute name or variant option value to edit it, then press Enter or click outside to save.') }}</small>
                 </div>
 
                 <div class="form-group row align-items-center mb-4">
@@ -61,8 +63,7 @@
                         <select name="choice_attributes[]" id="choice_attributes"
                             class="form-control aiz-selectpicker rounded-pill" data-live-search="true"
                             data-selected-text-format="count" multiple
-                            data-placeholder="{{ translate('Choose Attributes') }}"
-                            data-container="body">
+                            data-placeholder="{{ translate('Choose Attributes') }}" data-container="body">
                             @foreach (\App\Models\Attribute::whereIn('id', (array) $attribute_values)->get() as $key => $attribute)
                                 <option value="{{ $attribute->id }}" selected>
                                     {{ $attribute->getTranslation('name') }}
@@ -96,9 +97,17 @@
                                         <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
                                         @php $opt_att = \App\Models\Attribute::find($choice_no) @endphp
                                         @if (!empty($opt_att))
-                                            <input type="text" class="form-control-plaintext font-weight-bold"
-                                                name="choice[]" value="{{ $opt_att->getTranslation('name') }}"
-                                                placeholder="{{ translate('Choice Title') }}" readonly>
+                                            <div class="seller-attribute-title-cell">
+                                                <input type="text" class="form-control-plaintext font-weight-bold"
+                                                    name="choice[]" value="{{ $opt_att->getTranslation('name') }}"
+                                                    placeholder="{{ translate('Choice Title') }}" readonly>
+                                                <button type="button"
+                                                    class="btn btn-soft-primary btn-icon btn-circle btn-sm rename-attribute-btn"
+                                                    data-attribute-id="{{ $choice_no }}"
+                                                    data-attribute-name="{{ $opt_att->getTranslation('name') }}">
+                                                    <i class="las la-pen"></i>
+                                                </button>
+                                            </div>
                                         @endif
                                     </div>
                                     <div class="col-lg-8 seller-variation-select-col">
@@ -254,7 +263,7 @@
     .seller-variation-options {
         max-height: none;
         overflow: visible;
-        border: 1px solid #d9dee3;
+        /* border: 1px solid #d9dee3; */
         border-radius: 8px;
         background: #f8fafb;
         padding: 10px;
@@ -268,7 +277,7 @@
 
     #choice_form .seller-variation-options #customer_choice_options>.form-group.row {
         display: grid;
-        grid-template-columns: 130px minmax(0, 1fr) 48px;
+        grid-template-columns: 160px minmax(0, 1fr) 48px;
         gap: 10px 14px;
         align-items: start;
         margin: 0 !important;
@@ -361,6 +370,40 @@
 
     .seller-attribute-value-row .form-control {
         flex: 1;
+    }
+
+    .seller-attribute-title-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .seller-attribute-title-cell input {
+        min-width: 0;
+    }
+
+    .seller-selected-values-editor {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .seller-selected-values-title {
+        color: #6d7175;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .seller-selected-value-row {
+        max-width: 360px;
+    }
+
+    .seller-selected-value-input {
+        height: 38px;
+        border-radius: 20px;
+        font-weight: 600;
     }
 
     .seller-attribute-icon-btn {

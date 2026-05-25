@@ -40,7 +40,7 @@
 
                         <div class="col-sm-12">
                             <h5 class="mb-2">
-                               
+
                                 {{ ucfirst(get_single_attribute_name($choice->attribute_id)) }}
                                 <span style="color: red;">*</span>
                             </h5>
@@ -461,7 +461,7 @@
                 <div class="col-sm-3">
                     <div class="mt-1 text-secondary fs-15 fw-500" style="color:#333 !important">
                         {{ translate('Dispatch
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Time') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Time') }}
                     </div>
                 </div>
                 <div class="col-sm-9">
@@ -497,19 +497,22 @@
         }
 
         function focusNextSelect(currSelect) {
+            // Do nothing if on mobile (screen width <= 991px, e.g. Bootstrap lg breakpoint and below)
+            if (window.innerWidth <= 991) return;
+
             if (!currSelect || currSelect.length === 0) return;
-            
+
             var configSelects = $('.variant-dropdown, .addon-block select');
             var currentIndex = configSelects.index(currSelect);
-            
+
             if (currentIndex !== -1) {
                 // Find the next select that is NOT already selected
                 for (var i = currentIndex + 1; i < configSelects.length; i++) {
                     var nextSelect = configSelects.eq(i);
                     var addonId = nextSelect.data('addonid');
-                    
+
                     var isAlreadySelected = false;
-                    
+
                     if (nextSelect.hasClass('fabric-dropdown')) {
                         // Check if fabric hidden input has value
                         var fabricVal = $(`input[type="hidden"][name="addons[${addonId}]"]`).val();
@@ -522,7 +525,7 @@
                             isAlreadySelected = true;
                         }
                     }
-                    
+
                     if (!isAlreadySelected) {
                         setTimeout(function() {
                             nextSelect.select2('open');
