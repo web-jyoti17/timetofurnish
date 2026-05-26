@@ -5,6 +5,7 @@ namespace App\Services;
 use AizPackages\CombinationGenerate\Services\CombinationService;
 use App\Models\ProductStock;
 use App\Utility\ProductUtility;
+use Illuminate\Validation\ValidationException;
 
 class ProductStockService
 {
@@ -30,13 +31,31 @@ class ProductStockService
             $product->save();
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
+                $field_key = str_replace('.', '_', $str);
+                $price_key = 'price_' . $field_key;
+                $qty_key = 'qty_' . $field_key;
+                $sku_key = 'sku_' . $field_key;
+                $img_key = 'img_' . $field_key;
+
+                if (!request()->filled($price_key)) {
+                    throw ValidationException::withMessages([
+                        $price_key => translate('Variant price is required for') . ' ' . $str,
+                    ]);
+                }
+
+                if (!request()->filled($qty_key)) {
+                    throw ValidationException::withMessages([
+                        $qty_key => translate('Variant quantity is required for') . ' ' . $str,
+                    ]);
+                }
+
                 $product_stock = new ProductStock();
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
-                $product_stock->price = request()['price_' . str_replace('.', '_', $str)];
-                $product_stock->sku = request()['sku_' . str_replace('.', '_', $str)];
-                $product_stock->qty = request()['qty_' . str_replace('.', '_', $str)];
-                $product_stock->image = request()['img_' . str_replace('.', '_', $str)];
+                $product_stock->price = request()->input($price_key);
+                $product_stock->sku = request()->input($sku_key);
+                $product_stock->qty = request()->input($qty_key);
+                $product_stock->image = request()->input($img_key);
                 $product_stock->save();
             }
         } else {

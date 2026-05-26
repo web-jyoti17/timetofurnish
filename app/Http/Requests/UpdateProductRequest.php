@@ -8,10 +8,13 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use App\Models\Attribute;
+use App\Http\Requests\Concerns\ValidatesProductVariantStock;
 
 
 class UpdateProductRequest extends FormRequest
 {
+    use ValidatesProductVariantStock;
+
     protected function prepareForValidation()
     {
         if (!$this->has('unit_price') || trim((string) $this->input('unit_price')) === '') {
@@ -76,23 +79,7 @@ class UpdateProductRequest extends FormRequest
         $rules['specification'] = 'nullable';
         $rules['dimensions_enabled'] = 'nullable|boolean';
 
-        if (auth()->check() && auth()->user()->user_type == 'seller') {
-            $rules['choice_no'] = 'required|array|min:1';
-
-            foreach ((array) $this->input('choice_no', []) as $choiceNo) {
-                $rules['choice_options_' . $choiceNo] = 'required|array|min:1';
-            }
-
-            foreach ($this->all() as $key => $value) {
-                if (str_starts_with($key, 'price_')) {
-                    $rules[$key] = ['required', 'numeric', 'gt:0', 'max:99999'];
-                }
-
-                if (str_starts_with($key, 'qty_')) {
-                    $rules[$key] = ['required', 'integer', 'min:1', 'max:9999'];
-                }
-            }
-        }
+        $rules = $this->addSellerVariantStockRules($rules);
 
 
 
@@ -164,37 +151,14 @@ class UpdateProductRequest extends FormRequest
            // 'sku.unique' => translate('SKU already exists'),
         ];
 
-        foreach ((array) $this->input('choice_no', []) as $choiceNo) {
-            $attribute = Attribute::find($choiceNo);
-            $label = $attribute ? $attribute->getTranslation('name') : translate('attribute');
-            $messages['choice_options_' . $choiceNo . '.required'] = translate('Please select at least one value for') . ' ' . $label;
-            $messages['choice_options_' . $choiceNo . '.min'] = translate('Please select at least one value for') . ' ' . $label;
-        }
-
-        return $messages;
+        return $this->addVariantStockMessages($this->addChoiceOptionMessages($messages));
     }
 
     public function attributes()
     {
         $attributes = [];
 
-        foreach ((array) $this->input('choice_no', []) as $choiceNo) {
-            $attribute = Attribute::find($choiceNo);
-            $label = $attribute ? $attribute->getTranslation('name') : translate('attribute');
-            $attributes['choice_options_' . $choiceNo] = translate('values for') . ' ' . $label;
-        }
-
-        foreach ($this->all() as $key => $value) {
-            if (str_starts_with($key, 'price_')) {
-                $attributes[$key] = translate('variant price');
-            }
-
-            if (str_starts_with($key, 'qty_')) {
-                $attributes[$key] = translate('variant quantity');
-            }
-        }
-
-        return $attributes;
+        return $this->addVariantStockAttributes($this->addChoiceOptionAttributes($attributes));
     }
 
     /**

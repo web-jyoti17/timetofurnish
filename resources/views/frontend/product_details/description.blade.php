@@ -236,9 +236,11 @@
 
         .enhanced-tab-link.active,
         .enhanced-tab-link:focus {
-            border-bottom: 3px solid #3c7bf9 !important;
-            background: #fff !important;
-            color: #054ebf !important;
+            color: #685b4e;
+            background: #fff;
+            border-bottom: 3px solid #685b4e;
+            box-shadow: 0 1px 8px 0 rgba(60, 123, 249, 0.04);
+            z-index: 2;
         }
 
         .enhanced-tabs {
