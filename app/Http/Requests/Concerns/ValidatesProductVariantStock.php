@@ -20,31 +20,49 @@ trait ValidatesProductVariantStock
         }
 
         foreach ($this->expectedVariantStockFields() as $fields) {
-            $rules[$fields['price']] = ['required', 'numeric', 'gt:0', 'max:99999'];
-            $rules[$fields['qty']] = ['required', 'integer', 'min:1', 'max:9999'];
+            $rules[$fields['price']] = ['nullable', 'numeric', 'gt:0', 'max:99999'];
+            $rules[$fields['qty']] = ['nullable', 'integer', 'min:1', 'max:9999'];
             $rules[$fields['sku']] = ['nullable', 'max:255'];
         }
 
         foreach ($this->all() as $key => $value) {
             if (str_starts_with($key, 'price_')) {
-                $rules[$key] = ['required', 'numeric', 'gt:0', 'max:99999'];
+                $rules[$key] = ['nullable', 'numeric', 'gt:0', 'max:99999'];
             }
 
             if (str_starts_with($key, 'qty_')) {
-                $rules[$key] = ['required', 'integer', 'min:1', 'max:9999'];
+                $rules[$key] = ['nullable', 'integer', 'min:1', 'max:9999'];
             }
         }
 
         return $rules;
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (!(auth()->check() && auth()->user()->user_type == 'seller')) {
+                return;
+            }
+
+            $fields = $this->expectedVariantStockFields();
+
+            if (!count($fields) || $this->hasAnyVariantPrice($fields)) {
+                return;
+            }
+
+            $validator->errors()->add(
+                $fields[0]['price'],
+                translate('Please enter at least one variant price.')
+            );
+        });
+    }
+
     protected function addVariantStockMessages(array $messages): array
     {
         foreach ($this->expectedVariantStockFields() as $fields) {
-            $messages[$fields['price'] . '.required'] = translate('Variant price is required for') . ' ' . $fields['label'];
             $messages[$fields['price'] . '.numeric'] = translate('Variant price must be numeric for') . ' ' . $fields['label'];
             $messages[$fields['price'] . '.gt'] = translate('Variant price must be greater than 0 for') . ' ' . $fields['label'];
-            $messages[$fields['qty'] . '.required'] = translate('Variant quantity is required for') . ' ' . $fields['label'];
             $messages[$fields['qty'] . '.integer'] = translate('Variant quantity must be a whole number for') . ' ' . $fields['label'];
             $messages[$fields['qty'] . '.min'] = translate('Variant quantity must be greater than 0 for') . ' ' . $fields['label'];
         }
@@ -133,6 +151,17 @@ trait ValidatesProductVariantStock
         return array_values(array_unique(array_filter($variants, function ($variant) {
             return trim((string) $variant) !== '';
         })));
+    }
+
+    protected function hasAnyVariantPrice(array $fields): bool
+    {
+        foreach ($fields as $field) {
+            if ($this->filled($field['price'])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function variantNameFromValue($value, bool $colorsActive): string

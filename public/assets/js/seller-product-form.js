@@ -1330,17 +1330,26 @@
         });
 
         if ($('#sku_combination').find('.variant').length > 0) {
-            $('#sku_combination').find('.var_price:visible, .var_qty:visible').each(function () {
-                let input = $(this);
-                let label = input.hasClass('var_price') ? 'Variant price is required.' : 'Variant quantity is required.';
-                if (!$.trim(input.val())) {
-                    messages.push(label);
-                    input.addClass('is-invalid-field');
-                    if (!input.next('.product-form-field-error').length) {
-                        input.after($('<span class="product-form-field-error"></span>').text(label));
-                    }
+            let visiblePrices = $('#sku_combination').find('.var_price:visible');
+            let hasAnyPrice = false;
+
+            visiblePrices.each(function () {
+                if ($.trim($(this).val())) {
+                    hasAnyPrice = true;
+                    return false;
                 }
             });
+
+            if (!hasAnyPrice) {
+                let firstPrice = visiblePrices.first();
+                let label = 'Please enter at least one variant price.';
+
+                messages.push(label);
+                firstPrice.addClass('is-invalid-field');
+                if (!firstPrice.next('.product-form-field-error').length) {
+                    firstPrice.after($('<span class="product-form-field-error"></span>').text(label));
+                }
+            }
         }
 
         if (messages.length) {

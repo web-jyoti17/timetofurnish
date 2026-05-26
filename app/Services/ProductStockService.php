@@ -29,6 +29,27 @@ class ProductStockService
         if (count($combinations) > 0) {
             $product->variant_product = 1;
             $product->save();
+            $has_variant_price = false;
+
+            foreach ($combinations as $combination) {
+                $variant = ProductUtility::get_combination_string($combination, $collection);
+                $price_key = 'price_' . str_replace('.', '_', $variant);
+
+                if (request()->filled($price_key)) {
+                    $has_variant_price = true;
+                    break;
+                }
+            }
+
+            if (!$has_variant_price) {
+                $first_variant = ProductUtility::get_combination_string($combinations[0], $collection);
+                $first_price_key = 'price_' . str_replace('.', '_', $first_variant);
+
+                throw ValidationException::withMessages([
+                    $first_price_key => translate('Please enter at least one variant price.'),
+                ]);
+            }
+
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
                 $field_key = str_replace('.', '_', $str);
@@ -37,24 +58,12 @@ class ProductStockService
                 $sku_key = 'sku_' . $field_key;
                 $img_key = 'img_' . $field_key;
 
-                if (!request()->filled($price_key)) {
-                    throw ValidationException::withMessages([
-                        $price_key => translate('Variant price is required for') . ' ' . $str,
-                    ]);
-                }
-
-                if (!request()->filled($qty_key)) {
-                    throw ValidationException::withMessages([
-                        $qty_key => translate('Variant quantity is required for') . ' ' . $str,
-                    ]);
-                }
-
                 $product_stock = new ProductStock();
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
-                $product_stock->price = request()->input($price_key);
+                $product_stock->price = request()->filled($price_key) ? request()->input($price_key) : 0;
                 $product_stock->sku = request()->input($sku_key);
-                $product_stock->qty = request()->input($qty_key);
+                $product_stock->qty = request()->filled($qty_key) ? request()->input($qty_key) : 0;
                 $product_stock->image = request()->input($img_key);
                 $product_stock->save();
             }

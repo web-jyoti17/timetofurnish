@@ -84,13 +84,13 @@
                         if (parseFloat(this.value) <= 0) {
                         this.value = '';
                         }
-                        "  required> 
+                        "> 
                 </td>
                 <td style="border: 1px solid #eae9e9;"> 
                     <input type="text" name="sku_{{ $str }}" value="{{ old('sku_'.$str, ($stock != null ? $stock->sku : $str)) }}" class="form-control rounded-pill"> 
                 </td>
                 <td style="border: 1px solid #eae9e9;"> 
-                    <input type="number" lang="en" name="qty_{{ $str }}" value="{{ old('qty_'.$str, ($stock != null && $stock->qty > 0 ? $stock->qty : 1)) }}" min="1" step="1"  max="9999" class="form-control var_qty rounded-pill" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';" required> 
+                    <input type="number" lang="en" name="qty_{{ $str }}" value="{{ old('qty_'.$str, ($stock != null && $stock->qty > 0 ? $stock->qty : 1)) }}" min="1" step="1"  max="9999" class="form-control var_qty rounded-pill" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';"> 
                 </td>
                 <td style="border: 1px solid #eae9e9;">
                     <div class="input-group" data-toggle="aizuploader" data-type="image">
