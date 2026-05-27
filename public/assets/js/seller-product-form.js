@@ -95,6 +95,10 @@
 
         // UPDATE ATTRIBUTES
         function updateAttributes() {
+            // Snapshot any user-typed prices BEFORE we rebuild the attribute rows.
+            // This ensures prices survive the update_sku() re-render triggered below.
+            captureFullVariantSnapshot();
+
             var categoryIds = [];
             $('input[name="category_ids[]"]:checked').each(function () {
                 categoryIds.push($(this).val());
@@ -110,41 +114,43 @@
                     success: function (response) {
                         const currentSelected = ($('#choice_attributes').val() || []).map(String);
                         const oldSelected = (formData.choiceAttributesOld || []).map(String);
-                        const retainedOptions = {};
+                        const newCatAttrIds = response.map(attr => String(attr.id));
 
+                        // 1. Loop through all existing options and set their selected status
                         $('#choice_attributes option').each(function () {
                             const value = String($(this).val());
                             if (value) {
-                                retainedOptions[value] = $(this).text();
+                                if (newCatAttrIds.includes(value)) {
+                                    $(this).prop('selected', true);
+                                } else if (currentSelected.includes(value) || oldSelected.includes(value)) {
+                                    $(this).prop('selected', true);
+                                } else {
+                                    $(this).prop('selected', false);
+                                }
                             }
                         });
-                        
-                        $('#choice_attributes').empty();
-                        $.each(response, function (index, attribute) {
-                            // Category-specific attributes added by the admin must always show/select automatically
-                            let isSelected = true;
-                            let selectedAttr = isSelected ? 'selected' : '';
-                            let attributeName = sellerAttributeNameOverrides[attribute.id] || attribute.name;
-                            $('#choice_attributes').append(
-                                `<option value="${attribute.id}" ${selectedAttr}>${attributeName}</option>`
-                            );
-                        });
 
-                        $.each(retainedOptions, function (id, name) {
-                            if ((currentSelected.includes(id) || oldSelected.includes(id)) && !$('#choice_attributes option[value="' + id + '"]').length) {
+                        // 2. Append any category attributes that are NOT currently in the select options
+                        $.each(response, function (index, attribute) {
+                            const id = String(attribute.id);
+                            if (!$('#choice_attributes option[value="' + id + '"]').length) {
+                                let attributeName = sellerAttributeNameOverrides[attribute.id] || attribute.name;
                                 $('#choice_attributes').append(
-                                    $('<option></option>').val(id).text(name).prop('selected', true)
+                                    $('<option></option>').val(id).text(attributeName).prop('selected', true)
                                 );
                             }
                         });
 
                         if ($.fn && $.fn.selectpicker) {
                             $('#choice_attributes').selectpicker('refresh');
-                        } else if (window.AIZ && AIZ.plugins && AIZ.plugins
-                            .bootstrapSelect) {
+                        } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
                             AIZ.plugins.bootstrapSelect('refresh');
                         }
                         $('#choice_attributes').prop('disabled', false);
+
+                        // Snapshot again just before triggering change so prices
+                        // entered between the two async calls are also captured.
+                        captureFullVariantSnapshot();
 
                         // Trigger change on attributes select to automatically generate option selectors for the auto-selected category attributes
                         $('#choice_attributes').trigger('change');
@@ -152,8 +158,20 @@
                 });
             } else {
                 let attributeSelect = $('#choice_attributes');
+                const currentSelected = (attributeSelect.val() || []).map(String);
+                const oldSelected = (formData.choiceAttributesOld || []).map(String);
 
-                attributeSelect.empty();
+                // Deselect auto-selected attributes, preserving manual selections
+                attributeSelect.find('option').each(function () {
+                    const value = String($(this).val());
+                    if (value) {
+                        if (currentSelected.includes(value) || oldSelected.includes(value)) {
+                            $(this).prop('selected', true);
+                        } else {
+                            $(this).prop('selected', false);
+                        }
+                    }
+                });
 
                 attributeSelect.prop('disabled', false);
                 if ($.fn && $.fn.selectpicker) {
@@ -175,8 +193,10 @@
             });
         });
 
-        // Initialize attributes on load
-        updateAttributes();
+        // Initialize attributes on load (only if not in Edit mode to preserve db-prefilled ones)
+        if (!formData.productId) {
+            updateAttributes();
+        }
 
         // Attributes change
         $('#choice_attributes').on('change', function () {
@@ -563,6 +583,70 @@
 
     let pendingVariantInputRestores = [];
 
+    // Full snapshot keyed by the price input's name attribute (e.g. "price_Small")
+    // This ensures prices are preserved across ANY update_sku() re-render.
+    let fullVariantPriceSnapshot = {};
+
+    function captureFullVariantSnapshot() {
+        $('#sku_combination .variant').each(function () {
+            let row = $(this);
+            let priceInput = row.find('.var_price').first();
+            let priceName = priceInput.attr('name'); // e.g. "price_Small"
+            if (!priceName) return;
+
+            let price = priceInput.val();
+            let qty   = row.find('.var_qty').first().val();
+            let sku   = row.find('input[name^="sku_"]').first().val();
+            let img   = row.find('input[name^="img_"]').first().val();
+
+            // Only snapshot if there is actually a price entered (avoid overwriting
+            // DB-loaded prices with empty strings from a race-condition render)
+            if (price && parseFloat(price) > 0) {
+                fullVariantPriceSnapshot[priceName] = { price: price, qty: qty, sku: sku, img: img };
+            } else if (qty || sku || img) {
+                // Preserve sku/qty/img even when price is blank
+                if (!fullVariantPriceSnapshot[priceName]) {
+                    fullVariantPriceSnapshot[priceName] = { price: price, qty: qty, sku: sku, img: img };
+                }
+            }
+        });
+    }
+
+    function restoreFromFullVariantSnapshot() {
+        if (!Object.keys(fullVariantPriceSnapshot).length) return;
+
+        $('#sku_combination .variant').each(function () {
+            let row = $(this);
+            let priceInput = row.find('.var_price').first();
+            let priceName  = priceInput.attr('name');
+            if (!priceName) return;
+
+            let saved = fullVariantPriceSnapshot[priceName];
+            if (!saved) return;
+
+            // Restore price only when the rendered cell is blank
+            // (DB-loaded values from sku_combinations_edit take precedence)
+            if (saved.price && parseFloat(saved.price) > 0 && (!priceInput.val() || parseFloat(priceInput.val()) <= 0)) {
+                priceInput.val(saved.price);
+            }
+
+            let qtyInput = row.find('.var_qty').first();
+            if (saved.qty && (!qtyInput.val() || parseInt(qtyInput.val()) <= 0)) {
+                qtyInput.val(saved.qty);
+            }
+
+            let skuInput = row.find('input[name^="sku_"]').first();
+            if (saved.sku && !skuInput.val()) {
+                skuInput.val(saved.sku);
+            }
+
+            let imgInput = row.find('input[name^="img_"]').first();
+            if (saved.img && !imgInput.val()) {
+                imgInput.val(saved.img);
+            }
+        });
+    }
+
     function variantValuesFromRow(row) {
         let values = row.data('variant-values') || [];
 
@@ -611,6 +695,10 @@
     }
 
     function restorePendingVariantInputValues() {
+        // 1. Restore from the full snapshot (covers prices typed before update_sku re-render)
+        restoreFromFullVariantSnapshot();
+
+        // 2. Restore from pending renames (covers inline option-value edits)
         if (!pendingVariantInputRestores.length) return;
 
         pendingVariantInputRestores.forEach(function (saved) {
@@ -1567,15 +1655,20 @@
     };
     window.update_sku = function () {
         const formData = $('#product-form-data').data();
+
+        // Capture all currently visible prices before the AJAX wipes the table
+        captureFullVariantSnapshot();
+
         $.ajax({
             type: "POST",
             url: formData.skuCombinationRoute,
             data: $('#choice_form').serialize(),
             success: function (data) {
                 $('#sku_combination').html(data);
+                // Restore prices that were typed by the user (or loaded from DB) before this re-render
                 restorePendingVariantInputValues();
-                AIZ.uploader.previewGenerate();
-                AIZ.plugins.fooTable();
+                if (typeof AIZ !== 'undefined' && AIZ.uploader) AIZ.uploader.previewGenerate();
+                if (typeof AIZ !== 'undefined' && AIZ.plugins && AIZ.plugins.fooTable) AIZ.plugins.fooTable();
                 if ($('#sku_combination').find('.variant').length > 0) {
                     $('#show-hide-div').hide();
                 } else {

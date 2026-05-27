@@ -11,37 +11,7 @@ class ProductStockService
 {
     public function validateVariantPrices(array $data): void
     {
-        $collection = collect($data);
-        $options = ProductUtility::get_attribute_options($collection);
-        $combinations = array();
-
-        foreach ($options as $option_group) {
-            if (is_array($option_group)) {
-                foreach ($option_group as $value) {
-                    $combinations[] = [$value];
-                }
-            }
-        }
-
-        if (count($combinations) === 0) {
-            return;
-        }
-
-        $price_errors = [];
-
-        foreach ($combinations as $combination) {
-            $variant = ProductUtility::get_combination_string($combination, $collection);
-            $price_key = 'price_' . str_replace('.', '_', $variant);
-            $price = request()->input($price_key);
-
-            if (!is_numeric($price) || (float) $price <= 0) {
-                $price_errors[$price_key] = translate('Please enter a price greater than 0 for every variant.');
-            }
-        }
-
-        if (!empty($price_errors)) {
-            throw ValidationException::withMessages($price_errors);
-        }
+        // No-op. Empty or invalid variant prices are simply skipped/filtered out during save.
     }
 
     public function store(array $data, $product)
@@ -61,15 +31,19 @@ class ProductStockService
         }
         
         $variant = '';
+        $saved_count = 0;
         if (count($combinations) > 0) {
-            $product->variant_product = 1;
-            $product->save();
-            $this->validateVariantPrices($data);
-
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
                 $field_key = str_replace('.', '_', $str);
                 $price_key = 'price_' . $field_key;
+
+                $price = request()->input($price_key);
+                // Skip options without a valid price - we don't save options without price in the DB
+                if (!is_numeric($price) || (float) $price <= 0) {
+                    continue;
+                }
+
                 $qty_key = 'qty_' . $field_key;
                 $sku_key = 'sku_' . $field_key;
                 $img_key = 'img_' . $field_key;
@@ -77,21 +51,33 @@ class ProductStockService
                 $product_stock = new ProductStock();
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
-                $product_stock->price = request()->input($price_key);
+                $product_stock->price = $price;
                 $product_stock->sku = request()->input($sku_key);
                 $product_stock->qty = request()->filled($qty_key) ? request()->input($qty_key) : 0;
                 $product_stock->image = request()->input($img_key);
                 $product_stock->save();
 
                 save_product_stock_attributes($product_stock, $combination, $collection);
+                $saved_count++;
             }
+        }
+
+        if ($saved_count > 0) {
+            $product->variant_product = 1;
+            $product->save();
         } else {
+            // Either no combinations were generated, or none had valid prices.
+            // Save as a simple product without variations.
+            $product->variant_product = 0;
+            $product->save();
+
             unset($collection['colors_active'], $collection['colors'], $collection['choice_no']);
-            $qty = $collection['current_stock'];
+            $qty = $collection['current_stock'] ?? 0;
             $price = is_numeric($collection->get('unit_price')) ? $collection->get('unit_price') : 0;
             unset($collection['current_stock']);
 
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
+            $data['product_id'] = $product->id;
             
             ProductStock::create($data);
         }

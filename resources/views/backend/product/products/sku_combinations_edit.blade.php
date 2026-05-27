@@ -216,7 +216,7 @@
                             </div>
                         </td>
                         <td> 
-                            <input type="number" lang="en" name="price_{{ $str }}" value="{{ old('price_'.$str, ($product->unit_price == $unit_price) ? ($stock != null && $stock->price > 0 ? $stock->price : ($unit_price > 0 ? $unit_price : '')) : ($unit_price > 0 ? $unit_price : '')) }}" min="0.01" max="99999" step="0.01" required class="form-control var_price premium-var-input" oninput="
+                            <input type="number" lang="en" name="price_{{ $str }}" value="{{ old('price_'.$str, $stock != null && $stock->price > 0 ? $stock->price : ($unit_price > 0 ? $unit_price : '')) }}" min="0.01" max="99999" step="0.01" required class="form-control var_price premium-var-input" oninput="
                                 if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
                                 this.value = this.value.replace(/^0+/, '');
                                 }

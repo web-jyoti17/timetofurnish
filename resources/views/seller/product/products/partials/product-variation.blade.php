@@ -25,10 +25,12 @@
     // Selected attribute IDs from old input or loaded choices
     $attribute_values = old('choice_attributes', collect($choices)->pluck('attribute_id')->toArray());
     
-    // Always include category attributes in attribute_values
-    foreach ($category_attributes as $cat_attr) {
-        if (!in_array($cat_attr->id, $attribute_values)) {
-            $attribute_values[] = $cat_attr->id;
+    // Always include category attributes in attribute_values ONLY if NOT in edit mode
+    if (!isset($product)) {
+        foreach ($category_attributes as $cat_attr) {
+            if (!in_array($cat_attr->id, $attribute_values)) {
+                $attribute_values[] = $cat_attr->id;
+            }
         }
     }
 
@@ -37,10 +39,12 @@
     if (!$selected_choice_no) {
         $selected_choice_no = collect($choices)->pluck('attribute_id')->toArray();
     }
-    // Always include category attributes in selected_choice_no
-    foreach ($category_attributes as $cat_attr) {
-        if (!in_array($cat_attr->id, $selected_choice_no)) {
-            $selected_choice_no[] = $cat_attr->id;
+    // Always include category attributes in selected_choice_no ONLY if NOT in edit mode
+    if (!isset($product)) {
+        foreach ($category_attributes as $cat_attr) {
+            if (!in_array($cat_attr->id, $selected_choice_no)) {
+                $selected_choice_no[] = $cat_attr->id;
+            }
         }
     }
 
@@ -117,21 +121,36 @@
                             class="form-control aiz-selectpicker rounded-pill premium-select" data-live-search="true"
                             data-selected-text-format="count" multiple
                             data-placeholder="{{ translate('Choose Attributes') }}" data-container="body">
-                            @foreach ((array) $attribute_values as $attributeId)
-                                @php
-                                    $attribute = is_numeric($attributeId) && $attributeId > 0
-                                        ? \App\Models\Attribute::find($attributeId)
-                                        : null;
-                                    $choiceOption = $productChoiceOptions->first(function ($choiceOption) use ($attributeId) {
-                                        return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $attributeId;
+                            @php
+                                $all_attributes = \App\Models\Attribute::when(Schema::hasColumn('attributes', 'user_id'), function ($query) {
+                                    $query->where(function ($innerQuery) {
+                                        $innerQuery->whereNull('user_id')
+                                            ->orWhere('user_id', auth()->id());
                                     });
-                                    $attributeName = $attribute
-                                        ? $attribute->getTranslation('name')
-                                        : ($choiceOption->name ?? get_single_attribute_name($attributeId));
+                                })->get();
+                                $all_attr_ids = $all_attributes->pluck('id')->map(function($id) { return (string) $id; })->toArray();
+                            @endphp
+                            @foreach ($all_attributes as $attribute)
+                                @php
+                                    $isSelected = in_array((string) $attribute->id, array_map('strval', (array) $attribute_values));
+                                    $attributeName = $attribute->getTranslation('name');
                                 @endphp
-                                <option value="{{ $attributeId }}" selected>
+                                <option value="{{ $attribute->id }}" {{ $isSelected ? 'selected' : '' }}>
                                     {{ $attributeName }}
                                 </option>
+                            @endforeach
+                            @foreach ((array) $attribute_values as $attributeId)
+                                @if (!in_array((string) $attributeId, $all_attr_ids))
+                                    @php
+                                        $choiceOption = $productChoiceOptions->first(function ($choiceOption) use ($attributeId) {
+                                            return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $attributeId;
+                                        });
+                                        $attributeName = $choiceOption->name ?? get_single_attribute_name($attributeId);
+                                    @endphp
+                                    <option value="{{ $attributeId }}" selected>
+                                        {{ $attributeName }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                         <small class="seller-select-help">
@@ -206,6 +225,8 @@
                                             if (!$old_options) {
                                                 $old_options = [];
                                             }
+                                            // Load all admin/global defined values so the seller can browse and add more,
+                                            // while prefilling only the selected options from $old_options.
                                             $knownValues = \App\Models\AttributeValue::where('attribute_id', $choice_no)
                                                 ->get()
                                                 ->pluck('value')
