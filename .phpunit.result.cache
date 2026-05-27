@@ -1,0 +1,1 @@
+{"version":1,"defects":{"Tests\\Unit\\ExampleTest::testBasicTest":4,"Tests\\Feature\\ExampleTest::testBasicTest":4,"Tests\\Unit\\ProductVariantStockTest::testGetProductChoiceValuesSorting":4},"times":{"Tests\\Unit\\ExampleTest::testBasicTest":0.814,"Tests\\Feature\\ExampleTest::testBasicTest":4.933,"Tests\\Unit\\ProductVariantStockTest::testGetProductChoiceValuesSorting":0.245}}

@@ -12,6 +12,15 @@
             );
         }
         const formData = $('#product-form-data').data();
+        $('input[name="choice_no[]"]').each(function () {
+            let attributeId = $(this).val();
+            let row = $(this).closest('.form-group.row');
+            let name = $.trim(row.find('input[name="choice[]"]').first().val() || '');
+
+            if (attributeId && name) {
+                sellerAttributeNameOverrides[attributeId] = name;
+            }
+        });
         // Input formatting
         var inputNames = ['unit', 'weight', 'min_qty', 'unit_weight', 'low_stock_quantity',
             'unit_price', 'current_stock', 'product_length', 'product_breadth', 'product_height',
@@ -69,7 +78,11 @@
 
         // On load: keep existing main category if still selected, else pick first checked
         syncMainCategoryId(main_id);
-        update_sku();
+        if (!$.trim($('#sku_combination').html())) {
+            update_sku();
+        } else if ($('#sku_combination').find('.variant').length > 0) {
+            $('#show-hide-div').hide();
+        }
         let initialCategoryIds = [];
 
         $('input[name="category_ids[]"]:checked').each(function () {
@@ -108,9 +121,8 @@
                         
                         $('#choice_attributes').empty();
                         $.each(response, function (index, attribute) {
-                            let isSelected = currentSelected.includes(attribute.id
-                                .toString()) || oldSelected.includes(attribute
-                                    .id.toString());
+                            // Category-specific attributes added by the admin must always show/select automatically
+                            let isSelected = true;
                             let selectedAttr = isSelected ? 'selected' : '';
                             let attributeName = sellerAttributeNameOverrides[attribute.id] || attribute.name;
                             $('#choice_attributes').append(
@@ -133,6 +145,9 @@
                             AIZ.plugins.bootstrapSelect('refresh');
                         }
                         $('#choice_attributes').prop('disabled', false);
+
+                        // Trigger change on attributes select to automatically generate option selectors for the auto-selected category attributes
+                        $('#choice_attributes').trigger('change');
                     }
                 });
             } else {
@@ -146,6 +161,8 @@
                 } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
                     AIZ.plugins.bootstrapSelect('refresh');
                 }
+                
+                $('#choice_attributes').trigger('change');
             }
         }
 
@@ -1331,24 +1348,27 @@
 
         if ($('#sku_combination').find('.variant').length > 0) {
             let visiblePrices = $('#sku_combination').find('.var_price:visible');
-            let hasAnyPrice = false;
+            let invalidPrices = [];
 
             visiblePrices.each(function () {
-                if ($.trim($(this).val())) {
-                    hasAnyPrice = true;
-                    return false;
+                let input = $(this);
+                let value = parseFloat($.trim(input.val()));
+
+                if (!value || value <= 0) {
+                    invalidPrices.push(input);
                 }
             });
 
-            if (!hasAnyPrice) {
-                let firstPrice = visiblePrices.first();
-                let label = 'Please enter at least one variant price.';
+            if (invalidPrices.length) {
+                let label = 'Please enter a price greater than 0 for every variant.';
 
                 messages.push(label);
-                firstPrice.addClass('is-invalid-field');
-                if (!firstPrice.next('.product-form-field-error').length) {
-                    firstPrice.after($('<span class="product-form-field-error"></span>').text(label));
-                }
+                invalidPrices.forEach(function (priceInput) {
+                    priceInput.addClass('is-invalid-field');
+                    if (!priceInput.next('.product-form-field-error').length) {
+                        priceInput.after($('<span class="product-form-field-error"></span>').text(label));
+                    }
+                });
             }
         }
 
@@ -1372,13 +1392,13 @@
             e.preventDefault();
 
             let form = $(this);
-            if (this.checkValidity && !this.checkValidity()) {
-                this.reportValidity();
+            clearProductFormErrors();
+            if (!validateProductVariations()) {
                 return;
             }
 
-            clearProductFormErrors();
-            if (!validateProductVariations()) {
+            if (this.checkValidity && !this.checkValidity()) {
+                this.reportValidity();
                 return;
             }
 
@@ -1479,7 +1499,8 @@
             type: "POST",
             url: formData.addMoreChoiceRoute,
             data: {
-                attribute_id: i
+                attribute_id: i,
+                attribute_name: name
             },
             success: function (data) {
                 var obj = JSON.parse(data);
@@ -1500,28 +1521,32 @@
                 name = name.trim();
                 $('#variant-table-prompt').remove();
                 $('#customer_choice_options').append('\
-                <div class="form-group row align-items-center mb-3">\
+                <div class="form-group row align-items-center mb-3 attribute-variation-row">\
                     <div class="col-lg-3">\
                         <input type="hidden" name="choice_no[]" value="' + i + '">\
                         <div class="seller-attribute-title-cell">\
-                            <input type="text" class="form-control-plaintext font-weight-bold" name="choice[]" value="' + name +
+                            <input type="text" class="form-control-plaintext font-weight-bold text-dark-title" name="choice[]" value="' + name +
                     '" placeholder="Choice Title" readonly>\
-                            <button type="button" class="btn btn-soft-primary btn-icon btn-circle btn-sm rename-attribute-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
+                            <button type="button" class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
                                 <i class="las la-pen"></i>\
                             </button>\
                         </div>\
                     </div>\
                     <div class="col-lg-8 seller-variation-select-col">\
-                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
+                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
                             ' + obj + '\
                         </select>\
                         <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
-                    </div>\
-                    <div class="col-lg-1 text-center">\
-                        <div class="custom-control custom-switch">\
-                            <input value="1" type="checkbox" class="custom-control-input attribute_choice_toggle" id="attribute_choice_active_' + i + '" name="attribute_choice_active_' + i + '" checked>\
-                            <label class="custom-control-label" for="attribute_choice_active_' + i + '"></label>\
+                        <div class="seller-selected-values-editor mt-2 d-none" id="selected-values-editor-' + i + '">\
+                            <div class="seller-selected-values-title">Set Option Values Sort Order</div>\
+                            <div class="seller-selected-values-list d-flex flex-wrap gap-1 w-100"></div>\
                         </div>\
+                    </div>\
+                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">\
+                        <label class="premium-switch">\
+                            <input value="1" type="checkbox" class="attribute_choice_toggle" id="attribute_choice_active_' + i + '" name="attribute_choice_active_' + i + '" checked>\
+                            <span class="premium-slider"></span>\
+                        </label>\
                     </div>\
                 </div>');
                 if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {

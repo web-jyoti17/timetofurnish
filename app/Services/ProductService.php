@@ -106,13 +106,15 @@ class ProductService
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
-            $item = array();
             foreach ($collection['choice_no'] as $key => $no) {
+                $item = array();
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
+                $item['name'] = trim((string) (request()->input('choice.' . $key) ?: get_single_attribute_name($no)));
+                $item['sort_order'] = $key;
                 $attribute_data = array();
                 // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
+                foreach ($collection[$str] as $optionIndex => $eachValue) {
                     // array_push($data, $eachValue->value);
                     array_push($attribute_data, $eachValue);
                 }
@@ -275,13 +277,15 @@ class ProductService
         $choice_options = array();
         if (isset($collection['choice_no']) && $collection['choice_no']) {
             $str = '';
-            $item = array();
             foreach ($collection['choice_no'] as $key => $no) {
+                $item = array();
                 $str = 'choice_options_' . $no;
                 $item['attribute_id'] = $no;
+                $item['name'] = trim((string) (request()->input('choice.' . $key) ?: get_single_attribute_name($no)));
+                $item['sort_order'] = $key;
                 $attribute_data = array();
                 // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
-                foreach ($collection[$str] as $key => $eachValue) {
+                foreach ($collection[$str] as $optionIndex => $eachValue) {
                     // array_push($data, $eachValue->value);
                     array_push($attribute_data, $eachValue);
                 }
@@ -333,6 +337,7 @@ class ProductService
     {
         $product = Product::findOrFail($id);
         $product->product_translations()->delete();
+        $product->stockAttributes()->delete();
         $product->stocks()->delete();
         $product->taxes()->delete();
         $product->wishlists()->delete();

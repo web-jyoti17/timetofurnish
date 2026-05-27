@@ -23,7 +23,8 @@
             } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
                 AIZ.plugins.bootstrapSelect('refresh');
             }
-            if (typeof update_sku === 'function') {
+            var skuCombination = document.getElementById('sku_combination');
+            if (typeof update_sku === 'function' && (!skuCombination || !skuCombination.innerHTML.trim())) {
                 update_sku();
             }
         }

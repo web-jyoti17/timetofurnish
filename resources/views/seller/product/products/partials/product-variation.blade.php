@@ -1,72 +1,136 @@
 @php
-    $attribute_values = old(
-        'choice_attributes',
-        isset($product) && $product->attributes != null && $product->attributes != '[]'
-            ? json_decode($product->attributes, true)
-            : [],
-    );
+    $choices = isset($product) ? get_product_stock_choices($product) : [];
+    $selectedCategories = $selectedCategories ?? (old('category_ids', isset($product) ? $product->categories->pluck('id')->toArray() : []));
 
-    $selected_choice_no = old('choice_no');
-    if (!$selected_choice_no && isset($product) && $product->attributes != '[]' && $product->attributes != null) {
-        $selected_choice_no = json_decode($product->attributes);
+    // Admin-added attributes for this category should always show up automatically on the seller panel
+    $category_attributes = collect([]);
+    if (!empty($selectedCategories)) {
+        $parentIds = getParentCategoryIds((array) $selectedCategories);
+        $category_attributes = \App\Models\Attribute::where(function ($query) use ($parentIds) {
+            $query->whereHas('categories', function ($categoryQuery) use ($parentIds) {
+                $categoryQuery->whereIn('category_id', $parentIds);
+            })
+            ->orWhereRaw('LOWER(name) = ?', ['size']);
+        })
+        ->when(Schema::hasColumn('attributes', 'user_id'), function ($query) {
+            $query->where(function ($innerQuery) {
+                $innerQuery->whereNull('user_id')
+                    ->orWhere('user_id', auth()->id());
+            });
+        })
+        ->get()
+        ->unique('id');
     }
 
-    $selectedCategories = $selectedCategories ?? [];
+    // Selected attribute IDs from old input or loaded choices
+    $attribute_values = old('choice_attributes', collect($choices)->pluck('attribute_id')->toArray());
+    
+    // Always include category attributes in attribute_values
+    foreach ($category_attributes as $cat_attr) {
+        if (!in_array($cat_attr->id, $attribute_values)) {
+            $attribute_values[] = $cat_attr->id;
+        }
+    }
+
+    // Selected choice nos (which attribute inputs to render)
+    $selected_choice_no = old('choice_no');
+    if (!$selected_choice_no) {
+        $selected_choice_no = collect($choices)->pluck('attribute_id')->toArray();
+    }
+    // Always include category attributes in selected_choice_no
+    foreach ($category_attributes as $cat_attr) {
+        if (!in_array($cat_attr->id, $selected_choice_no)) {
+            $selected_choice_no[] = $cat_attr->id;
+        }
+    }
+
+    // Format choices into options collection for easy mapping in the blade loop below
+    $productChoiceOptions = collect($choices)->map(function ($choice) {
+        return (object) [
+            'attribute_id' => $choice->attribute_id,
+            'name' => $choice->name,
+            'values' => collect($choice->values)->map(function ($val) {
+                return $val['value'] ?? $val;
+            })->toArray()
+        ];
+    });
 @endphp
 
 <div class="card productvariation shadow-sm mb-4 mt-4">
-    <div class="card-header bg-light border-bottom-0 pb-2 ">
-        <h5 class="mb-0 h6 text-black">{{ translate('Product Variation') }}</h5>
+    <div class="card-header border-bottom-0 pb-2 pt-3 seller-variation-header">
+        <div class="d-flex align-items-center">
+            <div class="seller-variation-header-icon mr-2">
+                <i class="las la-tags"></i>
+            </div>
+            <h5 class="mb-0 h6 text-black font-weight-bold">{{ translate('Product Variation') }}</h5>
+        </div>
     </div>
 
     <div class="card-body pb-3">
         <div class="row gutters-16">
             <div class="col-lg-12">
-                <div class="form-group row align-items-center mb-4">
-                    <label class="col-md-3 col-form-label font-weight-bold">
+                <div class="form-group row align-items-center mb-4 premium-field-row">
+                    <label class="col-md-3 col-form-label font-weight-bold text-muted-dark">
                         {{ translate('Colors') }}
                     </label>
                     <div class="col-md-8">
-                        <select class="form-control aiz-selectpicker rounded-pill" data-live-search="true"
+                        <select class="form-control aiz-selectpicker rounded-pill premium-select" data-live-search="true"
                             name="colors[]" data-selected-text-format="count" id="colors" multiple
                             {{ old('colors_active', $product->colors_active ?? '') ? '' : 'disabled' }}>
                             @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
                                 <option value="{{ $color->code }}"
-                                    data-content="<span class='mr-2 border rounded-circle d-inline-block align-middle' style='background:{{ $color->code }};width:18px;height:18px;'></span><span>{{ $color->name }}</span>"
+                                    data-content="<span class='mr-2 border rounded-circle d-inline-block align-middle' style='background:{{ $color->code }};width:18px;height:18px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);'></span><span>{{ $color->name }}</span>"
                                     {{ in_array($color->code, old('colors', [])) ? 'selected' : '' }}>
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-1 text-center">
-                        <div class="custom-control custom-switch">
-                            <input value="1" type="checkbox" class="custom-control-input" id="colors_active"
-                                name="colors_active"
+                    <div class="col-md-1 text-center d-flex align-items-center justify-content-center">
+                        <label class="premium-switch">
+                            <input value="1" type="checkbox" id="colors_active" name="colors_active"
                                 {{ old('colors_active', $product->colors_active ?? '') ? 'checked' : '' }}>
-                            <label class="custom-control-label" for="colors_active"></label>
+                            <span class="premium-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mb-3 premium-info-alert">
+                    <div class="d-flex align-items-start">
+                        <div class="alert-icon-wrap mr-3">
+                            <i class="las la-info-circle"></i>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold d-block mb-1">{{ translate('Set Up Product Variations') }}</span>
+                            {{ translate('Choose the attributes of this product and then input values of each attribute.') }}
+                            <br>
+                            <small class="opacity-80">{{ translate('Double-click an attribute name or variant option value to edit it, then press Enter or click outside to save.') }}</small>
                         </div>
                     </div>
                 </div>
 
-                <div class="alert alert-info mb-3">
-                    <i class="las la-info-circle mr-2"></i>
-                    {{ translate('Choose the attributes of this product and then input values of each attribute') }}
-                    <br>
-                    <small>{{ translate('Double-click an attribute name or variant option value to edit it, then press Enter or click outside to save.') }}</small>
-                </div>
-
-                <div class="form-group row align-items-center mb-4">
-                    <label class="col-md-3 col-form-label font-weight-bold">
+                <div class="form-group row align-items-center mb-4 premium-field-row">
+                    <label class="col-md-3 col-form-label font-weight-bold text-muted-dark">
                         {{ translate('Attributes') }}
                     </label>
                     <div class="col-md-8 seller-variation-select-col">
                         <select name="choice_attributes[]" id="choice_attributes"
-                            class="form-control aiz-selectpicker rounded-pill" data-live-search="true"
+                            class="form-control aiz-selectpicker rounded-pill premium-select" data-live-search="true"
                             data-selected-text-format="count" multiple
                             data-placeholder="{{ translate('Choose Attributes') }}" data-container="body">
-                            @foreach (\App\Models\Attribute::whereIn('id', (array) $attribute_values)->get() as $key => $attribute)
-                                <option value="{{ $attribute->id }}" selected>
-                                    {{ $attribute->getTranslation('name') }}
+                            @foreach ((array) $attribute_values as $attributeId)
+                                @php
+                                    $attribute = is_numeric($attributeId) && $attributeId > 0
+                                        ? \App\Models\Attribute::find($attributeId)
+                                        : null;
+                                    $choiceOption = $productChoiceOptions->first(function ($choiceOption) use ($attributeId) {
+                                        return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $attributeId;
+                                    });
+                                    $attributeName = $attribute
+                                        ? $attribute->getTranslation('name')
+                                        : ($choiceOption->name ?? get_single_attribute_name($attributeId));
+                                @endphp
+                                <option value="{{ $attributeId }}" selected>
+                                    {{ $attributeName }}
                                 </option>
                             @endforeach
                         </select>
@@ -74,37 +138,46 @@
                             {{ translate('Search attributes. If there is no match, add it from the dropdown.') }}
                         </small>
                     </div>
-                    <div class="col-md-1 text-center">
-                        <div class="custom-control custom-switch">
-                            <input id="attributes_enable_toggle" type="checkbox" class="custom-control-input"
-                                value="1" checked disabled>
-                            <label class="custom-control-label" for="attributes_enable_toggle"></label>
-                        </div>
+                    <div class="col-md-1 text-center d-flex align-items-center justify-content-center">
+                        <label class="premium-switch">
+                            <input id="attributes_enable_toggle" type="checkbox" value="1" checked disabled>
+                            <span class="premium-slider"></span>
+                        </label>
                     </div>
                 </div>
 
                 <div id="attributes-container" class="c-scrollbar-light seller-variation-options">
                     <div class="customer_choice_options p-2" id="customer_choice_options">
                         @if (empty($selected_choice_no) || count($selected_choice_no) == 0)
-                            <div class="text-center mt-2 mb-2 text-muted" id="variant-table-prompt">
-                                <i class="las la-info-circle"></i>
-                                {{ translate('Select attributes above to add variant options for the product.') }}
+                            <div class="text-center mt-3 mb-3 text-muted py-4 shadow-sm rounded-lg" id="variant-table-prompt" style="background:#fff; border: 1px dashed rgba(197,146,89,0.3);">
+                                <i class="las la-info-circle fs-24 mb-2 text-primary"></i>
+                                <div class="font-weight-bold">{{ translate('No Attributes Selected') }}</div>
+                                <small class="text-muted-dark">{{ translate('Select attributes above to add variant options for the product.') }}</small>
                             </div>
                         @else
                             @foreach ($selected_choice_no as $key => $choice_no)
-                                <div class="form-group row align-items-center mb-3">
+                                @php
+                                    $productChoiceOption = $productChoiceOptions->first(function ($choiceOption) use ($choice_no) {
+                                        return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $choice_no;
+                                    });
+                                    $opt_att = \App\Models\Attribute::find($choice_no);
+                                    $choiceName = old(
+                                        'choice.' . $key,
+                                        $productChoiceOption->name ?? ($opt_att ? $opt_att->getTranslation('name') : '')
+                                    );
+                                @endphp
+                                <div class="form-group row align-items-center mb-3 attribute-variation-row">
                                     <div class="col-lg-3">
                                         <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
-                                        @php $opt_att = \App\Models\Attribute::find($choice_no) @endphp
-                                        @if (!empty($opt_att))
+                                        @if (!empty($choiceName))
                                             <div class="seller-attribute-title-cell">
-                                                <input type="text" class="form-control-plaintext font-weight-bold"
-                                                    name="choice[]" value="{{ $opt_att->getTranslation('name') }}"
+                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title"
+                                                    name="choice[]" value="{{ $choiceName }}"
                                                     placeholder="{{ translate('Choice Title') }}" readonly>
                                                 <button type="button"
-                                                    class="btn btn-soft-primary btn-icon btn-circle btn-sm rename-attribute-btn"
+                                                    class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn"
                                                     data-attribute-id="{{ $choice_no }}"
-                                                    data-attribute-name="{{ $opt_att->getTranslation('name') }}">
+                                                    data-attribute-name="{{ $choiceName }}">
                                                     <i class="las la-pen"></i>
                                                 </button>
                                             </div>
@@ -113,54 +186,73 @@
                                     <div class="col-lg-8 seller-variation-select-col">
                                         @php
                                             $old_options = old('choice_options_' . $choice_no);
+                                            $value_orders = [];
                                             if (
                                                 !$old_options &&
-                                                isset($product) &&
-                                                isset($product->choice_options) &&
-                                                $product->choice_options != '[]'
+                                                isset($productChoiceOption) &&
+                                                isset($productChoiceOption->values)
                                             ) {
-                                                $decoded_options = json_decode($product->choice_options);
-                                                if (is_array($decoded_options)) {
-                                                    foreach ($decoded_options as $choice_option) {
-                                                        if (
-                                                            isset($choice_option->attribute_id) &&
-                                                            $choice_option->attribute_id == $choice_no
-                                                        ) {
-                                                            $old_options = $choice_option->values;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
+                                                $old_options = collect($productChoiceOption->values)
+                                                    ->map(function ($value) use (&$value_orders) {
+                                                        $val = \App\Utility\ProductUtility::choice_value($value);
+                                                        $order = \App\Utility\ProductUtility::choice_value_sort_order($value, 0);
+                                                        $value_orders[$val] = $order;
+                                                        return $val;
+                                                    })
+                                                    ->filter()
+                                                    ->values()
+                                                    ->all();
                                             }
                                             if (!$old_options) {
                                                 $old_options = [];
                                             }
+                                            $knownValues = \App\Models\AttributeValue::where('attribute_id', $choice_no)
+                                                ->get()
+                                                ->pluck('value')
+                                                ->merge($old_options)
+                                                ->unique()
+                                                ->values();
                                         @endphp
-                                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill"
+                                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select"
                                             data-live-search="true" name="choice_options_{{ $choice_no }}[]"
                                             multiple data-container="body"
                                             {{ !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
-                                            @foreach (\App\Models\AttributeValue::where('attribute_id', $choice_no)->get() as $row)
-                                                <option value="{{ $row->value }}"
-                                                    @if (in_array($row->value, $old_options)) selected @endif>
-                                                    {{ $row->value }}
+                                            @foreach ($knownValues as $value)
+                                                <option value="{{ $value }}"
+                                                    @if (in_array($value, $old_options)) selected @endif>
+                                                    {{ $value }}
                                                 </option>
                                             @endforeach
                                         </select>
                                         <small class="seller-select-help">
                                             {{ translate('Search options. If there is no match, add it from the dropdown.') }}
                                         </small>
+
+                                        <!-- Selected Values & Custom Sort Order Editor -->
+                                        <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
+                                            <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
+                                            <div class="seller-selected-values-list d-flex flex-wrap gap-1 w-100">
+                                                @foreach((array) $old_options as $index => $val)
+                                                    @php
+                                                        $order = $value_orders[$val] ?? $index;
+                                                    @endphp
+                                                    <div class="seller-selected-value-row d-inline-flex align-items-center mb-1 mr-2" data-value="{{ $val }}">
+                                                        <span class="premium-badge pr-1" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 6px;">{{ $val }}</span>
+                                                        <input type="number" class="seller-selected-value-input" value="{{ $order }}" data-value="{{ $val }}" style="width: 45px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; height: 32px;" title="{{ translate('Sort Order') }}">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-lg-1 text-center">
-                                        <div class="custom-control custom-switch">
+                                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                        <label class="premium-switch">
                                             <input value="1" type="checkbox"
-                                                class="custom-control-input attribute_choice_toggle"
+                                                class="attribute_choice_toggle"
                                                 id="attribute_choice_active_{{ $choice_no }}"
                                                 name="attribute_choice_active_{{ $choice_no }}"
                                                 {{ old('attribute_choice_active_' . $choice_no, 1) ? 'checked' : '' }}>
-                                            <label class="custom-control-label"
-                                                for="attribute_choice_active_{{ $choice_no }}"></label>
-                                        </div>
+                                            <span class="premium-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
                             @endforeach
@@ -168,7 +260,53 @@
                     </div>
                 </div>
 
-                <div class="sku_combination mt-3" id="sku_combination"></div>
+                <div class="sku_combination mt-3" id="sku_combination">
+                    @php
+                        $initialCombinations = [];
+                        $initialOptions = [];
+                        $initialColorsActive = old('colors_active', $product->colors_active ?? 0) ? 1 : 0;
+                        $initialColors = old('colors', isset($product) ? json_decode($product->colors ?? '[]', true) : []);
+
+                        if ($initialColorsActive && !empty($initialColors)) {
+                            $initialOptions[] = $initialColors;
+                        }
+
+                        foreach ((array) $selected_choice_no as $choiceNo) {
+                            $field = 'choice_options_' . $choiceNo;
+                            $values = old($field);
+
+                            if (!$values) {
+                                $choiceOption = $productChoiceOptions->first(function ($item) use ($choiceNo) {
+                                    return isset($item->attribute_id) && (string) $item->attribute_id === (string) $choiceNo;
+                                });
+                                $values = isset($choiceOption->values)
+                                    ? collect($choiceOption->values)->map(function ($value) {
+                                        return \App\Utility\ProductUtility::choice_value($value);
+                                    })->filter()->values()->all()
+                                    : [];
+                            }
+
+                            if (!empty($values)) {
+                                $initialOptions[] = $values;
+                            }
+                        }
+
+                        foreach ($initialOptions as $optionGroup) {
+                            foreach ((array) $optionGroup as $optionValue) {
+                                $initialCombinations[] = [$optionValue];
+                            }
+                        }
+                    @endphp
+                    @if (!empty($initialCombinations) && isset($product) && $product->id)
+                        @include('backend.product.products.sku_combinations_edit', [
+                            'combinations' => $initialCombinations,
+                            'unit_price' => old('unit_price', $product->unit_price ?? 0),
+                            'colors_active' => $initialColorsActive,
+                            'product_name' => old('name', $product->name ?? ''),
+                            'product' => $product,
+                        ])
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -203,92 +341,286 @@
                 updateAttrDropdown();
             }
         });
+
+        // Event delegation for select choices change
+        $(document).on('change', '.attribute_choice', handle_choice_change);
+
+        // Event delegation for sort order input change
+        $(document).on('input change', '.seller-selected-value-input', function() {
+            var row = $(this).closest('.seller-selected-values-editor');
+            var attrId = row.attr('id').replace('selected-values-editor-', '');
+            var selectElem = $('select[name="choice_options_' + attrId + '[]"]')[0];
+            if (selectElem) {
+                sort_select_options_by_custom_order(selectElem);
+            }
+        });
     });
+
+    function handle_choice_change() {
+        update_selected_values_order_ui(this);
+    }
+
+    function update_selected_values_order_ui(selectElem) {
+        var select = $(selectElem);
+        var attrIdMatch = select.attr('name').match(/(-?\d+)/);
+        if (!attrIdMatch) return;
+        var attrId = attrIdMatch[0];
+        var container = $('#selected-values-editor-' + attrId);
+        var list = container.find('.seller-selected-values-list');
+        
+        var selected = select.val() || [];
+        
+        if (selected.length === 0) {
+            container.addClass('d-none');
+            list.empty();
+            return;
+        }
+        
+        container.removeClass('d-none');
+        
+        // Keep a map of existing orders entered by user
+        var existingOrders = {};
+        list.find('.seller-selected-value-input').each(function() {
+            var val = $(this).attr('data-value');
+            var order = parseInt($(this).val());
+            if (!isNaN(order)) {
+                existingOrders[val] = order;
+            }
+        });
+        
+        list.empty();
+        
+        selected.forEach(function(val, index) {
+            var order = existingOrders[val] !== undefined ? existingOrders[val] : index;
+            var pill = $('<div class="seller-selected-value-row d-inline-flex align-items-center mb-1 mr-2" data-value="' + val + '">\
+                <span class="premium-badge pr-1" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 6px;">' + val + '</span>\
+                <input type="number" class="seller-selected-value-input" value="' + order + '" data-value="' + val + '" style="width: 45px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; height: 32px;" title="Sort Order">\
+            </div>');
+            list.append(pill);
+        });
+        
+        sort_select_options_by_custom_order(selectElem);
+    }
+
+    function sort_select_options_by_custom_order(selectElem) {
+        var select = $(selectElem);
+        var attrIdMatch = select.attr('name').match(/(-?\d+)/);
+        if (!attrIdMatch) return;
+        var attrId = attrIdMatch[0];
+        var container = $('#selected-values-editor-' + attrId);
+        
+        var orders = {};
+        container.find('.seller-selected-value-input').each(function() {
+            var val = $(this).attr('data-value');
+            var order = parseInt($(this).val());
+            orders[val] = isNaN(order) ? 99999 : order;
+        });
+        
+        var options = select.find('option').get();
+        options.sort(function(a, b) {
+            var valA = $(a).val();
+            var valB = $(b).val();
+            var orderA = orders[valA] !== undefined ? orders[valA] : 99999;
+            var orderB = orders[valB] !== undefined ? orders[valB] : 99999;
+            
+            if (orderA !== orderB) {
+                return orderA - orderB;
+            }
+            return valA.localeCompare(valB);
+        });
+        
+        $.each(options, function(i, opt) {
+            select.append(opt);
+        });
+        
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.selectpicker) {
+            select.off('change', handle_choice_change);
+            select.selectpicker('refresh');
+            select.on('change', handle_choice_change);
+        }
+        
+        if (typeof update_sku === 'function') {
+            update_sku();
+        }
+    }
 </script>
 
 <style>
+    /* Product Variation Premium Stylesheet */
+    
     #choice_form .productvariation {
-        margin-top: 16px;
+        margin-top: 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(197, 146, 89, 0.12);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.035) !important;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .seller-variation-header {
+        background: linear-gradient(to right, rgba(197, 146, 89, 0.05) 0%, rgba(197, 146, 89, 0.01) 100%);
+        border-bottom: 1px solid rgba(197, 146, 89, 0.08) !important;
+    }
+
+    .seller-variation-header-icon {
+        color: #c59259;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     #choice_form .productvariation .card-body {
-        padding: 16px;
+        padding: 24px;
     }
 
-    #choice_form .productvariation .alert-info {
-        margin: 12px 0;
-        padding: 10px 12px;
-        border: 1px solid rgba(197, 146, 89, 0.22);
-        border-radius: 6px;
-        background: #fbf7f2;
+    /* Info Alert Stylings */
+    #choice_form .productvariation .premium-info-alert {
+        margin: 16px 0 24px;
+        padding: 14px 16px;
+        border: 1px solid rgba(197, 146, 89, 0.2);
+        border-radius: 8px;
+        background: #fdfaf6;
         color: #5f4a35;
         font-size: 13px;
-        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(197, 146, 89, 0.04);
     }
 
-    #choice_form .productvariation .form-group.row.align-items-center {
+    #choice_form .productvariation .premium-info-alert .alert-icon-wrap {
+        font-size: 22px;
+        color: #c59259;
+        line-height: 1;
+    }
+
+    /* Form Layout Grid & Rows */
+    #choice_form .productvariation .premium-field-row {
         display: grid;
-        grid-template-columns: 140px minmax(0, 1fr) 46px;
-        gap: 10px 14px;
+        grid-template-columns: 160px minmax(0, 1fr) 46px;
+        gap: 10px 16px;
         align-items: center;
-        margin: 0;
-        padding: 12px 0;
+        margin: 0 0 16px;
+        padding: 0 0 16px;
         border-bottom: 1px solid #edf0f2;
     }
 
-    #choice_form .productvariation .form-group.row.align-items-center>[class*="col-"] {
+    #choice_form .productvariation .premium-field-row>[class*="col-"] {
         width: 100%;
         max-width: none;
         padding: 0;
         flex: none;
     }
 
-    #choice_form .productvariation .form-group.row.align-items-center>label {
-        margin: 0;
-        color: #202223;
+    #choice_form .productvariation .text-muted-dark {
+        color: #4b5259;
         font-size: 13px;
         font-weight: 700;
     }
 
-    #choice_form .productvariation .btn-link {
-        color: #c59259 !important;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
+    /* Rounded Premium Select Inputs */
     #choice_form .productvariation .bootstrap-select .dropdown-toggle {
-        border-radius: 6px !important;
+        border-radius: 8px !important;
+        border-color: #d9dee3 !important;
+        padding: 10px 16px !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    #choice_form .productvariation .bootstrap-select.show .dropdown-toggle,
+    #choice_form .productvariation .bootstrap-select .dropdown-toggle:focus {
+        border-color: #c59259 !important;
+        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.15) !important;
+    }
+
+    /* Premium Standalone Switch (iOS style, Bronze theme) */
+    .premium-switch {
+        position: relative;
+        display: inline-flex;
+        width: 46px;
+        height: 24px;
+        margin: 0;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .premium-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    .premium-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #d9dee3;
+        transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 24px;
+    }
+    .premium-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .premium-switch input:checked + .premium-slider {
+        background-color: #c59259;
+    }
+    .premium-switch input:checked + .premium-slider:before {
+        transform: translateX(22px);
+    }
+    .premium-switch input:disabled + .premium-slider {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Attributes Selection Container Card */
     .seller-variation-options {
         max-height: none;
         overflow: visible;
-        /* border: 1px solid #d9dee3; */
-        border-radius: 8px;
-        background: #f8fafb;
-        padding: 10px;
+        border-radius: 10px;
+        background: #fafbfc;
+        padding: 14px;
+        border: 1px solid rgba(0, 0, 0, 0.035);
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
     }
 
     #choice_form .seller-variation-options #customer_choice_options {
         display: grid;
-        gap: 10px;
+        gap: 12px;
         padding: 0 !important;
     }
 
-    #choice_form .seller-variation-options #customer_choice_options>.form-group.row {
+    /* Individual Attribute variation Blocks */
+    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row {
         display: grid;
-        grid-template-columns: 160px minmax(0, 1fr) 48px;
-        gap: 10px 14px;
-        align-items: start;
+        grid-template-columns: 180px minmax(0, 1fr) 48px;
+        gap: 10px 16px;
+        align-items: center;
         margin: 0 !important;
-        padding: 12px;
-        border: 1px solid #d9dee3;
-        border-radius: 8px;
-        border-left: 3px solid #c59259;
+        padding: 16px;
+        border: 1px solid rgba(197, 146, 89, 0.09);
+        border-radius: 10px;
+        border-left: 4px solid #c59259;
         background: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
     }
 
-    #choice_form .seller-variation-options #customer_choice_options>.form-group.row>[class*="col-"] {
+    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row:hover {
+        border-color: rgba(197, 146, 89, 0.3);
+        box-shadow: 0 6px 20px rgba(197, 146, 89, 0.05);
+    }
+
+    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row>[class*="col-"] {
         width: 100%;
         max-width: none;
         padding: 0;
@@ -297,22 +629,25 @@
 
     #choice_form .seller-variation-options .form-control-plaintext {
         color: #202223;
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 700;
         padding: 0;
         min-height: 40px;
         display: flex;
         align-items: center;
+        letter-spacing: -0.2px;
     }
 
-    #choice_form .seller-variation-options #customer_choice_options>.form-group.row .col-lg-8::before {
-        content: "Values";
+    /* Option values header info */
+    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row .col-lg-8::before {
+        content: "Option Values";
         display: block;
         margin-bottom: 6px;
-        color: #6d7175;
+        color: #8c959f;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     #choice_form .productvariation .seller-variation-select-col {
@@ -322,54 +657,9 @@
     #choice_form .productvariation .seller-select-help {
         display: block;
         margin-top: 6px;
-        color: #6d7175;
+        color: #8c959f;
         font-size: 12px;
-        line-height: 1.35;
-    }
-
-    #choice_form .seller-variation-options .custom-control,
-    #choice_form .productvariation .custom-control {
-        min-height: 24px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #choice_form .productvariation #attributes_enable_toggle:disabled+.custom-control-label,
-    #choice_form .seller-variation-options .attribute_choice_toggle:disabled+.custom-control-label {
-        cursor: default;
-        opacity: 1;
-    }
-
-    .seller-attribute-builder {
-        border: 1px solid #edf0f2;
-        border-radius: 8px;
-        padding: 14px;
-        background: #fcfcfd;
-        height: 100%;
-    }
-
-    .seller-attribute-draft {
-        border: 1px solid #dfe3e8;
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 12px;
-        background: #fff;
-    }
-
-    .seller-attribute-values {
-        display: grid;
-        gap: 10px;
-    }
-
-    .seller-attribute-value-row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .seller-attribute-value-row .form-control {
-        flex: 1;
+        line-height: 1.4;
     }
 
     .seller-attribute-title-cell {
@@ -377,50 +667,83 @@
         align-items: center;
         gap: 8px;
         min-width: 0;
+        padding-top: 0;
     }
 
     .seller-attribute-title-cell input {
         min-width: 0;
     }
 
+    .premium-icon-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50% !important;
+        background: #fdf8f4 !important;
+        border: 1px solid rgba(197, 146, 89, 0.15) !important;
+        color: #c59259 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+    }
+
+    .premium-icon-btn:hover {
+        background: #c59259 !important;
+        color: #fff !important;
+        border-color: #c59259 !important;
+        box-shadow: 0 4px 10px rgba(197, 146, 89, 0.25);
+    }
+
+    /* Selected Values Editor panel */
     .seller-selected-values-editor {
-        display: grid;
-        gap: 8px;
-        margin-top: 10px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px dashed #edf0f2;
     }
 
     .seller-selected-values-title {
-        color: #6d7175;
+        color: #c59259;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
+        width: 100%;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
     }
 
     .seller-selected-value-row {
-        max-width: 360px;
+        background: #fff;
+        border-radius: 50rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
     .seller-selected-value-input {
-        height: 38px;
-        border-radius: 20px;
-        font-weight: 600;
+        height: 32px !important;
+        border-radius: 16px !important;
+        font-weight: 700;
+        font-size: 12px !important;
+        text-align: center;
+        border: 1px solid #d9dee3 !important;
+        background: #fafbfc !important;
+        padding: 4px 12px !important;
+        transition: all 0.25s ease;
     }
 
-    .seller-attribute-icon-btn {
-        width: 38px;
-        height: 38px;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 38px;
+    .seller-selected-value-input:focus {
+        border-color: #c59259 !important;
+        background: #fff !important;
+        box-shadow: 0 0 0 2px rgba(197, 146, 89, 0.12) !important;
     }
 
     @media (max-width: 991px) {
-
-        #choice_form .productvariation .form-group.row.align-items-center,
-        #choice_form .seller-variation-options #customer_choice_options>.form-group.row {
+        #choice_form .productvariation .premium-field-row,
+        #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row {
             grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .seller-attribute-title-cell {
+            padding-top: 0;
         }
     }
 </style>

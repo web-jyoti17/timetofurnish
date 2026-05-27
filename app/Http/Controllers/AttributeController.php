@@ -9,6 +9,7 @@ use App\Models\AttributeTranslation;
 use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\AttributeCategory;
+use Illuminate\Support\Facades\Schema;
 use CoreComponentRepository;
 use Str; 
 class AttributeController extends Controller
@@ -310,16 +311,47 @@ class AttributeController extends Controller
 
     public function getAttributesByCategories(Request $request)
     {
-        $categoryIds = $request->input('category_ids');
-        $parentIds =  getParentCategoryIds($categoryIds);
-        $attributes = Attribute::whereHas('categories', function ($query) use ($parentIds) {
-            $query->whereIn('category_id', $parentIds);
+        $categoryIds = (array) $request->input('category_ids');
+        $parentIds = getParentCategoryIds($categoryIds);
+        
+        // 1. Fetch global/admin attributes
+        $globalAttributes = Attribute::where(function ($query) use ($parentIds) {
+            $query->whereHas('categories', function ($categoryQuery) use ($parentIds) {
+                $categoryQuery->whereIn('category_id', $parentIds);
+            })
+            ->orWhereRaw('LOWER(name) = ?', ['size']);
         })
-        ->orWhereRaw('LOWER(name) = ?', ['size'])
-        ->get()
-        ->unique('id')
-        ->values();
+        ->where(function ($query) {
+            $query->whereNull('user_id');
+        })
+        ->get();
+        
+        // 2. Fetch custom template attributes of this seller from product_stock_attributes
+        $customAttributes = \App\Models\ProductStockAttribute::where('user_id', auth()->id())
+            ->whereIn('category_id', $parentIds)
+            ->whereNull('product_id')
+            ->get()
+            ->unique('attribute_name');
+            
+        $attributes = collect();
+        foreach ($globalAttributes as $attr) {
+            $attributes->push((object) [
+                'id' => $attr->id,
+                'name' => $attr->getTranslation('name')
+            ]);
+        }
+        
+        foreach ($customAttributes as $attr) {
+            $pseudoId = -abs(crc32($attr->attribute_name));
+            // Check if name is already added
+            if (!$attributes->contains('name', $attr->attribute_name)) {
+                $attributes->push((object) [
+                    'id' => $pseudoId,
+                    'name' => $attr->attribute_name
+                ]);
+            }
+        }
     
-        return response()->json($attributes);
+        return response()->json($attributes->values()->all());
     }
 }

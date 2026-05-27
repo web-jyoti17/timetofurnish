@@ -499,32 +499,10 @@ class HomeController extends Controller
 
         $selected_attributes = [];
 
-        if ($product->choice_options != null) {
-
-            foreach (
-                json_decode($product->choice_options)
-                as $choice
-            ) {
-
-                $field =
-                    'attribute_id_' .
-                    $choice->attribute_id;
-
-                if (
-                    $request->has($field)
-                    &&
-                    !empty($request->$field)
-                ) {
-
-                    $selected_attributes[] =
-                        str_replace(
-                            ' ',
-                            '',
-                            trim(
-                                $request->$field
-                            )
-                        );
-                }
+        foreach (get_product_stock_choices($product) as $choice) {
+            $field = 'attribute_id_' . $choice->attribute_id;
+            if ($request->has($field) && !empty($request->$field)) {
+                $selected_attributes[] = str_replace(' ', '', trim($request->$field));
             }
         }
 
@@ -603,6 +581,8 @@ class HomeController extends Controller
 
                 'quantity' => 0,
 
+                'numeric_qty' => 0,
+
                 'digital' =>
                 $product->digital,
 
@@ -614,6 +594,8 @@ class HomeController extends Controller
 
             ]);
         }
+
+        $numeric_qty = $max_limit;
 
         /*
     STOCK STATUS
@@ -743,6 +725,9 @@ class HomeController extends Controller
 
             'quantity' =>
             $quantity,
+
+            'numeric_qty' =>
+            $numeric_qty,
 
             'digital' =>
             $product->digital,

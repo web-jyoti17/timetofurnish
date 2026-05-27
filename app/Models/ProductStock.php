@@ -16,6 +16,11 @@ class ProductStock extends Model
         return $this->hasMany(WholesalePrice::class);
     }
 
+    public function stockAttributes()
+    {
+        return $this->hasMany(ProductStockAttribute::class);
+    }
+
     public function newCollection(array $models = [])
     {
         return new \App\Collections\ProductStockCollection($models);

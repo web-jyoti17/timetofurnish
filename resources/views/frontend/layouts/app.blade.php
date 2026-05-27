@@ -1250,8 +1250,12 @@
                     STOCK
                     */
 
-                    $('#available-quantity')
-                        .html(data.quantity);
+                    if (data.numeric_qty !== undefined) {
+                        $('.available-amount').html('(<span id="available-quantity" style="font-weight:600;">' + data.numeric_qty + '</span> ' + '{{ translate("available") }}' + ')');
+                    } else {
+                        $('#available-quantity')
+                            .html(data.quantity);
+                    }
 
                     $('.input-number')
                         .prop(

@@ -33,15 +33,20 @@
         @endphp
         @if ($detailedProduct->digital == 0)
             <!-- Choice Options -->
-            @if ($detailedProduct->choice_options != null)
+            @php
+                $productStockChoices = function_exists('get_product_stock_choices')
+                    ? get_product_stock_choices($detailedProduct)
+                    : json_decode($detailedProduct->choice_options ?? '[]');
+            @endphp
+            @if (!empty($productStockChoices))
 
-                @foreach (json_decode($detailedProduct->choice_options) as $key => $choice)
+                @foreach ($productStockChoices as $key => $choice)
                     <div class="mb-2 row no-gutters">
 
                         <div class="col-sm-12">
                             <h5 class="mb-2">
 
-                                {{ ucfirst(get_single_attribute_name($choice->attribute_id)) }}
+                                {{ ucfirst($choice->name ?? get_single_attribute_name($choice->attribute_id)) }}
                                 <span style="color: red;">*</span>
                             </h5>
                         </div>
@@ -56,8 +61,9 @@
                                 onchange="getVariantPrice(); updateVariantOptionPrice(this);">
 
                                 <option value="" selected>Choose Option</option>
-                                @foreach ($choice->values as $key => $value)
+                                @foreach (get_product_choice_values($choice) as $key => $choiceValue)
                                     @php
+                                        $value = \App\Utility\ProductUtility::choice_value($choiceValue);
                                         $optionDetails = get_product_option_display_details('attribute', $value, [
                                             'product' => $detailedProduct,
                                             'attribute_id' => $choice->attribute_id,

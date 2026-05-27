@@ -6,6 +6,7 @@ use App\Http\Requests\ProductRequest;
 use App\Http\Resources\V2\Seller\AttributeCollection;
 use App\Http\Resources\V2\Seller\BrandCollection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 use App\Http\Resources\V2\Seller\CategoriesCollection;
@@ -80,7 +81,14 @@ class ProductController extends Controller
     }
     public function getAttributes()
     {
-        $attributes = Attribute::with('attribute_values')->get();
+        $attributes = Attribute::with('attribute_values')
+            ->when(Schema::hasColumn('attributes', 'user_id'), function ($query) {
+                $query->where(function ($innerQuery) {
+                    $innerQuery->whereNull('user_id')
+                        ->orWhere('user_id', auth()->id());
+                });
+            })
+            ->get();
 
         return AttributeCollection::collection($attributes);
     }

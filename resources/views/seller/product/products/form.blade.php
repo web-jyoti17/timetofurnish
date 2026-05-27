@@ -825,7 +825,7 @@
     data-store-attribute-route="{{ route('seller.products.attributes.store') }}"
     data-sku-combination-route="{{ isset($product) && $product->id ? route('seller.products.sku_combination_edit') : route('seller.products.sku_combination') }}"
     data-old-addons='@json(old(' addons', $addons ?? []))' data-existing-addons='@json($addons ?? [])'
-    data-product-id="{{ $product->id ?? '' }}" data-choice-attributes-old='@json(old(' choice_attributes', isset($product) && $product->attributes != null ? json_decode($product->attributes) : []))'>
+    data-product-id="{{ $product->id ?? '' }}" data-choice-attributes-old='@json(old('choice_attributes', isset($product) && $product->attributes != null ? json_decode($product->attributes) : []))'>
 </div>
 {{-- {{ dd($addons) }} --}}
 

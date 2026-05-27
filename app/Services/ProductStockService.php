@@ -9,6 +9,41 @@ use Illuminate\Validation\ValidationException;
 
 class ProductStockService
 {
+    public function validateVariantPrices(array $data): void
+    {
+        $collection = collect($data);
+        $options = ProductUtility::get_attribute_options($collection);
+        $combinations = array();
+
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
+        if (count($combinations) === 0) {
+            return;
+        }
+
+        $price_errors = [];
+
+        foreach ($combinations as $combination) {
+            $variant = ProductUtility::get_combination_string($combination, $collection);
+            $price_key = 'price_' . str_replace('.', '_', $variant);
+            $price = request()->input($price_key);
+
+            if (!is_numeric($price) || (float) $price <= 0) {
+                $price_errors[$price_key] = translate('Please enter a price greater than 0 for every variant.');
+            }
+        }
+
+        if (!empty($price_errors)) {
+            throw ValidationException::withMessages($price_errors);
+        }
+    }
+
     public function store(array $data, $product)
     {
         $collection = collect($data);
@@ -29,26 +64,7 @@ class ProductStockService
         if (count($combinations) > 0) {
             $product->variant_product = 1;
             $product->save();
-            $has_variant_price = false;
-
-            foreach ($combinations as $combination) {
-                $variant = ProductUtility::get_combination_string($combination, $collection);
-                $price_key = 'price_' . str_replace('.', '_', $variant);
-
-                if (request()->filled($price_key)) {
-                    $has_variant_price = true;
-                    break;
-                }
-            }
-
-            if (!$has_variant_price) {
-                $first_variant = ProductUtility::get_combination_string($combinations[0], $collection);
-                $first_price_key = 'price_' . str_replace('.', '_', $first_variant);
-
-                throw ValidationException::withMessages([
-                    $first_price_key => translate('Please enter at least one variant price.'),
-                ]);
-            }
+            $this->validateVariantPrices($data);
 
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
@@ -61,11 +77,13 @@ class ProductStockService
                 $product_stock = new ProductStock();
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
-                $product_stock->price = request()->filled($price_key) ? request()->input($price_key) : 0;
+                $product_stock->price = request()->input($price_key);
                 $product_stock->sku = request()->input($sku_key);
                 $product_stock->qty = request()->filled($qty_key) ? request()->input($qty_key) : 0;
                 $product_stock->image = request()->input($img_key);
                 $product_stock->save();
+
+                save_product_stock_attributes($product_stock, $combination, $collection);
             }
         } else {
             unset($collection['colors_active'], $collection['colors'], $collection['choice_no']);
@@ -89,6 +107,8 @@ class ProductStockService
             $product_stock->sku         = $stock->sku;
             $product_stock->qty         = $stock->qty;
             $product_stock->save();
+
+            duplicate_product_stock_attributes($stock->id, $product_stock->id, $product_new->id);
         }
     }
 }
