@@ -30,7 +30,7 @@
 
     </div>
 
-    <div data-label="Option name">
+    <div data-label="Option name" class="name">
 
         <input type="text"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][name]"
@@ -40,7 +40,7 @@
 
     </div>
 
-    <div data-label="Price">
+    <div data-label="Price" class="price">
 
         <input type="number"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][price]"
@@ -50,7 +50,7 @@
 
     </div>
 
-    <div data-label="Quantity">
+    <div data-label="Quantity" class="quantity">
 
         <input type="number"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][quantity]"
@@ -62,7 +62,7 @@
 
     </div>
 
-    <div data-label="Image">
+    <div data-label="Image" class="image">
 
         <input type="file"
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][img]"
@@ -72,9 +72,15 @@
                name="addons[{{ $groupIndex }}][options][{{ $optIndex }}][existing_img]"
                value="{{ $img }}">
 
+        @if(!empty($img))
+            <div class="mt-2 text-left addon-preview-thumb">
+                <img src="{{ asset($img) }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #e2dfd8;">
+            </div>
+        @endif
+
     </div>
 
-    <div data-label="Remove">
+    <div data-label="Remove" class="remove">
 
         <button type="button"
                 class="btn btn-soft-danger remove-option">

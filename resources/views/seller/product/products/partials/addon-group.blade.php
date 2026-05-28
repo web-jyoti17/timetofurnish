@@ -58,32 +58,36 @@
 
     <div class="card-body addon-body" style="display:none;">
 
-        <div class="seller-addon-option-head">
-            <span></span>
-            <span>Option name</span>
-            <span>Price</span>
-            <span>Quantity</span>
-            <span>Image</span>
-            <span></span>
-        </div>
+        <div class="addon-table-container">
 
-        <div class="addon-options">
+            <div class="seller-addon-option-head">
+                <span></span>
+                <span>Option name</span>
+                <span>Price</span>
+                <span>Quantity</span>
+                <span>Image</span>
+                <span></span>
+            </div>
 
-            @forelse($options as $optIndex => $option)
-                @include('seller.product.products.partials.addon-option', [
-                    'option' => $option,
-                    'groupIndex' => $index,
-                    'optIndex' => $optIndex,
-                ])
+            <div class="addon-options">
 
-            @empty
+                @forelse($options as $optIndex => $option)
+                    @include('seller.product.products.partials.addon-option', [
+                        'option' => $option,
+                        'groupIndex' => $index,
+                        'optIndex' => $optIndex,
+                    ])
 
-                @include('seller.product.products.partials.addon-option', [
-                    'option' => [],
-                    'groupIndex' => $index,
-                    'optIndex' => 0,
-                ])
-            @endforelse
+                @empty
+
+                    @include('seller.product.products.partials.addon-option', [
+                        'option' => [],
+                        'groupIndex' => $index,
+                        'optIndex' => 0,
+                    ])
+                @endforelse
+
+            </div>
 
         </div>
 

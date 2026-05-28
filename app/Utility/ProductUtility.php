@@ -100,11 +100,14 @@ class ProductUtility
                 })->values();
 
                 if ($values->contains($cleanValue)) {
+                    $sortOrders = request()->input('value_sort_order_' . $attributeId, []);
+                    $order = isset($sortOrders[$cleanValue]) ? (int) $sortOrders[$cleanValue] : $values->search($cleanValue);
+
                     $matched = [
                         'attribute_id' => $attributeId,
                         'attribute_name' => trim((string) ($choiceNames->get($choiceIndex) ?: get_single_attribute_name($attributeId))),
                         'attribute_sort_order' => $choiceIndex,
-                        'value_sort_order' => $values->search($cleanValue),
+                        'value_sort_order' => $order,
                     ];
                     break;
                 }

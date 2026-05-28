@@ -18,12 +18,7 @@
         font-family: 'Outfit', sans-serif;
     }
   
-    .addon-option-row{
-        display:flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-    }
+    /* Conflicting flex style removed to allow proper CSS grid column alignment */
 
 
     #choice_form *,
@@ -289,6 +284,7 @@
         color: var(--seller-text);
         box-shadow: none !important;
         font-size: 14px;
+        border-radius: 50px !important;
     }
 
     #choice_form .bootstrap-select:not(.disabled) .dropdown-toggle,
@@ -626,49 +622,134 @@
         padding: 16px;
     }
 
+    #choice_form .seller-addons-body {
+        padding: 24px;
+        background: #fcfbfa;
+    }
+
     #choice_form #addon-wrapper {
         display: grid;
-        gap: 12px;
+        gap: 20px;
     }
 
     #choice_form .addon-block {
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden;
+        border-radius: 12px !important;
+        border: 1px solid rgba(197, 146, 89, 0.12) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+        background: #fff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #choice_form .addon-block:hover {
+        border-color: rgba(197, 146, 89, 0.25) !important;
+        box-shadow: 0 10px 30px rgba(197, 146, 89, 0.06) !important;
+    }
+
+    #choice_form .addon-block>.card-header {
+        padding: 14px 20px !important;
+        background: linear-gradient(to right, rgba(197, 146, 89, 0.04) 0%, rgba(197, 146, 89, 0.01) 100%) !important;
+        border-bottom: 1px solid rgba(197, 146, 89, 0.08) !important;
+    }
+
+    #choice_form .addon-block.addon-disabled {
+        opacity: 0.85;
+        border-color: #e2e8f0 !important;
+        background: #fafafa;
+    }
+
+    #choice_form .addon-block.addon-disabled > .card-header {
+        background: #f8fafc !important;
+        border-bottom-color: #e2e8f0 !important;
     }
 
     #choice_form .addon-block .group-name {
-        min-height: 34px;
+        min-height: 38px;
         color: var(--seller-text);
         font-weight: 700;
+        font-size: 15px;
+        letter-spacing: -0.2px;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding-left: 4px !important;
+    }
+
+    #choice_form .addon-block .group-name:focus {
+        background: #fff !important;
+        border: 1px solid rgba(197, 146, 89, 0.2) !important;
+        border-radius: 8px !important;
+        padding-left: 10px !important;
     }
 
     #choice_form .addon-block>.card-body {
-        padding: 14px;
+        padding: 20px;
         background: #fff;
+    }
+
+    #choice_form .addon-table-container {
+        overflow-x: auto;
+        margin-bottom: 15px;
+        -webkit-overflow-scrolling: touch;
     }
 
     #choice_form .seller-addon-option-head,
     #choice_form .addon-option-row {
-        display: grid;
-        grid-template-columns: 44px minmax(160px, 2fr) minmax(96px, 0.8fr) minmax(96px, 0.8fr) minmax(150px, 1.2fr) 40px;
-        gap: 10px;
-        align-items: center;
+        display: grid !important;
+        grid-template-columns: 44px minmax(160px, 2fr) minmax(96px, 0.8fr) minmax(96px, 0.8fr) minmax(180px, 1.2fr) 40px !important;
+        gap: 12px !important;
+        align-items: center !important;
+        min-width: 720px !important;
     }
+    .addon-option-row, .seller-addon-option-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.addon-option-row .name {
+    flex: 0 0 33%;
+}
 
     #choice_form .seller-addon-option-head {
-        margin-bottom: 8px;
-        padding: 0 10px;
-        color: var(--seller-muted);
+        margin-bottom: 12px;
+        padding: 0 16px;
+        color: #a27038;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     #choice_form .addon-option-row {
-        margin-bottom: 10px;
-        padding: 10px;
-        background: #fbfcfd !important;
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        background: #fdfdfd !important;
+        border: 1px solid #f3f3f3 !important;
+        border-radius: 10px !important;
+        transition: all 0.25s ease;
+    }
+
+    #choice_form .addon-option-row:hover {
+        background: #fff !important;
+        border-color: rgba(197, 146, 89, 0.18) !important;
+        box-shadow: 0 4px 12px rgba(197, 146, 89, 0.04) !important;
+    }
+
+    #choice_form .addon-option-row .form-control {
+        border-radius: 8px !important;
+        border: 1px solid #e2dfd8 !important;
+        padding: 0.55rem 0.85rem !important;
+        font-size: 0.9rem !important;
+        color: #4a463e !important;
+        background-color: #fff !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    #choice_form .addon-option-row .form-control:focus {
+        border-color: #c59259 !important;
+        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.18) !important;
     }
 
     #choice_form .addon-option-toggle-cell {
@@ -676,20 +757,42 @@
         justify-content: center;
     }
 
-    #choice_form .addon-option-row .remove-option,
-    #choice_form .variant-value-remove {
+    #choice_form .addon-option-row .remove-option {
         width: 36px;
         height: 36px;
         padding: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 50% !important;
+        background: #fdf3f3 !important;
+        color: #eb5757 !important;
+        border: 1px solid #ffe3e3 !important;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    #choice_form .addon-option-row .remove-option:hover {
+        background: #eb5757 !important;
+        color: #fff !important;
+        border-color: #eb5757 !important;
+        transform: scale(1.05);
+        box-shadow: 0 3px 10px rgba(235, 87, 87, 0.25) !important;
     }
 
     #choice_form .option-disabled {
-        background: #f6f6f7 !important;
-        opacity: 0.72;
+        background: #fafafa !important;
+        border-color: #eee !important;
+        opacity: 0.65;
+    }
+
+    /* Custom File Input Styling for Addons */
+    #choice_form .addon-option-row input[type="file"] {
+        padding: 0.5rem 0.85rem !important;
+        font-size: 0.85rem !important;
+        color: #7a756b !important;
+        background: #fafbfc !important;
+        cursor: pointer;
     }
 
     #choice_form .bootstrap-select .no-results,
@@ -792,22 +895,7 @@
             max-height: 280px !important;
         }
 
-        #choice_form .seller-addon-option-head {
-            display: none;
-        }
-
-        #choice_form .addon-option-row {
-            grid-template-columns: 1fr;
-        }
-
-        #choice_form .addon-option-row>div::before {
-            content: attr(data-label);
-            display: block;
-            margin-bottom: 5px;
-            color: var(--seller-muted);
-            font-size: 12px;
-            font-weight: 700;
-        }
+        /* Removed responsive vertical stack layout for addons to keep them horizontally aligned in single row */
     }
 </style>
 

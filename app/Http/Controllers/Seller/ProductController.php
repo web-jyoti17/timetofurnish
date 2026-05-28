@@ -344,7 +344,8 @@ class ProductController extends Controller
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
                                 'price'            => $option['price'] ?? 0,
-                                'quantity'         => $option['quantity'] ?? 0
+                                'quantity'         => $option['quantity'] ?? 0,
+                                'sort_order'       => $option['sort_order'] ?? 0
                             ]);
                         } else {
 
@@ -355,7 +356,8 @@ class ProductController extends Controller
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
                                     'price'            => $option['price'] ?? 0,
-                                    'quantity'         => $option['quantity'] ?? 0
+                                    'quantity'         => $option['quantity'] ?? 0,
+                                    'sort_order'       => $option['sort_order'] ?? 0
                                 ]
                             );
                         }
@@ -742,7 +744,8 @@ class ProductController extends Controller
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
                                 'price'            => $option['price'] ?? 0,
-                                'quantity'         => $option['quantity'] ?? 0
+                                'quantity'         => $option['quantity'] ?? 0,
+                                'sort_order'       => $option['sort_order'] ?? 0
                             ]);
                         } else {
 
@@ -753,7 +756,8 @@ class ProductController extends Controller
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
                                     'price'            => $option['price'] ?? 0,
-                                    'quantity'         => $option['quantity'] ?? 0
+                                    'quantity'         => $option['quantity'] ?? 0,
+                                    'sort_order'       => $option['sort_order'] ?? 0
                                 ]
                             );
                         }

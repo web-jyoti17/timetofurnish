@@ -1700,10 +1700,6 @@
                             ' + obj + '\
                         </select>\
                         <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
-                        <div class="seller-selected-values-editor mt-2 d-none" id="selected-values-editor-' + i + '">\
-                            <div class="seller-selected-values-title">Set Option Values Sort Order</div>\
-                            <div class="seller-selected-values-list"></div>\
-                        </div>\
                     </div>\
                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">\
                         <label class="premium-switch">\

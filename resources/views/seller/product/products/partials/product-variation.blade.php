@@ -302,7 +302,7 @@
                                         </small>
 
                                         <!-- Selected Values & Custom Sort Order Editor -->
-                                        <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
+                                        <!-- <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
                                             <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
                                             <div class="seller-selected-values-list">
                                                 @foreach((array) $old_options as $index => $val)
@@ -311,11 +311,11 @@
                                                     @endphp
                                                     <div class="seller-selected-value-row" data-value="{{ $val }}">
                                                         <span class="premium-badge">{{ $val }}</span>
-                                                        <input type="number" class="seller-selected-value-sort-input" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
+                                                        <input type="number" class="seller-selected-value-sort-input" name="value_sort_order_{{ $choice_no }}[{{ $val }}]" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
                                                     </div>
                                                 @endforeach
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
                                         <label class="premium-switch">
@@ -407,7 +407,7 @@
                                         </small>
 
                                         <!-- Selected Values & Custom Sort Order Editor -->
-                                        <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
+                                        <!-- <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
                                             <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
                                             <div class="seller-selected-values-list">
                                                 @foreach((array) $old_options as $index => $val)
@@ -416,11 +416,11 @@
                                                     @endphp
                                                     <div class="seller-selected-value-row" data-value="{{ $val }}">
                                                         <span class="premium-badge">{{ $val }}</span>
-                                                        <input type="number" class="seller-selected-value-sort-input" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
+                                                        <input type="number" class="seller-selected-value-sort-input" name="value_sort_order_{{ $choice_no }}[{{ $val }}]" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
                                                     </div>
                                                 @endforeach
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
                                         <label class="premium-switch">
@@ -574,7 +574,7 @@
             var order = existingOrders[val] !== undefined ? existingOrders[val] : index;
             var pill = $('<div class="seller-selected-value-row" data-value="' + val + '">\
                 <span class="premium-badge">' + val + '</span>\
-                <input type="number" class="seller-selected-value-sort-input" value="' + order + '" data-value="' + val + '" title="Sort Order">\
+                <input type="number" class="seller-selected-value-sort-input" name="value_sort_order_' + attrId + '[' + val + ']" value="' + order + '" data-value="' + val + '" title="Sort Order">\
             </div>');
             list.append(pill);
         });
@@ -928,14 +928,21 @@
     }
 
     .seller-selected-value-row {
-        background: #fff;
+        background: linear-gradient(135deg, #ffffff 0%, #fdfbf7 100%);
         border-radius: 50rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        border: 1px solid rgba(197, 146, 89, 0.15);
+        box-shadow: 0 2px 8px rgba(197, 146, 89, 0.05);
+        border: 1px solid rgba(197, 146, 89, 0.22);
         display: inline-flex;
         align-items: center;
         overflow: hidden;
-        height: 28px;
+        height: 30px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .seller-selected-value-row:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(197, 146, 89, 0.12);
+        border-color: rgba(197, 146, 89, 0.4);
     }
 
     .seller-selected-value-row .premium-badge {
@@ -943,33 +950,35 @@
         color: #a27038 !important;
         border: none !important;
         font-size: 11.5px !important;
-        font-weight: 700 !important;
-        padding: 0 8px 0 12px !important;
+        font-weight: 750 !important;
+        padding: 0 10px 0 14px !important;
         margin: 0 !important;
         height: 100%;
         display: flex;
         align-items: center;
+        letter-spacing: -0.1px;
     }
 
     .seller-selected-value-sort-input {
-        width: 38px !important;
+        width: 42px !important;
         height: 100% !important;
         border-radius: 0 !important;
         font-weight: 800 !important;
-        font-size: 11px !important;
+        font-size: 12px !important;
         text-align: center;
         border: none !important;
-        border-left: 1px solid rgba(197, 146, 89, 0.15) !important;
-        background: #fafbfc !important;
+        border-left: 1px solid rgba(197, 146, 89, 0.22) !important;
+        background: #faf6f0 !important;
         padding: 0 !important;
         color: #c59259 !important;
         outline: none !important;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
     }
 
     .seller-selected-value-sort-input:focus {
-        background: #fff !important;
+        background: #ffffff !important;
         color: #a27038 !important;
+        box-shadow: inset 0 0 0 1px rgba(197, 146, 89, 0.3) !important;
     }
 
 

@@ -82,6 +82,7 @@ class ProductStockService
                 $img_key = 'img_' . $field_key;
 
                 $product_stock = new ProductStock();
+                $product_stock->is_virtual = false; // Explicitly ensure it's not virtual
                 $product_stock->product_id = $product->id;
                 $product_stock->variant = $str;
                 $product_stock->price = $price;
@@ -89,6 +90,23 @@ class ProductStockService
                 $product_stock->qty = request()->filled($qty_key) ? request()->input($qty_key) : 0;
                 $product_stock->image = request()->input($img_key);
                 $product_stock->save();
+
+                // Verification 1: Eloquent model state check
+                if (!$product_stock->exists) {
+                    $product_stock->exists = true; // force exists flag
+                    $product_stock->save();
+                    if (!$product_stock->exists) {
+                        throw new \Exception("Eloquent model failed to save stock for variant: " . $str);
+                    }
+                }
+
+                // Verification 2: Direct database existence verification
+                if (!ProductStock::where('id', $product_stock->id)->exists()) {
+                    $product_stock->save();
+                    if (!ProductStock::where('id', $product_stock->id)->exists()) {
+                        throw new \Exception("Database insertion check failed for variant: " . $str);
+                    }
+                }
 
                 save_product_stock_attributes($product_stock, $combination, $collection);
                 $saved_count++;
@@ -117,7 +135,20 @@ class ProductStockService
             $data = $collection->merge(compact('variant', 'qty', 'price'))->toArray();
             $data['product_id'] = $product->id;
             
-            ProductStock::create($data);
+            $product_stock = new ProductStock();
+            $product_stock->is_virtual = false;
+            $product_stock->fill($data);
+            $product_stock->save();
+
+            // Verification 1: Eloquent model state check
+            if (!$product_stock->exists) {
+                throw new \Exception("Eloquent model failed to save simple product stock.");
+            }
+
+            // Verification 2: Direct database existence verification
+            if (!ProductStock::where('id', $product_stock->id)->exists()) {
+                throw new \Exception("Database insertion check failed for simple product stock.");
+            }
         }
     }
 
@@ -125,12 +156,23 @@ class ProductStockService
     {
         foreach ($product_stocks as $key => $stock) {
             $product_stock              = new ProductStock;
+            $product_stock->is_virtual  = false;
             $product_stock->product_id  = $product_new->id;
             $product_stock->variant     = $stock->variant;
             $product_stock->price       = $stock->price;
             $product_stock->sku         = $stock->sku;
             $product_stock->qty         = $stock->qty;
             $product_stock->save();
+
+            // Verification 1: Eloquent model state check
+            if (!$product_stock->exists) {
+                throw new \Exception("Eloquent model failed to duplicate stock for variant: " . $stock->variant);
+            }
+
+            // Verification 2: Direct database existence verification
+            if (!ProductStock::where('id', $product_stock->id)->exists()) {
+                throw new \Exception("Database insertion check failed for duplicated variant: " . $stock->variant);
+            }
 
             duplicate_product_stock_attributes($stock->id, $product_stock->id, $product_new->id);
         }

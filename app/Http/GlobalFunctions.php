@@ -138,8 +138,8 @@ if (!function_exists('get_product_stock_choices')) {
             $name = optional($namedItem)->attribute_name
                 ?? get_single_attribute_name($attributeId);
 
-            $values = $items->unique('attribute_value')
-                ->sortBy('value_sort_order')
+            $values = $items->sortBy('value_sort_order')
+                ->unique('attribute_value')
                 ->map(function ($item) {
                     return [
                         'value' => $item->attribute_value,

@@ -548,11 +548,11 @@
                         }
 
                         if (opt.img) {
-                            var imgCol = optRow.querySelector('.col-md-3');
+                            var imgCol = optRow.querySelector('[data-label="Image"]');
                             if (imgCol) {
                                 var preview = document.createElement('div');
-                                preview.className = 'mt-1';
-                                preview.innerHTML = '<img src="' + $('#product-form-data').data('base-url') + '/' + opt.img + '" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">';
+                                preview.className = 'mt-2 text-left addon-preview-thumb';
+                                preview.innerHTML = '<img src="' + $('#product-form-data').data('base-url') + '/' + opt.img + '" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border: 1px solid #e2dfd8;">';
                                 imgCol.appendChild(preview);
                             }
                         }
@@ -620,6 +620,23 @@
 
         document.querySelectorAll('#addon-wrapper .addon-block').forEach(function (block) {
             initializeBlock(block, false);
+        });
+
+        // Dynamic local image preview helper
+        $(document).on('change', '.addon-option-row input[type="file"]', function() {
+            var input = this;
+            var container = $(input).parent();
+            container.find('.addon-preview-thumb').remove();
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var previewHtml = '<div class="mt-2 text-left addon-preview-thumb">' +
+                        '<img src="' + e.target.result + '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #e2dfd8;">' +
+                        '</div>';
+                    container.append(previewHtml);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         });
     })();
 </script>

@@ -115,8 +115,14 @@ class ProductService
                 $attribute_data = array();
                 // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
                 foreach ($collection[$str] as $optionIndex => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                    $valClean = \App\Utility\ProductUtility::choice_value($eachValue);
+                    $sortOrders = request()->input('value_sort_order_' . $no, []);
+                    $order = isset($sortOrders[$valClean]) ? (int) $sortOrders[$valClean] : $optionIndex;
+
+                    array_push($attribute_data, [
+                        'value' => $valClean,
+                        'sort_order' => $order,
+                    ]);
                 }
                 unset($collection[$str]);
 
@@ -286,8 +292,14 @@ class ProductService
                 $attribute_data = array();
                 // foreach (json_decode($request[$str][0]) as $key => $eachValue) {
                 foreach ($collection[$str] as $optionIndex => $eachValue) {
-                    // array_push($data, $eachValue->value);
-                    array_push($attribute_data, $eachValue);
+                    $valClean = \App\Utility\ProductUtility::choice_value($eachValue);
+                    $sortOrders = request()->input('value_sort_order_' . $no, []);
+                    $order = isset($sortOrders[$valClean]) ? (int) $sortOrders[$valClean] : $optionIndex;
+
+                    array_push($attribute_data, [
+                        'value' => $valClean,
+                        'sort_order' => $order,
+                    ]);
                 }
                 unset($collection[$str]);
 
