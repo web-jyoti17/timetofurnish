@@ -117,6 +117,9 @@
 
         function setOptionState(row, checked) {
             row.classList.toggle('option-disabled', !checked);
+            row.querySelectorAll('.option-input').forEach(function (input) {
+                input.disabled = !checked;
+            });
         }
 
         function setGroupState(block, checked) {
@@ -126,6 +129,7 @@
                 if (!checked) {
                     toggle.checked = false;
                 }
+                toggle.disabled = !checked;
 
                 var row = closest(toggle, '.addon-option-row');
                 if (row) {
@@ -552,7 +556,12 @@
                             if (imgCol) {
                                 var preview = document.createElement('div');
                                 preview.className = 'mt-2 text-left addon-preview-thumb';
-                                preview.innerHTML = '<img src="' + $('#product-form-data').data('base-url') + '/' + opt.img + '" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border: 1px solid #e2dfd8;">';
+                                var baseUrl = '';
+                                var formDataEl = document.getElementById('product-form-data');
+                                if (formDataEl) {
+                                    baseUrl = formDataEl.getAttribute('data-base-url') || '';
+                                }
+                                preview.innerHTML = '<img src="' + baseUrl + '/' + opt.img + '" class="img-thumbnail" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border: 1px solid #e2dfd8;">';
                                 imgCol.appendChild(preview);
                             }
                         }
@@ -578,41 +587,54 @@
         }
 
         function loadAddonsForCategories(categoryIds) {
-            var getAddonsRoute = $('#product-form-data').data('get-addons-route');
+            var formDataEl = document.getElementById('product-form-data');
+            var getAddonsRoute = formDataEl ? formDataEl.getAttribute('data-get-addons-route') : '';
             if (!getAddonsRoute) return;
 
-            $.ajax({
-                type: 'POST',
-                url: getAddonsRoute,
-                data: {
-                    category_ids: categoryIds,
-                    _token: $('meta[name="csrf-token"]').attr('content')
+            var csrfTokenEl = document.querySelector('meta[name="csrf-token"]');
+            var csrfToken = csrfTokenEl ? csrfTokenEl.getAttribute('content') : '';
+
+            fetch(getAddonsRoute, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
-                success: function (addons) {
-                    var wrapper = document.getElementById('addon-wrapper');
-                    if (!wrapper) return;
+                body: JSON.stringify({
+                    category_ids: categoryIds
+                })
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (addons) {
+                var wrapper = document.getElementById('addon-wrapper');
+                if (!wrapper) return;
 
-                    // Remove all existing global addon blocks
-                    wrapper.querySelectorAll('.addon-block.is-global-addon').forEach(function (block) {
-                        block.remove();
-                    });
+                // Remove all existing global addon blocks
+                wrapper.querySelectorAll('.addon-block.is-global-addon').forEach(function (block) {
+                    block.remove();
+                });
 
-                    var existingNames = existingAddonNames(wrapper);
+                var existingNames = existingAddonNames(wrapper);
 
-                    // Add the new global addons
-                    addons.forEach(function (addon) {
-                        var addonName = normalizeAddonName(addon.name);
+                // Add the new global addons
+                addons.forEach(function (addon) {
+                    var addonName = normalizeAddonName(addon.name);
 
-                        if (addonName && existingNames.indexOf(addonName) !== -1) {
-                            return;
-                        }
+                    if (addonName && existingNames.indexOf(addonName) !== -1) {
+                        return;
+                    }
 
-                        addAddon(addon, false, true);
-                        if (addonName) {
-                            existingNames.push(addonName);
-                        }
-                    });
-                }
+                    addAddon(addon, false, true);
+                    if (addonName) {
+                        existingNames.push(addonName);
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.error('Error loading addons:', error);
             });
         }
 
@@ -623,20 +645,25 @@
         });
 
         // Dynamic local image preview helper
-        $(document).on('change', '.addon-option-row input[type="file"]', function() {
-            var input = this;
-            var container = $(input).parent();
-            container.find('.addon-preview-thumb').remove();
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var previewHtml = '<div class="mt-2 text-left addon-preview-thumb">' +
-                        '<img src="' + e.target.result + '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #e2dfd8;">' +
-                        '</div>';
-                    container.append(previewHtml);
+        document.addEventListener('change', function (event) {
+            var input = event.target;
+            if (input.classList && input.classList.contains('option-input') && input.type === 'file') {
+                var container = input.parentElement;
+                var existingThumb = container.querySelector('.addon-preview-thumb');
+                if (existingThumb) {
+                    existingThumb.remove();
                 }
-                reader.readAsDataURL(input.files[0]);
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var preview = document.createElement('div');
+                        preview.className = 'mt-2 text-left addon-preview-thumb';
+                        preview.innerHTML = '<img src="' + e.target.result + '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #e2dfd8;">';
+                        container.appendChild(preview);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
             }
-        });
+        }, true);
     })();
 </script>

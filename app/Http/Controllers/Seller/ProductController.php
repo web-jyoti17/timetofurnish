@@ -161,6 +161,7 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
+        \Log::info('ADDONS SAVE LOG - Store Request:', ['addons' => $request->addons, 'all' => $request->all()]);
         if (addon_is_activated('seller_subscription')) {
             if (!seller_package_validity_check()) {
                 if ($request->expectsJson()) {
@@ -280,24 +281,37 @@ class ProductController extends Controller
 
             foreach ($request->addons as $aIndex => $addon) {
 
-                // ✅ Skip if checkbox not checked
-                if (empty($addon['id'])) {
+                // Check if any options are checked in this group
+                $hasCheckedOptions = false;
+                if (!empty($addon['options'])) {
+                    foreach ($addon['options'] as $option) {
+                        if (!empty($option['id'])) {
+                            $hasCheckedOptions = true;
+                            break;
+                        }
+                    }
+                }
+
+                // ❌ Skip if neither group nor options are checked
+                if (empty($addon['id']) && !$hasCheckedOptions) {
                     continue;
                 }
 
+                $addonId = empty($addon['id']) ? 'new' : $addon['id'];
+
                 // ✅ Determine CREATE or UPDATE
-                if ($addon['id'] === 'new') {
+                if ($addonId === 'new') {
                     $addonModel = ProductAddon::create([
                         'product_id' => $product->id,
-                        'name'       => $addon['name'],
+                        'name'       => $addon['name'] ?? '',
                         'sort_order' => $addon['sort_order'] ?? 0
                     ]);
                 } else {
                     $addonModel = ProductAddon::updateOrCreate(
-                        ['id' => $addon['id']],
+                        ['id' => $addonId],
                         [
                             'product_id' => $product->id,
-                            'name'       => $addon['name'],
+                            'name'       => $addon['name'] ?? '',
                             'sort_order' => $addon['sort_order'] ?? 0
                         ]
                     );
@@ -343,8 +357,8 @@ class ProductController extends Controller
                                 'product_addon_id' => $addonModel->id,
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
-                                'price'            => $option['price'] ?? 0,
-                                'quantity'         => $option['quantity'] ?? 0,
+                                'price'            => (isset($option['price']) && $option['price'] !== '') ? $option['price'] : 0,
+                                'quantity'         => (isset($option['quantity']) && $option['quantity'] !== '') ? $option['quantity'] : 0,
                                 'sort_order'       => $option['sort_order'] ?? 0
                             ]);
                         } else {
@@ -355,8 +369,8 @@ class ProductController extends Controller
                                     'product_addon_id' => $addonModel->id,
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
-                                    'price'            => $option['price'] ?? 0,
-                                    'quantity'         => $option['quantity'] ?? 0,
+                                    'price'            => (isset($option['price']) && $option['price'] !== '') ? $option['price'] : 0,
+                                    'quantity'         => (isset($option['quantity']) && $option['quantity'] !== '') ? $option['quantity'] : 0,
                                     'sort_order'       => $option['sort_order'] ?? 0
                                 ]
                             );
@@ -550,6 +564,7 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product)
     {
+        \Log::info('ADDONS SAVE LOG - Update Request:', ['addons' => $request->addons, 'all' => $request->all()]);
         $this->syncSellerVariantAttributeUpdates($request);
         $this->productStockService->validateVariantPrices($request->only([
             'colors_active',
@@ -647,27 +662,42 @@ class ProductController extends Controller
 
             foreach ($request->addons as $aIndex => $addon) {
 
-                // ❌ Skip if checkbox not checked
-                if (empty($addon['id'])) {
+                // Check if any options are checked in this group
+                $hasCheckedOptions = false;
+                if (!empty($addon['options'])) {
+                    foreach ($addon['options'] as $option) {
+                        if (!empty($option['id'])) {
+                            $hasCheckedOptions = true;
+                            break;
+                        }
+                    }
+                }
+
+                // ❌ Skip if neither group nor options are checked
+                if (empty($addon['id']) && !$hasCheckedOptions) {
                     continue;
                 }
+
+                $addonId = empty($addon['id']) ? 'new' : $addon['id'];
 
                 /*
                 |--------------------------------------------------------------------------
                 | CREATE or UPDATE ADDON
                 |--------------------------------------------------------------------------
                 */
-                if ($addon['id'] === 'new') {
+                if ($addonId === 'new') {
                     $addonModel = ProductAddon::create([
                         'product_id' => $product->id,
-                        'name'       => $addon['name'] ?? ''
+                        'name'       => $addon['name'] ?? '',
+                        'sort_order' => $addon['sort_order'] ?? 0
                     ]);
                 } else {
                     $addonModel = ProductAddon::updateOrCreate(
-                        ['id' => $addon['id']],
+                        ['id' => $addonId],
                         [
                             'product_id' => $product->id,
-                            'name'       => $addon['name'] ?? ''
+                            'name'       => $addon['name'] ?? '',
+                            'sort_order' => $addon['sort_order'] ?? 0
                         ]
                     );
                 }
@@ -743,8 +773,8 @@ class ProductController extends Controller
                                 'product_addon_id' => $addonModel->id,
                                 'option_name'      => $option['name'],
                                 'img'              => $imagePath,
-                                'price'            => $option['price'] ?? 0,
-                                'quantity'         => $option['quantity'] ?? 0,
+                                'price'            => (isset($option['price']) && $option['price'] !== '') ? $option['price'] : 0,
+                                'quantity'         => (isset($option['quantity']) && $option['quantity'] !== '') ? $option['quantity'] : 0,
                                 'sort_order'       => $option['sort_order'] ?? 0
                             ]);
                         } else {
@@ -755,8 +785,8 @@ class ProductController extends Controller
                                     'product_addon_id' => $addonModel->id,
                                     'option_name'      => $option['name'],
                                     'img'              => $imagePath,
-                                    'price'            => $option['price'] ?? 0,
-                                    'quantity'         => $option['quantity'] ?? 0,
+                                    'price'            => (isset($option['price']) && $option['price'] !== '') ? $option['price'] : 0,
+                                    'quantity'         => (isset($option['quantity']) && $option['quantity'] !== '') ? $option['quantity'] : 0,
                                     'sort_order'       => $option['sort_order'] ?? 0
                                 ]
                             );

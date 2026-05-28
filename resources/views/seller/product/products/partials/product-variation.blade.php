@@ -437,8 +437,6 @@
                         </div>
                     </div>
                 </div>
-                    </div>
-                </div>
 
                 <div class="sku_combination mt-3" id="sku_combination">
                     @php

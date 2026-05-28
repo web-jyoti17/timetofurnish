@@ -1889,7 +1889,12 @@ $(document).ready(function () {
 
         loadCheckoutServices(initialCategories);
         loadShippingCharges(initialCategories);
-        loadProductAddons(initialCategories);
+
+        // Skip reloading and wiping out saved global/product addons on initial edit page load
+        let productId = $('#product-form-data').data('product-id');
+        if (!productId) {
+            loadProductAddons(initialCategories);
+        }
     }
 
     // CATEGORY CHANGE
