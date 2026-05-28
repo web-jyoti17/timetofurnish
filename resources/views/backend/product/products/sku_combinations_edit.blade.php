@@ -190,14 +190,27 @@
                         <td class="text-center align-middle">
                             <div class="variant-option-cell">
                                 @forelse ($row_values as $row_value)
+                                    @php
+                                        $isAdminValue = false;
+                                        if (\App\Models\Color::where('name', $row_value)->exists()) {
+                                            $isAdminValue = true;
+                                        } else {
+                                            $valModel = \App\Models\AttributeValue::where('value', $row_value)->first();
+                                            if ($valModel && $valModel->attribute && is_null($valModel->attribute->user_id)) {
+                                                $isAdminValue = true;
+                                            }
+                                        }
+                                    @endphp
                                     <span class="variant-option-item d-inline-flex align-items-center gap-1">
                                         <span class="premium-badge variant-option-badge variant-option-edit"
                                             data-variant-value="{{ $row_value }}">
                                             {{ $row_value }}
                                         </span>
-                                        <button type="button" class="btn premium-btn-circle premium-btn-edit variant-option-edit-btn" title="{{ translate('Edit this option name') }}">
-                                            <i class="las la-pen"></i>
-                                        </button>
+                                        @if(!$isAdminValue)
+                                            <button type="button" class="btn premium-btn-circle premium-btn-edit variant-option-edit-btn" title="{{ translate('Edit this option name') }}">
+                                                <i class="las la-pen"></i>
+                                            </button>
+                                        @endif
                                     </span>
                                 @empty
                                     <span class="variant-option-item d-inline-flex align-items-center gap-1">
@@ -205,9 +218,6 @@
                                             data-variant-value="{{ $str }}">
                                             {{ $str }}
                                         </span>
-                                        <button type="button" class="btn premium-btn-circle premium-btn-edit variant-option-edit-btn" title="{{ translate('Edit this option name') }}">
-                                            <i class="las la-pen"></i>
-                                        </button>
                                     </span>
                                 @endforelse
                                 <button type="button" class="btn premium-btn-circle premium-btn-delete variant-value-remove" onclick="remove_variant_value(this)" title="{{ translate('Remove this option') }}">

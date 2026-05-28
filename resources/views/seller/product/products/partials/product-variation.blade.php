@@ -58,7 +58,19 @@
             })->toArray()
         ];
     });
+
+    $selected_custom_choice_no = [];
+    $selected_admin_choice_no = [];
+    foreach ((array) $selected_choice_no as $choice_no) {
+        $opt_att = \App\Models\Attribute::find($choice_no);
+        if ($opt_att && !is_null($opt_att->user_id)) {
+            $selected_custom_choice_no[] = $choice_no;
+        } else {
+            $selected_admin_choice_no[] = $choice_no;
+        }
+    }
 @endphp
+
 
 <div class="card productvariation shadow-sm mb-4 mt-4">
     <div class="card-header border-bottom-0 pb-2 pt-3 seller-variation-header">
@@ -98,16 +110,25 @@
                     </div>
                 </div>
 
-                <div class="alert alert-info mb-3 premium-info-alert">
-                    <div class="d-flex align-items-start">
-                        <div class="alert-icon-wrap mr-3">
-                            <i class="las la-info-circle"></i>
+                <div class="alert alert-info mb-4 premium-info-alert" style="background: linear-gradient(135deg, #fdfaf6 0%, #f7f1e5 100%); border-left: 5px solid #c59259; border-radius: 12px; box-shadow: 0 4px 15px rgba(197, 146, 89, 0.08); border-top: 1px solid rgba(197,146,89,0.1); border-right: 1px solid rgba(197,146,89,0.1); border-bottom: 1px solid rgba(197,146,89,0.1);">
+                    <div class="d-flex align-items-start align-items-md-center flex-column flex-md-row">
+                        <div class="alert-icon-wrap mr-3 mb-2 mb-md-0" style="background: rgba(197, 146, 89, 0.1); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(197, 146, 89, 0.2); flex-shrink: 0;">
+                            <i class="las la-info-circle" style="color: #c59259; font-size: 24px;"></i>
                         </div>
-                        <div>
-                            <span class="font-weight-bold d-block mb-1">{{ translate('Set Up Product Variations') }}</span>
-                            {{ translate('Choose the attributes of this product and then input values of each attribute.') }}
-                            <br>
-                            <small class="opacity-80">{{ translate('Double-click an attribute name or variant option value to edit it, then press Enter or click outside to save.') }}</small>
+                        <div class="flex-grow-1">
+                            <span class="font-weight-bold d-block mb-1 text-dark" style="font-size: 15px; letter-spacing: -0.2px;">{{ translate('Set Up Product Variations') }}</span>
+                            <span style="color: #615a51; font-size: 13px; line-height: 1.5; display: block;">
+                                {{ translate('Choose the attributes of this product and input values. Admin attributes are available by default; you can also use your own custom attributes.') }}
+                            </span>
+                            <div class="mt-2" style="font-size: 12px; color: #8e8376; display: flex; align-items: center; gap: 4px;">
+                                <i class="las la-cog"></i> 
+                                <span>
+                                    {{ translate('To view, add, or edit your own attributes and options, visit your') }} 
+                                    <a href="{{ route('seller.attributes.index') }}" target="_blank" class="font-weight-bold" style="color: #b57a45; text-decoration: underline;">
+                                        {{ translate('Custom Attributes Page') }} <i class="las la-external-link-alt" style="font-size: 10px;"></i>
+                                    </a>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,34 +149,63 @@
                                             ->orWhere('user_id', auth()->id());
                                     });
                                 })->get();
+                                
+                                $seller_attributes = $all_attributes->filter(function($attr) {
+                                    return !is_null($attr->user_id);
+                                });
+                                
+                                $admin_attributes = $all_attributes->filter(function($attr) {
+                                    return is_null($attr->user_id);
+                                });
+
                                 $all_attr_ids = $all_attributes->pluck('id')->map(function($id) { return (string) $id; })->toArray();
                             @endphp
-                            @foreach ($all_attributes as $attribute)
-                                @php
-                                    $isSelected = in_array((string) $attribute->id, array_map('strval', (array) $attribute_values));
-                                    $attributeName = $attribute->getTranslation('name');
-                                @endphp
-                                <option value="{{ $attribute->id }}" {{ $isSelected ? 'selected' : '' }}>
-                                    {{ $attributeName }}
-                                </option>
-                            @endforeach
-                            @foreach ((array) $attribute_values as $attributeId)
-                                @if (!in_array((string) $attributeId, $all_attr_ids))
+
+                            <optgroup label="{{ translate('My Custom Attributes') }}">
+                                @foreach ($seller_attributes as $attribute)
                                     @php
-                                        $choiceOption = $productChoiceOptions->first(function ($choiceOption) use ($attributeId) {
-                                            return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $attributeId;
-                                        });
-                                        $attributeName = $choiceOption->name ?? get_single_attribute_name($attributeId);
+                                        $isSelected = in_array((string) $attribute->id, array_map('strval', (array) $attribute_values));
+                                        $attributeName = $attribute->getTranslation('name');
                                     @endphp
-                                    <option value="{{ $attributeId }}" selected>
+                                    <option value="{{ $attribute->id }}" {{ $isSelected ? 'selected' : '' }} data-user-id="{{ $attribute->user_id }}">
                                         {{ $attributeName }}
                                     </option>
-                                @endif
-                            @endforeach
+                                @endforeach
+                                @foreach ((array) $attribute_values as $attributeId)
+                                    @if (!in_array((string) $attributeId, $all_attr_ids))
+                                        @php
+                                            $choiceOption = $productChoiceOptions->first(function ($choiceOption) use ($attributeId) {
+                                                return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $attributeId;
+                                            });
+                                            $attributeName = $choiceOption->name ?? get_single_attribute_name($attributeId);
+                                        @endphp
+                                        <option value="{{ $attributeId }}" selected data-user-id="{{ auth()->id() }}">
+                                            {{ $attributeName }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </optgroup>
+
+                            <optgroup label="{{ translate('Global Admin Attributes') }}">
+                                @foreach ($admin_attributes as $attribute)
+                                    @php
+                                        $isSelected = in_array((string) $attribute->id, array_map('strval', (array) $attribute_values));
+                                        $attributeName = $attribute->getTranslation('name');
+                                    @endphp
+                                    <option value="{{ $attribute->id }}" {{ $isSelected ? 'selected' : '' }} data-user-id="{{ $attribute->user_id }}">
+                                        {{ $attributeName }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         </select>
-                        <small class="seller-select-help">
-                            {{ translate('Search attributes. If there is no match, add it from the dropdown.') }}
-                        </small>
+                        <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap">
+                            <small class="seller-select-help text-muted">
+                                {{ translate('Search attributes. If there is no match, add it from the dropdown.') }}
+                            </small>
+                            <a href="{{ route('seller.attributes.index') }}" target="_blank" class="btn btn-link btn-sm p-0 font-weight-bold text-primary d-inline-flex align-items-center" style="font-size: 13px; color: #b57a45 !important;">
+                                <i class="las la-plus-circle mr-1" style="font-size: 16px;"></i>{{ translate('Create Custom Attributes') }}
+                            </a>
+                        </div>
                     </div>
                     <div class="col-md-1 text-center d-flex align-items-center justify-content-center">
                         <label class="premium-switch">
@@ -166,26 +216,30 @@
                 </div>
 
                 <div id="attributes-container" class="c-scrollbar-light seller-variation-options">
-                    <div class="customer_choice_options p-2" id="customer_choice_options">
-                        @if (empty($selected_choice_no) || count($selected_choice_no) == 0)
-                            <div class="text-center mt-3 mb-3 text-muted py-4 shadow-sm rounded-lg" id="variant-table-prompt" style="background:#fff; border: 1px dashed rgba(197,146,89,0.3);">
-                                <i class="las la-info-circle fs-24 mb-2 text-primary"></i>
-                                <div class="font-weight-bold">{{ translate('No Attributes Selected') }}</div>
-                                <small class="text-muted-dark">{{ translate('Select attributes above to add variant options for the product.') }}</small>
-                            </div>
-                        @else
-                            @foreach ($selected_choice_no as $key => $choice_no)
+                    <div class="text-center mt-3 mb-3 text-muted py-4 shadow-sm rounded-lg" id="variant-table-prompt" style="background:#fff; border: 1px dashed rgba(197,146,89,0.3); display: none;">
+                        <i class="las la-info-circle fs-24 mb-2 text-primary"></i>
+                        <div class="font-weight-bold">{{ translate('No Attributes Selected') }}</div>
+                        <small class="text-muted-dark">{{ translate('Select attributes above to add variant options for the product.') }}</small>
+                    </div>
+
+                    <!-- My Custom Attributes Section -->
+                    <div id="custom-attributes-section" class="mb-4">
+                        <div class="seller-section-subtitle mb-3 font-weight-bold" style="color: #a27038; font-size: 13.5px; border-bottom: 2px solid rgba(197,146,89,0.12); padding-bottom: 8px; letter-spacing: -0.1px;">
+                            <i class="las la-user-cog mr-1" style="font-size: 18px; vertical-align: middle;"></i> {{ translate('My Custom Attributes') }}
+                        </div>
+                        <div class="customer_choice_options p-2" id="customer_choice_options_custom">
+                            @foreach ($selected_custom_choice_no as $key => $choice_no)
                                 @php
                                     $productChoiceOption = $productChoiceOptions->first(function ($choiceOption) use ($choice_no) {
                                         return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $choice_no;
                                     });
                                     $opt_att = \App\Models\Attribute::find($choice_no);
                                     $choiceName = old(
-                                        'choice.' . $key,
+                                        'choice.' . array_search($choice_no, $selected_choice_no),
                                         $productChoiceOption->name ?? ($opt_att ? $opt_att->getTranslation('name') : '')
                                     );
                                 @endphp
-                                <div class="form-group row align-items-center mb-3 attribute-variation-row">
+                                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
                                     <div class="col-lg-3">
                                         <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
                                         @if (!empty($choiceName))
@@ -225,8 +279,6 @@
                                             if (!$old_options) {
                                                 $old_options = [];
                                             }
-                                            // Load all admin/global defined values so the seller can browse and add more,
-                                            // while prefilling only the selected options from $old_options.
                                             $knownValues = \App\Models\AttributeValue::where('attribute_id', $choice_no)
                                                 ->get()
                                                 ->pluck('value')
@@ -252,14 +304,14 @@
                                         <!-- Selected Values & Custom Sort Order Editor -->
                                         <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
                                             <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
-                                            <div class="seller-selected-values-list d-flex flex-wrap gap-1 w-100">
+                                            <div class="seller-selected-values-list">
                                                 @foreach((array) $old_options as $index => $val)
                                                     @php
                                                         $order = $value_orders[$val] ?? $index;
                                                     @endphp
-                                                    <div class="seller-selected-value-row d-inline-flex align-items-center mb-1 mr-2" data-value="{{ $val }}">
-                                                        <span class="premium-badge pr-1" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 6px;">{{ $val }}</span>
-                                                        <input type="number" class="seller-selected-value-input" value="{{ $order }}" data-value="{{ $val }}" style="width: 45px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; height: 32px;" title="{{ translate('Sort Order') }}">
+                                                    <div class="seller-selected-value-row" data-value="{{ $val }}">
+                                                        <span class="premium-badge">{{ $val }}</span>
+                                                        <input type="number" class="seller-selected-value-sort-input" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -277,7 +329,114 @@
                                     </div>
                                 </div>
                             @endforeach
-                        @endif
+                        </div>
+                    </div>
+
+                    <!-- Global Admin Attributes Section -->
+                    <div id="admin-attributes-section" class="mb-2">
+                        <div class="seller-section-subtitle mb-3 font-weight-bold" style="color: #4b5259; font-size: 13.5px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 8px; letter-spacing: -0.1px;">
+                            <i class="las la-globe mr-1" style="font-size: 18px; vertical-align: middle;"></i> {{ translate('Global Admin Attributes') }}
+                        </div>
+                        <div class="customer_choice_options p-2" id="customer_choice_options_admin">
+                            @foreach ($selected_admin_choice_no as $key => $choice_no)
+                                @php
+                                    $productChoiceOption = $productChoiceOptions->first(function ($choiceOption) use ($choice_no) {
+                                        return isset($choiceOption->attribute_id) && (string) $choiceOption->attribute_id === (string) $choice_no;
+                                    });
+                                    $opt_att = \App\Models\Attribute::find($choice_no);
+                                    $choiceName = old(
+                                        'choice.' . array_search($choice_no, $selected_choice_no),
+                                        $productChoiceOption->name ?? ($opt_att ? $opt_att->getTranslation('name') : '')
+                                    );
+                                @endphp
+                                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
+                                    <div class="col-lg-3">
+                                        <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
+                                        @if (!empty($choiceName))
+                                            <div class="seller-attribute-title-cell">
+                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title"
+                                                    name="choice[]" value="{{ $choiceName }}"
+                                                    placeholder="{{ translate('Choice Title') }}" readonly>
+                                                <!-- NO pencil icon rename button rendered for admin global attributes -->
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="col-lg-8 seller-variation-select-col">
+                                        @php
+                                            $old_options = old('choice_options_' . $choice_no);
+                                            $value_orders = [];
+                                            if (
+                                                !$old_options &&
+                                                isset($productChoiceOption) &&
+                                                isset($productChoiceOption->values)
+                                            ) {
+                                                $old_options = collect($productChoiceOption->values)
+                                                    ->map(function ($value) use (&$value_orders) {
+                                                        $val = \App\Utility\ProductUtility::choice_value($value);
+                                                        $order = \App\Utility\ProductUtility::choice_value_sort_order($value, 0);
+                                                        $value_orders[$val] = $order;
+                                                        return $val;
+                                                    })
+                                                    ->filter()
+                                                    ->values()
+                                                    ->all();
+                                            }
+                                            if (!$old_options) {
+                                                $old_options = [];
+                                            }
+                                            $knownValues = \App\Models\AttributeValue::where('attribute_id', $choice_no)
+                                                ->get()
+                                                ->pluck('value')
+                                                ->merge($old_options)
+                                                ->unique()
+                                                ->values();
+                                        @endphp
+                                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select"
+                                            data-live-search="true" name="choice_options_{{ $choice_no }}[]"
+                                            multiple data-container="body"
+                                            {{ !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
+                                            @foreach ($knownValues as $value)
+                                                <option value="{{ $value }}"
+                                                    @if (in_array($value, $old_options)) selected @endif>
+                                                    {{ $value }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="seller-select-help">
+                                            {{ translate('Search options. If there is no match, add it from the dropdown.') }}
+                                        </small>
+
+                                        <!-- Selected Values & Custom Sort Order Editor -->
+                                        <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
+                                            <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
+                                            <div class="seller-selected-values-list">
+                                                @foreach((array) $old_options as $index => $val)
+                                                    @php
+                                                        $order = $value_orders[$val] ?? $index;
+                                                    @endphp
+                                                    <div class="seller-selected-value-row" data-value="{{ $val }}">
+                                                        <span class="premium-badge">{{ $val }}</span>
+                                                        <input type="number" class="seller-selected-value-sort-input" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                        <label class="premium-switch">
+                                            <input value="1" type="checkbox"
+                                                class="attribute_choice_toggle"
+                                                id="attribute_choice_active_{{ $choice_no }}"
+                                                name="attribute_choice_active_{{ $choice_no }}"
+                                                {{ old('attribute_choice_active_' . $choice_no, 1) ? 'checked' : '' }}>
+                                            <span class="premium-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
                     </div>
                 </div>
 
@@ -367,7 +526,7 @@
         $(document).on('change', '.attribute_choice', handle_choice_change);
 
         // Event delegation for sort order input change
-        $(document).on('input change', '.seller-selected-value-input', function() {
+        $(document).on('input change', '.seller-selected-value-sort-input', function() {
             var row = $(this).closest('.seller-selected-values-editor');
             var attrId = row.attr('id').replace('selected-values-editor-', '');
             var selectElem = $('select[name="choice_options_' + attrId + '[]"]')[0];
@@ -401,7 +560,7 @@
         
         // Keep a map of existing orders entered by user
         var existingOrders = {};
-        list.find('.seller-selected-value-input').each(function() {
+        list.find('.seller-selected-value-sort-input').each(function() {
             var val = $(this).attr('data-value');
             var order = parseInt($(this).val());
             if (!isNaN(order)) {
@@ -413,9 +572,9 @@
         
         selected.forEach(function(val, index) {
             var order = existingOrders[val] !== undefined ? existingOrders[val] : index;
-            var pill = $('<div class="seller-selected-value-row d-inline-flex align-items-center mb-1 mr-2" data-value="' + val + '">\
-                <span class="premium-badge pr-1" style="border-top-right-radius: 0; border-bottom-right-radius: 0; padding-right: 6px;">' + val + '</span>\
-                <input type="number" class="seller-selected-value-input" value="' + order + '" data-value="' + val + '" style="width: 45px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 0; height: 32px;" title="Sort Order">\
+            var pill = $('<div class="seller-selected-value-row" data-value="' + val + '">\
+                <span class="premium-badge">' + val + '</span>\
+                <input type="number" class="seller-selected-value-sort-input" value="' + order + '" data-value="' + val + '" title="Sort Order">\
             </div>');
             list.append(pill);
         });
@@ -431,7 +590,7 @@
         var container = $('#selected-values-editor-' + attrId);
         
         var orders = {};
-        container.find('.seller-selected-value-input').each(function() {
+        container.find('.seller-selected-value-sort-input').each(function() {
             var val = $(this).attr('data-value');
             var order = parseInt($(this).val());
             orders[val] = isNaN(order) ? 99999 : order;
@@ -614,14 +773,33 @@
         box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
     }
 
-    #choice_form .seller-variation-options #customer_choice_options {
+    /* Visibility controls via :has() */
+    #custom-attributes-section {
+        display: none !important;
+    }
+    #custom-attributes-section:has(.attribute-variation-row) {
+        display: block !important;
+    }
+
+    #admin-attributes-section {
+        display: none !important;
+    }
+    #admin-attributes-section:has(.attribute-variation-row) {
+        display: block !important;
+    }
+
+    #attributes-container:not(:has(.attribute-variation-row)) #variant-table-prompt {
+        display: block !important;
+    }
+
+    #choice_form .seller-variation-options .customer_choice_options {
         display: grid;
         gap: 12px;
         padding: 0 !important;
     }
 
     /* Individual Attribute variation Blocks */
-    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row {
+    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row {
         display: grid;
         grid-template-columns: 180px minmax(0, 1fr) 48px;
         gap: 10px 16px;
@@ -636,12 +814,12 @@
         transition: all 0.3s ease;
     }
 
-    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row:hover {
+    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row:hover {
         border-color: rgba(197, 146, 89, 0.3);
         box-shadow: 0 6px 20px rgba(197, 146, 89, 0.05);
     }
 
-    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row>[class*="col-"] {
+    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>[class*="col-"] {
         width: 100%;
         max-width: none;
         padding: 0;
@@ -660,7 +838,7 @@
     }
 
     /* Option values header info */
-    #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row .col-lg-8::before {
+    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row .col-lg-8::before {
         content: "Option Values";
         display: block;
         margin-bottom: 6px;
@@ -675,12 +853,14 @@
         min-width: 0;
     }
 
-    #choice_form .productvariation .seller-select-help {
+    #choice_form .productvariation .seller-select-help,
+    #choice_form .seller-variation-options .seller-select-help {
         display: block;
         margin-top: 6px;
-        color: #8c959f;
-        font-size: 12px;
+        color: #55616e !important;
+        font-size: 12.5px;
         line-height: 1.4;
+        font-weight: 500;
     }
 
     .seller-attribute-title-cell {
@@ -715,45 +895,188 @@
         box-shadow: 0 4px 10px rgba(197, 146, 89, 0.25);
     }
 
-    /* Selected Values Editor panel */
+    /* Selected Values Editor panel - Single Row Design */
     .seller-selected-values-editor {
-        margin-top: 16px;
-        padding-top: 12px;
+        margin-top: 12px;
+        padding-top: 8px;
         border-top: 1px dashed #edf0f2;
+        display: flex !important;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 12px;
     }
 
     .seller-selected-values-title {
         color: #c59259;
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 800;
         text-transform: uppercase;
-        width: 100%;
         letter-spacing: 0.5px;
-        margin-bottom: 8px;
+        margin-bottom: 0 !important;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .seller-selected-values-list {
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        width: auto !important;
     }
 
     .seller-selected-value-row {
         background: #fff;
         border-radius: 50rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        border: 1px solid rgba(197, 146, 89, 0.15);
+        display: inline-flex;
+        align-items: center;
+        overflow: hidden;
+        height: 28px;
     }
 
-    .seller-selected-value-input {
-        height: 32px !important;
-        border-radius: 16px !important;
-        font-weight: 700;
-        font-size: 12px !important;
+    .seller-selected-value-row .premium-badge {
+        background: transparent !important;
+        color: #a27038 !important;
+        border: none !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        padding: 0 8px 0 12px !important;
+        margin: 0 !important;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .seller-selected-value-sort-input {
+        width: 38px !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        font-weight: 800 !important;
+        font-size: 11px !important;
         text-align: center;
-        border: 1px solid #d9dee3 !important;
+        border: none !important;
+        border-left: 1px solid rgba(197, 146, 89, 0.15) !important;
         background: #fafbfc !important;
-        padding: 4px 12px !important;
-        transition: all 0.25s ease;
+        padding: 0 !important;
+        color: #c59259 !important;
+        outline: none !important;
+        transition: all 0.2s ease;
     }
 
-    .seller-selected-value-input:focus {
+    .seller-selected-value-sort-input:focus {
+        background: #fff !important;
+        color: #a27038 !important;
+    }
+
+
+    /* Premium Selectpicker Dropdown styling */
+    #choice_form .bootstrap-select .dropdown-toggle {
+        min-height: 42px;
+        padding: 8px 20px !important;
+        border: 1px solid var(--seller-border-strong) !important;
+        border-radius: 50rem !important; /* Rounded pill look */
+        background: #fff !important;
+        color: var(--seller-text) !important;
+        font-weight: 600 !important;
+        font-size: 13.5px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        transition: all 0.2s ease !important;
+    }
+
+    #choice_form .bootstrap-select.show .dropdown-toggle,
+    #choice_form .bootstrap-select .dropdown-toggle:focus {
+        border-color: #c59259 !important;
+        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.15) !important;
+    }
+
+    #choice_form .bootstrap-select .dropdown-toggle .filter-option {
+        display: flex !important;
+        align-items: center !important;
+        color: var(--seller-text) !important;
+    }
+
+    /* Bootstrap selectpicker dropdown menu menu customisation */
+    body .bootstrap-select .dropdown-menu {
+        border: 1px solid rgba(197, 146, 89, 0.15) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 10px 30px rgba(197, 146, 89, 0.08) !important;
+        padding: 8px !important;
+        margin-top: 6px !important;
+        background: #fff !important;
+        z-index: 9999 !important;
+    }
+
+    body .bootstrap-select .dropdown-menu .bs-searchbox {
+        padding: 6px 6px 10px !important;
+        border-bottom: 1px solid #f6f5f2 !important;
+        margin-bottom: 6px !important;
+    }
+
+    body .bootstrap-select .dropdown-menu .bs-searchbox input {
+        height: 38px !important;
+        border-radius: 20px !important;
+        border: 1px solid #d9dee3 !important;
+        padding: 6px 16px !important;
+        font-size: 13px !important;
+        color: #4a463e !important;
+        background: #fafbfc !important;
+    }
+
+    body .bootstrap-select .dropdown-menu .bs-searchbox input:focus {
         border-color: #c59259 !important;
         background: #fff !important;
-        box-shadow: 0 0 0 2px rgba(197, 146, 89, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.12) !important;
+        outline: none !important;
+    }
+
+    body .bootstrap-select .dropdown-menu ul.dropdown-menu {
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    body .bootstrap-select .dropdown-menu li {
+        margin: 2px 0 !important;
+        padding: 0 !important;
+    }
+
+    body .bootstrap-select .dropdown-menu li a {
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        color: #4a463e !important;
+        font-size: 13.5px !important;
+        font-weight: 550 !important;
+        transition: all 0.15s ease !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    body .bootstrap-select .dropdown-menu li a:hover,
+    body .bootstrap-select .dropdown-menu li.active a {
+        background: rgba(197, 146, 89, 0.08) !important;
+        color: #a27038 !important;
+    }
+
+    body .bootstrap-select .dropdown-menu li.selected a {
+        background: rgba(197, 146, 89, 0.15) !important;
+        color: #a27038 !important;
+        font-weight: 700 !important;
+    }
+
+    body .bootstrap-select .dropdown-menu li.selected a::after {
+        content: "\f00c";
+        font-family: "Line Awesome Free";
+        font-weight: 900;
+        margin-left: auto;
+        color: #c59259;
+        font-size: 12px;
     }
 
     @media (max-width: 991px) {

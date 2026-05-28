@@ -53,6 +53,13 @@
                             </a>
                         </li>
 
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('seller.attributes.index') }}"
+                                class="aiz-side-nav-link {{ areActiveRoutes(['seller.attributes.index', 'seller.attributes.create', 'seller.attributes.edit']) }}">
+                                <span class="aiz-side-nav-text t">{{ translate('Attributes') }}</span>
+                            </a>
+                        </li>
+
                        {{-- <li class="aiz-side-nav-item">
                             <a href="{{ route('seller.product_bulk_upload.index') }}"
                                 class="aiz-side-nav-link {{ areActiveRoutes(['product_bulk_upload.index']) }}">

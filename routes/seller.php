@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AizUploadController;
+use App\Http\Controllers\Seller\AttributeController;
 
 //Upload
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
@@ -16,6 +17,15 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
 Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
+    });
+    
+    // Attributes
+    Route::resource('attributes', AttributeController::class);
+    Route::controller(AttributeController::class)->group(function () {
+        Route::get('/attributes/edit/{id}', 'edit')->name('attributes.edit');
+        Route::get('/attributes/destroy/{id}', 'destroy')->name('attributes.destroy');
+        Route::post('/ajax-store-attribute-value', 'ajax_store_attribute_value')->name('ajax.store-attribute-value');
+        Route::delete('/ajax-destroy-attribute-value/{id}', 'ajax_destroy_attribute_value')->name('ajax.destroy-attribute-value');
     });
     
     // Product 

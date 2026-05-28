@@ -985,6 +985,16 @@ class ProductController extends Controller
         $categoryId = !empty($request->category_ids) ? $request->category_ids[0] : null;
         $attributeId = $request->attribute_id;
 
+        if ($attributeId && $attributeId > 0) {
+            $dbAttr = \App\Models\Attribute::find($attributeId);
+            if ($dbAttr && is_null($dbAttr->user_id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => translate('You are not allowed to edit/update this value as only admin can update this.')
+                ], 403);
+            }
+        }
+
         $pseudoId = $attributeId;
         if (empty($pseudoId) || $pseudoId < 0) {
             $pseudoId = -abs(crc32($name));

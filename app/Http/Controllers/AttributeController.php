@@ -314,15 +314,16 @@ class AttributeController extends Controller
         $categoryIds = (array) $request->input('category_ids');
         $parentIds = getParentCategoryIds($categoryIds);
         
-        // 1. Fetch global/admin attributes
-        $globalAttributes = Attribute::where(function ($query) use ($parentIds) {
+        // 1. Fetch global/admin attributes and seller's custom attributes from the attributes table
+        $dbAttributes = Attribute::where(function ($query) use ($parentIds) {
             $query->whereHas('categories', function ($categoryQuery) use ($parentIds) {
                 $categoryQuery->whereIn('category_id', $parentIds);
             })
             ->orWhereRaw('LOWER(name) = ?', ['size']);
         })
         ->where(function ($query) {
-            $query->whereNull('user_id');
+            $query->whereNull('user_id')
+                ->orWhere('user_id', auth()->id());
         })
         ->get();
         
@@ -334,10 +335,11 @@ class AttributeController extends Controller
             ->unique('attribute_name');
             
         $attributes = collect();
-        foreach ($globalAttributes as $attr) {
+        foreach ($dbAttributes as $attr) {
             $attributes->push((object) [
                 'id' => $attr->id,
-                'name' => $attr->getTranslation('name')
+                'name' => $attr->getTranslation('name'),
+                'user_id' => $attr->user_id
             ]);
         }
         
@@ -347,7 +349,8 @@ class AttributeController extends Controller
             if (!$attributes->contains('name', $attr->attribute_name)) {
                 $attributes->push((object) [
                     'id' => $pseudoId,
-                    'name' => $attr->attribute_name
+                    'name' => $attr->attribute_name,
+                    'user_id' => auth()->id()
                 ]);
             }
         }

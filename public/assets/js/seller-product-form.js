@@ -135,9 +135,19 @@
                             const id = String(attribute.id);
                             if (!$('#choice_attributes option[value="' + id + '"]').length) {
                                 let attributeName = sellerAttributeNameOverrides[attribute.id] || attribute.name;
-                                $('#choice_attributes').append(
-                                    $('<option></option>').val(id).text(attributeName).prop('selected', true)
-                                );
+                                let option = $('<option></option>').val(id).text(attributeName).prop('selected', true);
+                                if (attribute.user_id) {
+                                    option.attr('data-user-id', attribute.user_id);
+                                }
+                                
+                                // Find or create the appropriate optgroup
+                                let optgroupLabel = (!attribute.user_id || attribute.user_id === 'null' || attribute.user_id === '') ? 'Global Admin Attributes' : 'My Custom Attributes';
+                                let optgroup = $('#choice_attributes optgroup[label="' + optgroupLabel + '"]');
+                                if (!optgroup.length) {
+                                    optgroup = $('<optgroup></optgroup>').attr('label', optgroupLabel);
+                                    $('#choice_attributes').append(optgroup);
+                                }
+                                optgroup.append(option);
                             }
                         });
 
@@ -208,8 +218,8 @@
                     }
                 });
                 if (!flag) {
-                    add_more_customer_choice_option($(attribute).val(), $(attribute)
-                        .text());
+                    let userId = $(attribute).attr('data-user-id');
+                    add_more_customer_choice_option($(attribute).val(), $(attribute).text(), [], false, userId);
                 }
             });
             // Remove unselected
@@ -774,7 +784,7 @@
         let hasRow = $('input[name="choice_no[]"][value="' + attribute.id + '"]').length > 0;
 
         if (!hasRow) {
-            add_more_customer_choice_option(attribute.id, attribute.name, values || [], true);
+            add_more_customer_choice_option(attribute.id, attribute.name, values || [], true, attribute.user_id);
             return;
         }
 
@@ -831,34 +841,13 @@
     }
 
     function renderEditableAttributeValues(row) {
-        let select = row.find('.attribute_choice').first();
-        let values = select.val() || [];
-        let holder = row.find('.seller-selected-values-editor');
-
-        if (!holder.length) {
-            holder = $('<div class="seller-selected-values-editor"></div>');
-            row.find('.seller-select-help').first().after(holder);
-        }
-
-        holder.empty();
-
-        if (!values.length) {
-            holder.addClass('d-none');
-            return;
-        }
-
-        holder.removeClass('d-none');
-        holder.append('<div class="seller-selected-values-title">Edit selected values</div>');
-
-        values.forEach(function (value) {
-            holder.append(selectedValueEditorHtml(value));
-        });
+        // Return early to let the premium sort order manager in product-variation.blade.php handle selected options cleanly
+        return;
     }
 
     function renderAllEditableAttributeValues() {
-        $('#customer_choice_options .form-group.row').each(function () {
-            renderEditableAttributeValues($(this));
-        });
+        // Return early to let the premium sort order manager in product-variation.blade.php handle selected options cleanly
+        return;
     }
 
     function sellerAttributeDraftTemplate(index) {
@@ -1138,6 +1127,35 @@
             return;
         }
 
+        let attributeId = row.find('input[name="choice_no[]"]').first().val();
+        let isAdminAttribute = false;
+
+        if (select.attr('id') === 'colors') {
+            isAdminAttribute = true;
+        } else if (attributeId && parseInt(attributeId) > 0) {
+            let option = $('#choice_attributes').find('option[value="' + attributeId + '"]');
+            if (option.length) {
+                let ownerId = option.attr('data-user-id');
+                if (!ownerId || ownerId === 'null' || ownerId === '') {
+                    isAdminAttribute = true;
+                }
+            }
+        }
+
+        if (isAdminAttribute) {
+            if (input && input.length) {
+                input.val(oldValue);
+                let badge = input.closest('.variant-option-edit');
+                if (badge.length) {
+                    badge.removeClass('variant-option-editing');
+                    setVariantOptionEditButtonState(badge.closest('.variant-option-item'), false);
+                    badge.html(escapeHtml(oldValue));
+                }
+            }
+            notifyProductForm('danger', 'You are not allowed to edit/update this value as only admin can update this.');
+            return;
+        }
+
         if (input) {
             input.data('saving-value', true);
         }
@@ -1147,29 +1165,34 @@
         let selectedValues = (select.val() || []).map(function (value) {
             return String(value);
         });
+
+        let oldValClean = oldValue.replace(/\s+/g, '').toLowerCase();
+
         let duplicate = select.find('option').filter(function () {
-            return String($(this).val()).toLowerCase() === newValue.toLowerCase() && String($(this).val()) !== oldValue;
+            let valClean = String($(this).val()).replace(/\s+/g, '').toLowerCase();
+            let newValClean = newValue.replace(/\s+/g, '').toLowerCase();
+            return valClean === newValClean && valClean !== oldValClean;
         }).first();
 
         if (duplicate.length) {
             selectedValues = selectedValues.filter(function (value) {
-                return value !== oldValue;
+                return String(value).replace(/\s+/g, '').toLowerCase() !== oldValClean;
             });
             if (selectedValues.indexOf(String(duplicate.val())) === -1) {
                 selectedValues.push(String(duplicate.val()));
             }
             select.find('option').filter(function () {
-                return String($(this).val()) === oldValue;
+                return String($(this).val()).replace(/\s+/g, '').toLowerCase() === oldValClean;
             }).remove();
             select.val(selectedValues);
         } else {
             select.find('option').each(function () {
-                if (String($(this).val()) === oldValue) {
+                if (String($(this).val()).replace(/\s+/g, '').toLowerCase() === oldValClean) {
                     $(this).val(newValue).text(newValue).prop('selected', true);
                 }
             });
             selectedValues = selectedValues.map(function (value) {
-                return value === oldValue ? newValue : value;
+                return String(value).replace(/\s+/g, '').toLowerCase() === oldValClean ? newValue : value;
             });
             select.val(selectedValues);
         }
@@ -1183,7 +1206,7 @@
             type: 'POST',
             url: productFormData().storeAttributeRoute,
             data: {
-                attribute_id: row.find('input[name="choice_no[]"]').first().val(),
+                attribute_id: attributeId,
                 name: $.trim(row.find('input[name="choice[]"]').first().val()),
                 old_value: oldValue,
                 values: [newValue],
@@ -1217,7 +1240,33 @@
             error: function (xhr) {
                 if (input && input.length) {
                     input.val(oldValue);
+                    let badge = input.closest('.variant-option-edit');
+                    if (badge.length) {
+                        badge.removeClass('variant-option-editing');
+                        setVariantOptionEditButtonState(badge.closest('.variant-option-item'), false);
+                        badge.html(escapeHtml(oldValue));
+                    }
                 }
+
+                // Rollback select options and table variants
+                let revertedSelectedValues = (select.val() || []).map(function (value) {
+                    return String(value) === newValue ? oldValue : String(value);
+                });
+
+                select.find('option').each(function () {
+                    if (String($(this).val()) === newValue) {
+                        $(this).val(oldValue).text(oldValue);
+                    }
+                });
+
+                select.val(revertedSelectedValues);
+                refreshProductSelects(select);
+                renderEditableAttributeValues(row);
+
+                snapshotVariantInputValues(newValue, oldValue);
+                restorePendingVariantInputValues();
+                update_sku();
+
                 notifyProductForm('danger', sellerAttributeError(xhr, 'Unable to save attribute value.'));
             },
             complete: function () {
@@ -1346,14 +1395,20 @@
         input.data('variant-save-started', true);
 
         let matchedSelect = $();
-        $('.attribute_choice').each(function () {
+        let matchedOption = $();
+        $('.attribute_choice, #colors').each(function () {
             let select = $(this);
-            let match = select.find('option:selected').filter(function () {
-                return String($(this).val()) === oldValue || $.trim($(this).text()) === oldValue;
+            // Search all options
+            let match = select.find('option').filter(function () {
+                let optValClean = String($(this).val()).replace(/\s+/g, '').toLowerCase();
+                let optTextClean = $.trim($(this).text()).replace(/\s+/g, '').toLowerCase();
+                let oldValClean = oldValue.replace(/\s+/g, '').toLowerCase();
+                return optValClean === oldValClean || optTextClean === oldValClean;
             }).first();
 
             if (match.length) {
                 matchedSelect = select;
+                matchedOption = match;
                 return false;
             }
         });
@@ -1364,6 +1419,16 @@
             badge.html(escapeHtml(oldValue));
             notifyProductForm('danger', 'Unable to find the selected attribute value.');
             return;
+        }
+
+        // If the matched option is unselected, programmatically select it
+        if (!matchedOption.prop('selected')) {
+            let currentVals = matchedSelect.val() || [];
+            if (!currentVals.includes(matchedOption.val())) {
+                currentVals.push(matchedOption.val());
+                matchedSelect.val(currentVals);
+                refreshProductSelects(matchedSelect);
+            }
         }
 
         let row = matchedSelect.closest('.form-group.row');
@@ -1578,7 +1643,7 @@
     }
 
     // Global functions
-    window.add_more_customer_choice_option = function (i, name, selectedValues, autoSelect) {
+    window.add_more_customer_choice_option = function (i, name, selectedValues, autoSelect, userId) {
         const formData = $('#product-form-data').data();
         $.ajax({
             headers: {
@@ -1608,16 +1673,28 @@
 
                 name = name.trim();
                 $('#variant-table-prompt').remove();
-                $('#customer_choice_options').append('\
-                <div class="form-group row align-items-center mb-3 attribute-variation-row">\
+
+                let isAdmin = (!userId || userId === 'null' || userId === '');
+                let editBtnHtml = '';
+                if (!isAdmin) {
+                    editBtnHtml = '<button type="button" class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
+                                <i class="las la-pen"></i>\
+                            </button>';
+                }
+
+                let targetContainer = isAdmin ? '#customer_choice_options_admin' : '#customer_choice_options_custom';
+                let container = $(targetContainer);
+                if (!container.length) {
+                    container = $('#customer_choice_options');
+                }
+
+                container.append('\
+                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="' + (userId || '') + '">\
                     <div class="col-lg-3">\
                         <input type="hidden" name="choice_no[]" value="' + i + '">\
                         <div class="seller-attribute-title-cell">\
-                            <input type="text" class="form-control-plaintext font-weight-bold text-dark-title" name="choice[]" value="' + name +
-                    '" placeholder="Choice Title" readonly>\
-                            <button type="button" class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
-                                <i class="las la-pen"></i>\
-                            </button>\
+                            <input type="text" class="form-control-plaintext font-weight-bold text-dark-title" name="choice[]" value="' + name + '" placeholder="Choice Title" readonly>\
+                            ' + editBtnHtml + '\
                         </div>\
                     </div>\
                     <div class="col-lg-8 seller-variation-select-col">\
@@ -1627,7 +1704,7 @@
                         <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
                         <div class="seller-selected-values-editor mt-2 d-none" id="selected-values-editor-' + i + '">\
                             <div class="seller-selected-values-title">Set Option Values Sort Order</div>\
-                            <div class="seller-selected-values-list d-flex flex-wrap gap-1 w-100"></div>\
+                            <div class="seller-selected-values-list"></div>\
                         </div>\
                     </div>\
                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">\
