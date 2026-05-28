@@ -11,7 +11,35 @@ class ProductStockService
 {
     public function validateVariantPrices(array $data): void
     {
-        // No-op. Empty or invalid variant prices are simply skipped/filtered out during save.
+        $collection = collect($data);
+        $options = ProductUtility::get_attribute_options($collection);
+        
+        $combinations = array();
+        foreach ($options as $option_group) {
+            if (is_array($option_group)) {
+                foreach ($option_group as $value) {
+                    $combinations[] = [$value];
+                }
+            }
+        }
+
+        if (count($combinations) > 0) {
+            $errors = [];
+            foreach ($combinations as $combination) {
+                $str = ProductUtility::get_combination_string($combination, $collection);
+                $field_key = str_replace('.', '_', $str);
+                $price_key = 'price_' . $field_key;
+
+                $price = request()->input($price_key);
+                if (is_null($price) || trim((string)$price) === '' || !is_numeric($price) || (float) $price <= 0) {
+                    $errors[$price_key] = [translate('Variant price is required for') . ' ' . $str];
+                }
+            }
+
+            if (!empty($errors)) {
+                throw ValidationException::withMessages($errors);
+            }
+        }
     }
 
     public function store(array $data, $product)

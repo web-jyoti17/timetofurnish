@@ -19,15 +19,17 @@ trait ValidatesProductVariantStock
             $rules['choice_options_' . $choiceNo] = 'required|array|min:1';
         }
 
+        $hasVariants = count($this->expectedVariantStockFields()) > 0;
+
         foreach ($this->expectedVariantStockFields() as $fields) {
-            $rules[$fields['price']] = ['nullable', 'numeric', 'gt:0', 'max:99999'];
+            $rules[$fields['price']] = ['required', 'numeric', 'gt:0', 'max:99999'];
             $rules[$fields['qty']] = ['nullable', 'integer', 'min:1', 'max:9999'];
             $rules[$fields['sku']] = ['nullable', 'max:255'];
         }
 
         foreach ($this->all() as $key => $value) {
             if (str_starts_with($key, 'price_')) {
-                $rules[$key] = ['nullable', 'numeric', 'gt:0', 'max:99999'];
+                $rules[$key] = [$hasVariants ? 'required' : 'nullable', 'numeric', 'gt:0', 'max:99999'];
             }
 
             if (str_starts_with($key, 'qty_')) {
@@ -47,20 +49,23 @@ trait ValidatesProductVariantStock
 
             $fields = $this->expectedVariantStockFields();
 
-            if (!count($fields) || $this->hasAnyVariantPrice($fields)) {
-                return;
+            if (count($fields) > 0) {
+                foreach ($fields as $field) {
+                    if (!$this->filled($field['price'])) {
+                        $validator->errors()->add(
+                            $field['price'],
+                            translate('Variant price is required for') . ' ' . $field['label']
+                        );
+                    }
+                }
             }
-
-            $validator->errors()->add(
-                $fields[0]['price'],
-                translate('Please enter at least one variant price.')
-            );
         });
     }
 
     protected function addVariantStockMessages(array $messages): array
     {
         foreach ($this->expectedVariantStockFields() as $fields) {
+            $messages[$fields['price'] . '.required'] = translate('Variant price is required for') . ' ' . $fields['label'];
             $messages[$fields['price'] . '.numeric'] = translate('Variant price must be numeric for') . ' ' . $fields['label'];
             $messages[$fields['price'] . '.gt'] = translate('Variant price must be greater than 0 for') . ' ' . $fields['label'];
             $messages[$fields['qty'] . '.integer'] = translate('Variant quantity must be a whole number for') . ' ' . $fields['label'];

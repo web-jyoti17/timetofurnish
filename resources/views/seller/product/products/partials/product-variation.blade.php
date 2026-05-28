@@ -974,7 +974,7 @@
 
 
     /* Premium Selectpicker Dropdown styling */
-    #choice_form .bootstrap-select .dropdown-toggle {
+    #choice_form .productvariation .bootstrap-select .dropdown-toggle {
         min-height: 42px;
         padding: 8px 20px !important;
         border: 1px solid var(--seller-border-strong) !important;
@@ -989,20 +989,20 @@
         transition: all 0.2s ease !important;
     }
 
-    #choice_form .bootstrap-select.show .dropdown-toggle,
-    #choice_form .bootstrap-select .dropdown-toggle:focus {
+    #choice_form .productvariation .bootstrap-select.show .dropdown-toggle,
+    #choice_form .productvariation .bootstrap-select .dropdown-toggle:focus {
         border-color: #c59259 !important;
         box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.15) !important;
     }
 
-    #choice_form .bootstrap-select .dropdown-toggle .filter-option {
+    #choice_form .productvariation .bootstrap-select .dropdown-toggle .filter-option {
         display: flex !important;
         align-items: center !important;
         color: var(--seller-text) !important;
     }
 
     /* Bootstrap selectpicker dropdown menu menu customisation */
-    body .bootstrap-select .dropdown-menu {
+    .productvariation .bootstrap-select .dropdown-menu {
         border: 1px solid rgba(197, 146, 89, 0.15) !important;
         border-radius: 14px !important;
         box-shadow: 0 10px 30px rgba(197, 146, 89, 0.08) !important;
@@ -1012,13 +1012,13 @@
         z-index: 9999 !important;
     }
 
-    body .bootstrap-select .dropdown-menu .bs-searchbox {
+    .productvariation .bootstrap-select .dropdown-menu .bs-searchbox {
         padding: 6px 6px 10px !important;
         border-bottom: 1px solid #f6f5f2 !important;
         margin-bottom: 6px !important;
     }
 
-    body .bootstrap-select .dropdown-menu .bs-searchbox input {
+    .productvariation .bootstrap-select .dropdown-menu .bs-searchbox input {
         height: 38px !important;
         border-radius: 20px !important;
         border: 1px solid #d9dee3 !important;
@@ -1028,26 +1028,26 @@
         background: #fafbfc !important;
     }
 
-    body .bootstrap-select .dropdown-menu .bs-searchbox input:focus {
+    .productvariation .bootstrap-select .dropdown-menu .bs-searchbox input:focus {
         border-color: #c59259 !important;
         background: #fff !important;
         box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.12) !important;
         outline: none !important;
     }
 
-    body .bootstrap-select .dropdown-menu ul.dropdown-menu {
+    .productvariation .bootstrap-select .dropdown-menu ul.dropdown-menu {
         border: 0 !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    body .bootstrap-select .dropdown-menu li {
+    .productvariation .bootstrap-select .dropdown-menu li {
         margin: 2px 0 !important;
         padding: 0 !important;
     }
 
-    body .bootstrap-select .dropdown-menu li a {
+    .productvariation .bootstrap-select .dropdown-menu li a {
         border-radius: 8px !important;
         padding: 10px 14px !important;
         color: #4a463e !important;
@@ -1058,19 +1058,19 @@
         align-items: center !important;
     }
 
-    body .bootstrap-select .dropdown-menu li a:hover,
-    body .bootstrap-select .dropdown-menu li.active a {
+    .productvariation .bootstrap-select .dropdown-menu li a:hover,
+    .productvariation .bootstrap-select .dropdown-menu li.active a {
         background: rgba(197, 146, 89, 0.08) !important;
         color: #a27038 !important;
     }
 
-    body .bootstrap-select .dropdown-menu li.selected a {
+    .productvariation .bootstrap-select .dropdown-menu li.selected a {
         background: rgba(197, 146, 89, 0.15) !important;
         color: #a27038 !important;
         font-weight: 700 !important;
     }
 
-    body .bootstrap-select .dropdown-menu li.selected a::after {
+    .productvariation .bootstrap-select .dropdown-menu li.selected a::after {
         content: "\f00c";
         font-family: "Line Awesome Free";
         font-weight: 900;

@@ -11,7 +11,14 @@
         $isOptChecked = isset($option['id']);
     }
 @endphp
-
+<style>
+    .addon-option-row{
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 <div class="addon-option-row">
 
     <div class="addon-option-toggle-cell" data-label="Use">
