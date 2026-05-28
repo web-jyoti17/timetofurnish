@@ -8,6 +8,8 @@ class ProductStock extends Model
 {
     protected $fillable = ['product_id', 'variant', 'sku', 'price', 'qty', 'image'];
     
+    public $is_virtual = false;
+    
     public function product(){
     	return $this->belongsTo(Product::class);
     }
@@ -28,7 +30,7 @@ class ProductStock extends Model
 
     public function save(array $options = [])
     {
-        if (strpos($this->variant, '-') !== false && !$this->exists) {
+        if ($this->is_virtual && strpos($this->variant, '-') !== false && !$this->exists) {
             // Virtual stock row saving: propagate changes to all actual flat stocks
             $parts = array_filter(explode('-', $this->variant));
             $actual_stocks = self::where('product_id', $this->product_id)

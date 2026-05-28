@@ -50,6 +50,7 @@ class ProductStockCollection extends Collection
                 $first = $matching->first();
                 $virtual = clone $first;
                 $virtual->exists = false; // It's a virtual model
+                $virtual->is_virtual = true; // Add this line!
                 
                 $price = 0;
                 $qty = 9999;

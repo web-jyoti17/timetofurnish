@@ -383,7 +383,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return redirect()->route('seller.products.index');
+        return redirect()->back();
     }
     public function edit(Request $request, $id)
     {
@@ -486,7 +486,7 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | 3. Merge दोनों
+        | 3. Merge 
         |--------------------------------------------------------------------------
         */
         $pAddons = collect(array_merge($productAddons, $globalAddons)) // ✅ product first
