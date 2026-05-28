@@ -9,23 +9,31 @@ trait ValidatesProductVariantStock
 {
     protected function addSellerVariantStockRules(array $rules): array
     {
-        if (!(auth()->check() && auth()->user()->user_type == 'seller')) {
+        if (!auth()->check()) {
             return $rules;
         }
 
-        $rules['choice_no'] = 'required|array|min:1';
+        // Only enforce variant-related rules if variations are actively selected
+        $hasChoiceNo = $this->has('choice_no') && is_array($this->input('choice_no')) && count($this->input('choice_no')) > 0;
+        $hasColors = $this->boolean('colors_active') && is_array($this->input('colors')) && count($this->input('colors')) > 0;
 
-        foreach ((array) $this->input('choice_no', []) as $choiceNo) {
-            $rules['choice_options_' . $choiceNo] = 'required|array|min:1';
+        if ($hasChoiceNo || $hasColors) {
+            if ($hasChoiceNo) {
+                $rules['choice_no'] = 'required|array|min:1';
+
+                foreach ((array) $this->input('choice_no', []) as $choiceNo) {
+                    $rules['choice_options_' . $choiceNo] = 'required|array|min:1';
+                }
+            }
+
+            foreach ($this->expectedVariantStockFields() as $fields) {
+                $rules[$fields['price']] = ['required', 'numeric', 'gt:0', 'max:99999'];
+                $rules[$fields['qty']] = ['nullable', 'integer', 'min:1', 'max:9999'];
+                $rules[$fields['sku']] = ['nullable', 'max:255'];
+            }
         }
 
         $hasVariants = count($this->expectedVariantStockFields()) > 0;
-
-        foreach ($this->expectedVariantStockFields() as $fields) {
-            $rules[$fields['price']] = ['required', 'numeric', 'gt:0', 'max:99999'];
-            $rules[$fields['qty']] = ['nullable', 'integer', 'min:1', 'max:9999'];
-            $rules[$fields['sku']] = ['nullable', 'max:255'];
-        }
 
         foreach ($this->all() as $key => $value) {
             if (str_starts_with($key, 'price_')) {
@@ -43,7 +51,7 @@ trait ValidatesProductVariantStock
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if (!(auth()->check() && auth()->user()->user_type == 'seller')) {
+            if (!auth()->check()) {
                 return;
             }
 

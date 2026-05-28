@@ -17,6 +17,14 @@
         color: var(--seller-text);
         font-family: 'Outfit', sans-serif;
     }
+  
+    .addon-option-row{
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+
 
     #choice_form *,
     #choice_form *::before,

@@ -139,7 +139,7 @@
                                 if (attribute.user_id) {
                                     option.attr('data-user-id', attribute.user_id);
                                 }
-                                
+
                                 // Find or create the appropriate optgroup
                                 let optgroupLabel = (!attribute.user_id || attribute.user_id === 'null' || attribute.user_id === '') ? 'Global Admin Attributes' : 'My Custom Attributes';
                                 let optgroup = $('#choice_attributes optgroup[label="' + optgroupLabel + '"]');
@@ -158,8 +158,6 @@
                         }
                         $('#choice_attributes').prop('disabled', false);
 
-                        // Snapshot again just before triggering change so prices
-                        // entered between the two async calls are also captured.
                         captureFullVariantSnapshot();
 
                         // Trigger change on attributes select to automatically generate option selectors for the auto-selected category attributes
@@ -189,7 +187,7 @@
                 } else if (window.AIZ && AIZ.plugins && AIZ.plugins.bootstrapSelect) {
                     AIZ.plugins.bootstrapSelect('refresh');
                 }
-                
+
                 $('#choice_attributes').trigger('change');
             }
         }
@@ -321,7 +319,7 @@
                 categoryIds.push($(this).val());
             });
             var form = $('#choice_form');
-            
+
             if (categoryIds.length > 0) {
                 form.removeClass('seller-category-pending').addClass('seller-category-ready');
             } else {
@@ -605,9 +603,9 @@
             if (!priceName) return;
 
             let price = priceInput.val();
-            let qty   = row.find('.var_qty').first().val();
-            let sku   = row.find('input[name^="sku_"]').first().val();
-            let img   = row.find('input[name^="img_"]').first().val();
+            let qty = row.find('.var_qty').first().val();
+            let sku = row.find('input[name^="sku_"]').first().val();
+            let img = row.find('input[name^="img_"]').first().val();
 
             // Only snapshot if there is actually a price entered (avoid overwriting
             // DB-loaded prices with empty strings from a race-condition render)
@@ -628,7 +626,7 @@
         $('#sku_combination .variant').each(function () {
             let row = $(this);
             let priceInput = row.find('.var_price').first();
-            let priceName  = priceInput.attr('name');
+            let priceName = priceInput.attr('name');
             if (!priceName) return;
 
             let saved = fullVariantPriceSnapshot[priceName];

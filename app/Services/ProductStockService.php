@@ -60,16 +60,21 @@ class ProductStockService
         
         $variant = '';
         $saved_count = 0;
-        if (count($combinations) > 0) {
+        $has_expected_combinations = count($combinations) > 0;
+
+        if ($has_expected_combinations) {
             foreach ($combinations as $key => $combination) {
                 $str = ProductUtility::get_combination_string($combination, $collection);
                 $field_key = str_replace('.', '_', $str);
                 $price_key = 'price_' . $field_key;
 
                 $price = request()->input($price_key);
-                // Skip options without a valid price - we don't save options without price in the DB
-                if (!is_numeric($price) || (float) $price <= 0) {
-                    continue;
+                
+                // Enforce that we MUST have a valid price for all combinations if variations are present
+                if (is_null($price) || trim((string)$price) === '' || !is_numeric($price) || (float) $price <= 0) {
+                    throw ValidationException::withMessages([
+                        $price_key => [translate('Variant price is required and must be greater than 0 for') . ' ' . $str]
+                    ]);
                 }
 
                 $qty_key = 'qty_' . $field_key;
@@ -94,8 +99,13 @@ class ProductStockService
             $product->variant_product = 1;
             $product->save();
         } else {
-            // Either no combinations were generated, or none had valid prices.
-            // Save as a simple product without variations.
+            // Save as a simple product ONLY if no expected combinations were submitted at all
+            if ($has_expected_combinations) {
+                throw ValidationException::withMessages([
+                    'choice_no' => [translate('Variant combinations require prices to be entered.')]
+                ]);
+            }
+
             $product->variant_product = 0;
             $product->save();
 
