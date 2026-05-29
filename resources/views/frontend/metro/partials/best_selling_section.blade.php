@@ -20,7 +20,7 @@
             <div class="px-sm-3">
                 <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="5" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
                     @foreach ($best_selling_products as $key => $product)
-                        <div class="carousel-box px-3 position-relative">
+                        <div class="carousel-box best-seller position-relative">
                             @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                         </div>
                     @endforeach
