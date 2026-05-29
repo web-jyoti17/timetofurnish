@@ -94,7 +94,7 @@
                 style="letter-spacing:0.5px !important;"
                 title="{{ $product->getTranslation('name') }}">{{ $product->getTranslation('name') }}</a>
         </h3>
-        <div class="fs-14 d-flex justify-content-center mt-3">
+        <div class="fs-11 d-flex justify-content-center mt-3">
             @if ($product->auction_product == 0)
                 <!-- Previous price -->
                 @if (home_base_price($product) != home_discounted_base_price($product))
@@ -103,7 +103,7 @@
                     </div>
                 @endif
                 <!-- price -->
-                <div class="">
+                <div class="price d-block">
                     <span class="fw-700 text-primary kk">{{ home_discounted_base_price($product) }}</span>
                 </div>
             @endif
