@@ -1,5 +1,7 @@
 @php
-    if(!empty($old_values)) $old_values = json_decode($old_values);
+    if (isset($old_values) && is_string($old_values) && !empty($old_values)) {
+        $old_values = json_decode($old_values);
+    }
     $colors_active = $colors_active ?? 0;
 @endphp
 
@@ -184,6 +186,21 @@
                         }
                     @endphp
                     @if(strlen($str) > 0)
+                       @php
+                           $stock = null;
+                           if (isset($product)) {
+                               $stock = $product->stocks->where('variant', $str)->first();
+                               $val_price = old('price_'.$str, $stock != null && $stock->price > 0 ? $stock->price : ($unit_price > 0 ? $unit_price : ''));
+                               $val_sku = old('sku_'.$str, ($stock != null ? $stock->sku : $str));
+                               $val_qty = old('qty_'.$str, ($stock != null && $stock->qty > 0 ? $stock->qty : 1));
+                               $val_img = $stock != null ? $stock->image : '';
+                           } else {
+                               $val_price = old('price_'.$str, $old_values->{'price_'.$str} ?? '');
+                               $val_sku = old('sku_'.$str, $old_values->{'sku_'.$str} ?? $sku);
+                               $val_qty = old('qty_'.$str, $old_values->{'qty_'.$str} ?? 1);
+                               $val_img = old('img_'.$str, $old_values->{'img_'.$str} ?? '');
+                           }
+                       @endphp
                        <tr class="variant" data-variant-values='@json($combination)'>
                             <td class="text-center align-middle">
                                 <div class="variant-option-cell">
@@ -199,7 +216,7 @@
                                                 }
                                             }
                                         @endphp
-                                        <span class="variant-option-item d-inline-flex align-items-center gap-1">
+                                        <span class="variant-option-item d-inline-flex align-items-center gap-1 jkk">
                                             <span class="premium-badge variant-option-badge variant-option-edit"
                                                 data-variant-value="{{ $row_value }}">
                                                 {{ $row_value }}
@@ -224,7 +241,7 @@
                                 </div>
                             </td>
                             <td>
-                                <input type="number" lang="en" name="price_{{ $str }}" value="{{ $old_values->{'price_'.$str} ?? '' }}" min="0.01" step="0.01" required class="form-control var_price premium-var-input" oninput="
+                                <input type="number" lang="en" name="price_{{ $str }}" value="{{ $val_price }}" min="0.01" max="99999" step="0.01" required class="form-control var_price premium-var-input" oninput="
                                 this.value = this.value.replace(/[^0-9.]/g, '').slice(0,5);
                                 this.value = this.value.replace(/(\..*)\./g, '$1');
                                 if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
@@ -236,16 +253,16 @@
                                 ">
                             </td>
                             <td>
-                                <input type="text" name="sku_{{ $str }}" value="{{ $old_values->{'sku_'.$str} ?? $sku }}" class="form-control premium-var-input">
+                                <input type="text" name="sku_{{ $str }}" value="{{ $val_sku }}" class="form-control premium-var-input">
                             </td>
                             <td>
-                                <input type="number" lang="en" name="qty_{{ $str }}" value="{{ $old_values->{'qty_'.$str} ?? 1 }}" min="1" step="1" class="form-control var_qty premium-var-input" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';">
+                                <input type="number" lang="en" name="qty_{{ $str }}" value="{{ $val_qty }}" min="1" step="1" max="9999" class="form-control var_qty premium-var-input" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4); if (parseInt(this.value || 0, 10) <= 0) this.value = '';">
                             </td>
                             <td>
                                 <div class="premium-uploader-wrap" data-toggle="aizuploader" data-type="image">
                                     <div class="premium-uploader-btn">{{ translate('Browse') }}</div>
                                     <div class="premium-uploader-file file-amount text-truncate">{{ translate('Choose File') }}</div>
-                                    <input type="hidden" name="img_{{ $str }}" class="selected-files" value="{{ $old_values->{'img_'.$str} ?? '' }}">
+                                    <input type="hidden" name="img_{{ $str }}" class="selected-files" value="{{ $val_img }}">
                                 </div>
                                 <div class="file-preview box sm mt-2"></div>
                             </td>

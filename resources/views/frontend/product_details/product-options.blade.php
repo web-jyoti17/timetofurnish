@@ -2,6 +2,9 @@
     <form id="option-choice-form">
         @csrf
         <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
+        @if(isset($cartItem))
+            <input type="hidden" name="cart_item_id" value="{{ $cartItem->id }}">
+        @endif
         @php
             $actual_base_price = $detailedProduct->unit_price;
             $discount_applicable = false;
@@ -37,6 +40,7 @@
                 $productStockChoices = function_exists('get_product_stock_choices')
                     ? get_product_stock_choices($detailedProduct)
                     : json_decode($detailedProduct->choice_options ?? '[]');
+                $variationParts = isset($cartItem) && $cartItem->variation ? explode('-', $cartItem->variation) : [];
             @endphp
             @if (!empty($productStockChoices))
 
@@ -60,21 +64,22 @@
                                 data-attribute="{{ $choice->attribute_id }}"
                                 onchange="getVariantPrice(); updateVariantOptionPrice(this);">
 
-                                <option value="" selected>Choose Option</option>
-                                @foreach (get_product_choice_values($choice) as $key => $choiceValue)
+                                <option value="" @if(!isset($cartItem) || !$cartItem->variation) selected @endif>Choose Option</option>
+                                @foreach (get_product_choice_values($choice) as $choiceKey => $choiceValue)
                                     @php
                                         $value = \App\Utility\ProductUtility::choice_value($choiceValue);
                                         $optionDetails = get_product_option_display_details('attribute', $value, [
                                             'product' => $detailedProduct,
                                             'attribute_id' => $choice->attribute_id,
                                         ]);
+                                        $is_selected = isset($cartItem) && in_array(str_replace(' ', '', $value), $variationParts);
                                     @endphp
 
                                     <option value="{{ $value }}" data-price="{{ $optionDetails['price'] }}"
                                         data-price-text="{{ $optionDetails['formatted_price'] }}"
                                         data-quantity="{{ $optionDetails['quantity'] }}"
                                         data-img="{{ $optionDetails['image_url'] }}"
-                                        @if ($key == 0)  @endif>
+                                        @if ($is_selected) selected @endif>
                                         {{ $optionDetails['label'] }}
                                     </option>
                                 @endforeach
@@ -143,18 +148,60 @@
 
                         @if ($isFabric)
                             {{-- FABRIC DESIGN --}}
+                            @php
+                                $selectedOptionName = null;
+                                $selectedGroupName = null;
+                                $selectedFabricNameWithPrice = null;
+                                $selectedOptionId = null;
+                                $selectedOptionImg = null;
+                                if (isset($cartItem) && $cartItem->addons) {
+                                    $decodedAddons = json_decode($cartItem->addons, true);
+                                    if (is_array($decodedAddons)) {
+                                        foreach ($decodedAddons as $decodedAddon) {
+                                            if ($decodedAddon['addon_id'] == $addon->id) {
+                                                $selectedOptionName = $decodedAddon['name'];
+                                                foreach ($addon->options as $option) {
+                                                    if ($option->option_name == $selectedOptionName) {
+                                                        $selectedOptionId = $option->id;
+                                                        $selectedOptionImg = $option->img;
+                                                        $words = explode(' ', trim($selectedOptionName));
+                                                        if (count($words) >= 2) {
+                                                            $selectedGroupName = $words[0] . ' ' . $words[1];
+                                                        } else {
+                                                            $selectedGroupName = $selectedOptionName;
+                                                        }
+                                                        
+                                                        $addonOptionDetails = get_product_option_display_details('addon', $option);
+                                                        $selectedFabricNameWithPrice = $addonOptionDetails['value'];
+                                                        if ($addonOptionDetails['price'] > 0) {
+                                                            $selectedFabricNameWithPrice .= ' (+' . $addonOptionDetails['formatted_price'] . ')';
+                                                        }
+                                                        break 2;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
                             <select class="form-select custom-dropdown fabric-dropdown"
                                 name="addons_group[{{ $addon->id }}]" data-addonid="{{ $addon->id }}"
-                                onchange="updateFabricPreview({{ $addon->id }}, this);">
+                                onchange="updateFabricPreview({{ $addon->id }}, this);"
+                                @if($selectedFabricNameWithPrice) data-selected-fabric="{{ $selectedFabricNameWithPrice }}" @endif>
 
                                 <option value="">Choose Option</option>
 
                                 @foreach ($fabricGroups as $groupName => $groupOptions)
-                                    <option value="{{ $groupName }}" data-group="{{ $groupName }}">
+                                    <option value="{{ $groupName }}" data-group="{{ $groupName }}"
+                                        @if($groupName == $selectedGroupName) selected @endif>
                                         {{ $groupName }}
                                     </option>
                                 @endforeach
                             </select>
+
+                            @if($selectedOptionId)
+                                <input type="hidden" name="addons[{{ $addon->id }}]" value="{{ $selectedOptionId }}" />
+                            @endif
 
                             <span id="addon-price-info-{{ $addon->id }}" class="addon-price-info d-none"></span>
 
@@ -162,7 +209,7 @@
                                 id="fabric-preview-block-{{ $addon->id }}">
 
                                 @foreach ($fabricGroups as $groupName => $groupOptions)
-                                    <div class="fabric-preview-group d-none" data-group="{{ $groupName }}"
+                                    <div class="fabric-preview-group @if($groupName == $selectedGroupName) @else d-none @endif" data-group="{{ $groupName }}"
                                         id="fabric-preview-group-{{ $addon->id }}-{{ \Str::slug($groupName) }}">
 
                                         @foreach ($groupOptions as $option)
@@ -171,8 +218,9 @@
                                                     'addon',
                                                     $option,
                                                 );
+                                                $is_selected_fabric = ($option->option_name == $selectedOptionName);
                                             @endphp
-                                            <button type="button" class="p-0 fabric-color-box btn"
+                                            <button type="button" class="p-0 fabric-color-box btn @if($is_selected_fabric) selected @endif"
                                                 data-addonid="{{ $addon->id }}" data-group="{{ $groupName }}"
                                                 data-price="{{ $addonOptionDetails['price'] }}"
                                                 data-price-text="{{ $addonOptionDetails['formatted_price'] }}"
@@ -198,10 +246,6 @@
                                                             <span class="fabric-price-text">
                                                                 +{{ $addonOptionDetails['formatted_price'] }}
                                                             </span>
-                                                        @else
-                                                            {{-- <span class="fabric-price-text free">
-                                                                Free
-                                                            </span> --}}
                                                         @endif
                                                     </div>
                                                 </div>
@@ -215,6 +259,20 @@
                             {{-- <div class="product-option-preview d-none" id="addon-preview-{{ $addon->id }}"></div> --}}
                         @else
                             {{-- NORMAL DESIGN --}}
+                            @php
+                                $selectedOptionName = null;
+                                if (isset($cartItem) && $cartItem->addons) {
+                                    $decodedAddons = json_decode($cartItem->addons, true);
+                                    if (is_array($decodedAddons)) {
+                                        foreach ($decodedAddons as $decodedAddon) {
+                                            if ($decodedAddon['addon_id'] == $addon->id) {
+                                                $selectedOptionName = $decodedAddon['name'];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
                             <select class="form-select custom-dropdown" name="addons[{{ $addon->id }}]"
                                 data-addonid="{{ $addon->id }}">
 
@@ -223,13 +281,15 @@
                                 @foreach ($addon->options as $option)
                                     @php
                                         $addonOptionDetails = get_product_option_display_details('addon', $option);
+                                        $is_selected_addon = ($option->option_name == $selectedOptionName);
                                     @endphp
                                     <option value="{{ $addonOptionDetails['id'] }}"
                                         data-price="{{ $addonOptionDetails['price'] }}"
                                         data-price-text="{{ $addonOptionDetails['formatted_price'] }}"
                                         data-quantity="{{ $addonOptionDetails['quantity'] }}"
                                         data-img="{{ $addonOptionDetails['image_url'] }}"
-                                        data-name="{{ $addonOptionDetails['value'] }}">
+                                        data-name="{{ $addonOptionDetails['value'] }}"
+                                        @if($is_selected_addon) selected @endif>
 
                                         {{ $addonOptionDetails['label'] }}
 
@@ -382,7 +442,7 @@
                             <input type="number" name="quantity" id="quantity"
                                 class="px-0 py-0 text-center border-0 form-control flex-grow-1 bg-divider quantity-input"
                                 style="width:60px;height:40px;box-shadow:none;background: #ded3c3; font-size: 22px; color: #888; font-weight: 500; border-radius: 0;"
-                                value="{{ $detailedProduct->min_qty }}" min="{{ $detailedProduct->min_qty }}"
+                                value="{{ isset($cartItem) ? max($cartItem->quantity, $detailedProduct->min_qty) : $detailedProduct->min_qty }}" min="{{ $detailedProduct->min_qty }}"
                                 max="10" placeholder="1" lang="en" autocomplete="off" onblur="change_qty()">
                             <button
                                 class="border-0 btn btn-icon btn-quantity d-flex align-items-center justify-content-center"
@@ -565,22 +625,27 @@
                 // Hide all groups for this addon
                 $previewBlock.find('.fabric-preview-group').addClass('d-none');
 
+                var isInitialLoad = !$(selectElem).data('initialized');
+                $(selectElem).data('initialized', true);
+
                 // ALWAYS remove previous selections and reset hidden input when group changes
-                $previewBlock.find('.fabric-color-box').removeClass('selected');
-                $(`input[type=hidden][name="addons[${addonId}]"]`).val('');
+                if (!isInitialLoad) {
+                    $previewBlock.find('.fabric-color-box').removeClass('selected');
+                    $(`input[type=hidden][name="addons[${addonId}]"]`).val('');
 
-                // Clear stored fabric selection name when changing group
-                $(selectElem).data('selected-fabric', '');
+                    // Clear stored fabric selection name when changing group
+                    $(selectElem).data('selected-fabric', '');
 
-                // Reset all options in the dropdown back to their original group name
-                $(selectElem).find('option').each(function() {
-                    var originalGroup = $(this).data('group');
-                    if (originalGroup) {
-                        $(this).text(originalGroup);
-                    }
-                });
-                // Trigger select2 update to show the original group name
-                $(selectElem).trigger('change.select2');
+                    // Reset all options in the dropdown back to their original group name
+                    $(selectElem).find('option').each(function() {
+                        var originalGroup = $(this).data('group');
+                        if (originalGroup) {
+                            $(this).text(originalGroup);
+                        }
+                    });
+                    // Trigger select2 update to show the original group name
+                    $(selectElem).trigger('change.select2');
+                }
 
                 var selectedOption = selectElem.selectedOptions ? selectElem.selectedOptions[0] : null;
                 if (selectedOption && selectedOption.value) {

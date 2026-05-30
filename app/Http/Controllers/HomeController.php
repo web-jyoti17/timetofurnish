@@ -47,6 +47,10 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        if (session()->has('edit_cart_item_id')) {
+            session()->forget('edit_cart_item_id');
+        }
+
         $featured_categories = Cache::rememberForever('featured_categories', function () {
             return Category::with('bannerImage')->where('featured', 1)->get();
         });
@@ -290,6 +294,33 @@ class HomeController extends Controller
 
         $detailedProduct  = Product::with('reviews', 'brand', 'stocks', 'user', 'user.shop')->where('auction_product', 0)->where('slug', $slug)->first();
 
+        $cartItem = null;
+        if (session()->has('edit_cart_item_id')) {
+            $edit_cart_item_id = session()->get('edit_cart_item_id');
+            $cartItem = Cart::find($edit_cart_item_id);
+            if ($cartItem) {
+                if (Auth::check() && $cartItem->user_id != Auth::user()->id) {
+                    $cartItem = null;
+                    session()->forget('edit_cart_item_id');
+                }
+                if ($cartItem && $detailedProduct && $cartItem->product_id != $detailedProduct->id) {
+                    $cartItem = null;
+                    session()->forget('edit_cart_item_id');
+                }
+            } else {
+                session()->forget('edit_cart_item_id');
+            }
+        }
+
+        $alreadyInCart = false;
+        if ($detailedProduct) {
+            if (Auth::check()) {
+                $alreadyInCart = Cart::where('user_id', Auth::id())->where('product_id', $detailedProduct->id)->exists();
+            } elseif ($request->session()->has('temp_user_id')) {
+                $alreadyInCart = Cart::where('temp_user_id', $request->session()->get('temp_user_id'))->where('product_id', $detailedProduct->id)->exists();
+            }
+        }
+
         // old if ($detailedProduct != null && $detailedProduct->published) {
         if ($detailedProduct != null) {
             if ((get_setting('vendor_system_activation') != 1) && $detailedProduct->added_by == 'seller') {
@@ -340,7 +371,7 @@ class HomeController extends Controller
                 $affiliateController = new AffiliateController;
                 $affiliateController->processAffiliateStats($referred_by_user->id, 1, 0, 0, 0);
             }
-            return view('frontend.product_details', compact('detailedProduct', 'product_queries', 'total_query', 'reviews', 'review_status'));
+            return view('frontend.product_details', compact('detailedProduct', 'product_queries', 'total_query', 'reviews', 'review_status', 'cartItem', 'alreadyInCart'));
         }
         abort(404);
     }

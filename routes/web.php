@@ -326,6 +326,7 @@ Route::controller(CartController::class)->group(function () {
     Route::post('/cart/save-pending-selection', 'savePendingSelection')->name('cart.savePendingSelection');
     Route::post('/cart/removeFromCart', 'removeFromCart')->name('cart.removeFromCart');
     Route::post('/cart/updateQuantity', 'updateQuantity')->name('cart.updateQuantity');
+    Route::get('/cart/edit-item/{id}', 'editItem')->name('cart.editItem');
 });
 
 //Paypal START

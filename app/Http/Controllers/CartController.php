@@ -47,6 +47,10 @@ class CartController extends Controller
 
     public function index(Request $request)
     {
+        if (Session::has('edit_cart_item_id')) {
+            Session::forget('edit_cart_item_id');
+        }
+
         if (auth()->user() != null) {
             $user_id = Auth::user()->id;
             if ($request->session()->get('temp_user_id')) {
@@ -116,22 +120,25 @@ class CartController extends Controller
 
         $product_stock = $product->stocks->where('variant', $str)->first();
 
-        $cart = Cart::firstOrNew([
-            'variation' => $str,
-            'user_id' => auth()->user()->id,
-            'product_id' => $request['id']
-        ]);
-
-        if ($cart->exists && $product->digital == 0) {
-            if ($product->auction_product == 1 && ($cart->product_id == $product->id)) {
-                return array(
-                    'status' => 0,
-                    'cart_count' => count($carts),
-                    'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.auctionProductAlredayAddedCart')->render(),
-                    'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
-                );
+        $is_update = false;
+        if ($request->has('cart_item_id') && !empty($request->cart_item_id)) {
+            $cart = Cart::find($request->cart_item_id);
+            if ($cart && $cart->user_id == auth()->user()->id) {
+                $cart->variation = $str;
+                $is_update = true;
             }
-            if ($product_stock->qty < $cart->quantity + $request['quantity']) {
+        }
+
+        if (!$is_update) {
+            $cart = Cart::firstOrNew([
+                'variation' => $str,
+                'user_id' => auth()->user()->id,
+                'product_id' => $request['id']
+            ]);
+        }
+
+        if ($is_update) {
+            if ($product_stock && $product_stock->qty < $request['quantity']) {
                 return array(
                     'status' => 0,
                     'cart_count' => count($carts),
@@ -139,7 +146,27 @@ class CartController extends Controller
                     'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
                 );
             }
-            $quantity = $cart->quantity + $request['quantity'];
+            $quantity = $request['quantity'];
+        } else {
+            if ($cart->exists && $product->digital == 0) {
+                if ($product->auction_product == 1 && ($cart->product_id == $product->id)) {
+                    return array(
+                        'status' => 0,
+                        'cart_count' => count($carts),
+                        'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.auctionProductAlredayAddedCart')->render(),
+                        'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
+                    );
+                }
+                if ($product_stock && $product_stock->qty < $cart->quantity + $request['quantity']) {
+                    return array(
+                        'status' => 0,
+                        'cart_count' => count($carts),
+                        'modal_view' => view('frontend.' . get_setting('homepage_select') . '.partials.outOfStockCart')->render(),
+                        'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
+                    );
+                }
+                $quantity = $cart->quantity + $request['quantity'];
+            }
         }
 
         // Base variant price only (after discount) — addons are stored separately
@@ -197,6 +224,7 @@ class CartController extends Controller
 
 
         \Log::info([$cart, $product, $price, $tax, $quantity]);
+        Session::forget('edit_cart_item_id');
         $carts = Cart::where('user_id', auth()->user()->id)->get();
         return array(
             'status' => 1,
@@ -292,5 +320,20 @@ class CartController extends Controller
             'cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart_details', compact('carts'))->render(),
             'nav_cart_view' => view('frontend.' . get_setting('homepage_select') . '.partials.cart')->render(),
         );
+    }
+
+    public function editItem(Request $request, $id)
+    {
+        $cartItem = Cart::find($id);
+        if ($cartItem) {
+            if (auth()->check() && $cartItem->user_id == auth()->user()->id) {
+                Session::put('edit_cart_item_id', $id);
+                $product = Product::find($cartItem->product_id);
+                if ($product) {
+                    return redirect()->route('product', $product->slug);
+                }
+            }
+        }
+        return redirect()->route('cart');
     }
 }

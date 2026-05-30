@@ -570,7 +570,7 @@
     #choice_form .variant-option-cell {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         flex-wrap: wrap;
         gap: 8px;
     }
@@ -827,6 +827,9 @@
         text-align: left;
         cursor: pointer;
         white-space: normal;
+    }
+    .note-toolbar.card-header {
+    display: block !important;
     }
 
     input[type="file"]::-webkit-file-upload-button,

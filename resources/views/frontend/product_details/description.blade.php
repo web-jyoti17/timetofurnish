@@ -45,9 +45,12 @@
                     <div class="overflow-hidden text-left mw-100 aiz-editor-data description readmore-content">
                         {!! $detailedProduct->getTranslation('description') !!}
                     </div>
-                    <button class="readmore-btn enhanced-readmore-btn" type="button">
-                        {{ translate('Read More') }}
-                    </button>
+                    <div class="readmore-btn-wrap">
+                        <span class="readmore-ellipsis">...</span>
+                        <a href="javascript:void(0)" class="readmore-btn readmore-btn-link" role="button">
+                            {{ translate('Read More') }}
+                        </a>
+                    </div>
                 </div>
 
             </div>
@@ -61,9 +64,12 @@
                         <div class="overflow-hidden text-left mw-100 aiz-editor-data specification readmore-content">
                             {!! $detailedProduct->specification !!}
                         </div>
-                        <button class="readmore-btn enhanced-readmore-btn" type="button">
-                            {{ translate('Read More') }}
-                        </button>
+                        <div class="readmore-btn-wrap">
+                            <span class="readmore-ellipsis">...</span>
+                            <a href="javascript:void(0)" class="readmore-btn readmore-btn-link" role="button">
+                                {{ translate('Read More') }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -175,7 +181,7 @@
     }
 
     .enhanced-tab-content {
-        padding: 34px 35px 28px 35px;
+        padding: 10px;
         background: #fff;
         min-height: 170px;
         border-radius: 0 0 15px 15px;
@@ -278,48 +284,35 @@
     }
 
     .readmore-content {
-        max-height: 110px;
         overflow: hidden;
-        position: relative;
-        transition: max-height 0.36s cubic-bezier(.4, 0, .2, 1);
         background: transparent;
+        transition: max-height 0.36s cubic-bezier(.4, 0, .2, 1);
     }
 
-    .readmore-content.expanded {
-        max-height: 3200px;
+    .readmore-btn-wrap-inline {
+        display: inline !important;
+        white-space: nowrap;
     }
 
-    .readmore-content:not(.expanded)::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 48px;
-        background: linear-gradient(to bottom, rgba(250, 252, 255, 0), #fafcff 90%);
-        pointer-events: none;
-        border-radius: 0 0 8px 8px;
+    .readmore-ellipsis {
+        color: #16253c;
+        font-weight: 500;
+        margin-left: 2px;
+        margin-right: 2px;
     }
 
-    .enhanced-readmore-btn {
-        border: 1.8px solid;
-        background: #fff;
-        color: #685b4e;
-        font-weight: 600;
-        font-size: 15px;
+    .readmore-btn-link {
+        color: #685b4e !important;
+        font-weight: 700;
+        text-decoration: underline !important;
         cursor: pointer;
-        padding: 8px 22px;
-        margin-top: 18px;
-        border-radius: 24px;
-        box-shadow: 0 2px 8px 0 rgba(44, 101, 244, 0.04);
-        transition: background .16s, color .13s, border .15s;
+        transition: color 0.15s ease;
+        display: inline !important;
     }
 
-    .enhanced-readmore-btn:hover {
-        background: #685b4e;
-        color: #fff;
-        border-color: #685b4e;
-        opacity: 1;
+    .readmore-btn-link:hover {
+        color: #4a3e34 !important;
+        text-decoration: underline !important;
     }
 
     /* Download button */
@@ -351,39 +344,90 @@
 </style>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        function initReadMore(wrapper) {
-            const content = wrapper.querySelector('.readmore-content');
-            const button = wrapper.querySelector('.readmore-btn');
-            if (!content || !button) return;
-            button.style.display = 'none';
-            setTimeout(() => {
-                if (content.scrollHeight > 110) {
-                    button.style.display = 'inline-block';
-                }
-            }, 100);
+        // Recursive function to append toggle element into the very last child of a container
+        function appendInlineToggle(container, element) {
+            let lastChild = container.lastElementChild;
+            while (lastChild && lastChild.lastElementChild && !['SPAN', 'A'].includes(lastChild.tagName)) {
+                lastChild = lastChild.lastElementChild;
+            }
+            if (lastChild) {
+                lastChild.appendChild(element);
+            } else {
+                container.appendChild(element);
+            }
         }
+
         document.querySelectorAll('.readmore-wrapper').forEach(function(wrapper) {
-            initReadMore(wrapper);
+            const content = wrapper.querySelector('.readmore-content');
+            if (!content) return;
+
+            // Save the original rich HTML content
+            const originalHTML = content.innerHTML;
+            content.setAttribute('data-original-html', originalHTML);
+
+            // Clean plaintext to determine overflow
+            const plainText = content.textContent.trim();
+            
+            // Hide the old absolute button wrapper completely
+            const oldBtnWrap = wrapper.querySelector('.readmore-btn-wrap');
+            if (oldBtnWrap) oldBtnWrap.style.display = 'none';
+
+            if (plainText.length > 280) {
+                const truncatedText = plainText.substring(0, 280).trim();
+                
+                // Create collapsed inline wrapper
+                const toggleSpan = document.createElement('span');
+                toggleSpan.className = 'readmore-btn-wrap-inline';
+                toggleSpan.innerHTML = '<span class="readmore-ellipsis">...</span><a href="javascript:void(0)" class="readmore-btn readmore-btn-link">' + "{{ translate('Read More') }}" + '</a>';
+                
+                content.innerHTML = truncatedText;
+                content.appendChild(toggleSpan);
+                wrapper.classList.remove('expanded');
+            }
         });
+
         $('a[data-toggle="tab"]').on('shown.bs.tab', function() {
-            document.querySelectorAll('.readmore-wrapper').forEach(function(wrapper) {
-                initReadMore(wrapper);
-            });
+            // Re-initialize isn't strictly necessary since elements are modified, but handles resizing safely
         });
+
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('readmore-btn')) {
+                e.preventDefault();
                 const button = e.target;
                 const wrapper = button.closest('.readmore-wrapper');
                 const content = wrapper.querySelector('.readmore-content');
-                content.classList.toggle('expanded');
-                if (content.classList.contains('expanded')) {
-                    button.innerText = "{{ translate('Read Less') }}";
-                } else {
-                    button.innerText = "{{ translate('Read More') }}";
+                if (!content) return;
+                
+                const originalHTML = content.getAttribute('data-original-html');
+                const isExpanded = wrapper.classList.contains('expanded');
+
+                if (isExpanded) {
+                    // Collapse back to text
+                    const plainText = content.textContent.trim().replace("Read Less", "").trim();
+                    const truncatedText = plainText.substring(0, 280).trim();
+                    
+                    const toggleSpan = document.createElement('span');
+                    toggleSpan.className = 'readmore-btn-wrap-inline';
+                    toggleSpan.innerHTML = '<span class="readmore-ellipsis">...</span><a href="javascript:void(0)" class="readmore-btn readmore-btn-link">' + "{{ translate('Read More') }}" + '</a>';
+                    
+                    content.innerHTML = truncatedText;
+                    content.appendChild(toggleSpan);
+                    wrapper.classList.remove('expanded');
+                    
                     wrapper.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
                     });
+                } else {
+                    // Expand and append Read Less directly inside the last text node
+                    content.innerHTML = originalHTML;
+                    
+                    const toggleSpan = document.createElement('span');
+                    toggleSpan.className = 'readmore-btn-wrap-inline';
+                    toggleSpan.innerHTML = ' <a href="javascript:void(0)" class="readmore-btn readmore-btn-link">' + "{{ translate('Read Less') }}" + '</a>';
+                    
+                    appendInlineToggle(content, toggleSpan);
+                    wrapper.classList.add('expanded');
                 }
             }
         });

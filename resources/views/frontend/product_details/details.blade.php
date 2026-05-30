@@ -835,6 +835,23 @@
             </div>
         @endif
     @else
+        @if (isset($alreadyInCart) && $alreadyInCart && !isset($cartItem))
+            <div class="p-3 mb-3 d-flex align-items-center" style="background-color: #fcf9f5; border: 1px solid #ebdcd0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div class="mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #f7ede4; border-radius: 50%; color: #cfa07c; flex-shrink: 0;">
+                    <i class="las la-shopping-basket" style="font-size: 20px;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <span class="d-block fs-14 fw-600 text-dark" style="color: #242121 !important;">{{ translate('This item is already in your basket') }}</span>
+                    <span class="d-block fs-12 text-muted mt-0.5" style="color: #888 !important;">{{ translate('You can review your selections or make updates in your cart.') }}</span>
+                </div>
+                <div class="ml-3" style="flex-shrink: 0;">
+                    <a href="{{ route('cart') }}" class="btn btn-sm fw-600" style="background-color: #242121; color: #ffffff !important; border-radius: 6px; padding: 6px 14px; font-size: 12px; transition: all 0.2s;">
+                        {{ translate('Review Cart') }}
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <!-- Add to cart & Buy now Buttons -->
         <div class="mt-3 product-action-buttons d-flex justify-content-between flex-row flex-wrap">
             @php
@@ -857,59 +874,71 @@
                 }
             @endphp
 
-            @if ($detailedProduct->digital == 0)
-                @if ($detailedProduct->external_link != null)
-                    <div class="mb-2 d-flex w-100">
-                        <a type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-100 rounded-0"
-                            href="{{ $detailedProduct->external_link }}">
-                            <i class="la la-share"></i> {{ translate($detailedProduct->external_link_btn) }}
-                        </a>
-                    </div>
-                @else
-                    @if ($in_stock)
-                        <div class="mb-2 d-flex w-100">
-                            <button type="button"
-                                class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
-                                style="background: #fff; border: 1.5px solid #242121; color: #242121 !important; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;"
-                                disabled
-                                @if (Auth::check()) onclick="validatedAddToCart()" @else onclick="showLoginModal()" @endif>
-                                <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
-                            </button>
-                        </div>
-                        <div class="mb-2 d-flex w-100">
-                            <button type="button"
-                                class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
-                                disabled
-                                @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
-                                style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
-                                <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
-                            </button>
-                        </div>
-                    @else
-                        <div class="mb-2 d-flex w-100">
-                            <button type="button"
-                                class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300"
-                                style="border-radius: 6px; height: 50px;" disabled>
-                                <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
-                            </button>
-                        </div>
-                    @endif
-                @endif
-            @elseif ($detailedProduct->digital == 1)
+            @if (isset($cartItem))
                 <div class="mb-2 d-flex w-100">
                     <button type="button"
-                        class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
-                        style="border-radius: 6px; height: 50px;" disabled
-                        @if (Auth::check()) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
-                        <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
+                        class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                        disabled
+                        @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
+                        style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
+                        <i class="las la-edit"></i> {{ translate('Update Cart') }}
                     </button>
                 </div>
-                <button type="button"
-                    class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
-                    style="border-radius: 6px; height: 50px;" disabled
-                    @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
-                    <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
-                </button>
+            @else
+                @if ($detailedProduct->digital == 0)
+                    @if ($detailedProduct->external_link != null)
+                        <div class="mb-2 d-flex w-100">
+                            <a type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-100 rounded-0"
+                                href="{{ $detailedProduct->external_link }}">
+                                <i class="la la-share"></i> {{ translate($detailedProduct->external_link_btn) }}
+                            </a>
+                        </div>
+                    @else
+                        @if ($in_stock)
+                            <div class="mb-2 d-flex w-100">
+                                <button type="button"
+                                    class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                                    style="background: #fff; border: 1.5px solid #242121; color: #242121 !important; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;"
+                                    disabled
+                                    @if (Auth::check()) onclick="validatedAddToCart()" @else onclick="showLoginModal()" @endif>
+                                    <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
+                                </button>
+                            </div>
+                            <div class="mb-2 d-flex w-100">
+                                <button type="button"
+                                    class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                                    disabled
+                                    @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
+                                    style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
+                                    <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
+                                </button>
+                            </div>
+                        @else
+                            <div class="mb-2 d-flex w-100">
+                                <button type="button"
+                                    class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300"
+                                    style="border-radius: 6px; height: 50px;" disabled>
+                                    <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
+                                </button>
+                            </div>
+                        @endif
+                    @endif
+                @elseif ($detailedProduct->digital == 1)
+                    <div class="mb-2 d-flex w-100">
+                        <button type="button"
+                            class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                            style="border-radius: 6px; height: 50px;" disabled
+                            @if (Auth::check()) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
+                            <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
+                        </button>
+                    </div>
+                    <button type="button"
+                        class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                        style="border-radius: 6px; height: 50px;" disabled
+                        @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
+                        <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
+                    </button>
+                @endif
             @endif
         </div>
 </div>
