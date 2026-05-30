@@ -68,6 +68,62 @@
 		}
 
 		.currency {}
+
+		/* Mobile Responsive CSS */
+		.show-mobile {
+			display: none;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.show-mobile {
+				display: inline !important;
+			}
+			.col-block {
+				display: block !important;
+				width: 100% !important;
+				padding-left: 0 !important;
+				padding-right: 0 !important;
+				box-sizing: border-box !important;
+			}
+			.text-left-mobile {
+				text-align: left !important;
+			}
+			.mobile-margin-top {
+				margin-top: 15px !important;
+			}
+			/* Table Stack logic for invoice items */
+			.responsive-table thead {
+				display: none !important;
+			}
+			.responsive-table tbody, 
+			.responsive-table tr, 
+			.responsive-table td {
+				display: block !important;
+				width: 100% !important;
+				box-sizing: border-box !important;
+			}
+			.responsive-table tr {
+				border-bottom: 1px solid #eceff4 !important;
+				padding: 12px 8px !important;
+			}
+			.responsive-table td {
+				text-align: left !important;
+				padding: 4px 0 !important;
+				border: none !important;
+			}
+			.responsive-table td.product-name {
+				font-size: 1rem !important;
+				padding-bottom: 8px !important;
+				color: #333542 !important;
+			}
+			.totals-table {
+				width: 100% !important;
+				margin-left: 0 !important;
+			}
+			.totals-table th {
+				text-align: left !important;
+			}
+		}
 	</style>
 </head>
 
@@ -90,20 +146,16 @@
 			</table>
 			<table>
 				<tr>
-					<td style="font-size: 1.2rem;" class="strong">{{ get_setting('site_name') }}</td>
-					<td class="text-right"></td>
-				</tr>
-				<tr>
-					<td class="gry-color small">{{ get_setting('contact_address') }}</td>
-					<td class="text-right"></td>
-				</tr>
-				<tr>
-					<td class="gry-color small">{{ translate('Email') }}: {{ get_setting('contact_email') }}</td>
-					<td class="text-right small"><span class="gry-color small">{{ translate('Order ID') }}:</span> <span class="strong">{{ $order->code }}</span></td>
-				</tr>
-				<tr>
-					<td class="gry-color small">{{ translate('Phone') }}: {{ get_setting('contact_phone') }}</td>
-					<td class="text-right small"><span class="gry-color small">{{ translate('Order Date') }}:</span> <span class=" strong">{{ date('d-m-Y', $order->date) }}</span></td>
+					<td class="col-block" style="width: 50%;">
+						<div style="font-size: 1.2rem;" class="strong">{{ get_setting('site_name') }}</div>
+						<div class="gry-color small">{{ get_setting('contact_address') }}</div>
+						<div class="gry-color small">{{ translate('Email') }}: {{ get_setting('contact_email') }}</div>
+						<div class="gry-color small">{{ translate('Phone') }}: {{ get_setting('contact_phone') }}</div>
+					</td>
+					<td class="col-block text-right text-left-mobile mobile-margin-top" style="width: 50%; vertical-align: bottom;">
+						<div class="small"><span class="gry-color small">{{ translate('Order ID') }}:</span> <span class="strong">{{ $order->code }}</span></div>
+						<div class="small"><span class="gry-color small">{{ translate('Order Date') }}:</span> <span class="strong">{{ date('d-m-Y', $order->date) }}</span></div>
+					</td>
 				</tr>
 			</table>
 
@@ -112,7 +164,7 @@
 		<div style="padding: 1.5rem;padding-bottom: 0">
 			<table>
 				<tr>
-					<td class="text-left" style="width:50%;">
+					<td class="text-left col-block" style="width:50%; vertical-align: top;">
 						<table>
 							@php
 							$shipping_address = json_decode($order->shipping_address);
@@ -134,7 +186,7 @@
 							</tr>
 						</table>
 					</td>
-					<td class="text-left" style="width:50%;">
+					<td class="text-left col-block mobile-margin-top" style="width:50%; vertical-align: top;">
 						<table>
 							<tr>
 								<td class="strong small gry-color">{{ translate('Ship By') }}:</td>
@@ -155,7 +207,7 @@
 		</div>
 
 		<div style="padding: 1.5rem;">
-			<table class="padding text-left small border-bottom">
+			<table class="padding text-left small border-bottom responsive-table">
 				<thead>
 					<tr class="gry-color" style="background: #eceff4;">
 						<th width="35%" class="text-left">{{ translate('Product Name') }}</th>
@@ -175,7 +227,7 @@
 					@foreach ($order->orderDetails as $key => $orderDetail)
 					@if ($orderDetail->product != null)
 					<tr class="">
-						<td>{{ $orderDetail->product->getTranslation('name') }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
+						<td class="product-name">{{ $orderDetail->product->getTranslation('name') }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
 						{{--<td>
 									@if ($order->shipping_type != null && $order->shipping_type == 'home_delivery')
 										{{ translate('Home Delivery') }}
@@ -185,19 +237,19 @@
 						@endif
 						@endif
 						</td>--}}
-						<td class="gry-color">{{ $orderDetail->quantity }}</td>
-						<td class="gry-color currency">{{ single_price($orderDetail->price/$orderDetail->quantity) }}</td>
+						<td class="gry-color"><span class="show-mobile small gry-color" style="display: none;">{{ translate('Qty') }}: </span>{{ $orderDetail->quantity }}</td>
+						<td class="gry-color currency"><span class="show-mobile small gry-color" style="display: none;">{{ translate('Unit Price') }}: </span>{{ single_price($orderDetail->price/$orderDetail->quantity) }}</td>
 						@if($order->igst)
-						<td class="gry-color currency">{{ single_price($orderDetail->tax/$orderDetail->quantity) }}</td>
+						<td class="gry-color currency"><span class="show-mobile small gry-color" style="display: none;">{{ translate('IGST') }}: </span>{{ single_price($orderDetail->tax/$orderDetail->quantity) }}</td>
 						@else
 						@php
 						$oldTax = $orderDetail->tax/$orderDetail->quantity;
 						$singleTax = $oldTax/2;
 						@endphp
-						<td class="currency gry-color">{{ single_price($singleTax) }}</td>
-						<td class="currency gry-color">{{ single_price($singleTax) }}</td>
+						<td class="currency gry-color"><span class="show-mobile small gry-color" style="display: none;">{{ translate('CGST') }}: </span>{{ single_price($singleTax) }}</td>
+						<td class="currency gry-color"><span class="show-mobile small gry-color" style="display: none;">{{ translate('SGST') }}: </span>{{ single_price($singleTax) }}</td>
 						@endif
-						<td class="text-right currency">{{ single_price($orderDetail->price) }}</td>
+						<td class="text-right currency"><span class="show-mobile small gry-color" style="display: none;">{{ translate('Total') }}: </span>{{ single_price($orderDetail->price) }}</td>
 					</tr>
 					@endif
 					@endforeach
@@ -206,7 +258,7 @@
 		</div>
 
 		<div style="padding:0 1.5rem;">
-			<table style="width: 40%;margin-left:auto;" class="text-right sm-padding small strong">
+			<table style="width: 40%;margin-left:auto;" class="text-right sm-padding small strong totals-table">
 				<tbody>
 					<tr>
 						<th class="gry-color text-left">{{ translate('Sub Total') }} <small>(Tax inclusive.)</small></th>
@@ -225,7 +277,7 @@
 					@php $newTax = $order->orderDetails->sum('tax')/2 ; @endphp
 					<tr class="border-bottom">
 						<th class="gry-color text-left">{{ translate('SGST') }} <small>(9%)</small></th>
-						<td class="currency">{{ single_price($$newTax) }}</td>
+						<td class="currency">{{ single_price($newTax) }}</td>
 					</tr>
 					<tr class="border-bottom">
 						<th class="gry-color text-left">{{ translate('load_home_categories_section') }} <small>(9%)</small></th>
@@ -237,9 +289,7 @@
 						<td class="currency">{{ single_price($order->coupon_discount) }}</td>
 					</tr>
 					<tr>
-						<!-- <th class="text-left strong">{{ translate('Grand Total') }} 
-							<small> (20% VAT INCURRED)</small>
-						</th> -->
+						<th class="gry-color text-left">{{ translate('Grand Total') }}</th>
 						<td class="currency">{{ single_price($order->grand_total) }}</td>
 					</tr>
 				</tbody>

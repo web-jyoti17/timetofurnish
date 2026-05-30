@@ -661,9 +661,9 @@
                                 <a href="{{ route('privacypolicy') }}" class="fw-700">{{ 'Privacy Policy' }}</a>
                             </div>
 
-                            <div class="row g-2 checkout-btn-row mb-4 flex-wrap pt-3 px-4">
+                            <div class="checkout-btn-row mb-4 mt-4 d-flex justify-content-between p-2" style="gap:10px;">
                                 <!-- Return to shop -->
-                                <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <div class="mb-2 mb-md-0  w-lg-auto">
                                     <a href="{{ url('checkout/delivery-info') }}"
                                         class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
                                         <i class="las la-arrow-left fs-17"></i>
@@ -671,7 +671,7 @@
                                     </a>
                                 </div>
                                 <!-- Complete Order -->
-                                <div class="col-12 col-md-6">
+                                <div class=" w-lg-auto">
                                     <button type="button" onclick="submitOrder(this)"
                                         class="btn borderbtn fs-15 fw-600 rounded-2 w-100 py-3 border-none">
                                         {{ translate('Complete Order') }}

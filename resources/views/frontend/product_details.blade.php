@@ -56,33 +56,168 @@
 
 @section('content')
 <style>
-    @media (max-width: 575.98px) {
-        .responsive-breadcrumb-row {
-            flex-wrap: nowrap !important;
-            gap: 0.5rem;
+    /* ── Breadcrumb row: always single line on all screen sizes ── */
+    .responsive-breadcrumb-row {
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+    }
+    .responsive-breadcrumb-row nav {
+        min-width: 0;
+        flex: 1 1 0%;
+        overflow: hidden;
+    }
+    /* Breadcrumb list stays on one line */
+    .responsive-breadcrumb-row .breadcrumb {
+        flex-wrap: nowrap !important;
+        overflow: hidden;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    /* Each item shrinks but never hides Home/Category */
+    .responsive-breadcrumb-row .breadcrumb-item {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 1;
+    }
+    .responsive-breadcrumb-row .breadcrumb-item:first-child,
+    .responsive-breadcrumb-row .breadcrumb-item:nth-child(2) {
+        flex-shrink: 0; /* Home & Category never shrink */
+    }
+
+    /* Category item style */
+    .breadcrumb-category-item {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    /* Product name styling */
+    .breadcrumb-product-item {
+        min-width: 0;
+        overflow: hidden;
+        flex-shrink: 1;
+    }
+    .breadcrumb-product-name {
+        display: inline-block;
+        vertical-align: bottom;
+        white-space: nowrap;
+        max-width: none;
+    }
+    .breadcrumb-product-name.expanded {
+        white-space: normal;
+        overflow: visible;
+        max-width: none;
+    }
+
+    /* Sleek Mobile Breadcrumb Tooltip */
+    .breadcrumb-tooltip {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        z-index: 1070;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.05);
+        padding: 12px 16px;
+        width: 100%;
+        max-width: 320px;
+        border: 1px solid #eaeaea;
+        animation: fadeIn 0.20s ease-out;
+    }
+    .breadcrumb-tooltip.active {
+        display: block !important;
+    }
+    .breadcrumb-tooltip-item {
+        font-size: 0.85rem;
+        color: #212529;
+        line-height: 1.4;
+    }
+    .breadcrumb-tooltip-label {
+        font-weight: 700;
+        color: #888;
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+    .breadcrumb-tooltip-value {
+        color: #212529;
+        word-break: break-word;
+        font-weight: 500;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Seller button: never grows, never wraps */
+    #viewSellerInfoMenuWrapper {
+        flex-shrink: 0;
+    }
+    #viewSellerInfoBtn {
+        white-space: nowrap;
+    }
+
+    /* Desktop view: ensure everything shows fully */
+    @media (min-width: 768px) {
+        .responsive-breadcrumb-row .breadcrumb-item {
+            overflow: visible;
+            text-overflow: clip;
         }
-        .responsive-breadcrumb-row nav {
-            min-width: 0;
-            flex-shrink: 1;
+        .breadcrumb-category-item {
+            max-width: none;
+            overflow: visible;
+            text-overflow: clip;
         }
-        #viewSellerInfoBtn {
-            white-space: nowrap;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
+        .breadcrumb-product-item {
+            overflow: visible;
+            text-overflow: clip;
         }
-        .breadcrumb {
-            margin-bottom: 0;
-            padding-bottom: 0;
+        .breadcrumb-product-name {
+            max-width: none;
+            overflow: visible;
+            text-overflow: clip;
+            white-space: normal;
         }
     }
-    @media (max-width: 400px) {
-        .responsive-breadcrumb-row {
-            gap: 0.25rem;
+
+    /* Mobile view specific rules */
+    @media (max-width: 767.98px) {
+        .breadcrumb-category-item {
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
+        .breadcrumb-category-item:hover {
+            opacity: 0.7;
+        }
+        .breadcrumb-product-name {
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Native ellipsis, single set of three dots */
+            cursor: pointer; /* Indication that it can be clicked/tapped */
+            transition: opacity 0.2s;
+        }
+        .breadcrumb-product-name:hover {
+            opacity: 0.7;
+        }
+    }
+
+    @media (max-width: 400px) {
         #viewSellerInfoBtn {
-            padding-left: 0.85rem !important;
-            padding-right: 0.85rem !important;
-            font-size: 0.98rem;
+            padding-left: 0.7rem !important;
+            padding-right: 0.7rem !important;
+            font-size: 0.95rem;
+        }
+        .breadcrumb-category-item {
+            max-width: 80px;
+        }
+        .breadcrumb-product-name {
+            max-width: 80px;
         }
     }
 </style>
@@ -111,24 +246,50 @@
 
             <div class="row">
                 <div class="pt-5 pb-5 col-12 d-flex flex-wrap justify-content-between flex-column image_gallery_section_shadow">
-                    <div class="d-flex flex-row align-items-center w-100 justify-content-between flex-wrap flex-md-nowrap responsive-breadcrumb-row" style="gap: 0.75rem;">
-                        <nav aria-label="breadcrumb" class="flex-grow-1 min-width-0">
-                            <ol class="breadcrumb bg-white pl-0 p-0 m-0 justify-content-start mb-0">
-                                <li class="breadcrumb-item">
+                    <div class="d-flex flex-row align-items-center w-100 responsive-breadcrumb-row" style="gap: 0.75rem; position: relative;">
+                        <nav aria-label="breadcrumb" class="flex-grow-1 min-width-0" style="overflow:hidden;">
+                            @php
+                                $breadcrumbCategory = $detailedProduct->main_category;
+                                $productFullName    = $detailedProduct->getTranslation('name');
+                            @endphp
+                            <ol class="breadcrumb bg-white pl-0 p-0 m-0 justify-content-start mb-0" style="flex-wrap:nowrap;overflow:hidden;">
+                                <li class="breadcrumb-item" style="flex-shrink:0;white-space:nowrap;">
                                     <a class="text-dark-50" href="{{ route('home') }}">
                                         <i class="las la-home"></i> {{ translate('Home') }}
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item">
-                                    <a class="text-dark-50" href="{{ url()->current() }}">
-                                        {{ translate('Product') }}
+                                @if($breadcrumbCategory)
+                                <li class="breadcrumb-item breadcrumb-category-item" id="breadcrumbCategoryItem">
+                                    <a class="text-dark-50" href="{{ route('products.category', $breadcrumbCategory->slug) }}" title="{{ $breadcrumbCategory->getTranslation('name') }}">
+                                        {{ $breadcrumbCategory->getTranslation('name') }}
                                     </a>
                                 </li>
-                                <li class="breadcrumb-item active text-primary fw-700" aria-current="page" style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                    {{ $detailedProduct->getTranslation('name') }}
+                                @endif
+                                <li class="breadcrumb-item active text-primary fw-700 breadcrumb-product-item" aria-current="page">
+                                    <span class="breadcrumb-product-name" id="breadcrumbProductName" title="{{ $productFullName }}">{{ $productFullName }}</span>
                                 </li>
                             </ol>
                         </nav>
+
+                        <!-- Sleek Breadcrumb Tooltip Popover for mobile view -->
+                        <div id="breadcrumbTooltip" class="breadcrumb-tooltip shadow">
+                            <div class="breadcrumb-tooltip-item">
+                                <span class="breadcrumb-tooltip-label">{{ translate('Category') }}</span>
+                                <span class="breadcrumb-tooltip-value">
+                                    @if($breadcrumbCategory)
+                                        <a href="{{ route('products.category', $breadcrumbCategory->slug) }}" class="text-primary font-weight-bold" style="text-decoration: underline;">
+                                            {{ $breadcrumbCategory->getTranslation('name') }}
+                                        </a>
+                                    @else
+                                        -
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="breadcrumb-tooltip-item mt-3">
+                                <span class="breadcrumb-tooltip-label">{{ translate('Product') }}</span>
+                                <span class="breadcrumb-tooltip-value">{{ $productFullName }}</span>
+                            </div>
+                        </div>
                         <div class="position-relative" id="viewSellerInfoMenuWrapper" style="display:inline-block;">
                             <button type="button"
                                 class="btn shadow-sm px-4 py-2 d-flex align-items-center ms-0 ms-md-3"
@@ -216,6 +377,48 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+
+                    /* ── Breadcrumb product name expand/collapse tooltip ── */
+                    (function() {
+                        var tooltip = document.getElementById('breadcrumbTooltip');
+                        var categoryBtn = document.getElementById('breadcrumbCategoryItem');
+                        var productBtn = document.getElementById('breadcrumbProductName');
+                        var wrapper = document.querySelector('.responsive-breadcrumb-row');
+
+                        if (!tooltip || !wrapper) return;
+
+                        function toggleTooltip(e) {
+                            if (window.innerWidth >= 768) return; // Only active on mobile
+                            
+                            e.preventDefault();
+                            e.stopPropagation();
+                            tooltip.classList.toggle('active');
+                        }
+
+                        if (categoryBtn) {
+                            categoryBtn.addEventListener('click', toggleTooltip);
+                        }
+                        if (productBtn) {
+                            productBtn.addEventListener('click', toggleTooltip);
+                        }
+
+                        // Close tooltip on click outside
+                        document.addEventListener('click', function(e) {
+                            if (tooltip.classList.contains('active')) {
+                                if (!tooltip.contains(e.target) && !wrapper.contains(e.target)) {
+                                    tooltip.classList.remove('active');
+                                }
+                            }
+                        });
+
+                        // Close tooltip on resize to desktop
+                        window.addEventListener('resize', function() {
+                            if (window.innerWidth >= 768) {
+                                tooltip.classList.remove('active');
+                            }
+                        });
+                    })();
+
                     const btn = document.getElementById('viewSellerInfoBtn');
                     const popover = document.getElementById('sellerInfoPopover');
                     const popoverClose = document.getElementById('sellerInfoPopoverClose');

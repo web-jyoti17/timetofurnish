@@ -249,11 +249,11 @@
                                             <!-- Edit button -->
                                             <a href="{{ route('cart.editItem', $cartItem['id']) }}"
                                                 class="btn btn-link p-0 d-flex align-items-center justify-content-center"
-                                                style="outline:none;border:none;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
                                                 onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
                                                 onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
                                                 title="{{ translate('Edit options') }}">
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path
                                                         d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
@@ -264,12 +264,12 @@
                                             <!-- Delete Button -->
                                             <button onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
                                                 class="btn btn-link p-0 d-flex align-items-center justify-content-center"
-                                                style="outline:none;border:none;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
                                                 onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
                                                 onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
                                                 title="{{ translate('Remove from cart') }}">
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
+                                                <svg width="18" height="18" viewBox="0 0 24 24"
+                                                    fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path
                                                         d="M19 7L18.1327 19.1422C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1422L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20"
                                                         stroke="#b57a45" stroke-width="1.8" stroke-linecap="round"
@@ -282,7 +282,8 @@
                                     <!-- Mobile view -->
                                     <div class="d-block d-lg-none p-3 mobile-cart-card"
                                         style="border: 1px solid #f0e6da; border-radius: 12px; margin-bottom: 15px; background: #fff;">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-3"
+                                            style="gap:5px;">
                                             <div class="d-flex align-items-start gap-3 min-w-0">
                                                 <img src="{{ uploaded_asset($product->thumbnail_img) }}"
                                                     class="img-fit rounded-3 flex-shrink-0 shadow-sm"
@@ -307,30 +308,32 @@
                                                 </div>
                                             </div>
                                             <!-- Action buttons -->
-                                            <div class="modern-action-buttons-wrapper ms-2 flex-shrink-0" style="display: flex !important;    flex-direction: column; gap: 8px;">
+                                            <div class="modern-action-buttons-wrapper ms-2 flex-shrink-0"
+                                                style="display: flex !important;    flex-direction: column; gap: 8px;">
                                                 <!-- Edit button -->
                                                 <a href="{{ route('cart.editItem', $cartItem['id']) }}"
-                                                    class="btn btn-link p-0 d-flex align-items-center justify-content-center"
-                                                    style="outline:none;border:none;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                    class="btn btn-link p-0 d-flex align-items-center justify-content-center edit-item-btn"
+                                                    style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
                                                     onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
                                                     onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
                                                     title="{{ translate('Edit options') }}">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                        xmlns="http://www.w3.org/2000/svg">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
                                                             d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
-                                                            stroke="#b57a45" stroke-width="1.8" stroke-linecap="round"
-                                                            stroke-linejoin="round" style="transition: stroke 0.2s;" />
+                                                            stroke="#b57a45" stroke-width="1.8"
+                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                            style="transition: stroke 0.2s;" />
                                                     </svg>
                                                 </a>
                                                 <!-- Delete Button -->
                                                 <button onclick="removeFromCartView(event, {{ $cartItem['id'] }})"
-                                                    class="btn btn-link p-0 d-flex align-items-center justify-content-center"
-                                                    style="outline:none;border:none;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                    class="btn btn-link p-0 d-flex align-items-center justify-content-center delete-item-btn"
+                                                    style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
                                                     onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
                                                     onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
                                                     title="{{ translate('Remove from cart') }}">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24"
+                                                    <svg width="18" height="18" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
                                                             d="M19 7L18.1327 19.1422C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1422L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20"
@@ -457,26 +460,26 @@
                     </div>
 
                     <!-- Subtotal -->
-                    <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center">
+                    <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center my-cart">
                         <span class="opacity-70 fs-20 text-black">{{ translate('Subtotal') }}</span>
                         <span style="font-weight: 700;" class="fs-20 text-dark">{{ single_price($total) }}</span>
                     </div>
 
                     <div class="row g-2">
                         <!-- Return to shop -->
-                        <div class="col-12 col-md-6 mb-2 mb-md-0">
+                        <div class="col-6 col-md-6 mb-2 mb-md-0">
                             <a href="{{ route('home') }}"
                                 class="btn borderbtn fs-14 fw-700 rounded-0 w-100 w-md-auto py-3 custom_checkout_button_design filled">
                                 <i class="las la-arrow-left fs-17"></i>
-                                {{ translate('Return to shop') }}
+                                {{ translate('Return') }}
                             </a>
                         </div>
                         <!-- Continue to Shipping -->
-                        <div class="col-12 col-md-6 text-center text-md-right">
+                        <div class="col-6 col-md-6 text-center text-md-right">
                             @if (Auth::check())
                                 <a href="{{ route('checkout.shipping_info') }}"
                                     class="btn borderbtn fs-14 fw-700 rounded-0 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
-                                    {{ 'Complete Order' }}
+                                    {{ 'Next' }}
                                 </a>
                             @else
                                 <button onclick="showLoginModal()"
@@ -571,6 +574,12 @@
     @media (max-width: 991.98px) {
         .bg-cart-header>div {
             font-size: 12px !important;
+        }
+
+        .edit-item-btn,
+        .delete-item-btn {
+            width: 27px !important;
+            height: 27px !important;
         }
 
         .cart-item-row .col-lg-4,

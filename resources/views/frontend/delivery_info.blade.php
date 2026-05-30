@@ -4,27 +4,6 @@
 
     <section class="pt-5 mb-4 cart_tabs">
         <div class="container">
-            <style>
-                .addon-toggle-btn {
-                    background: #f5eee6 !important;
-                    border: 1px solid #e2d2c0 !important;
-                    color: #8b5e34 !important;
-                    font-size: 13px !important;
-                    font-weight: 600 !important;
-                    border-radius: 6px !important;
-                    padding: 6px 12px !important;
-                    transition: all .3s ease;
-                }
-
-                .addon-toggle-btn:hover {
-                    background: #8b5e34 !important;
-                    color: #fff !important;
-                }
-
-                .addon-toggle-btn:focus {
-                    box-shadow: none !important;
-                }
-            </style>
             <div class="row">
                 <div class="col-xl-8 mx-auto">
                     <div class="row gutters-5 sm-gutters-10">
@@ -84,12 +63,11 @@
         </div>
     </section>
 
-    <section class="py-4 gry-bg">
+    <section class="py-4">
         <div class="container">
-            <div class="row">
-                <div class="col-xxl-12 col-xl-12 mx-auto">
-
-                    <div class="border bg-white p-4 mb-4">
+            <div class="row justify-content-center">
+                <div class="col-xxl-12 col-xl-10">
+                    <div class="border shadow-sm p-3 p-lg-4 bg-white delivery-maincontainer">
 
                         <form class="form-default" id="delivery-form" action="{{ route('checkout.store_delivery_info') }}"
                             method="POST">
@@ -151,7 +129,7 @@
                                 @foreach ($seller_products as $seller_id => $seller_product)
                                     <div class="card border-0 rounded-0 shadow-none mb-4">
 
-                                        <div class="card-header py-3 px-0 border-bottom-0">
+                                        <div class="card-header py-3 px-0 border-bottom-0" style="background: transparent;">
                                             <h5 class="fs-16 fw-700 text-dark mb-0">
                                                 {{ translate('Shop Name') }}: {{ get_shop_by_user_id($seller_id)->name }}
                                                 - {{ translate('Products') }}
@@ -159,7 +137,7 @@
                                         </div>
 
                                         <div class="card-body p-0">
-                                            <ul class="list-group list-group-flush border p-3 mb-3">
+                                            <div class="mb-4">
                                                 @php
                                                     $physical = false;
                                                     $seller_subtotal = 0;
@@ -179,6 +157,7 @@
                                                         $qty = 1;
                                                         $hasVariation = false;
                                                         $cartItem_addons = [];
+                                                        $cartItem_attributes = [];
                                                         $hasAddons = false;
 
                                                         if ($cart) {
@@ -241,151 +220,301 @@
                                                                 $calculated_addon_price += $addon['price'] ?? 0;
                                                             }
 
-                                                            $price =
-                                                                cart_product_price($cart, $product, false, false) +
-                                                                $calculated_addon_price;
+                                                            $base_price =
+                                                                cart_product_price($cart, $product, false, false);
+                                                            $price = $base_price + $calculated_addon_price;
                                                             $qty = $cart['quantity'];
-                                                            $seller_subtotal += $price * $qty;
+                                                            $row_total = $price * $qty;
+                                                            $seller_subtotal += $row_total;
 
                                                             $hasVariation = !empty($variation_string);
                                                             $hasAddons = !empty($cartItem_addons);
                                                         }
                                                     @endphp
 
-                                                    <li class="list-group-item py-3 px-0" style="padding: 0; border: none;">
-                                                        <div class="d-flex d-lg-flex flex-column flex-lg-row w-100 w-lg-auto"
-                                                            style="gap:20px;">
-                                                            <div class="flex-shrink-0" style="min-width: 120px;">
-                                                                <img src="{{ get_image($product->thumbnail) }}"
-                                                                    alt="{{ $product->getTranslation('name') }}"
-                                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
-                                                                    style="object-fit: cover;width:120px;height:120px;border-radius:4px;display:block;">
-                                                            </div>
-                                                            <div class="flex-grow-1">
-                                                                <div class="fw-700 fs-15 mb-1" style="margin-bottom:5px;">
+                                                    {{-- DESKTOP VIEW --}}
+                                                    <div class="d-none d-lg-flex row align-items-center p-4 delivery-desktop-card position-relative"
+                                                        style="border: 1px solid #f0e6da; border-radius: 12px; margin-bottom: 20px; background: #fff;">
+
+                                                        {{-- Product Image, Name & Pricing Breakdown --}}
+                                                        <div class="col-lg-7 d-flex align-items-start gap-3 min-w-0">
+                                                            <img src="{{ get_image($product->thumbnail) }}"
+                                                                class="img-fit rounded-3 flex-shrink-0 shadow-sm"
+                                                                style="width:100px;height:100px;object-fit:cover;"
+                                                                alt="{{ $product->getTranslation('name') }}"
+                                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                                            <div class="min-w-0 flex-grow-1" style="margin-left: 15px;">
+                                                                <span class="fs-16 fw-700 text-dark d-block delivery-product-name-text">
                                                                     {{ $product->getTranslation('name') }}
-                                                                </div>
+                                                                    @if($hasVariation) <span class="text-muted fs-13">- {{ $seller_product_variation[$key2]['variation'] }}</span> @endif
+                                                                </span>
 
-                                                                {{-- Variations & Addons (Toggleable) --}}
-                                                                @php
-                                                                    $toggleId =
-                                                                        'addonCollapseDelivery' .
-                                                                        ($seller_id ?? '') .
-                                                                        ($key2 ?? '') .
-                                                                        ($cart->id ?? uniqid());
-                                                                @endphp
-
-                                                                @if ($hasVariation || $hasAddons)
-                                                                    <button
-                                                                        class="btn btn-sm mt-2 addon-toggle-btn d-flex align-items-center mb-2"
-                                                                        type="button" data-toggle="collapse"
-                                                                        data-target="#{{ $toggleId }}"
-                                                                        aria-expanded="false"
-                                                                        aria-controls="{{ $toggleId }}"
-                                                                        style="background: none; border: none;">
-                                                                        <i class="las la-plus-circle me-1"></i>
-                                                                        <span class="flex-grow-1 text-left">
-                                                                            {{ translate('View Details') }}
-                                                                            @if ($hasAddons)
-                                                                                ({{ count($cartItem_addons) }})
-                                                                            @endif
-                                                                        </span>
-                                                                        <i class="las la-angle-down addon-arrow"></i>
-                                                                    </button>
-                                                                    <div class="collapse mt-2" id="{{ $toggleId }}">
-                                                                        <div
-                                                                            class="addon-details d-flex flex-column gap-1 mt-2 p-0">
-                                                                            {{-- Variation Table --}}
-                                                                            @if ($hasVariation)
-                                                                                <table class="table table-sm mb-3 w-100"
-                                                                                    style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
-                                                                                    <tr style="background: #faf7f2;">
-                                                                                        <th class="fw-600 px-3 py-2"
-                                                                                            style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                                            {{ translate('Variation') }}
-                                                                                        </th>
-                                                                                        <th class="fw-600 px-3 py-2 text-right"
-                                                                                            style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                                            {{ translate('Price') }}
-                                                                                        </th>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td
-                                                                                            class="px-3 py-2 text-dark fw-500">
-                                                                                            {{ $seller_product_variation[$key2]['variation'] }}
-                                                                                        </td>
-                                                                                        <td
-                                                                                            class="px-3 py-2 text-right text-dark fw-600">
-                                                                                            @if ($seller_product_variation[$key2]['price'] > 0)
-                                                                                                +{{ single_price($seller_product_variation[$key2]['price']) }}
-                                                                                            @else
-                                                                                                {{ single_price(0) }}
-                                                                                            @endif
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                </table>
-                                                                            @endif
-
-                                                                            {{-- Addon Table --}}
-                                                                            @if ($hasAddons)
-                                                                                <table
-                                                                                    class="table table-sm mb-2 addon-table w-100"
-                                                                                    style="background: #fff; border: 1px solid #e2d2c0; border-radius: 6px; overflow: hidden;">
-                                                                                    <tr style="background: #faf7f2;">
-                                                                                        <th class="fw-600 px-3 py-2 addon-name-text addon-header"
-                                                                                            style="width:70%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                                            {{ translate('Addons Selected') }}
-                                                                                        </th>
-                                                                                        <th class="fw-600 px-3 py-2 text-right addon-price-text addon-header"
-                                                                                            style="width:30%; color: #685b4e; border-bottom: 1px solid #e2d2c0;">
-                                                                                            {{ translate('Pricing') }}
-                                                                                        </th>
-                                                                                    </tr>
-                                                                                    @foreach ($cartItem_addons as $addon)
-                                                                                        <tr>
-                                                                                            <td class="px-3 py-2 text-dark fw-500 border-bottom"
-                                                                                                style="border-color: #f5eee6;">
-                                                                                                {{ $addon['addon_name'] ?? '' }}
-                                                                                                @if (!empty($addon['name']))
-                                                                                                    <span
-                                                                                                        class="mx-2 text-secondary addon-separator">|</span>
-                                                                                                    {{ $addon['name'] ?? '' }}
-                                                                                                @endif
-                                                                                            </td>
-                                                                                            <td class="px-3 py-2 text-right text-dark fw-600 border-bottom"
-                                                                                                style="border-color: #f5eee6;">
-                                                                                                @if (isset($addon['price']) && floatval($addon['price']) > 0)
-                                                                                                    +£{{ number_format($addon['price'], 2) }}
-                                                                                                @else
-                                                                                                    {{-- <span
-                                                                        class="text-success">{{ translate('Free of cost') }}</span> --}}
-                                                                                                @endif
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    @endforeach
-                                                                                </table>
-                                                                            @endif
-                                                                        </div>
+                                                                {{-- Selected Attributes --}}
+                                                                @if (!empty($cartItem_attributes) && is_array($cartItem_attributes) && count($cartItem_attributes) > 0)
+                                                                    <div class="attribute-details mt-2">
+                                                                        @foreach ($cartItem_attributes as $attribute)
+                                                                            <span class="d-block fs-12 text-muted">
+                                                                                {{ $attribute['attribute_name'] ?? '' }}:
+                                                                                {{ $attribute['option_name'] ?? '' }}
+                                                                            </span>
+                                                                        @endforeach
                                                                     </div>
                                                                 @endif
 
-                                                                <div class="mb-1"><span
-                                                                        class="fw-600">{{ translate('Qty') }}:</span>
-                                                                    {{ $qty }}
+                                                                {{-- Pricing & Addons breakdown --}}
+                                                                <div class="price-breakdown-box p-3 rounded-3 mt-3"
+                                                                    style="background: #faf8f5; border: 1px solid #f0e6da; border-radius: 8px; max-width: 480px;">
+                                                                    {{-- Product Price --}}
+                                                                    <div class="d-flex justify-content-between align-items-center mb-2 fs-13">
+                                                                        <span class="text-secondary">{{ translate('Product Price') }}</span>
+                                                                        <span class="fw-600 text-dark">
+                                                                            {{ single_price($base_price ?? 0) }}
+                                                                            @if ($qty > 1)
+                                                                                <small class="text-muted fs-11" style="display: block; text-align: right;">
+                                                                                    ({{ single_price(($base_price ?? 0) * $qty) }} total)
+                                                                                </small>
+                                                                            @endif
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {{-- Addons Price --}}
+                                                                    @if ($calculated_addon_price > 0)
+                                                                        <div class="d-flex justify-content-between align-items-center mb-2 fs-13 border-top pt-2">
+                                                                            <span class="text-secondary">{{ translate('Add-on Price') }}</span>
+                                                                            <span class="fw-600 text-dark">
+                                                                                +{{ single_price($calculated_addon_price) }}
+                                                                                @if ($qty > 1)
+                                                                                    <small class="text-muted fs-11" style="display: block; text-align: right;">
+                                                                                        (+{{ single_price($calculated_addon_price * $qty) }} total)
+                                                                                    </small>
+                                                                                @endif
+                                                                            </span>
+                                                                        </div>
+                                                                    @endif
+
+                                                                    {{-- Addons Details list --}}
+                                                                    @if ($hasAddons)
+                                                                        @php
+                                                                            $toggleId = 'addonCollapseDeliveryDesktop' . ($seller_id ?? '') . ($key2 ?? '') . ($cart->id ?? uniqid());
+                                                                        @endphp
+                                                                        <div class="border-top pt-2 mt-2">
+                                                                            <button type="button"
+                                                                                class="addon-toggle-btn d-flex justify-content-between align-items-center w-100 text-left"
+                                                                                data-toggle="collapse"
+                                                                                data-target="#{{ $toggleId }}"
+                                                                                aria-expanded="false"
+                                                                                aria-controls="{{ $toggleId }}">
+                                                                                <span class="fw-600 fs-11 text-uppercase">{{ translate('Selected Add-ons') }}</span>
+                                                                                <i class="las la-angle-down addon-arrow"></i>
+                                                                            </button>
+                                                                            <div class="collapse addon-details mt-2" id="{{ $toggleId }}">
+                                                                                @foreach ($cartItem_addons as $addon)
+                                                                                    <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
+                                                                                        <span class="addon-name-text">•
+                                                                                            {{ $addon['addon_name'] ?? '' }}
+                                                                                            @if (isset($addon['name']))
+                                                                                                | {{ $addon['name'] }}
+                                                                                            @endif
+                                                                                        </span>
+                                                                                        <span class="fw-600 addon-price-text">
+                                                                                            @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                                                                +£{{ number_format($addon['price'], 2) }}
+                                                                                            @endif
+                                                                                        </span>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
                                                                 </div>
 
                                                                 @if ($product->dispatch_time)
-                                                                    <div><span
-                                                                            class="fw-600">{{ translate('Dispatch Time') }}:</span>
+                                                                    <div class="mt-2 fs-12 text-muted">
+                                                                        <i class="las la-clock fs-14"></i>
+                                                                        <span class="fw-600">{{ translate('Dispatch Time') }}:</span>
                                                                         {{ $product->dispatch_time }}
                                                                     </div>
                                                                 @endif
                                                             </div>
-
                                                         </div>
-                                                    </li>
+
+                                                        {{-- Quantity --}}
+                                                        <div class="col-lg-2 d-flex flex-column align-items-center justify-content-center text-center">
+                                                            <span class="fs-12 text-secondary mb-2 text-uppercase fw-600" style="letter-spacing: 0.5px;">{{ translate('Quantity') }}</span>
+                                                            <span class="fw-700 fs-18 text-dark">{{ $qty }}</span>
+                                                        </div>
+
+                                                        {{-- Total Amount --}}
+                                                        <div class="col-lg-3 d-flex flex-column align-items-end justify-content-center text-end" style="padding-right: 25px;">
+                                                            <span class="fs-12 text-secondary mb-2 text-uppercase fw-600" style="letter-spacing: 0.5px;">{{ translate('Total Amount') }}</span>
+                                                            <span class="fw-700 fs-20 text-primary" style="color: #b57a45 !important;">
+                                                                {{ single_price($row_total ?? 0) }}
+                                                            </span>
+                                                        </div>
+
+                                                        {{-- Edit Button --}}
+                                                        @if($cart)
+                                                        <div class="position-absolute" style="top: 20px; right: 20px; z-index: 10;">
+                                                            <a href="{{ route('cart.editItem', $cart->id) }}"
+                                                                class="btn btn-link p-0 d-flex align-items-center justify-content-center"
+                                                                style="outline:none;border:none;    border: 1px solid #EADDCF;background:#fdf6ed;width:38px;height:38px;border-radius:10px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                                onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
+                                                                onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
+                                                                title="{{ translate('Edit options') }}">
+                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                                                                        stroke="#b57a45" stroke-width="1.8" stroke-linecap="round"
+                                                                        stroke-linejoin="round" style="transition: stroke 0.2s;" />
+                                                                </svg>
+                                                            </a>
+                                                        </div>
+                                                        @endif
+                                                    </div>
+
+                                                    {{-- MOBILE VIEW --}}
+                                                    <div class="d-block d-lg-none p-3 delivery-mobile-card"
+                                                        style="border: 1px solid #f0e6da; border-radius: 12px; margin-bottom: 15px; background: #fff;">
+                                                        <div class="d-flex justify-content-between align-items-start mb-3" style="gap:5px;">
+                                                            <div class="d-flex align-items-start gap-3 min-w-0">
+                                                                <img src="{{ get_image($product->thumbnail) }}"
+                                                                    class="img-fit rounded-3 flex-shrink-0 shadow-sm"
+                                                                    style="width:80px;height:80px;object-fit:cover;"
+                                                                    alt="{{ $product->getTranslation('name') }}"
+                                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
+                                                                <div class="min-w-0" style="margin-left: 10px;">
+                                                                    <span class="fs-13 fw-700 text-dark d-block delivery-product-name-text">
+                                                                        {{ $product->getTranslation('name') }}
+                                                                        @if($hasVariation) <span class="text-muted fs-11">- {{ $seller_product_variation[$key2]['variation'] }}</span> @endif
+                                                                    </span>
+
+                                                                    {{-- Selected Attributes --}}
+                                                                    @if (!empty($cartItem_attributes) && is_array($cartItem_attributes) && count($cartItem_attributes) > 0)
+                                                                        <div class="attribute-details mt-1">
+                                                                            @foreach ($cartItem_attributes as $attribute)
+                                                                                <span class="d-block fs-11 text-muted">
+                                                                                    {{ $attribute['attribute_name'] ?? '' }}:
+                                                                                    {{ $attribute['option_name'] ?? '' }}
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                            {{-- Edit button (mobile) --}}
+                                                            @if($cart)
+                                                            <div class="ms-2 flex-shrink-0">
+                                                                <a href="{{ route('cart.editItem', $cart->id) }}"
+                                                                    class="btn btn-link p-0 d-flex align-items-center justify-content-center"
+                                                                    style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:32px;height:32px;border-radius:8px;transition:all 0.2s ease-in-out;box-shadow: 0 2px 5px rgba(181, 122, 69, 0.05);"
+                                                                    onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.05)';"
+                                                                    onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
+                                                                    title="{{ translate('Edit options') }}">
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path
+                                                                            d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                                                                            stroke="#b57a45" stroke-width="1.8" stroke-linecap="round"
+                                                                            stroke-linejoin="round" style="transition: stroke 0.2s;" />
+                                                                    </svg>
+                                                                </a>
+                                                            </div>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Pricing & Addons breakdown (mobile) --}}
+                                                        <div class="price-breakdown-box p-3 rounded-3 mb-3"
+                                                            style="background: #faf8f5; border: 1px solid #f0e6da; border-radius: 8px;">
+                                                            {{-- Product Price --}}
+                                                            <div class="d-flex justify-content-between align-items-center mb-2 fs-13">
+                                                                <span class="text-secondary">{{ translate('Product Price') }}</span>
+                                                                <span class="fw-600 text-dark">
+                                                                    {{ single_price($base_price ?? 0) }}
+                                                                    @if ($qty > 1)
+                                                                        <small class="text-muted fs-11" style="display: block; text-align: right;">
+                                                                            ({{ single_price(($base_price ?? 0) * $qty) }} total)
+                                                                        </small>
+                                                                    @endif
+                                                                </span>
+                                                            </div>
+
+                                                            {{-- Addons Price --}}
+                                                            @if ($calculated_addon_price > 0)
+                                                                <div class="d-flex justify-content-between align-items-center mb-2 fs-13 border-top pt-2">
+                                                                    <span class="text-secondary">{{ translate('Add-on Price') }}</span>
+                                                                    <span class="fw-600 text-dark">
+                                                                        +{{ single_price($calculated_addon_price) }}
+                                                                        @if ($qty > 1)
+                                                                            <small class="text-muted fs-11" style="display: block; text-align: right;">
+                                                                                (+{{ single_price($calculated_addon_price * $qty) }} total)
+                                                                            </small>
+                                                                        @endif
+                                                                    </span>
+                                                                </div>
+                                                            @endif
+
+                                                            {{-- Addons Details list (mobile) --}}
+                                                            @if ($hasAddons)
+                                                                @php
+                                                                    $toggleIdMobile = 'addonCollapseDeliveryMobile' . ($seller_id ?? '') . ($key2 ?? '') . ($cart->id ?? uniqid());
+                                                                @endphp
+                                                                <div class="border-top pt-2 mt-2">
+                                                                    <button type="button"
+                                                                        class="addon-toggle-btn d-flex justify-content-between align-items-center w-100 text-left"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#{{ $toggleIdMobile }}"
+                                                                        aria-expanded="false"
+                                                                        aria-controls="{{ $toggleIdMobile }}">
+                                                                        <span class="fw-600 fs-11 text-uppercase">{{ translate('Selected Add-ons') }}</span>
+                                                                        <i class="las la-angle-down addon-arrow"></i>
+                                                                    </button>
+                                                                    <div class="collapse addon-details mt-2" id="{{ $toggleIdMobile }}">
+                                                                        @foreach ($cartItem_addons as $addon)
+                                                                            <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
+                                                                                <span class="addon-name-text">•
+                                                                                    {{ $addon['addon_name'] ?? '' }}
+                                                                                    @if (isset($addon['name']))
+                                                                                        | {{ $addon['name'] }}
+                                                                                    @endif
+                                                                                </span>
+                                                                                <span class="fw-600 addon-price-text">
+                                                                                    @if (isset($addon['price']) && floatval($addon['price']) > 0)
+                                                                                        +£{{ number_format($addon['price'], 2) }}
+                                                                                    @endif
+                                                                                </span>
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+
+                                                        @if ($product->dispatch_time)
+                                                            <div class="mb-3 fs-12 text-muted">
+                                                                <i class="las la-clock fs-14"></i>
+                                                                <span class="fw-600">{{ translate('Dispatch Time') }}:</span>
+                                                                {{ $product->dispatch_time }}
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Quantity and total row (mobile) --}}
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <span class="d-block text-secondary fs-11 mb-1">{{ translate('Quantity') }}</span>
+                                                                <span class="fw-700 fs-16 text-dark">{{ $qty }}</span>
+                                                            </div>
+                                                            <div class="text-end">
+                                                                <span class="d-block text-secondary fs-11 mb-1">{{ translate('Total Amount') }}</span>
+                                                                <span class="fw-700 fs-16 text-primary" style="color: #b57a45 !important;">
+                                                                    {{ single_price($row_total ?? 0) }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                 @endforeach
-                                            </ul>
+                                            </div>
 
                                             {{-- SERVICES SECTION --}}
                                             @php
@@ -444,7 +573,7 @@
 
                                                     <div class="row">
                                                         @foreach ($allServices as $service)
-                                                            <div class="col-md-6 mb-3">
+                                                            <div class="col-md-6 mb-3 pr-1 pl-1">
                                                                 <label class="aiz-megabox d-block mb-0">
                                                                     <input type="checkbox" name="selected_services[]"
                                                                         value="{{ $service->id }}"
@@ -497,81 +626,159 @@
                                                 }
                                             @endphp
 
-                                            <!-- Seller Subtotal -->
-                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                                {{ translate('Subtotal') }} :
-                                                <span id="seller-subtotal">
-                                                    {{ single_price($seller_subtotal) }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Shipping Total -->
-                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                                {{ translate('Shipping Charges') }} :
-                                                <span class="shipping-total-display">
-                                                    {{ single_price($seller_shipping) }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Services Total -->
-                                            <div class="text-right pr-3 pb-2 ms-5 fw-700">
-                                                {{ translate('Services') }} :
-                                                <span class="services-total-display">
-                                                    £0.00
-                                                </span>
-                                            </div>
-
-                                            <!-- Grand Total -->
-                                            <div class="text-right pr-3 pb-3 ms-5 fw-700 fs-18">
-                                                {{ translate('Total') }} :
-                                                <span class="grand-total-display"
-                                                    data-base-total="{{ $seller_subtotal + $seller_shipping }}">
-                                                    {{ single_price($seller_subtotal + $seller_shipping) }}
-                                                </span>
+                                            {{-- Totals Section --}}
+                                            <div class="px-0 py-3 border-top">
+                                                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                                                    <span class="opacity-70 fs-14 text-dark">{{ translate('Subtotal') }}</span>
+                                                    <span class="fw-600 fs-14 text-dark" id="seller-subtotal">{{ single_price($seller_subtotal) }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                                                    <span class="opacity-70 fs-14 text-dark">{{ translate('Shipping Charges') }}</span>
+                                                    <span class="fw-600 fs-14 text-dark shipping-total-display">{{ single_price($seller_shipping) }}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                                                    <span class="opacity-70 fs-14 text-dark">{{ translate('Services') }}</span>
+                                                    <span class="fw-600 fs-14 text-dark services-total-display">£0.00</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center pt-2 px-2 border-top">
+                                                    <span class="fw-700 fs-18 text-dark">{{ translate('Total') }}</span>
+                                                    <span class="fw-700 fs-20 grand-total-display" style="color: #b57a45;"
+                                                        data-base-total="{{ $seller_subtotal + $seller_shipping }}">
+                                                        {{ single_price($seller_subtotal + $seller_shipping) }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div> {{-- end card-body --}}
                                     </div>
                                 @endforeach
                             @endif
 
-
-
                     </div>
 
-                    <div class="checkout-btn-row mb-4 d-flex flex-wrap justify-content-between">
-                        <!-- Return to shop -->
-                        <div class="mb-2 mb-md-0 w-100 w-lg-auto">
+                    <div class="row g-2 mt-3">
+                        <div class="col-6 col-md-6 mb-2 mb-md-0">
                             <a href="{{ url('checkout') }}"
-                                class="btn btn-outline-secondary  borderbtn fs-15 fw-600 rounded-2 w-100 py-3 custom_checkout_button_design filled">
+                                class="btn borderbtn fs-14 fw-700 rounded-0 w-100 w-md-auto py-3 custom_checkout_button_design filled">
                                 <i class="las la-arrow-left fs-17"></i>
                                 {{ translate('Back') }}
                             </a>
                         </div>
-                        <!-- Continue to Payment -->
-                        <div class="w-100 w-lg-auto">
+                        <div class="col-6 col-md-6 text-center text-md-right">
                             <button type="submit" id="continue-to-payment-btn"
-                                class="btn fs-15 fw-600 borderbtn rounded-2 w-100 py-3 border-none custom_checkout_button_design unfilled">
-                                {{ translate('Continue to Payment') }}
+                                class="btn borderbtn fs-14 fw-700 rounded-0 w-100 w-md-auto py-3 custom_checkout_button_design unfilled">
+                                {{ translate('Next') }}
                             </button>
                         </div>
-                        </form>
-
                     </div>
+                    </form>
 
                 </div>
             </div>
         </div>
     </section>
+
     <style>
+        :focus-visible {
+            outline: none !important;
+        }
+
+        .delivery-maincontainer {
+            background: #fdfdfc;
+        }
+
+        .delivery-desktop-card {
+            transition: box-shadow .15s;
+        }
+
+        .delivery-desktop-card:hover {
+            box-shadow: 0 2px 8px rgba(124, 113, 94, .05);
+            background: #faf8f3 !important;
+        }
+
+        .delivery-product-name-text {
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.4;
+        }
+
+        .addon-toggle-btn {
+            background: #f5eee6 !important;
+            border: 1px solid #e2d2c0 !important;
+            color: #8b5e34 !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            padding: 6px 12px !important;
+            transition: all .3s ease;
+        }
+
+        .addon-toggle-btn:hover {
+            background: #8b5e34 !important;
+            color: #fff !important;
+        }
+
+        .addon-toggle-btn:focus {
+            box-shadow: none !important;
+        }
+
+        .addon-name-text {
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .addon-price-text {
+            white-space: nowrap;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .addon-row {
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .addon-details {
+            width: 100% !important;
+            max-width: 100%;
+            box-sizing: border-box;
+            background: #f9f6f3;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(181, 122, 69, .08);
+        }
+
+        .la-rotate-180 {
+            transform: rotate(180deg);
+            transition: transform 0.2s ease;
+        }
+
+        .min-w-0 {
+            min-width: 0;
+        }
+
+        a:-webkit-any-link:focus-visible {
+            outline: none !important;
+        }
+
         #continue-to-payment-btn[disabled] {
             background: #d9cbbb !important;
             cursor: no-drop;
             outline: none !important;
-
         }
 
         #continue-to-payment-btn:focus-visible {
             outline: none !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .delivery-maincontainer {
+                padding: 1rem !important;
+            }
         }
     </style>
 @endsection
@@ -668,6 +875,14 @@
                     }
                 });
             }
+
+            // Arrow rotation for collapse
+            $('.collapse').on('show.bs.collapse', function() {
+                $(this).prev('.addon-toggle-btn').find('.addon-arrow').addClass('la-rotate-180');
+            });
+            $('.collapse').on('hide.bs.collapse', function() {
+                $(this).prev('.addon-toggle-btn').find('.addon-arrow').removeClass('la-rotate-180');
+            });
         });
 
         function display_option(key) {

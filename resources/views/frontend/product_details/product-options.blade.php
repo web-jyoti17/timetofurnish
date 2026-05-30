@@ -1021,11 +1021,9 @@
             if (isEligible) {
                 $basketButtons.prop('disabled', false).removeClass('btn-disabled-custom');
                 $buyButtons.prop('disabled', false).removeClass('btn-disabled-custom');
-                $wishlistButtons.removeClass('disabled-wishlist');
             } else {
                 $basketButtons.prop('disabled', true).addClass('btn-disabled-custom');
                 $buyButtons.prop('disabled', true).addClass('btn-disabled-custom');
-                $wishlistButtons.addClass('disabled-wishlist');
             }
         }
 

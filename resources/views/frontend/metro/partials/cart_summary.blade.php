@@ -34,7 +34,23 @@
                 {{-- Main Product Row --}}
                 <tr>
                     <td class="product-name" colspan="2" style="font-weight: 500;">
-                        {{ $product_name_with_choice }}
+                        <div class="d-flex align-items-center justify-content-between" style="gap: 8px;">
+                            <span>{{ $product_name_with_choice }}</span>
+                            <a href="{{ route('cart.editItem', $cartItem->id) }}"
+                                class="btn btn-link p-0 d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="outline:none;border:none;border: 1px solid #EADDCF;background:#fdf6ed;width:28px;height:28px;border-radius:7px;transition:all 0.2s ease-in-out;box-shadow: 0 1px 3px rgba(181, 122, 69, 0.08);"
+                                onmouseover="this.style.background='#b57a45'; this.querySelector('svg path').style.stroke='#ffffff'; this.style.transform='scale(1.08)';"
+                                onmouseout="this.style.background='#fdf6ed'; this.querySelector('svg path').style.stroke='#b57a45'; this.style.transform='scale(1)';"
+                                title="{{ translate('Edit options') }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M11 4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H18C19.1046 22 20 21.1046 20 20V13M18.5 2.5C19.3284 1.67157 20.6716 1.67157 21.5 2.5C22.3284 3.32843 22.3284 4.67157 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                                        stroke="#b57a45" stroke-width="1.8" stroke-linecap="round"
+                                        stroke-linejoin="round" style="transition: stroke 0.2s;" />
+                                </svg>
+                            </a>
+                        </div>
                     </td>
                     <td class="text-right product-price cartdetails" style="font-weight: 500;">
                         @if($product->unit_price > 0)

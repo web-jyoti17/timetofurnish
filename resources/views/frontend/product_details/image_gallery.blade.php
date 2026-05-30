@@ -159,7 +159,28 @@
         @endphp
     @endif
     <!-- Gallery Images -->
-    <div class="col-12">
+    <div class="col-12 position-relative" style="position: relative;">
+        @if ($detailedProduct->auction_product != 1)
+            @php
+                $isInWishlist =
+                    auth()->check() &&
+                    \App\Models\Wishlist::where('user_id', auth()->id())
+                        ->where('product_id', $detailedProduct->id)
+                        ->exists();
+            @endphp
+            <div class="wishlist-btn-wrapper" style="position: absolute; top: 15px; right: 20px; z-index: 11;">
+                <a href="javascript:void(0)" onclick="addToWishList({{ $detailedProduct->id }});"
+                    class="wishlist-btn d-flex align-items-center justify-content-center"
+                    style="background: white; border: 1px solid #e6e6e6 !important; border-radius: 50%; height: 48px; width: 48px; border: none; margin: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); transition: all 0.3s ease;">
+                    <i class="la la-heart{{ $isInWishlist ? '' : '-o' }} wishlist-heart-icon"
+                        style="font-size: 24px; color: #dc3545 !important;"></i>
+                    <span class="wishlist-tooltip-custom">
+                        Add to wishlist
+                        <span class="wishlist-tooltip-arrow"></span>
+                    </span>
+                </a>
+            </div>
+        @endif
 
         <div class="aiz-carousel product-gallery arrow-inactive-transparent arrow-lg-none"
             data-nav-for='.product-gallery-thumb' data-fade='true' data-auto-height='false' data-arrows='true'>

@@ -17,11 +17,13 @@
             font-family: Roboto, Arial, Helvetica, sans-serif;
             font-size: 12px;
             line-height: 1.45;
+            text-align: left;
         }
 
         table {
             border-collapse: collapse;
             table-layout: fixed;
+            text-align: left;
         }
 
         td,
@@ -142,6 +144,8 @@
             background: #faf8f5;
             border: 1px solid #e5ddd3;
             margin-top: 7px;
+            width: 100%;
+            table-layout: fixed;
         }
 
         .addons td {
@@ -190,7 +194,14 @@
             line-height: 1.55;
         }
 
+        .show-mobile {
+            display: none;
+        }
+
         @media only screen and (max-width: 600px) {
+            .show-mobile {
+                display: inline !important;
+            }
             .invoice {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -233,6 +244,29 @@
             }
             .footer-col table {
                 margin: 0 auto !important;
+            }
+            /* Items responsive stacking */
+            .items > thead, .items > thead > tr > th, .items > tbody > tr > th {
+                display: none !important;
+            }
+            .items > tbody, .items > tbody > tr, .items > tbody > tr > td.item-td {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .items > tbody > tr {
+                border-bottom: 1px solid #ececec !important;
+                padding: 12px 0 !important;
+            }
+            .items > tbody > tr > td.item-td {
+                text-align: left !important;
+                padding: 4px 0 !important;
+                border: none !important;
+            }
+            .items > tbody > tr > td.product-title {
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                padding-bottom: 6px !important;
             }
         }
     </style>
@@ -512,77 +546,91 @@
                             <div class="details-title">Invoice details</div>
                             <table class="items" width="100%" cellpadding="0" cellspacing="0"
                                 role="presentation">
-                                <tr>
-                                    <th width="52%" align="left">Description</th>
-                                    <th width="10%" align="center">Qty</th>
-                                    <th width="18%" align="right">Unit price</th>
-                                    <th width="20%" align="right">Subtotal</th>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                        <th width="52%" align="left">Description</th>
+                                        <th width="10%" align="center">Qty</th>
+                                        <th width="18%" align="right">Unit price</th>
+                                        <th width="20%" align="right">Subtotal</th>
+                                    </tr>
+                                </thead>
 
-                                @foreach ($order->orderDetails as $orderDetail)
-                                    @if ($orderDetail->product)
-                                        @php
-                                            $lineBase = (float) $orderDetail->price;
-                                            $lineAddon = (float) ($orderDetail->addon_price ?? 0);
-                                            $itemsSubtotal += $lineBase;
-                                            $addonsSubtotal += $lineAddon;
-                                            $addons = [];
+                                <tbody>
+                                    @foreach ($order->orderDetails as $orderDetail)
+                                        @if ($orderDetail->product)
+                                            @php
+                                                $lineBase = (float) $orderDetail->price;
+                                                $lineAddon = (float) ($orderDetail->addon_price ?? 0);
+                                                $itemsSubtotal += $lineBase;
+                                                $addonsSubtotal += $lineAddon;
+                                                $addons = [];
 
-                                            if (!empty($orderDetail->addons)) {
-                                                $addons = json_decode($orderDetail->addons, true) ?: [];
-                                            } elseif (!empty($orderDetail->addon)) {
-                                                $addons = json_decode($orderDetail->addon, true) ?: [];
-                                            }
-                                        @endphp
-                                        <tr>
-                                            <td>
-                                                <div style="font-weight:700;">{{ $orderDetail->product->name }}</div>
-                                                @if ($orderDetail->variation)
-                                                    <div class="muted" style="font-size:11px;margin-top:2px;">
-                                                        Variant:
-                                                        {{ $orderDetail->variation }}</div>
-                                                @endif
-                                                @if (!empty($addons))
-                                                    <table class="addons" width="100%" cellpadding="0"
-                                                        cellspacing="0" role="presentation">
-                                                        @foreach ($addons as $addon)
-                                                            <tr>
-                                                                <td width="34%" style="color:#6b5a45;">
-                                                                    {{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}
-                                                                </td>
-                                                                <td width="44%">
-                                                                    {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
-                                                                </td>
-                                                                <td width="22%" class="right nowrap">
-                                                                    {{ single_price($addon['price'] ?? 0) }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </table>
-                                                @endif
-                                            </td>
-                                            <td class="center">{{ $orderDetail->quantity }}</td>
-                                            <td class="right nowrap">
-                                                {{ single_price($orderDetail->quantity > 0 ? $lineBase / $orderDetail->quantity : $lineBase) }}
-                                            </td>
-                                            <td class="right nowrap">{{ single_price($lineBase + $lineAddon) }}</td>
+                                                if (!empty($orderDetail->addons)) {
+                                                    $addons = json_decode($orderDetail->addons, true) ?: [];
+                                                } elseif (!empty($orderDetail->addon)) {
+                                                    $addons = json_decode($orderDetail->addon, true) ?: [];
+                                                }
+                                            @endphp
+                                            <tr>
+                                                <td class="item-td product-title">
+                                                    <div style="font-weight:700;">{{ $orderDetail->product->name }}</div>
+                                                    @if ($orderDetail->variation)
+                                                        <div class="muted" style="font-size:11px;margin-top:2px;">
+                                                            Variant:
+                                                            {{ $orderDetail->variation }}</div>
+                                                    @endif
+                                                    @if (!empty($addons))
+                                                         <table class="addons" width="100%" cellpadding="0"
+                                                             cellspacing="0" role="presentation" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
+                                                             <colgroup>
+                                                                 <col style="width: 35%;">
+                                                                 <col style="width: 48%;">
+                                                                 <col style="width: 17%;">
+                                                             </colgroup>
+                                                             @foreach ($addons as $addon)
+                                                                 <tr>
+                                                                     <td style="width: 35%; text-align: left; vertical-align: top; color: #6b5a45;">
+                                                                         {{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}
+                                                                     </td>
+                                                                     <td style="width: 48%; text-align: left; vertical-align: top;">
+                                                                         {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
+                                                                     </td>
+                                                                     <td class="nowrap" style="width: 17%; text-align: left; vertical-align: top;">
+                                                                         {{ single_price($addon['price'] ?? 0) }}
+                                                                     </td>
+                                                                 </tr>
+                                                             @endforeach
+                                                         </table>
+                                                     @endif
+                                                </td>
+                                                <td class="item-td center">
+                                                    <span class="show-mobile small muted" style="display:none;font-weight:700;">Qty: </span>{{ $orderDetail->quantity }}
+                                                </td>
+                                                <td class="item-td right nowrap">
+                                                    <span class="show-mobile small muted" style="display:none;font-weight:700;">Unit price: </span>{{ single_price($orderDetail->quantity > 0 ? $lineBase / $orderDetail->quantity : $lineBase) }}
+                                                </td>
+                                                <td class="item-td right nowrap">
+                                                    <span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>{{ single_price($lineBase + $lineAddon) }}
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+
+                                    <tr>
+                                        <td class="item-td">Shipping charges</td>
+                                        <td class="hide-mobile"></td>
+                                        <td class="hide-mobile"></td>
+                                        <td class="item-td right nowrap"><span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>{{ single_price($shippingTotal) }}</td>
+                                    </tr>
+                                    @if ((float) $order->coupon_discount > 0)
+                                        <tr style="background:#faf8f5;">
+                                            <td class="item-td">Promotion / coupon</td>
+                                            <td class="hide-mobile"></td>
+                                            <td class="hide-mobile"></td>
+                                            <td class="item-td right nowrap"><span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>-{{ single_price($order->coupon_discount) }}</td>
                                         </tr>
                                     @endif
-                                @endforeach
-
-                                <tr>
-                                    <td>Shipping charges</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="right nowrap">{{ single_price($shippingTotal) }}</td>
-                                </tr>
-                                @if ((float) $order->coupon_discount > 0)
-                                    <tr style="background:#faf8f5;">
-                                        <td>Promotion / coupon</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td class="right nowrap">-{{ single_price($order->coupon_discount) }}</td>
-                                    </tr>
-                                @endif
+                                </tbody>
                             </table>
 
                             <table class="totals" width="100%" cellpadding="0" cellspacing="0"

@@ -124,77 +124,86 @@
 </div>
 
 <style>
-    /* ENHANCED DESIGN */
+    /* SIMPLE CLEAN TAB DESIGN */
     .enhanced-tabs {
-        background: #f8fafc;
-        border: 1px solid #e2e6ea;
-        border-radius: 15px;
+        background: transparent;
+        border: none;
+        border-radius: 0;
         padding: 0;
-        box-shadow: 0 4px 24px 0 rgba(44, 101, 244, 0.08);
+        box-shadow: none;
         overflow: visible;
         margin-top: 15px;
     }
 
     .enhanced-tab-nav {
         display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        background: #f4ede5;
-        border-bottom: 2px solid #e3eaf2;
-        border-radius: 15px 15px 0 0;
+        align-items: stretch;
+        flex-wrap: nowrap;
+        background: transparent;
+        border-bottom: 2px solid #e8e2db;
+        border-radius: 0;
         margin-bottom: 0;
-        padding: 6px 6px 0px;
+        padding: 0;
+        gap: 0;
+        list-style: none;
+        justify-content: center;
     }
 
     .enhanced-tab-nav li {
-        margin: 0 2px 0 0;
-        border-radius: 10px 10px 0 0;
+        margin: 0;
+        border-radius: 0;
+        flex-shrink: 0;
     }
 
     .enhanced-tab-link {
-        transition: all 0.17s;
-        font-size: 1.09rem;
+        transition: color 0.18s, border-color 0.18s;
+        font-size: 0.95rem;
         font-weight: 600;
-        color: #685b4e;
-        padding: 18px 32px 12px 32px;
+        color: #8a7e72;
+        padding: 12px 22px;
         background: transparent;
         border: none;
-        border-radius: 10px 10px 0 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
         text-align: center;
         position: relative;
-        min-width: 120px;
-        display: inline-block;
+        min-width: unset;
+        display: block;
+        white-space: nowrap;
+        margin-bottom: -2px;
+        letter-spacing: 0.01em;
+        text-decoration: none;
     }
 
     .enhanced-tab-link.active,
     .enhanced-tab-link:focus {
         color: #685b4e;
-        background: #fff;
-        border-bottom: 3px solid #685b4e;
-        box-shadow: 0 1px 8px 0 rgba(60, 123, 249, 0.04);
+        background: transparent;
+        border-bottom: 4px solid #685b4e;
+        box-shadow: none;
         z-index: 2;
     }
 
     .enhanced-tab-link:hover:not(.active) {
-
         color: #685b4e;
+        border-bottom-color: #c5b9ac;
     }
 
     .enhanced-tab-content {
-        padding: 10px;
-        background: #fff;
-        min-height: 170px;
-        border-radius: 0 0 15px 15px;
+        padding: 20px 0 0 0;
+        background: transparent;
+        min-height: 120px;
+        border-radius: 0;
         position: relative;
     }
 
     .enhanced-editor-wrap {
-        background: #fafcff;
-        border: 1.5px solid #f1f5fd;
-        padding: 30px 25px 20px 25px;
-        border-radius: 12px;
-        min-height: 140px;
-        box-shadow: 0 2px 8px 0 rgba(225, 233, 247, 0.10);
+        background: transparent;
+        border: none;
+        padding: 10px 0;
+        border-radius: 0;
+        min-height: 100px;
+        box-shadow: none;
     }
 
     .review-pane-wrap {
@@ -205,66 +214,53 @@
         padding: 0 !important;
     }
 
-    @media (max-width: 1100px) {
-        .enhanced-tab-content {
-            padding: 22px 7px 15px 7px;
-        }
-
-        .enhanced-editor-wrap {
-            padding: 15px 7px;
-        }
-
-        .enhanced-tab-link {
-            padding: 12px 8px 8px 8px;
-        }
-    }
-
+    /* --- Mobile: single row with horizontal scroll --- */
     @media (max-width: 768px) {
         .enhanced-tab-nav {
-            flex-direction: column;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
             padding: 0;
-            border-radius: 15px 15px 0 0;
+            gap: 0;
+        }
+
+        .enhanced-tab-nav::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
         }
 
         .enhanced-tab-nav li {
-            width: 100%;
-            margin: 0;
-            border-radius: 0;
+            flex-shrink: 0;
         }
 
         .enhanced-tab-link {
-            width: 100%;
-            padding: 10px 0 !important;
-            font-size: 1.04rem !important;
-            border-radius: 0 !important;
-            min-width: 100%;
-        }
-
-        .enhanced-tab-link.active,
-        .enhanced-tab-link:focus {
-            color: #685b4e;
-            background: #fff;
-            border-bottom: 3px solid #685b4e;
-            box-shadow: 0 1px 8px 0 rgba(60, 123, 249, 0.04);
-            z-index: 2;
-        }
-
-        .enhanced-tabs {
-            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 0.88rem;
+            white-space: nowrap;
         }
 
         .enhanced-tab-content {
-            border-radius: 0 0 6px 6px;
+            padding: 15px 0 0 0;
+        }
+
+        .enhanced-editor-wrap {
+            padding: 8px 0;
         }
     }
 
     @media (max-width: 480px) {
+        .enhanced-tab-link {
+            padding: 9px 13px;
+            font-size: 0.84rem;
+        }
+
         .enhanced-tab-content {
-            padding: 6px 1px;
+            padding: 10px 0 0 0;
         }
 
         .enhanced-editor-wrap {
-            padding: 2px 0;
+            padding: 5px 0;
         }
     }
 
@@ -323,14 +319,14 @@
         font-weight: 600;
         border: 2px solid #685b4e;
         color: #fff !important;
-        background: linear-gradient(94deg, #3569e7, #4ea6f7 96%);
-        box-shadow: 0 4px 18px 0 rgba(46, 102, 250, 0.07);
+        background: linear-gradient(94deg, #685b4e, #8a7e72 96%);
+        box-shadow: 0 4px 18px 0 rgba(104, 91, 78, 0.10);
         transition: background 0.15s, border 0.14s;
     }
 
     .enhanced-download-btn:hover {
-        background: linear-gradient(94deg, #174bb2, #1ca8f9 96%);
-        border-color: #1b46a6;
+        background: linear-gradient(94deg, #4a3e34, #685b4e 96%);
+        border-color: #4a3e34;
         color: #fff !important;
     }
 

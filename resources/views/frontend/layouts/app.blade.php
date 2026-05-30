@@ -216,18 +216,18 @@
         /* ----------------------------------------------------
            PREMIUM CUSTOM CHECKOUT & CART RESPONSIVE DESIGN STYLES
            ---------------------------------------------------- */
-        /* Unify Checkout Steps to use warm-gold theme color (#b57a45) exclusively */
+        /* Unify Checkout Steps to use warm-gold theme color (#685b4e) exclusively */
         .cart_tabs .col.active .border-bottom-6px,
         .cart_tabs .col.done .border-bottom-6px {
-            border-bottom-color: #b57a45 !important;
-            border-color: #b57a45 !important;
+            border-bottom-color: #685b4e !important;
+            border-color: #685b4e !important;
         }
 
         .cart_tabs .col.active .text-primary,
         .cart_tabs .col.done .text-success,
         .cart_tabs .col.active .text-primary a,
         .cart_tabs .col.done .text-success a {
-            color: #b57a45 !important;
+            color: #685b4e !important;
         }
 
         .cart_tabs .col.active svg path,
@@ -236,7 +236,7 @@
         .cart_tabs .col.done svg [fill="#d43533"],
         .cart_tabs .col.active svg g path,
         .cart_tabs .col.done svg g path {
-            fill: #b57a45 !important;
+            fill: #685b4e !important;
         }
 
         /* Fix clipping or shifting checkout step icons on mobile */
@@ -294,7 +294,7 @@
         }
 
         .cart_tabs .col.active .text-center i {
-            color: #b57a45 !important;
+            color: #685b4e !important;
             font-size: 2.2rem !important;
             opacity: 1 !important;
             transform: scale(1.05) !important;
@@ -303,7 +303,7 @@
 
         .cart_tabs .col.active .text-center h3,
         .cart_tabs .col.active .text-center a {
-            color: #b57a45 !important;
+            color: #685b4e !important;
             font-weight: 700 !important;
             font-size: 14px !important;
             margin-top: 8px !important;
@@ -399,7 +399,7 @@
             box-shadow: 0 4px 12px rgba(181, 122, 69, 0.02) !important;
             margin-bottom: 15px !important;
             table-layout: fixed !important;
-        }
+        }.addon-details table td
 
         .addon-details table th,
         .addon-details table td {
@@ -424,7 +424,7 @@
             font-size: 13px !important;
             color: #3e3327 !important;
             font-weight: 500 !important;
-            padding: 14px 18px !important;
+            padding: 6px 10px !important;
             background: #ffffff !important;
             border-bottom: 1px solid #f8f5f0 !important;
             border-top: none !important;
@@ -457,7 +457,7 @@
         .modern-qty-selector .qty-btn {
             border: none !important;
             background: transparent !important;
-            color: #b57a45 !important;
+            color: #685b4e !important;
             width: 32px !important;
             height: 32px !important;
             display: flex !important;
@@ -510,14 +510,14 @@
         /* Map text-success inside checkout tables and totals to warm-gold theme color */
         .addon-details table td .text-success,
         .addon-details table td.text-success {
-            color: #b57a45 !important;
+            color: #685b4e !important;
             font-weight: 600 !important;
         }
 
         /* Force checkout buttons to use our theme color exclusively */
         .custom_checkout_button_design.filled {
-            background: #b57a45 !important;
-            border-color: #b57a45 !important;
+            background: #685b4e !important;
+            border-color: #685b4e !important;
             color: #fff !important;
             box-shadow: 0 4px 10px rgba(181, 122, 69, 0.15) !important;
             transition: all 0.25s ease !important;
@@ -532,15 +532,15 @@
 
         .custom_checkout_button_design.unfilled {
             background: transparent !important;
-            border: 2px solid #b57a45 !important;
-            color: #b57a45 !important;
+            border: 2px solid #685b4e !important;
+            color: #685b4e !important;
             transition: all 0.25s ease !important;
         }
 
         .custom_checkout_button_design.unfilled:hover {
-            background: #b57a45 !important;
+            background: #685b4e !important;
             color: #fff !important;
-            border-color: #b57a45 !important;
+            border-color: #685b4e !important;
             transform: translateY(-1.5px) !important;
         }
 
@@ -1013,6 +1013,7 @@
                     if (data != 0) {
                         $('#wishlist').html(data);
                         AIZ.plugins.notify('success', "{{ translate('Item has been added to wishlist') }}");
+                        $('.wishlist-heart-icon').removeClass('la-heart-o').addClass('la-heart');
                     } else {
                         AIZ.plugins.notify('warning', "{{ translate('Please login first') }}");
                     }

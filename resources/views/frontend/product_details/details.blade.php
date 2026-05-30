@@ -456,7 +456,7 @@
     </style>
     <style>
         .wishlist-btn:hover i {
-            color: white !important;
+            color: #dc3545 !important;
         }
 
         .is-invalid-addon {
@@ -470,8 +470,9 @@
 
 
         .wishlist-btn:hover {
-            background: #b57a45 !important;
-            color: white !important;
+            background: #fff5f5 !important;
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
         }
 
         .wishlist-btn-wrapper {
@@ -531,31 +532,9 @@
     </style>
     <!-- Product Name -->
     <div class="flex-row d-flex align-items-center justify-content-between">
-        <h2 class="mb-2 fs-26 fw-700 text-dark" style="letter-spacing:0.5px !important">
+        <h2 class="mb-2 fs-18 lg-fs-26 md-fs-26 fw-700 text-dark" style="letter-spacing:0.5px !important">
             {{ ucfirst($detailedProduct->getTranslation('name')) }}
         </h2>
-        @if ($detailedProduct->auction_product != 1)
-            @php
-                $isInWishlist =
-                    auth()->check() &&
-                    \App\Models\Wishlist::where('user_id', auth()->id())
-                        ->where('product_id', $detailedProduct->id)
-                        ->exists();
-            @endphp
-            <div class="wishlist-btn-wrapper" style="display: flex; align-items: center;">
-                <a href="javascript:void(0)" onclick="addToWishList({{ $detailedProduct->id }});"
-                    class="wishlist-btn disabled-wishlist position-relative d-flex align-items-center justify-content-center"
-                    style="background: white;border:1px solid #e6e6e6 !important; border-radius: 50%; height: 50px; width: 50px; color: black !important; border: none; margin-left: 16px; margin-right: 0;">
-                    <i class="la la-heart{{ $isInWishlist ? '' : '-o' }} wishlist-heart-icon"
-                        style="font-size: 24px; color: black"></i>
-                    <span class="wishlist-tooltip-custom">
-                        Add to wishlist
-                        <span class="wishlist-tooltip-arrow"></span>
-                    </span>
-                </a>
-            </div>
-        @endif
-
     </div>
 
     <div class="mb-3 row align-items-center">
