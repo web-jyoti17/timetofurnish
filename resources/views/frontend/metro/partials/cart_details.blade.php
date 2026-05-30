@@ -578,8 +578,8 @@
 
         .edit-item-btn,
         .delete-item-btn {
-            width: 27px !important;
-            height: 27px !important;
+            width: 35px !important;
+            height: 35px !important;
         }
 
         .cart-item-row .col-lg-4,
