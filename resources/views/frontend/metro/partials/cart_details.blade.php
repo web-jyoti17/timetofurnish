@@ -291,7 +291,7 @@
                                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
                                                 <div class="min-w-0" style="margin-left: 10px;">
                                                     <span
-                                                        class="fs-15 fw-700 text-dark d-block product-name-text">{{ $product_name_with_choice }}</span>
+                                                        class="fs-13 fw-700 text-dark d-block product-name-text">{{ $product_name_with_choice }}</span>
 
                                                     <!-- Selected Attributes (if any) -->
                                                     @if (!empty($cartItem_attributes) && count($cartItem_attributes) > 0)
@@ -307,7 +307,7 @@
                                                 </div>
                                             </div>
                                             <!-- Action buttons -->
-                                            <div class="modern-action-buttons-wrapper ms-2 flex-shrink-0" style="display: flex !important; gap: 8px;">
+                                            <div class="modern-action-buttons-wrapper ms-2 flex-shrink-0" style="display: flex !important;    flex-direction: column; gap: 8px;">
                                                 <!-- Edit button -->
                                                 <a href="{{ route('cart.editItem', $cartItem['id']) }}"
                                                     class="btn btn-link p-0 d-flex align-items-center justify-content-center"

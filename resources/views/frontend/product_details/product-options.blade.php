@@ -81,7 +81,15 @@
                                             return str_replace([' ', '"', "'"], '', $part);
                                         }, $variationParts);
                                         
-                                        $is_selected = isset($cartItem) && in_array($normalizedValue, $normalizedParts);
+                                        // Fallback for options containing dashes (e.g. "4FT Small Double -") where explode('-') splits the value
+                                        $normalizedValNoDashes = str_replace([' ', '"', "'", '-'], '', $value);
+                                        $normalizedVariation = str_replace([' ', '"', "'", '-'], '', $cartItem->variation ?? '');
+                                        
+                                        $is_selected = isset($cartItem) && (
+                                            in_array($normalizedValue, $normalizedParts) || 
+                                            in_array($normalizedValNoDashes, $normalizedParts) ||
+                                            $normalizedVariation === $normalizedValNoDashes
+                                        );
                                     @endphp
 
                                     <option value="{{ e($value) }}" data-price="{{ $optionDetails['price'] }}"
