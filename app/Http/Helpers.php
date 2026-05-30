@@ -1830,6 +1830,12 @@ if (!function_exists('checkout_done')) {
             } catch (\Exception $e) {
             }
         }
+
+        try {
+            (new \App\Http\Controllers\CheckoutController)->sendOrderEmails($combined_order_id);
+        } catch (\Exception $e) {
+            \Log::error('API checkout_done mail sending failed: ' . $e->getMessage());
+        }
     }
 }
 

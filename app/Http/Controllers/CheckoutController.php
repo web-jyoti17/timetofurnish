@@ -144,9 +144,8 @@ class CheckoutController extends Controller
                 $order->payment_details = 'Cash On Delivery';
                 $order->save();
             }
-            Log::info($order);
-            // Send emails
-            $this->sendOrderEmails($combined_order_id);
+            // Send emails (Disabled for unpaid COD checkouts)
+            // $this->sendOrderEmails($combined_order_id);
             Log::info($combined_order_id);
             // Clear cart
             if (Auth::check()) {
@@ -183,7 +182,7 @@ class CheckoutController extends Controller
         return redirect()->route('order_confirmed');
     }
 
-    private function sendOrderEmails($combined_order_id)
+    public function sendOrderEmails($combined_order_id)
     {
         Log::info('sendOrderEmails started', [
             'combined_order_id' => $combined_order_id,

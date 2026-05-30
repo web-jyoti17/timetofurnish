@@ -26,9 +26,9 @@
             $actual_base_price = max(0, $actual_base_price);
         @endphp
         <span class="d-none js-product-base-price"
-            data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}"
-            data-actual-base-price="{{ $actual_base_price }}">
-            {{ home_discounted_base_price($detailedProduct, false) }}
+            data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
+            data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
+            {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
         </span>
         @php
 
@@ -72,10 +72,19 @@
                                             'product' => $detailedProduct,
                                             'attribute_id' => $choice->attribute_id,
                                         ]);
-                                        $is_selected = isset($cartItem) && in_array(str_replace(' ', '', $value), $variationParts);
+                                        
+                                        // Normalize option value by stripping spaces, double quotes, and single quotes
+                                        $normalizedValue = str_replace([' ', '"', "'"], '', $value);
+                                        
+                                        // Normalize variation parts by stripping spaces, double quotes, and single quotes
+                                        $normalizedParts = array_map(function($part) {
+                                            return str_replace([' ', '"', "'"], '', $part);
+                                        }, $variationParts);
+                                        
+                                        $is_selected = isset($cartItem) && in_array($normalizedValue, $normalizedParts);
                                     @endphp
 
-                                    <option value="{{ $value }}" data-price="{{ $optionDetails['price'] }}"
+                                    <option value="{{ e($value) }}" data-price="{{ $optionDetails['price'] }}"
                                         data-price-text="{{ $optionDetails['formatted_price'] }}"
                                         data-quantity="{{ $optionDetails['quantity'] }}"
                                         data-img="{{ $optionDetails['image_url'] }}"
@@ -461,7 +470,7 @@
                                 $qty += $stock->qty;
                             }
                         @endphp
-                        <input type="hidden" name="qty1" id="qty1" value="{{ $qty1 }}">
+                        <input type="hidden" name="qty1" id="qty1" value="{{ $qty1 + (isset($cartItem) ? $cartItem->quantity : 0) }}">
                         <div class="pl-3 ml-2 available-amount border-left" style="font-size: 14px; color: #888;">
                             @if ($detailedProduct->stock_visibility_state == 'quantity')
                                 (<span id="available-quantity" style="font-weight:600;">{{ $qty }}</span>
@@ -480,7 +489,7 @@
             <input type="hidden" name="quantity" value="1">
         @endif
 
-        <div class="mb-3 row no-gutters d-none" id="total-price-div">
+        <div class="mb-3 row no-gutters @if(!isset($cartItem)) d-none @endif" id="total-price-div">
             <div class="col-sm-2">
                 <div class="text-black fs-18 fw-600" style="color: #333 !important;">
                     {{ translate('Total Price') }}
@@ -491,7 +500,11 @@
                     <!-- Regular Price (with Addon total UI dynamic addition) -->
                     <strong class="fs-20 fw-600 text-primary js-product-total-price" id="total-pricing"
                         data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
-                        {{ home_discounted_base_price($detailedProduct) }}
+                        @if(isset($cartItem))
+                            {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
+                        @else
+                            {{ home_discounted_base_price($detailedProduct) }}
+                        @endif
                     </strong>
 
                 </div>
@@ -954,40 +967,44 @@
         // ---------------------------------
         // Dynamic Enable/Disable Action Buttons
         // ---------------------------------
-        function checkEnableDisableButtons() {
-            let totalAttributesAvailable = $('.variant-dropdown').length;
-            let totalAddonsAvailable = $('.addon-block select').length;
+         function checkEnableDisableButtons() {
+            @if (isset($cartItem))
+                let isEligible = true;
+            @else
+                let totalAttributesAvailable = $('.variant-dropdown').length;
+                let totalAddonsAvailable = $('.addon-block select').length;
 
-            // Dynamic thresholds based on product specifications
-            let requiredAttributes = totalAttributesAvailable;
-            let requiredAddons = Math.min(3, totalAddonsAvailable);
+                // Dynamic thresholds based on product specifications
+                let requiredAttributes = totalAttributesAvailable;
+                let requiredAddons = Math.min(3, totalAddonsAvailable);
 
-            let selectedAttributesCount = 0;
-            $('.variant-dropdown').each(function() {
-                let val = $(this).val();
-                if (val && val !== '') {
-                    selectedAttributesCount++;
-                }
-            });
-
-            let selectedAddonsCount = 0;
-            $('.addon-block select').each(function() {
-                let addonId = $(this).data('addonid');
-                let isFabric = $(this).hasClass('fabric-dropdown');
-                if (isFabric) {
-                    let fabricVal = $(`input[type="hidden"][name="addons[${addonId}]"]`).val();
-                    if (fabricVal && fabricVal !== '') {
-                        selectedAddonsCount++;
-                    }
-                } else {
+                let selectedAttributesCount = 0;
+                $('.variant-dropdown').each(function() {
                     let val = $(this).val();
                     if (val && val !== '') {
-                        selectedAddonsCount++;
+                        selectedAttributesCount++;
                     }
-                }
-            });
+                });
 
-            let isEligible = (selectedAddonsCount >= requiredAddons && selectedAttributesCount >= requiredAttributes);
+                let selectedAddonsCount = 0;
+                $('.addon-block select').each(function() {
+                    let addonId = $(this).data('addonid');
+                    let isFabric = $(this).hasClass('fabric-dropdown');
+                    if (isFabric) {
+                        let fabricVal = $(`input[type="hidden"][name="addons[${addonId}]"]`).val();
+                        if (fabricVal && fabricVal !== '') {
+                            selectedAddonsCount++;
+                        }
+                    } else {
+                        let val = $(this).val();
+                        if (val && val !== '') {
+                            selectedAddonsCount++;
+                        }
+                    }
+                });
+
+                let isEligible = (selectedAddonsCount >= requiredAddons && selectedAttributesCount >= requiredAttributes);
+            @endif
 
             let $basketButtons = $('.add-to-cart');
             let $buyButtons = $('.buy-now');

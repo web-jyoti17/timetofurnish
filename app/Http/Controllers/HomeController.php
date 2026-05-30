@@ -518,6 +518,14 @@ class HomeController extends Controller
         $tax = 0;
         $max_limit = 0;
 
+        $cart_qty = 0;
+        if ($request->has('cart_item_id') && !empty($request->cart_item_id)) {
+            $cartItem = \App\Models\Cart::find($request->cart_item_id);
+            if ($cartItem) {
+                $cart_qty = $cartItem->quantity;
+            }
+        }
+
         /*
     --------------------------------------
     GET SELECTED ATTRIBUTE
@@ -565,8 +573,8 @@ class HomeController extends Controller
 
         if ($product_stock) {
             $price = $product_stock->price;
-            $quantity = $product_stock->qty;
-            $max_limit = $product_stock->qty;
+            $quantity = $product_stock->qty + $cart_qty;
+            $max_limit = $product_stock->qty + $cart_qty;
             $has_stocks = true;
 
             /*
@@ -596,8 +604,16 @@ class HomeController extends Controller
                 }
             }
             if ($has_stocks) {
+                $quantity += $cart_qty;
                 $max_limit = $quantity;
             }
+        }
+
+        if (!$has_stocks && $cart_qty > 0) {
+            $price = $product->unit_price;
+            $quantity = $cart_qty;
+            $max_limit = $cart_qty;
+            $has_stocks = true;
         }
 
         /*

@@ -112,25 +112,6 @@ class StripeController extends Controller
                 if ($orders->isNotEmpty()) {
                     $order = $orders->first();
                 }
-              
-                $seller_email = $order->shop->user->email; 
-                $mailData = [
-                    'order' => $order,
-                    'orders' => $orders,
-                    // 'site_name'       => get_setting('site_name'),
-                    // 'contact_email'   => get_setting('contact_email'),
-                    // 'contact_phone'   => get_setting('contact_phone'),
-                    // 'logo'            => get_setting('header_logo') ? uploaded_asset(get_setting('header_logo')) : static_asset('assets/img/logo.png'),
-                ];
-                Mail::send('emails.order-mail', $mailData, function ($message) use ($seller_email, $order, $orders) {
-                    $message->to($seller_email)->subject('New Order Received: ' . $order->code);
-                });
-                if (!empty($order->user) && !empty($order->user->email)) { 
-                    $user_email = $order->user->email;
-                    Mail::send('emails.order-mail', $mailData, function ($message) use ($user_email, $order, $orders) {
-                        $message->to($user_email)->subject('Your Order Confirmation: ' . $order->code);
-                    });
-                }
                 if ($payment_type == 'cart_payment') {
                     return (new CheckoutController)->checkout_done(session()->get('combined_order_id'), json_encode($payment));
                 }

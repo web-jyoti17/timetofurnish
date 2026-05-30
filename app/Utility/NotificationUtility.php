@@ -15,19 +15,8 @@ class NotificationUtility
 {
     public static function sendOrderPlacedNotification($order, $request = null)
     {       
-        //sends email to customer with the invoice pdf attached
-        $array['view'] = 'emails.invoice';
-        $array['subject'] = translate('A new order has been placed') . ' - ' . $order->code;
-        $array['from'] = env('MAIL_FROM_ADDRESS');
-        $array['order'] = $order;
-        try {
-            if ($order->user->email != null) {
-                Mail::to($order->user->email)->queue(new InvoiceEmailManager($array));
-            }
-            Mail::to($order->orderDetails->first()->product->user->email)->queue(new InvoiceEmailManager($array));
-        } catch (\Exception $e) {
-
-        }
+        // Invoice emails are now sent exclusively upon successful payment/checkout via sendOrderEmails().
+        // This prevents duplicate and unpaid emails from being sent to customer and seller.
 
         if (addon_is_activated('otp_system') && SmsTemplate::where('identifier', 'order_placement')->first()->status == 1) {
             try {

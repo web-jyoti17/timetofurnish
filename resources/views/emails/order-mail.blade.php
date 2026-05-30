@@ -189,6 +189,52 @@
         .line {
             line-height: 1.55;
         }
+
+        @media only screen and (max-width: 600px) {
+            .invoice {
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+            }
+            .section {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
+            }
+            .col-block {
+                display: block !important;
+                width: 100% !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .info-box {
+                margin-top: 15px !important;
+            }
+            .address-row td {
+                display: block !important;
+                width: 100% !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                padding-bottom: 15px !important;
+            }
+            .address-row td:last-child {
+                padding-bottom: 0 !important;
+            }
+            .hide-mobile {
+                display: none !important;
+            }
+            .col-block.right {
+                text-align: left !important;
+                margin-top: 10px !important;
+            }
+            .footer-col {
+                padding: 10px 0 !important;
+                text-align: center !important;
+            }
+            .footer-col table {
+                margin: 0 auto !important;
+            }
+        }
     </style>
 </head>
 
@@ -328,7 +374,7 @@
                         <td class="section" style="padding-top:24px;padding-bottom:12px;">
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
-                                    <td width="56%" style="padding-right:22px;">
+                                    <td class="col-block" width="56%" style="padding-right:22px;">
                                         <div class="label">Invoice to</div>
                                         <div class="h1">{{ $deliveryAddress->name ?? '' }}</div>
                                         @foreach ($formatAddress($deliveryAddress) as $line)
@@ -345,7 +391,7 @@
                                             </div>
                                         @endif
                                     </td>
-                                    <td width="44%">
+                                    <td class="col-block" width="44%">
                                         <table class="info-box" width="100%" cellpadding="0" cellspacing="0"
                                             role="presentation">
                                             <tr>
@@ -400,21 +446,21 @@
                             <table class="address-row" width="100%" cellpadding="0" cellspacing="0"
                                 role="presentation">
                                 <tr>
-                                    <td width="{{ $addressColumnWidth }}" style="padding-right:16px;">
+                                    <td class="col-block" width="{{ $addressColumnWidth }}" style="padding-right:16px;">
                                         <div class="h2">Delivery address</div>
                                         @foreach ($formatAddress($deliveryAddress) as $line)
                                             <div class="line" style="font-size:11px;">{{ $line }}</div>
                                         @endforeach
                                     </td>
                                     @if (!empty($sellerAddressLines))
-                                        <td width="33.33%" style="padding-left:16px;padding-right:16px;">
+                                        <td class="col-block" width="33.33%" style="padding-left:16px;padding-right:16px;">
                                             <div class="h2">Billing address</div>
                                             @foreach ($sellerAddressLines as $line)
                                                 <div class="line" style="font-size:11px;">{{ $line }}</div>
                                             @endforeach
                                         </td>
                                     @endif
-                                    <td width="{{ $addressColumnWidth }}" style="padding-left:16px;">
+                                    <td class="col-block" width="{{ $addressColumnWidth }}" style="padding-left:16px;">
                                         <div class="h2">Sold by</div>
                                         <div class="line" style="font-size:11px;">
                                             {{ $order->shop->name ?? 'Time To Furnish' }}</div>
@@ -435,7 +481,7 @@
                         <td class="section" style="padding-bottom:18px;">
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
-                                    <td width="50%">
+                                    <td class="col-block" width="50%">
                                         <div class="h2">Order information</div>
                                         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                             <tr>
@@ -451,7 +497,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td width="50%" class="right muted" style="font-size:11px;">
+                                    <td class="col-block right" width="50%" style="font-size:11px;">
                                         For support:
                                         <a href="mailto:{{ $companyEmail }}"
                                             style="color:#8a6f4d;text-decoration:none;">{{ $companyEmail }}</a>
@@ -542,8 +588,8 @@
                             <table class="totals" width="100%" cellpadding="0" cellspacing="0"
                                 role="presentation">
                                 <tr>
-                                    <td width="56%"></td>
-                                    <td width="44%">
+                                    <td class="hide-mobile" width="56%"></td>
+                                    <td class="col-block" width="44%">
                                         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                             <tr>
                                                 <td width="58%" class="muted">Items subtotal</td>
@@ -586,7 +632,7 @@
                                 <tr>
 
                                     <!-- EMAIL -->
-                                    <td align="center"
+                                    <td class="col-block footer-col" align="center"
                                         style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
 
                                         <table cellpadding="0" cellspacing="0" role="presentation">
@@ -607,7 +653,7 @@
 
 
                                     <!-- WEBSITE -->
-                                    <td align="center"
+                                    <td class="col-block footer-col" align="center"
                                         style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
 
                                         <table cellpadding="0" cellspacing="0" role="presentation">
@@ -632,7 +678,7 @@
 
 
                                     <!-- PHONE -->
-                                    <td align="center"
+                                    <td class="col-block footer-col" align="center"
                                         style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
 
                                         <table cellpadding="0" cellspacing="0" role="presentation">

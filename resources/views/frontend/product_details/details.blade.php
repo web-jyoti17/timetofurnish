@@ -748,7 +748,11 @@
                             <!-- Regular Price (with Addon total UI dynamic addition) -->
                             <strong class="fs-18 fw-600 text-primary js-product-total-price"
                                 data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
-                                {{ home_discounted_base_price($detailedProduct) }}
+                                @if(isset($cartItem))
+                                    {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
+                                @else
+                                    {{ home_discounted_base_price($detailedProduct) }}
+                                @endif
                             </strong>
                             @php
                                 $actual_base_price = $detailedProduct->unit_price;
@@ -772,9 +776,9 @@
                             @endphp
                             <!-- Hidden span to store the base price -->
                             <span class="d-none js-product-base-price"
-                                data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}"
-                                data-actual-base-price="{{ $actual_base_price }}">
-                                {{ home_discounted_base_price($detailedProduct, false) }}
+                                data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
+                                data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
+                                {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
                             </span>
                             @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
                                 <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
