@@ -155,7 +155,7 @@
                                                     </td>
                                                     <td
                                                         class="addon-name-text fw-600 text-dark align-middle">
-                                                        {{ $addon['addon_name'] ?? '' }}
+                                                        <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                         @if (isset($addon['name']))
                                                         <span
                                                             class="mx-2 text-secondary addon-separator">|</span>

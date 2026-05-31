@@ -49,6 +49,7 @@ use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ProductAddonGlobalController;
 use App\Http\Controllers\ProductServicesController;
 use App\Http\Controllers\ShippingChargeController;
+use App\Http\Controllers\OfferController;
 /*
   |--------------------------------------------------------------------------
   | Admin Routes
@@ -82,6 +83,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin', 'prevent-ba
         Route::get('/categories/destroy/{id}', 'destroy')->name('categories.destroy');
         Route::post('/categories/featured', 'updateFeatured')->name('categories.featured');
         Route::post('/categories/categoriesByType', 'categoriesByType')->name('categories.categories-by-type');
+    });
+
+    // Offers (Offer Module)
+    Route::controller(OfferController::class)->group(function () {
+        Route::get('/offers', 'index')->name('offers.index');
+        Route::get('/offers/seller-auto-approval', 'sellerAutoApproval')->name('offers.seller_auto_approval');
+        Route::get('/offers/create', 'create')->name('offers.create');
+        Route::post('/offers/store', 'store')->name('offers.store');
+        Route::get('/offers/edit/{id}', 'edit')->name('offers.edit');
+        Route::post('/offers/update/{id}', 'update')->name('offers.update');
+        Route::get('/offers/destroy/{id}', 'destroy')->name('offers.destroy');
+        Route::post('/offers/update_status', 'updateStatus')->name('offers.update_status');
+        Route::post('/offers/update_home_toggle', 'updateHomeToggle')->name('offers.update_home_toggle');
+        Route::post('/sellers/toggle_auto_approve', 'toggleAutoApprove')->name('sellers.toggle_auto_approve');
     });
 
 	Route::get('global-addons', [ProductAddonGlobalController::class, 'index'])->name('global.addons.index');

@@ -135,6 +135,9 @@
         </div>
     </div>
 
+    <!-- Dynamic Offers & Hot Deals Section -->
+    @include('frontend.partials.homepage_offers')
+
     <!-- <div class="slider-container">
         <div class="slider-control left inactive"></div>
         <div class="slider-control right"></div>

@@ -62,61 +62,97 @@
                 </h2>
 
                 <!-- Product Price & Club Point -->
-                @if(home_price($product) != home_discounted_price($product))
+                @php
+                    $active_offer = get_product_active_offer($product);
+                @endphp
+                @if($active_offer)
+                    <script>
+                        window.productOfferConfig = {
+                            discount_type: "{{ $active_offer->discount_type }}",
+                            discount_value: {{ (float)$active_offer->discount_value ?? 0 }},
+                            badge_text: "{{ $active_offer->badge_text }}"
+                        };
+                    </script>
                     <div class="row no-gutters mt-3">
                         <div class="col-3">
                             <div class="text-secondary fs-14 fw-400">{{ translate('Price')}}</div>
                         </div>
                         <div class="col-9">
-                            <div class="">
-                                <strong class="fs-16 fw-700 text-primary">
+                            <div class="flex-wrap d-flex align-items-center">
+                                <strong class="js-product-total-price"
+                                    style="color: #dc3545 !important; font-size: 20px; font-weight: 700;"
+                                    data-default-price-text="{{ home_discounted_price($product) }}">
                                     {{ home_discounted_price($product) }}
                                 </strong>
-                                <del class="fs-14 opacity-60 ml-2">
-                                    {{ home_price($product) }}
+                                <del class="ml-2 js-product-old-price" 
+                                     data-default-old-price-text="{{ home_offer_old_price($product) }}"
+                                     style="text-decoration: line-through; color: #757575 !important; font-size: 15px; font-weight: 500; margin-left: 10px;">
+                                    {{ home_offer_old_price($product) }}
                                 </del>
-                                @if($product->unit != null)
-                                    <span class="opacity-70 ml-1">/{{ $product->getTranslation('unit') }}</span>
-                                @endif
-                                @if(discount_in_percentage($product) > 0)
-                                    <span class="bg-primary ml-2 fs-11 fw-700 text-white w-35px text-center px-2" style="padding-top:2px;padding-bottom:2px;">-{{discount_in_percentage($product)}}%</span>
-                                @endif
+                                {!! format_offer_badge($active_offer) !!}
                             </div>
-
-                            <!-- Club Point -->
-                            @if (addon_is_activated('club_point') && $product->earn_point > 0)
-                            <div class="mt-2 bg-secondary-base d-flex justify-content-center align-items-center px-3 py-1" style="width: fit-content;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-                                    <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
-                                      <circle id="Ellipse_39" data-name="Ellipse 39" cx="6" cy="6" r="6" transform="translate(973 633)" fill="#fff"/>
-                                      <g id="Group_23920" data-name="Group 23920" transform="translate(973 633)">
-                                        <path id="Path_28698" data-name="Path 28698" d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)" fill="#f3af3d"/>
-                                        <path id="Path_28699" data-name="Path 28699" d="M5.33,3h-1L3,5,6,9,4.331,5Z" transform="translate(0 0)" fill="#f3af3d" opacity="0.5"/>
-                                        <path id="Path_28700" data-name="Path 28700" d="M12.666,3h1L15,5,12,9l1.664-4Z" transform="translate(-5.995 0)" fill="#f3af3d"/>
-                                      </g>
-                                    </g>
-                                </svg>
-                                <small class="fs-11 fw-500 text-white ml-2">{{  translate('Club Point') }}: {{ $product->earn_point }}</small>
-                            </div>
-                            @endif
                         </div>
                     </div>
                 @else
-                    <div class="row no-gutters mt-3">
-                        <div class="col-3">
-                            <div class="text-secondary fs-14 fw-400">{{ translate('Price')}}</div>
-                        </div>
-                        <div class="col-9">
-                            <div class="">
-                                <strong class="fs-16 fw-700 text-primary">
-                                    {{ home_discounted_price($product) }}
-                                </strong>
-                                @if ($product->unit != null)
-                                    <span class="opacity-70">/{{ $product->unit }}</span>
+                    <script>
+                        window.productOfferConfig = null;
+                    </script>
+                    @if(home_price($product) != home_discounted_price($product))
+                        <div class="row no-gutters mt-3">
+                            <div class="col-3">
+                                <div class="text-secondary fs-14 fw-400">{{ translate('Price')}}</div>
+                            </div>
+                            <div class="col-9">
+                                <div class="">
+                                    <strong class="fs-16 fw-700 text-primary">
+                                        {{ home_discounted_price($product) }}
+                                    </strong>
+                                    <del class="fs-14 opacity-60 ml-2">
+                                        {{ home_price($product) }}
+                                    </del>
+                                    @if($product->unit != null)
+                                        <span class="opacity-70 ml-1">/{{ $product->getTranslation('unit') }}</span>
+                                    @endif
+                                    @if(discount_in_percentage($product) > 0)
+                                        <span class="bg-primary ml-2 fs-11 fw-700 text-white w-35px text-center px-2" style="padding-top:2px;padding-bottom:2px;">-{{discount_in_percentage($product)}}%</span>
+                                    @endif
+                                </div>
+
+                                <!-- Club Point -->
+                                @if (addon_is_activated('club_point') && $product->earn_point > 0)
+                                <div class="mt-2 bg-secondary-base d-flex justify-content-center align-items-center px-3 py-1" style="width: fit-content;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                        <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
+                                          <circle id="Ellipse_39" data-name="Ellipse 39" cx="6" cy="6" r="6" transform="translate(973 633)" fill="#fff"/>
+                                          <g id="Group_23920" data-name="Group 23920" transform="translate(973 633)">
+                                            <path id="Path_28698" data-name="Path 28698" d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)" fill="#f3af3d"/>
+                                            <path id="Path_28699" data-name="Path 28699" d="M5.33,3h-1L3,5,6,9,4.331,5Z" transform="translate(0 0)" fill="#f3af3d" opacity="0.5"/>
+                                            <path id="Path_28700" data-name="Path 28700" d="M12.666,3h1L15,5,12,9l1.664-4Z" transform="translate(-5.995 0)" fill="#f3af3d"/>
+                                          </g>
+                                        </g>
+                                    </svg>
+                                    <small class="fs-11 fw-500 text-white ml-2">{{  translate('Club Point') }}: {{ $product->earn_point }}</small>
+                                </div>
                                 @endif
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="row no-gutters mt-3">
+                            <div class="col-3">
+                                <div class="text-secondary fs-14 fw-400">{{ translate('Price')}}</div>
+                            </div>
+                            <div class="col-9">
+                                <div class="">
+                                    <strong class="fs-16 fw-700 text-primary">
+                                        {{ home_discounted_price($product) }}
+                                    </strong>
+                                    @if ($product->unit != null)
+                                        <span class="opacity-70">/{{ $product->unit }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endif
 
                 @php

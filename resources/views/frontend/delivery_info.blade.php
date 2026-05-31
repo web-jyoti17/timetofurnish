@@ -310,8 +310,8 @@
                                                                             <div class="collapse addon-details mt-2" id="{{ $toggleId }}">
                                                                                 @foreach ($cartItem_addons as $addon)
                                                                                     <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
-                                                                                        <span class="addon-name-text">•
-                                                                                            {{ $addon['addon_name'] ?? '' }}
+                                                                                        <span class="addon-name-text hh">•
+                                                                                         <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                                                             @if (isset($addon['name']))
                                                                                                 | {{ $addon['name'] }}
                                                                                             @endif
@@ -473,7 +473,7 @@
                                                                         @foreach ($cartItem_addons as $addon)
                                                                             <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
                                                                                 <span class="addon-name-text">•
-                                                                                    {{ $addon['addon_name'] ?? '' }}
+                                                                                    <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                                                     @if (isset($addon['name']))
                                                                                         | {{ $addon['name'] }}
                                                                                     @endif
@@ -561,7 +561,7 @@
                                                     </h5>
 
                                                     {{-- Error message for service selection --}}
-                                                    <div id="service-required-error"
+                                                    <!-- <div id="service-required-error"
                                                         class="alert alert-danger custom-service-error mb-3 px-3 py-2 fw-600 d-flex align-items-center d-none"
                                                         style="font-size: 15px;">
                                                         <span class="mr-2" style="font-size: 1.4em;"><i
@@ -569,7 +569,7 @@
                                                         <span>
                                                             {{ translate('Please select at least one service to continue.') }}
                                                         </span>
-                                                    </div>
+                                                    </div> -->
 
                                                     <div class="row">
                                                         @foreach ($allServices as $service)

@@ -663,50 +663,53 @@
             </table>
         @else
             <!-- Without Wholesale -->
-            @if (home_price($detailedProduct) != home_discounted_price($detailedProduct))
+            @php
+                $active_offer = get_product_active_offer($detailedProduct);
+            @endphp
+
+            @if ($active_offer)
+                <script>
+                    window.productOfferConfig = {
+                        discount_type: "{{ $active_offer->discount_type }}",
+                        discount_value: {{ (float)$active_offer->discount_value ?? 0 }},
+                        badge_text: "{{ $active_offer->badge_text }}"
+                    };
+                </script>
+
                 <div class="mb-3 row no-gutters">
                     <div class="col-sm-2">
                         <div class="mt-1 text-secondary fs-15 fw-500" style="color: #333 !important;">
                             {{ translate('Price') }}</div>
                     </div>
-                    <div class="col-sm-10">
-                        <div class="flex-wrap d-flex align-items-center yfgyhkj">
-                            <!-- Discount Price -->
-                            <strong class="fs-20 fw-600 text-primary">
+                    <div class="col-sm-10 col-10">
+                        <!-- Orange Offer Name above prices, matching reference screenshot -->
+                        <div class="fs-15 fw-600 mb-1" style="color: #ff9800; font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0.3px;">
+                            {{ translate($active_offer->name) }}
+                        </div>
+                        <div class="flex-wrap d-flex align-items-center">
+                            <!-- Discount/Selling Price -->
+                            <strong class="js-product-total-price"
+                                style="color: #dc3545 !important; font-size: 26px; font-weight: 700;"
+                                data-default-price-text="{{ home_discounted_price($detailedProduct) }}">
                                 {{ home_discounted_price($detailedProduct) }}
                             </strong>
-                            <!-- Home Price -->
-                            <del class="ml-2 fs-14 opacity-60" style="color:rgb(46, 46, 46);">
-                                {{ home_price($detailedProduct) }}
+                            <!-- Fake Old Price -->
+                            <del class="ml-2 js-product-old-price" 
+                                 data-default-old-price-text="{{ home_offer_old_price($detailedProduct) }}"
+                                 style="text-decoration: line-through; color: #757575 !important; font-size: 18px; font-weight: 500; margin-left: 10px;">
+                                {{ home_offer_old_price($detailedProduct) }}
                             </del>
-                            @if (discount_in_percentage($detailedProduct) > 0)
-                                <div class="px-2 py-1 ml-2"
-                                    style="background: rgba(var(--primary-rgb), 0.1);
-                                    border-radius: 6px;
-                                    display: inline-flex;
-                                    align-items: center;">
-                                    <span class="fs-13 fw-700" style="color: var(--primary);">
-                                        -{{ discount_in_percentage($detailedProduct) }}%
-                                    </span>
-                                </div>
-                            @endif
+                            <!-- Offer Badge -->
+                            {!! format_offer_badge($active_offer) !!}
+
                             <!-- Club Point -->
                             @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
                                 <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
                                     style="background: #fff3e5;
                                     border-radius: 6px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        viewBox="0 0 12 12">
-                                        <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
-                                            <circle id="Ellipse_39" data-name="Ellipse 39" cx="6" cy="6"
-                                                r="6" transform="translate(973 633)" fill="#f3af3d" />
-                                            <g id="Group_23920" data-name="Group 23920"
-                                                transform="translate(973 633)">
-                                                <path id="Path_28698" data-name="Path 28698"
-                                                    d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
-                                                    fill="#fff" />
-                                            </g>
-                                        </g>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                        <circle cx="6" cy="6" r="6" fill="#f3af3d" />
+                                        <path d="M7.667,3H4.333L3,5,6,9,9,5Z" fill="#fff" />
                                     </svg>
                                     <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
                                         {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
@@ -714,78 +717,169 @@
                                 </div>
                             @endif
                         </div>
+
+                        <!-- Custom Description / Details -->
+                        @if($active_offer->custom_text)
+                            <div class="mt-2 text-warning fs-13 fw-600">
+                                <i class="las la-tags mr-1"></i> {{ translate($active_offer->name) }}: {{ $active_offer->custom_text }}
+                            </div>
+                        @endif
                     </div>
                 </div>
+
+                @php
+                    $actual_base_price = $detailedProduct->unit_price;
+                    $discount_applicable = false;
+                    if ($detailedProduct->discount_start_date == null) {
+                        $discount_applicable = true;
+                    } elseif (
+                        strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
+                        strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
+                    ) {
+                        $discount_applicable = true;
+                    }
+                    if ($discount_applicable) {
+                        if ($detailedProduct->discount_type == 'percent') {
+                            $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
+                        } elseif ($detailedProduct->discount_type == 'amount') {
+                            $actual_base_price -= $detailedProduct->discount;
+                        }
+                    }
+                    $actual_base_price = max(0, $actual_base_price);
+                @endphp
+                <span class="d-none js-product-base-price"
+                    data-base-price="{{ home_discounted_base_price($detailedProduct, false) }}"
+                    data-actual-base-price="{{ $actual_base_price }}">
+                    {{ home_discounted_base_price($detailedProduct, false) }}
+                </span>
             @else
-                <div class="mb-3 row no-gutters">
-                    
-                    <div class="col-sm-10 col-10 ">
-                        <div class="flex-wrap d-flex align-items-center" style="gap:15px;">
-                            <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
+                <script>
+                    window.productOfferConfig = null;
+                </script>
+                @if (home_price($detailedProduct) != home_discounted_price($detailedProduct))
+                    <div class="mb-3 row no-gutters">
+                        <div class="col-sm-2">
+                            <div class="mt-1 text-secondary fs-15 fw-500" style="color: #333 !important;">
+                                {{ translate('Price') }}</div>
                         </div>
-                            <div>
-                            <!-- Regular Price (with Addon total UI dynamic addition) -->
-                            <strong class="fs-18 fw-600 text-primary js-product-total-price"
-                                data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
-                                @if(isset($cartItem))
-                                    {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
-                                @else
-                                    {{ home_discounted_base_price($detailedProduct) }}
+                        <div class="col-sm-10">
+                            <div class="flex-wrap d-flex align-items-center yfgyhkj">
+                                <!-- Discount Price -->
+                                <strong class="fs-20 fw-600 text-primary">
+                                    {{ home_discounted_price($detailedProduct) }}
+                                </strong>
+                                <!-- Home Price -->
+                                <del class="ml-2 fs-14 opacity-60" style="color:rgb(46, 46, 46);">
+                                    {{ home_price($detailedProduct) }}
+                                </del>
+                                @if (discount_in_percentage($detailedProduct) > 0)
+                                    <div class="px-2 py-1 ml-2"
+                                        style="background: rgba(var(--primary-rgb), 0.1);
+                                        border-radius: 6px;
+                                        display: inline-flex;
+                                        align-items: center;">
+                                        <span class="fs-13 fw-700" style="color: var(--primary);">
+                                            -{{ discount_in_percentage($detailedProduct) }}%
+                                        </span>
+                                    </div>
                                 @endif
-                            </strong>
-                            @php
-                                $actual_base_price = $detailedProduct->unit_price;
-                                $discount_applicable = false;
-                                if ($detailedProduct->discount_start_date == null) {
-                                    $discount_applicable = true;
-                                } elseif (
-                                    strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
-                                    strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
-                                ) {
-                                    $discount_applicable = true;
-                                }
-                                if ($discount_applicable) {
-                                    if ($detailedProduct->discount_type == 'percent') {
-                                        $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
-                                    } elseif ($detailedProduct->discount_type == 'amount') {
-                                        $actual_base_price -= $detailedProduct->discount;
-                                    }
-                                }
-                                $actual_base_price = max(0, $actual_base_price);
-                            @endphp
-                            <!-- Hidden span to store the base price -->
-                            <span class="d-none js-product-base-price"
-                                data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
-                                data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
-                                {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
-                            </span>
-                            @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
-                                <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
-                                    style="background: #fff3e5;
-                                    border-radius: 6px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                        viewBox="0 0 12 12">
-                                        <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
-                                            <circle id="Ellipse_39" data-name="Ellipse 39" cx="6"
-                                                cy="6" r="6" transform="translate(973 633)" fill="#f3af3d" />
-                                            <g id="Group_23920" data-name="Group 23920"
-                                                transform="translate(973 633)">
-                                                <path id="Path_28698" data-name="Path 28698"
-                                                    d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
-                                                    fill="#fff" />
+                                <!-- Club Point -->
+                                @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
+                                    <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
+                                        style="background: #fff3e5;
+                                        border-radius: 6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                            viewBox="0 0 12 12">
+                                            <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
+                                                <circle id="Ellipse_39" data-name="Ellipse 39" cx="6" cy="6"
+                                                    r="6" transform="translate(973 633)" fill="#f3af3d" />
+                                                <g id="Group_23920" data-name="Group 23920"
+                                                    transform="translate(973 633)">
+                                                    <path id="Path_28698" data-name="Path 28698"
+                                                        d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
+                                                        fill="#fff" />
+                                                </g>
                                             </g>
-                                        </g>
-                                    </svg>
-                                    <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
-                                        {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
-                                    </small>
-                                </div>
-                            @endif
+                                        </svg>
+                                        <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
+                                            {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
+                @else
+                    <div class="mb-3 row no-gutters">
+                        
+                        <div class="col-sm-10 col-10 ">
+                            <div class="flex-wrap d-flex align-items-center" style="gap:15px;">
+                                <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
+                            </div>
+                                <div>
+                                <!-- Regular Price -->
+                                <strong class="fs-18 fw-600 text-primary js-product-total-price"
+                                    data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
+                                    @if(isset($cartItem))
+                                        {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
+                                    @else
+                                        {{ home_discounted_base_price($detailedProduct) }}
+                                    @endif
+                                </strong>
+                                @php
+                                    $actual_base_price = $detailedProduct->unit_price;
+                                    $discount_applicable = false;
+                                    if ($detailedProduct->discount_start_date == null) {
+                                        $discount_applicable = true;
+                                    } elseif (
+                                        strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
+                                        strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
+                                    ) {
+                                        $discount_applicable = true;
+                                    }
+                                    if ($discount_applicable) {
+                                        if ($detailedProduct->discount_type == 'percent') {
+                                            $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
+                                        } elseif ($detailedProduct->discount_type == 'amount') {
+                                            $actual_base_price -= $detailedProduct->discount;
+                                        }
+                                    }
+                                    $actual_base_price = max(0, $actual_base_price);
+                                @endphp
+                                <!-- Hidden span to store the base price -->
+                                <span class="d-none js-product-base-price"
+                                    data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
+                                    data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
+                                    {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
+                                </span>
+                                @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
+                                    <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
+                                        style="background: #fff3e5;
+                                        border-radius: 6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                            viewBox="0 0 12 12">
+                                            <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
+                                                <circle id="Ellipse_39" data-name="Ellipse 39" cx="6"
+                                                    cy="6" r="6" transform="translate(973 633)" fill="#f3af3d" />
+                                                <g id="Group_23920" data-name="Group 23920"
+                                                    transform="translate(973 633)">
+                                                    <path id="Path_28698" data-name="Path 28698"
+                                                        d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
+                                                        fill="#fff" />
+                                                </g>
+                                            </g>
+                                        </svg>
+                                        <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
+                                            {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
+                                        </small>
+                                    </div>
+                                @endif
+                                </div>
+                            </div>
+                        </div>
 
-                </div>
+                    </div>
+                @endif
             @endif
         @endif
     @endif

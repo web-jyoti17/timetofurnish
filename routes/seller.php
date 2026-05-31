@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AizUploadController;
 use App\Http\Controllers\Seller\AttributeController;
+use App\Http\Controllers\Seller\OfferController;
 
 //Upload
 Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user', 'prevent-back-history'], 'as' => 'seller.'], function () {
@@ -82,6 +83,17 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::post('/coupon/get_form', 'get_coupon_form')->name('coupon.get_coupon_form');
         Route::post('/coupon/get_form_edit', 'get_coupon_form_edit')->name('coupon.get_coupon_form_edit');
         Route::get('/coupon/destroy/{id}', 'destroy')->name('coupon.destroy');
+    });
+
+    // Seller Offers (Offer Module)
+    Route::controller(OfferController::class)->group(function () {
+        Route::get('/offers', 'index')->name('offers.index');
+        Route::get('/offers/create', 'create')->name('offers.create');
+        Route::post('/offers/store', 'store')->name('offers.store');
+        Route::get('/offers/edit/{id}', 'edit')->name('offers.edit');
+        Route::post('/offers/update/{id}', 'update')->name('offers.update');
+        Route::get('/offers/destroy/{id}', 'destroy')->name('offers.destroy');
+        Route::post('/offers/update_status', 'updateStatus')->name('offers.update_status');
     });
 
     //Order

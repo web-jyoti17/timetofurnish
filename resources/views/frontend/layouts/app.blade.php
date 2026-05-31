@@ -1205,6 +1205,14 @@
 
                         $('.js-product-total-price').html(default_price_text);
 
+                        // Reset Old Price back to default offer range when no selection is active
+                        let default_old_price = $('.js-product-old-price').first().data('default-old-price-text');
+                        if (default_old_price) {
+                            $('.js-product-old-price').html(default_old_price).show();
+                        } else {
+                            $('.js-product-old-price').hide();
+                        }
+
                         $('#chosen_price').html(default_price_text);
 
                         $('#chosen_price_div').addClass('d-none');
@@ -1237,6 +1245,25 @@
                             '£ ' + final_price.toFixed(2)
                         );
 
+                    if (window.productOfferConfig) {
+                        let config = window.productOfferConfig;
+                        let old_price = 0;
+                        if (config.discount_type === 'percentage') {
+                            let val = parseFloat(config.discount_value) || 0;
+                            if (val > 0 && val < 100) {
+                                old_price = final_price / (1 - (val / 100));
+                            }
+                        } else if (config.discount_type === 'fixed') {
+                            let val = parseFloat(config.discount_value) || 0;
+                            old_price = final_price + val;
+                        }
+
+                        if (old_price > 0) {
+                            $('.js-product-old-price').html('£ ' + old_price.toFixed(2)).show();
+                        } else {
+                            $('.js-product-old-price').hide();
+                        }
+                    }
 
                     $('#chosen_price_div')
                         .removeClass('d-none');

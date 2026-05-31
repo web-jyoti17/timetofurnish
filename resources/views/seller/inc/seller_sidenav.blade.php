@@ -119,6 +119,13 @@
                         </a>
                     </li>
                 @endif
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('seller.offers.index') }}"
+                        class="aiz-side-nav-link {{ areActiveRoutes(['seller.offers.index', 'seller.offers.create', 'seller.offers.edit']) }}">
+                        <i class="las la-gift aiz-side-nav-icon icon1"></i>
+                        <span class="aiz-side-nav-text t">{{ translate('Offers') }}</span>
+                    </a>
+                </li>
                 @if (addon_is_activated('wholesale') && get_setting('seller_wholesale_product') == 1)
                     <li class="aiz-side-nav-item">
                         <a href="{{ route('seller.wholesale_products_list') }}"

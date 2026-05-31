@@ -134,4 +134,14 @@ class Product extends Model
             ->with('options')
             ->orderBy('sort_order', 'asc');
     }
+
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class, 'offer_product', 'product_id', 'offer_id');
+    }
+
+    public function getActiveOfferAttribute()
+    {
+        return $this->offers()->active()->orderBy('priority', 'desc')->orderBy('id', 'desc')->first();
+    }
 }

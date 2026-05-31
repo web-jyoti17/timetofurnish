@@ -118,7 +118,7 @@
                                                         class="d-flex justify-content-between align-items-start fs-12 text-black mb-1 addon-row">
                                                         <span class="addon-name-text">
                                                             <i class="la la-check-circle fs-12 mr-1 text-success"></i>
-                                                            <strong> {{ $addon['addon_name'] }}:</strong>
+                                                            <strong class="text-black">  {{ $addon['addon_name'] }}:</strong>
                                                             {{ $addon['name'] ?? ($addon[0] ?? '') }}
                                                         </span>
                                                         <span

@@ -35,6 +35,9 @@
         </div>
     </div>
 
+    <!-- Dynamic Offers & Hot Deals Section -->
+    @include('frontend.partials.homepage_offers')
+
     <!-- Flash Deal -->
     @php
         $flash_deal = get_featured_flash_deal();

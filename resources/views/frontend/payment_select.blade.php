@@ -656,9 +656,9 @@
                                     <span class="aiz-square-check"></span>
                                     <span>{{ 'I Agree to the' }}</span>
                                 </label>
-                                <a href="{{ route('terms') }}" class="fw-700">{{ 'Terms and Conditions' }}</a>,
-                                <a href="{{ route('returnpolicy') }}" class="fw-700">{{ 'Return Policy' }}</a> &
-                                <a href="{{ route('privacypolicy') }}" class="fw-700">{{ 'Privacy Policy' }}</a>
+                                <a href="{{ route('terms', ['from' => 'checkout']) }}" class="fw-700">{{ 'Terms and Conditions' }}</a>,
+                                <a href="{{ route('returnpolicy', ['from' => 'checkout']) }}" class="fw-700">{{ 'Return Policy' }}</a> &
+                                <a href="{{ route('privacypolicy', ['from' => 'checkout']) }}" class="fw-700">{{ 'Privacy Policy' }}</a>
                             </div>
 
                             <div class="checkout-btn-row mb-4 mt-4 d-flex justify-content-between p-2" style="gap:10px;">

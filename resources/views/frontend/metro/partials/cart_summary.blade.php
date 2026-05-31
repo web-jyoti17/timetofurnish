@@ -53,11 +53,14 @@
                         </div>
                     </td>
                     <td class="text-right product-price cartdetails" style="font-weight: 500;">
-                        @if($product->unit_price > 0)
+                       
+                    <strong>
+                    @if($product->unit_price > 0)
                         £{{ number_format($product->unit_price * $cartItem->quantity, 2) }}
                         @else
                         -
                         @endif
+            </strong>
                     </td>
                 </tr>
 
@@ -108,9 +111,9 @@
                 @endphp
                 <tr>
                     <td class="pl-4" colspan="2">
-                        <span style="font-weight:400;">
+                        <span style="font-weight:400;" class="addons-price">
                             @if(isset($addon['addon_name']))
-                            <span class="text-muted">{{ $addon['addon_name'] }}:&nbsp;</span>
+                            <span class="text-black" style="font-weight:700;">{{ $addon['addon_name'] }}:&nbsp;</span>
                             @endif
                             {{ $addon['name'] ?? '' }}
                             <span class="qty cartdetails">&times; {{ $cartItem->quantity }}</span>
@@ -129,15 +132,15 @@
                 @php $total += $service['price']; $subtotal += $service['price']; @endphp
                 <tr>
                     <td class="pl-4" colspan="2">
-                        <span style="font-weight:400;">
-                            {{ $service['name'] }}
+                        <span style="font-weight:400;" class="services-price">
+                          <strong>  {{ $service['name'] }}</strong>
                             <span class="badge badge-inline badge-soft-primary ml-2">{{ ucfirst($service['type']) }}</span>
                             <span class="ml-2">(£{{ number_format($service['price'], 2) }})</span>
                         </span>
                     </td>
 
                     <td class="text-right">
-                        <span style="font-weight:400;">£{{ number_format($service['price'], 2) }}</span>
+                        <span style="font-weight:400;" class="services-price-text">£{{ number_format($service['price'], 2) }}</span>
                     </td>
                 </tr>
                 @endforeach

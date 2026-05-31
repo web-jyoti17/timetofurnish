@@ -17,7 +17,21 @@
                 onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
         </a>
         <!-- Discount percentage tag -->
-        @if (discount_in_percentage($product) > 0)
+        @php
+            $active_offer = get_product_active_offer($product);
+        @endphp
+        @if ($active_offer)
+            @php
+                $badge_txt = $active_offer->badge_text;
+                if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
+                    $badge_txt .= ' OFF';
+                }
+            @endphp
+            <span class="absolute-top-left text-white px-2 py-1 fs-10 fw-700 ml-1 mt-1"
+                style="background-color: var(--primary, #685b4e); border-radius: 2px; text-transform: uppercase; z-index: 1;">
+                {{ $badge_txt }}
+            </span>
+        @elseif (discount_in_percentage($product) > 0)
             <span class="absolute-top-left bg-primary ml-1 mt-1 fs-11 fw-700 text-white w-35px text-center"
                 style="padding-top:2px;padding-bottom:2px;">-{{ discount_in_percentage($product) }}%</span>
         @endif
@@ -93,18 +107,30 @@
             <a href="{{ $product_url }}" class="d-block text-reset hov-text-primary"
                 title="{{ $product->getTranslation('name') }}">{{ $product->getTranslation('name') }}</a>
         </h3>
-        <div class="fs-14 d-flex justify-content-center mt-3">
+        <div class="fs-14 d-flex justify-content-center mt-3 align-items-center flex-wrap">
             @if ($product->auction_product == 0)
-                <!-- Previous price -->
-                @if (home_base_price($product) != home_discounted_base_price($product))
-                    <div class="disc-amount has-transition">
-                        <del class="fw-400 text-secondary mr-1">{{ home_base_price($product) }}</del>
+                @if ($active_offer)
+                    @php
+                        $old_offer_price = home_offer_old_price($product);
+                    @endphp
+                    <div class="text-center d-flex flex-column align-items-center justify-content-center" style="gap: 2px; width: 100%;">
+                        <span class="fw-700 fs-15" style="color: #e29c09 !important;">{{ home_discounted_base_price($product) }}</span>
+                        @if ($old_offer_price)
+                            <del class="fw-500 fs-12 text-secondary" style="text-decoration: line-through; opacity: 0.7; color: #9e9e9e !important;">{{ $old_offer_price }}</del>
+                        @endif
+                    </div>
+                @else
+                    <!-- Previous price -->
+                    @if (home_base_price($product) != home_discounted_base_price($product))
+                        <div class="disc-amount has-transition mr-1">
+                            <del class="fw-400 text-secondary">{{ home_base_price($product) }}</del>
+                        </div>
+                    @endif
+                    <!-- price -->
+                    <div class="">
+                        <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
                     </div>
                 @endif
-                <!-- price -->
-                <div class="">
-                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product) }}</span>
-                </div>
             @endif
             @if ($product->auction_product == 1)
                 <!-- Bid Amount -->

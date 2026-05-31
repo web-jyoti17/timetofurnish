@@ -52,6 +52,13 @@
 </section>
 <section class="mb-4">
     <div class="container">
+        @if(request()->get('from') == 'checkout')
+            <div class="mb-3 text-left">
+                <a href="{{ route('checkout.payment_info') }}" class="btn borderbtn fs-14 fw-600 px-4 py-2 custom_checkout_button_design filled rounded-2">
+                    <i class="las la-arrow-left mr-2"></i>{{ translate('Back to Checkout') }}
+                </a>
+            </div>
+        @endif
         <div class="p-4 bg-white rounded shadow-sm overflow-hidden mw-100 text-left">
             @php
                 echo $page->getTranslation('content');

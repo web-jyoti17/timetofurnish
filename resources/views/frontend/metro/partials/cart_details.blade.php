@@ -183,7 +183,7 @@
                                                                     <div
                                                                         class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
                                                                         <span class="addon-name-text">•
-                                                                            {{ $addon['addon_name'] ?? '' }}
+                                                                            <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                                             @if (isset($addon['name']))
                                                                                 | {{ $addon['name'] }}
                                                                             @endif
@@ -397,7 +397,7 @@
                                                             <div
                                                                 class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
                                                                 <span class="addon-name-text">•
-                                                                    {{ $addon['addon_name'] ?? '' }}
+                                                                  <strong class="text-black">   {{ $addon['addon_name'] ?? '' }}</strong>
                                                                     @if (isset($addon['name']))
                                                                         | {{ $addon['name'] }}
                                                                     @endif
