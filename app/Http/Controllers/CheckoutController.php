@@ -60,8 +60,11 @@ class CheckoutController extends Controller
             }
         }
 
-        // Store Order
-        (new OrderController)->store($request);
+        // Store Order — if stock is unavailable store() returns a redirect; we must honour it
+        $storeResult = (new OrderController)->store($request);
+        if ($storeResult instanceof \Illuminate\Http\RedirectResponse) {
+            return $storeResult;
+        }
 
         $request->session()->put('payment_type', 'cart_payment');
 

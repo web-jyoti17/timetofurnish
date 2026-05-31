@@ -86,7 +86,6 @@
     .theme-table tbody tr:hover {
         background-color: #fcfbfa !important;
         box-shadow: 0 4px 12px rgba(104, 91, 78, 0.05) !important;
-        transform: translateY(-1px);
     }
     .theme-table tbody td {
         border-top: 1px solid #f3eee6 !important;

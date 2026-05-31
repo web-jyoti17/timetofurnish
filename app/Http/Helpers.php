@@ -842,6 +842,13 @@ if (!function_exists('calculate_fake_old_price')) {
     }
 }
 
+if (!function_exists('calculate_offer_old_price')) {
+    function calculate_offer_old_price($actualPrice, $offer)
+    {
+        return calculate_fake_old_price($actualPrice, $offer);
+    }
+}
+
 if (!function_exists('format_offer_badge')) {
     function format_offer_badge($offer)
     {
@@ -924,8 +931,8 @@ if (!function_exists('home_offer_old_price')) {
         $lowest_price = $variant_range['lowest'] ?? $product->unit_price;
         $highest_price = $variant_range['highest'] ?? $product->unit_price;
 
-        $old_lowest = calculate_fake_old_price($lowest_price, $offer);
-        $old_highest = calculate_fake_old_price($highest_price, $offer);
+        $old_lowest = calculate_offer_old_price($lowest_price, $offer);
+        $old_highest = calculate_offer_old_price($highest_price, $offer);
 
         if (!$old_lowest || !$old_highest) {
             return null;
@@ -1011,21 +1018,10 @@ if (!function_exists('home_discounted_price')) {
         $highest_price = $variant_range['highest'] ?? $product->unit_price;
 
         $active_offer = get_product_active_offer($product);
-        $offer_discount_applied = false;
 
-        if ($active_offer) {
-            if ($active_offer->discount_type == 'percentage') {
-                $lowest_price -= ($lowest_price * $active_offer->discount_value) / 100;
-                $highest_price -= ($highest_price * $active_offer->discount_value) / 100;
-                $offer_discount_applied = true;
-            } elseif ($active_offer->discount_type == 'fixed') {
-                $lowest_price -= $active_offer->discount_value;
-                $highest_price -= $active_offer->discount_value;
-                $offer_discount_applied = true;
-            }
-        }
-
-        if (!$offer_discount_applied) {
+        // When an offer is active, the SELLING price is the actual product price - unchanged.
+        // The offer only inflates the fake "old" strikethrough price via home_offer_old_price.
+        if (!$active_offer) {
             $discount_applicable = false;
 
             if ($product->discount_start_date == null) {
@@ -1047,6 +1043,7 @@ if (!function_exists('home_discounted_price')) {
                 }
             }
         }
+        // If $active_offer is set, prices are left as-is (real selling price)
 
         if ($lowest_price < 0) {
             $lowest_price = 0;
@@ -1116,19 +1113,8 @@ if (!function_exists('home_discounted_base_price_by_stock_id')) {
         $tax = 0;
 
         $active_offer = get_product_active_offer($product);
-        $offer_discount_applied = false;
 
-        if ($active_offer) {
-            if ($active_offer->discount_type == 'percentage') {
-                $price -= ($price * $active_offer->discount_value) / 100;
-                $offer_discount_applied = true;
-            } elseif ($active_offer->discount_type == 'fixed') {
-                $price -= $active_offer->discount_value;
-                $offer_discount_applied = true;
-            }
-        }
-
-        if (!$offer_discount_applied) {
+        if (!$active_offer) {
             $discount_applicable = false;
 
             if ($product->discount_start_date == null) {
@@ -1175,21 +1161,13 @@ if (!function_exists('home_discounted_base_price')) {
         $tax = 0;
 
         $active_offer = get_product_active_offer($product);
-        $offer_discount_applied = false;
 
-        if ($active_offer) {
-            if ($active_offer->discount_type == 'percentage') {
-                $lowest_price -= ($lowest_price * $active_offer->discount_value) / 100;
-                $highest_price -= ($highest_price * $active_offer->discount_value) / 100;
-                $offer_discount_applied = true;
-            } elseif ($active_offer->discount_type == 'fixed') {
-                $lowest_price -= $active_offer->discount_value;
-                $highest_price -= $active_offer->discount_value;
-                $offer_discount_applied = true;
-            }
-        }
-
-        if (!$offer_discount_applied) {
+        // When an offer is active, the SELLING price stays as the actual product price.
+        // The offer only inflates the fake "old" strikethrough price shown alongside
+        // (handled by home_offer_old_price / calculate_fake_old_price).
+        // We must NOT subtract the offer value from the displayed selling price.
+        if (!$active_offer) {
+            // No offer - apply normal product discount if applicable
             $discount_applicable = false;
 
             if ($product->discount_start_date == null) {
@@ -1211,6 +1189,7 @@ if (!function_exists('home_discounted_base_price')) {
                 }
             }
         }
+        // If $active_offer is set, prices are returned unchanged (real selling price)
 
         if ($lowest_price < 0) {
             $lowest_price = 0;

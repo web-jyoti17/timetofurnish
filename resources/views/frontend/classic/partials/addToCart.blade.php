@@ -79,16 +79,17 @@
                         </div>
                         <div class="col-9">
                             <div class="flex-wrap d-flex align-items-center">
+                                @php $offer_old_price = home_offer_old_price($product); @endphp
+                                <del class="js-product-old-price"
+                                     data-default-old-price-text="{{ $offer_old_price }}"
+                                     style="text-decoration: line-through; color: #757575 !important; font-size: 15px; font-weight: 500; {{ $offer_old_price ? '' : 'display: none;' }}">
+                                    {{ $offer_old_price }}
+                                </del>
                                 <strong class="js-product-total-price"
-                                    style="color: #dc3545 !important; font-size: 20px; font-weight: 700;"
+                                    style="color: #dc3545 !important; font-size: 20px; font-weight: 700; {{ $offer_old_price ? 'margin-left: 10px;' : '' }}"
                                     data-default-price-text="{{ home_discounted_price($product) }}">
                                     {{ home_discounted_price($product) }}
                                 </strong>
-                                <del class="ml-2 js-product-old-price" 
-                                     data-default-old-price-text="{{ home_offer_old_price($product) }}"
-                                     style="text-decoration: line-through; color: #757575 !important; font-size: 15px; font-weight: 500; margin-left: 10px;">
-                                    {{ home_offer_old_price($product) }}
-                                </del>
                                 {!! format_offer_badge($active_offer) !!}
                             </div>
                         </div>

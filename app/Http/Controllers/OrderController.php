@@ -379,10 +379,11 @@ class OrderController extends Controller
             
 
                 $product_stock = $product->stocks->where('variant', $product_variation)->first();
-                if ($product->digital != 1 && $cartItem['quantity'] > $product_stock->qty) {
+                if ($product->digital != 1 && ($product_stock === null || $cartItem['quantity'] > $product_stock->qty)) {
                     flash(translate('The requested quantity is not available for ') . $product->getTranslation('name'))->warning();
                     $order->delete();
-                    return redirect()->route('cart')->send();
+                    $combined_order->delete();
+                    return redirect()->route('cart');
                 } elseif ($product->digital != 1) {
                     $product_stock->qty -= $cartItem['quantity'];
                     $product_stock->save();

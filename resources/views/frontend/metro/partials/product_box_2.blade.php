@@ -111,10 +111,10 @@
                         $old_offer_price = home_offer_old_price($product);
                     @endphp
                     <div class="text-center d-flex flex-column align-items-center justify-content-center" style="gap: 2px; width: 100%;">
-                        <span class="fw-700 fs-15" style="color: #e29c09 !important;">{{ home_discounted_base_price($product) }}</span>
                         @if ($old_offer_price)
                             <del class="fw-500 fs-12 text-secondary" style="text-decoration: line-through; opacity: 0.7; color: #9e9e9e !important;">{{ $old_offer_price }}</del>
                         @endif
+                        <span class="fw-700 fs-15" style="color: #e29c09 !important;">{{ home_discounted_base_price($product) }}</span>
                     </div>
                 @else
                     <!-- Previous price -->

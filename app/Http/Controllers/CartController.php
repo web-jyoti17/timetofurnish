@@ -279,7 +279,7 @@ class CartController extends Controller
                 $discount_applicable = true;
             }
 
-            if ($discount_applicable) {
+            if ($discount_applicable && !get_product_active_offer($product)) {
                 if ($product->discount_type == 'percent') {
                     $price -= ($price * $product->discount) / 100;
                 } elseif ($product->discount_type == 'amount') {

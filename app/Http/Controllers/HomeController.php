@@ -731,6 +731,7 @@ class HomeController extends Controller
 
         if (
             $discount_applicable
+            && !get_product_active_offer($product)
         ) {
 
             if (

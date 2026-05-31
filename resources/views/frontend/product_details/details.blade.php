@@ -687,18 +687,19 @@
                             {{ translate($active_offer->name) }}
                         </div>
                         <div class="flex-wrap d-flex align-items-center">
-                            <!-- Discount/Selling Price -->
+                            <!-- Fake Old Price -->
+                            @php $offer_old_price = home_offer_old_price($detailedProduct); @endphp
+                            <del class="js-product-old-price"
+                                 data-default-old-price-text="{{ $offer_old_price }}"
+                                 style="text-decoration: line-through; color: #757575 !important; font-size: 18px; font-weight: 500; {{ $offer_old_price ? '' : 'display: none;' }}">
+                                {{ $offer_old_price }}
+                            </del>
+                            <!-- Actual Selling Price -->
                             <strong class="js-product-total-price"
-                                style="color: #dc3545 !important; font-size: 26px; font-weight: 700;"
+                                style="color: #dc3545 !important; font-size: 26px; font-weight: 700; {{ $offer_old_price ? 'margin-left: 10px;' : '' }}"
                                 data-default-price-text="{{ home_discounted_price($detailedProduct) }}">
                                 {{ home_discounted_price($detailedProduct) }}
                             </strong>
-                            <!-- Fake Old Price -->
-                            <del class="ml-2 js-product-old-price" 
-                                 data-default-old-price-text="{{ home_offer_old_price($detailedProduct) }}"
-                                 style="text-decoration: line-through; color: #757575 !important; font-size: 18px; font-weight: 500; margin-left: 10px;">
-                                {{ home_offer_old_price($detailedProduct) }}
-                            </del>
                             <!-- Offer Badge -->
                             {!! format_offer_badge($active_offer) !!}
 
@@ -738,7 +739,7 @@
                     ) {
                         $discount_applicable = true;
                     }
-                    if ($discount_applicable) {
+                    if ($discount_applicable && !$active_offer) {
                         if ($detailedProduct->discount_type == 'percent') {
                             $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
                         } elseif ($detailedProduct->discount_type == 'amount') {
@@ -837,7 +838,7 @@
                                     ) {
                                         $discount_applicable = true;
                                     }
-                                    if ($discount_applicable) {
+                                    if ($discount_applicable && !get_product_active_offer($detailedProduct)) {
                                         if ($detailedProduct->discount_type == 'percent') {
                                             $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
                                         } elseif ($detailedProduct->discount_type == 'amount') {

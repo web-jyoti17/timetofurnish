@@ -50,6 +50,10 @@ class CartUtility
 
     public static function discount_calculation($product, $price)
     {
+        if (function_exists('get_product_active_offer') && get_product_active_offer($product)) {
+            return $price;
+        }
+
         $discount_applicable = false;
 
         if (

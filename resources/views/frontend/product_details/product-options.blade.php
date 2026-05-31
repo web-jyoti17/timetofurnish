@@ -16,7 +16,7 @@
             ) {
                 $discount_applicable = true;
             }
-            if ($discount_applicable) {
+            if ($discount_applicable && !get_product_active_offer($detailedProduct)) {
                 if ($detailedProduct->discount_type == 'percent') {
                     $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
                 } elseif ($detailedProduct->discount_type == 'amount') {
