@@ -9,20 +9,27 @@
                 </h3>
                 <!-- Links -->
                 <div class="d-flex">
-                    <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2" onclick="clickToSlide('slick-prev','section_featured')"><i class="las la-angle-left fs-20 fw-600"></i></a>
-                    <a type="button" class="arrow-next slide-arrow text-secondary ml-2" onclick="clickToSlide('slick-next','section_featured')"><i class="las la-angle-right fs-20 fw-600"></i></a>
+                    <a type="button" class="arrow-prev slide-arrow link-disable text-secondary mr-2"
+                        onclick="clickToSlide('slick-prev','section_featured')"><i
+                            class="las la-angle-left fs-20 fw-600"></i></a>
+                    <a type="button" class="arrow-next slide-arrow text-secondary ml-2"
+                        onclick="clickToSlide('slick-next','section_featured')"><i
+                            class="las la-angle-right fs-20 fw-600"></i></a>
                 </div>
             </div>
             <!-- Products Section -->
             <div class="px-sm-3">
-                <div class="aiz-carousel sm-gutters-16 arrow-none" data-items="6" data-xl-items="5" data-lg-items="4"  data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='false'>
+                <div class="aiz-carousel sm-gutters-16 home-mobile-product-carousel " data-items="6" data-xl-items="5"
+                    data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true'
+                    data-infinite='false'>
                     @foreach (get_featured_products() as $key => $product)
-                    <div class="carousel-box px-3 position-relative has-transition hov-animate-outline border-right border-top border-bottom @if($key == 0) border-left @endif">
-                        @include('frontend.partials.product_box_1',['product' => $product])
-                    </div>
+                        <div
+                            class="carousel-box px-3 position-relative has-transition hov-animate-outline border-right border-top border-bottom @if ($key == 0) border-left @endif">
+                            @include('frontend.partials.product_box_1', ['product' => $product])
+                        </div>
                     @endforeach
                 </div>
             </div>
         </div>
-    </section>   
+    </section>
 @endif
