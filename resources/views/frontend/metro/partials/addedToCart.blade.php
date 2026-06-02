@@ -44,13 +44,28 @@
 							: json_decode($cart->addons, true);
 					@endphp
 
-					@if(!empty($addons))
-						@foreach($addons as $addon)
-							<div class="d-flex justify-content-between border-bottom py-1">
-								<span>{{ $addon['name'] ?? '' }}</span>
-								<span>
-									@if(isset($addon['price']))
-										+ {{ single_price($addon['price']) }}
+						@if(!empty($addons))
+							@foreach($addons as $addon)
+								@php
+									$addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+									$addonImageSrc = $addonImage
+										? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+											? $addonImage
+											: asset(ltrim($addonImage, '/')))
+										: '';
+								@endphp
+								<div class="d-flex justify-content-between border-bottom py-1">
+									<span>
+										@if($addonImageSrc)
+											<img src="{{ $addonImageSrc }}"
+												alt="{{ $addon['name'] ?? 'Addon' }}"
+												style="width:24px;height:24px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:6px;vertical-align:middle;">
+										@endif
+										{{ $addon['name'] ?? '' }}
+									</span>
+									<span>
+										@if(isset($addon['price']))
+											+ {{ single_price($addon['price']) }}
 									@endif
 								</span>
 							</div>

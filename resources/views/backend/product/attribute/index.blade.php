@@ -11,14 +11,26 @@
             return $ids;
         };
 
-        $renderCategoryOptions = function ($categories, $selected = [], $depth = 0) use (&$renderCategoryOptions, $getDescendants) {
+        $renderCategoryOptions = function ($categories, $selected = [], $depth = 0) use (
+            &$renderCategoryOptions,
+            $getDescendants,
+        ) {
             foreach ($categories as $category) {
                 $childrenIds = $getDescendants($category);
                 $prefix = '';
                 if ($depth > 0) {
                     $prefix = str_repeat('&nbsp;&nbsp;&nbsp;', $depth) . '↳&nbsp;';
                 }
-                echo '<option value="' . $category->id . '" data-children-ids="' . implode(',', $childrenIds) . '"' . (in_array($category->id, $selected) ? ' selected' : '') . '>' . $prefix . e($category->getTranslation('name')) . '</option>';
+                echo '<option value="' .
+                    $category->id .
+                    '" data-children-ids="' .
+                    implode(',', $childrenIds) .
+                    '"' .
+                    (in_array($category->id, $selected) ? ' selected' : '') .
+                    '>' .
+                    $prefix .
+                    e($category->getTranslation('name')) .
+                    '</option>';
                 $renderCategoryOptions($category->childrenCategories, $selected, $depth + 1);
             }
         };
@@ -511,11 +523,16 @@
     <div class="admin-catalog-page">
         <div class="admin-catalog-header">
             <div>
-                <div class="admin-catalog-eyebrow"><i class="las la-sliders-h" style="margin-right:4px;"></i>{{ translate('Catalog setup') }}</div>
+                <div class="admin-catalog-eyebrow"><i class="las la-sliders-h"
+                        style="margin-right:4px;"></i>{{ translate('Catalog setup') }}</div>
                 <h1 class="admin-catalog-title">{{ translate('Attribute Library') }}</h1>
-                <p class="admin-catalog-subtitle">{{ translate('Create reusable product attributes, assign them to category branches, and manage their values — all from one place.') }}</p>
+                <p class="admin-catalog-subtitle">
+                    {{ translate('Create reusable product attributes, assign them to category branches, and manage their values — all from one place.') }}
+                </p>
             </div>
-            <span class="admin-catalog-chip"><i class="las la-tags" style="margin-right:4px;font-size:14px;"></i>{{ $attributes->count() }} {{ translate('attributes') }}</span>
+            <span class="admin-catalog-chip"><i class="las la-tags"
+                    style="margin-right:4px;font-size:14px;"></i>{{ $attributes->count() }}
+                {{ translate('attributes') }}</span>
         </div>
 
         {{-- ─── Add New Attribute Form ──────────────────────────────── --}}
@@ -523,7 +540,8 @@
             <div class="admin-catalog-card attr-add-form-card">
                 <div class="attr-editor-head" style="cursor:default;">
                     <div class="attr-title-wrap">
-                        <span class="attr-toggle-icon" style="background:var(--catalog-theme-soft);border-color:var(--catalog-theme);color:var(--catalog-theme);">
+                        <span class="attr-toggle-icon"
+                            style="background:var(--catalog-theme-soft);border-color:var(--catalog-theme);color:var(--catalog-theme);">
                             <i class="las la-plus"></i>
                         </span>
                         <h5>{{ translate('Add New Attribute') }}</h5>
@@ -535,15 +553,21 @@
                         <div class="attribute-form-grid">
                             <div>
                                 <label for="name">{{ translate('Attribute Name') }}</label>
-                                <input type="text" placeholder="{{ translate('Example: Material, Finish, Style') }}" id="name" name="name" class="form-control" required>
-                                <div class="admin-catalog-help">{{ translate('Sellers use attributes to build product variants.') }}</div>
+                                <input type="text" placeholder="{{ translate('Example: Material, Finish, Style') }}"
+                                    id="name" name="name" class="form-control" required>
+                                <div class="admin-catalog-help">
+                                    {{ translate('Sellers use attributes to build product variants.') }}</div>
                             </div>
                             <div class="attribute-category-field">
                                 <label>{{ translate('Assign Categories') }}</label>
-                                <select class="form-control aiz-selectpicker admin-category-cascade" name="categories[]" multiple data-live-search="true" data-selected-text-format="count" data-placeholder="{{ translate('Select Categories') }}">
+                                <select class="form-control aiz-selectpicker admin-category-cascade" name="categories[]"
+                                    multiple data-live-search="true" data-selected-text-format="count"
+                                    data-placeholder="{{ translate('Select Categories') }}">
                                     {!! $renderCategoryOptions($categories) !!}
                                 </select>
-                                <div class="admin-catalog-help">{{ translate('Parent and child category selection stays in sync. Children can still be changed manually.') }}</div>
+                                <div class="admin-catalog-help">
+                                    {{ translate('Parent and child category selection stays in sync. Children can still be changed manually.') }}
+                                </div>
                             </div>
                             <div class="attribute-save-row">
                                 <button type="submit" class="btn btn-primary px-4">{{ translate('Save Attribute') }}</button>
@@ -570,19 +594,25 @@
                                     <div>
                                         <h5>{{ $attribute->getTranslation('name') }}</h5>
                                         <div class="attr-summary">
-                                            <span class="attr-value-count">{{ $attribute->attribute_values->count() }}</span> {{ translate('values') }}
+                                            <span
+                                                class="attr-value-count">{{ $attribute->attribute_values->count() }}</span>
+                                            {{ translate('values') }}
                                             · {{ $attribute->categories->count() }} {{ translate('categories') }}
                                         </div>
                                     </div>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     @can('edit_product_attribute')
-                                        <a class="btn btn-soft-primary btn-sm" href="{{ route('attributes.edit', ['id' => $attribute->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}" title="{{ translate('Edit') }}" onclick="event.stopPropagation();">
+                                        <a class="btn btn-soft-primary btn-sm"
+                                            href="{{ route('attributes.edit', ['id' => $attribute->id, 'lang' => env('DEFAULT_LANGUAGE')]) }}"
+                                            title="{{ translate('Edit') }}" onclick="event.stopPropagation();">
                                             <i class="las la-edit"></i> {{ translate('Edit') }}
                                         </a>
                                     @endcan
                                     @can('delete_product_attribute')
-                                        <a href="#" class="btn btn-soft-danger btn-sm confirm-delete" data-href="{{ route('attributes.destroy', $attribute->id) }}" title="{{ translate('Delete') }}" onclick="event.stopPropagation();">
+                                        <a href="#" class="btn btn-soft-danger btn-sm confirm-delete"
+                                            data-href="{{ route('attributes.destroy', $attribute->id) }}"
+                                            title="{{ translate('Delete') }}" onclick="event.stopPropagation();">
                                             <i class="las la-trash"></i>
                                         </a>
                                     @endcan
@@ -598,10 +628,12 @@
                                         @forelse ($attribute->categories->take(6) as $category)
                                             <span class="admin-catalog-chip">{{ $category->getTranslation('name') }}</span>
                                         @empty
-                                            <span class="admin-catalog-chip admin-catalog-chip-muted">{{ translate('No category assigned') }}</span>
+                                            <span
+                                                class="admin-catalog-chip admin-catalog-chip-muted">{{ translate('No category assigned') }}</span>
                                         @endforelse
                                         @if ($attribute->categories->count() > 6)
-                                            <span class="admin-catalog-chip">+{{ $attribute->categories->count() - 6 }}</span>
+                                            <span
+                                                class="admin-catalog-chip">+{{ $attribute->categories->count() - 6 }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -609,27 +641,34 @@
                                 {{-- Attribute values section --}}
                                 <div class="attr-values-section">
                                     <div class="attr-values-heading">
-                                        <h6><i class="las la-list-ul" style="margin-right:4px;"></i>{{ translate('Attribute Values') }}</h6>
+                                        <h6><i class="las la-list-ul"
+                                                style="margin-right:4px;"></i>{{ translate('Attribute Values') }}</h6>
                                     </div>
                                     <div class="attr-values-list" data-attribute-id="{{ $attribute->id }}">
                                         @forelse ($attribute->attribute_values as $value)
                                             <div class="attr-value-row" data-value-id="{{ $value->id }}">
                                                 <span class="value-text">{{ $value->value }}</span>
                                                 @can('delete_product_attribute_value')
-                                                    <button type="button" class="btn-remove-value" title="{{ translate('Remove value') }}" data-value-id="{{ $value->id }}">
+                                                    <button type="button" class="btn-remove-value"
+                                                        title="{{ translate('Remove value') }}"
+                                                        data-value-id="{{ $value->id }}">
                                                         <i class="las la-times"></i>
                                                     </button>
                                                 @endcan
                                             </div>
                                         @empty
-                                            <div class="attr-value-empty">{{ translate('No values yet. Add values below.') }}</div>
+                                            <div class="attr-value-empty">
+                                                {{ translate('No values yet. Add values below.') }}</div>
                                         @endforelse
                                     </div>
 
                                     @can('add_product_attribute_values')
                                         <div class="attr-add-value-row">
-                                            <input type="text" class="form-control attr-new-value-input" placeholder="{{ translate('Type a value name and press Add...') }}" data-attribute-id="{{ $attribute->id }}">
-                                            <button type="button" class="btn btn-soft-primary btn-sm attr-add-value-btn" data-attribute-id="{{ $attribute->id }}">
+                                            <input type="text" class="form-control attr-new-value-input"
+                                                placeholder="{{ translate('Type a value name and press Add...') }}"
+                                                data-attribute-id="{{ $attribute->id }}">
+                                            <button type="button" class="btn btn-soft-primary btn-sm attr-add-value-btn"
+                                                data-attribute-id="{{ $attribute->id }}">
                                                 <i class="las la-plus"></i> {{ translate('Add Value') }}
                                             </button>
                                         </div>
@@ -655,9 +694,9 @@
 
 @section('script')
     <script>
-        (function ($) {
+        (function($) {
             // ── Accordion toggle ────────────────────────────────────
-            $(document).on('click', '.attr-editor-head', function (event) {
+            $(document).on('click', '.attr-editor-head', function(event) {
                 if ($(event.target).closest('a, button, input, select, .bootstrap-select').length) return;
                 $(this).closest('.attr-editor-card').toggleClass('is-collapsed');
             });
@@ -673,13 +712,13 @@
                 var values = select.val() || [];
 
                 if (isSelected) {
-                    childrenIds.forEach(function (id) {
+                    childrenIds.forEach(function(id) {
                         if (values.indexOf(id) === -1) {
                             values.push(id);
                         }
                     });
                 } else {
-                    values = values.filter(function (id) {
+                    values = values.filter(function(id) {
                         return childrenIds.indexOf(String(id)) === -1;
                     });
                 }
@@ -688,7 +727,7 @@
                 select.selectpicker('refresh');
             }
 
-            $(document).on('changed.bs.select', '.admin-category-cascade', function (e, clickedIndex, isSelected) {
+            $(document).on('changed.bs.select', '.admin-category-cascade', function(e, clickedIndex, isSelected) {
                 syncCategoryCascade($(this), clickedIndex, isSelected);
             });
 
@@ -699,13 +738,13 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route("ajax.store-attribute-value") }}',
+                    url: '{{ route('ajax.store-attribute-value') }}',
                     data: {
                         attribute_id: attributeId,
                         value: value,
                         _token: $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function (resp) {
+                    success: function(resp) {
                         if (!resp.success) return;
 
                         var list = inputEl.closest('.attr-values-section').find('.attr-values-list');
@@ -713,10 +752,12 @@
 
                         var row = $(
                             '<div class="attr-value-row" data-value-id="' + resp.id + '">' +
-                                '<span class="value-text">' + $('<span>').text(resp.value).html() + '</span>' +
-                                '<button type="button" class="btn-remove-value" title="{{ translate("Remove value") }}" data-value-id="' + resp.id + '">' +
-                                    '<i class="las la-times"></i>' +
-                                '</button>' +
+                            '<span class="value-text">' + $('<span>').text(resp.value).html() +
+                            '</span>' +
+                            '<button type="button" class="btn-remove-value" title="{{ translate('Remove value') }}" data-value-id="' +
+                            resp.id + '">' +
+                            '<i class="las la-times"></i>' +
+                            '</button>' +
                             '</div>'
                         );
                         list.append(row);
@@ -727,7 +768,7 @@
                         var countEl = card.find('.attr-value-count');
                         countEl.text(parseInt(countEl.text()) + 1);
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.value) {
                             alert(xhr.responseJSON.errors.value[0]);
                         }
@@ -735,13 +776,13 @@
                 });
             }
 
-            $(document).on('click', '.attr-add-value-btn', function () {
+            $(document).on('click', '.attr-add-value-btn', function() {
                 var attributeId = $(this).data('attribute-id');
                 var inputEl = $(this).closest('.attr-add-value-row').find('.attr-new-value-input');
                 addValue(attributeId, inputEl);
             });
 
-            $(document).on('keypress', '.attr-new-value-input', function (e) {
+            $(document).on('keypress', '.attr-new-value-input', function(e) {
                 if (e.which === 13) {
                     e.preventDefault();
                     var attributeId = $(this).data('attribute-id');
@@ -750,13 +791,13 @@
             });
 
             // ── Remove attribute value (AJAX) ───────────────────────
-            $(document).on('click', '.btn-remove-value', function () {
+            $(document).on('click', '.btn-remove-value', function() {
                 var btn = $(this);
                 var valueId = btn.data('value-id');
                 var row = btn.closest('.attr-value-row');
                 var card = btn.closest('.attr-editor-card');
 
-                if (!confirm('{{ translate("Are you sure you want to remove this value?") }}')) return;
+                if (!confirm('{{ translate('Are you sure you want to remove this value?') }}')) return;
 
                 $.ajax({
                     type: 'DELETE',
@@ -764,7 +805,7 @@
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function (resp) {
+                    success: function(resp) {
                         if (!resp.success) return;
 
                         row.remove();
@@ -777,7 +818,9 @@
                         // Show empty message if no values left
                         var list = card.find('.attr-values-list');
                         if (list.find('.attr-value-row').length === 0) {
-                            list.html('<div class="attr-value-empty">{{ translate("No values yet. Add values below.") }}</div>');
+                            list.html(
+                                '<div class="attr-value-empty">{{ translate('No values yet. Add values below.') }}</div>'
+                                );
                         }
                     }
                 });

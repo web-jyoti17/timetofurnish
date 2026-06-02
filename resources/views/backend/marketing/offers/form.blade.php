@@ -164,20 +164,14 @@
                     <select name="products[]" id="products" class="form-control aiz-selectpicker rounded-lg border-gray-300" multiple required data-placeholder="{{ translate('Select Products') }}" data-live-search="true" data-selected-text-format="count" data-actions-box="true">
                         @foreach($products as $product)
                             @php
-                                $is_busy = in_array($product->id, $busy_product_ids);
                                 $is_selected = isset($offer) && $offer->products->contains($product->id);
                             @endphp
-                            <option value="{{ $product->id }}" 
-                                    @if($is_selected) selected @endif 
-                                    @if($is_busy && !$is_selected) disabled class="text-muted bg-light" @endif>
-                                {{ $product->getTranslation('name') }} 
-                                @if($is_busy && !$is_selected)
-                                     [{{ translate('Already in an active offer') }}]
-                                @endif
+                            <option value="{{ $product->id }}" @if($is_selected) selected @endif>
+                                {{ $product->getTranslation('name') }}
                             </option>
                         @endforeach
                     </select>
-                    <span class="fs-11 text-muted-theme mt-2 d-block"><i class="las la-info-circle mr-1"></i>{{ translate('Products currently associated with active/pending offers are automatically disabled to prevent conflicts.') }}</span>
+                    <span class="fs-11 text-muted-theme mt-2 d-block"><i class="las la-info-circle mr-1"></i>{{ translate('Admins and sellers can associate products with multiple active offers simultaneously.') }}</span>
                 </div>
             </div>
         </div>
@@ -234,10 +228,29 @@
                 </div>
 
                 <!-- Priority -->
-                <div class="form-group @if($is_admin) mb-4 @else mb-0 @endif">
+                <div class="form-group mb-4">
                     <label class="form-label theme-form-label" for="priority">{{ translate('Priority') }}</label>
                     <input type="number" min="0" placeholder="{{ translate('0') }}" id="priority" name="priority" class="form-control rounded-lg" value="{{ isset($offer) ? $offer->priority : 0 }}">
                     <span class="fs-11 text-muted-theme mt-1 d-block">{{ translate('Higher priority wins if a product has multiple active offers.') }}</span>
+                </div>
+
+                <!-- Homepage Template Style Selection -->
+                <div class="form-group mb-4 pt-3 border-theme-top" id="template_style_wrapper">
+                    <label class="form-label theme-form-label" for="template_style">{{ translate('Homepage Template Style') }}</label>
+                    <select name="template_style" id="template_style" class="form-control aiz-selectpicker rounded-lg border-gray-300" required>
+                        <option value="style_1" @if(isset($offer) && $offer->template_style == 'style_1') selected @endif>{{ translate('Style 1: Premium Glassmorphism') }}</option>
+                        <option value="style_2" @if(isset($offer) && $offer->template_style == 'style_2') selected @endif>{{ translate('Style 2: Dark Warm Split') }}</option>
+                        <option value="style_3" @if(isset($offer) && $offer->template_style == 'style_3') selected @endif>{{ translate('Style 3: Minimalist Outline Frame') }}</option>
+                    </select>
+                    <span class="fs-11 text-muted-theme mt-1 d-block">{{ translate('Select the display layout style for the homepage.') }}</span>
+                </div>
+
+                <!-- Template Preview Container -->
+                <div class="form-group mb-4" id="template_preview_wrapper">
+                    <label class="form-label theme-form-label">{{ translate('Template Style Live Preview') }}</label>
+                    <div id="template_preview_container" class="p-0 border rounded-lg bg-white position-relative" style="min-height: 150px; border-color: #e5dec9 !important; transition: all 0.3s ease;">
+                        <!-- Scaled visual preview mockup -->
+                    </div>
                 </div>
 
                 <!-- Show on Homepage (Admin Only) -->
@@ -300,5 +313,116 @@
                 $('#discount_value').attr('required', 'required');
             }
         });
+
+        // Update live preview depending on style selection
+        function updateTemplatePreview() {
+            var style = $('#template_style').val();
+            var container = $('#template_preview_container');
+            var html = '';
+            
+            if (style === 'style_1') {
+                html = `
+                    <div class="p-3 rounded" style="background: linear-gradient(135deg, #fdfbf7 0%, #f7f0e3 50%, #eadfc9 100%); border: 1px solid #e2d7c0; min-height: 150px;">
+                        <div class="row align-items-center" style="margin:0;">
+                            <div class="col-7 pl-0 pr-1">
+                                <div style="width: 55px; height: 12px; background: #685b4e; border-radius: 3px; margin-bottom: 6px;"></div>
+                                <div style="width: 90%; height: 16px; background: #3e3327; border-radius: 3px; margin-bottom: 6px;"></div>
+                                <div style="width: 70%; height: 8px; background: #8c8276; border-radius: 2px; margin-bottom: 12px;"></div>
+                                <div class="d-flex mb-2" style="gap: 4px;">
+                                    <div style="width: 16px; height: 16px; background: #fff; border: 1px solid rgba(226,156,9,0.25); border-radius: 4px;"></div>
+                                    <div style="width: 16px; height: 16px; background: #fff; border: 1px solid rgba(226,156,9,0.25); border-radius: 4px;"></div>
+                                    <div style="width: 16px; height: 16px; background: #fff; border: 1px solid rgba(226,156,9,0.25); border-radius: 4px;"></div>
+                                </div>
+                                <div style="width: 60px; height: 18px; background: #685b4e; border-radius: 9px;"></div>
+                            </div>
+                            <div class="col-5 pl-0 pr-0 d-flex" style="gap: 4px;">
+                                <div class="p-1 rounded bg-white text-center" style="border: 1px solid rgba(226,215,192,0.5); width: 50%;">
+                                    <div style="height: 45px; background: #f5f5f5; border-radius: 4px; margin-bottom: 4px;"></div>
+                                    <div style="width: 80%; height: 5px; background: #ddd; border-radius: 2px; margin: 0 auto 3px;"></div>
+                                    <div style="width: 50%; height: 5px; background: #685b4e; border-radius: 2px; margin: 0 auto;"></div>
+                                </div>
+                                <div class="p-1 rounded bg-white text-center" style="border: 1px solid rgba(226,215,192,0.5); width: 50%;">
+                                    <div style="height: 45px; background: #f5f5f5; border-radius: 4px; margin-bottom: 4px;"></div>
+                                    <div style="width: 80%; height: 5px; background: #ddd; border-radius: 2px; margin: 0 auto 3px;"></div>
+                                    <div style="width: 50%; height: 5px; background: #685b4e; border-radius: 2px; margin: 0 auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (style === 'style_2') {
+                html = `
+                    <div class="rounded overflow-hidden d-flex" style="background: #fbfaf7; border: 1px solid #e2d7c0; min-height: 150px;">
+                        <div class="p-3 d-flex flex-column justify-content-center text-white" style="background: linear-gradient(135deg, #51463a 0%, #685b4e 100%); width: 45%;">
+                            <div style="width: 35px; height: 10px; background: rgba(255,255,255,0.4); border-radius: 3px; margin-bottom: 6px;"></div>
+                            <div style="width: 90%; height: 16px; background: #ffffff; border-radius: 3px; margin-bottom: 6px;"></div>
+                            <div style="width: 70%; height: 8px; background: rgba(255,255,255,0.6); border-radius: 2px; margin-bottom: 10px;"></div>
+                            <div class="d-flex mb-2" style="gap: 4px;">
+                                <div style="width: 14px; height: 14px; background: rgba(255,255,255,0.25); border-radius: 50%;"></div>
+                                <div style="width: 14px; height: 14px; background: rgba(255,255,255,0.25); border-radius: 50%;"></div>
+                                <div style="width: 14px; height: 14px; background: rgba(255,255,255,0.25); border-radius: 50%;"></div>
+                            </div>
+                            <div style="width: 55px; height: 16px; background: #ffffff; border-radius: 8px;"></div>
+                        </div>
+                        <div class="p-2 d-flex align-items-center justify-content-around" style="width: 55%; background: #fbfaf7; gap: 4px;">
+                            <div class="p-1 rounded bg-white text-center shadow-sm" style="border: 1px solid rgba(226,215,192,0.3); width: 48%;">
+                                <div style="height: 45px; background: #f5f5f5; border-radius: 4px; margin-bottom: 4px;"></div>
+                                <div style="width: 80%; height: 5px; background: #ddd; border-radius: 2px; margin: 0 auto 3px;"></div>
+                                <div style="width: 50%; height: 5px; background: #685b4e; border-radius: 2px; margin: 0 auto;"></div>
+                            </div>
+                            <div class="p-1 rounded bg-white text-center shadow-sm" style="border: 1px solid rgba(226,215,192,0.3); width: 48%;">
+                                <div style="height: 45px; background: #f5f5f5; border-radius: 4px; margin-bottom: 4px;"></div>
+                                <div style="width: 80%; height: 5px; background: #ddd; border-radius: 2px; margin: 0 auto 3px;"></div>
+                                <div style="width: 50%; height: 5px; background: #685b4e; border-radius: 2px; margin: 0 auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (style === 'style_3') {
+                html = `
+                    <div class="p-3 rounded" style="background: #fafaf8; border: 3px double #685b4e; min-height: 150px;">
+                        <div class="text-center mb-2" style="border-bottom: 1px solid rgba(104,91,78,0.2); padding-bottom: 6px;">
+                            <div style="width: 60px; height: 10px; background: #685b4e; border-radius: 3px; margin: 0 auto 4px;"></div>
+                            <div style="width: 130px; height: 14px; background: #3e3327; border-radius: 2px; margin: 0 auto 4px;"></div>
+                            <div style="font-size: 9px; color: #685b4e; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">ENDS IN: 02D : 14H : 32M</div>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center" style="gap: 8px;">
+                            <div class="p-1 rounded bg-white text-center" style="border: 1px solid #eee; width: 35%;">
+                                <div style="height: 40px; background: #f8f8f8; border-radius: 2px; margin-bottom: 3px;"></div>
+                                <div style="width: 80%; height: 4px; background: #eee; border-radius: 1px; margin: 0 auto 2px;"></div>
+                                <div style="width: 40%; height: 4px; background: #3e3327; border-radius: 1px; margin: 0 auto;"></div>
+                            </div>
+                            <div class="p-1 rounded bg-white text-center" style="border: 1px solid #eee; width: 35%;">
+                                <div style="height: 40px; background: #f8f8f8; border-radius: 2px; margin-bottom: 3px;"></div>
+                                <div style="width: 80%; height: 4px; background: #eee; border-radius: 1px; margin: 0 auto 2px;"></div>
+                                <div style="width: 40%; height: 4px; background: #3e3327; border-radius: 1px; margin: 0 auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.html(html);
+        }
+
+        $('#template_style').on('change', updateTemplatePreview);
+        updateTemplatePreview();
+
+        // Toggle visibility of template selector based on show_on_home for admin
+        function toggleTemplateStyleVisibility() {
+            var showOnHomeCheckbox = $('input[name="show_on_home"]');
+            if (showOnHomeCheckbox.length > 0) {
+                if (showOnHomeCheckbox.is(':checked')) {
+                    $('#template_style_wrapper').slideDown();
+                    $('#template_preview_wrapper').slideDown();
+                } else {
+                    $('#template_style_wrapper').slideUp();
+                    $('#template_preview_wrapper').slideUp();
+                }
+            }
+        }
+
+        $('input[name="show_on_home"]').on('change', toggleTemplateStyleVisibility);
+        toggleTemplateStyleVisibility();
     });
 </script>

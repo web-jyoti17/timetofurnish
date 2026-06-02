@@ -92,131 +92,538 @@
             display: inline-block;
             animation: pulse-theme 1s infinite ease-in-out;
         }
-    </style>
-    <section class="mb-4 mt-5">
-        <div class="container">
-            <div class="aiz-carousel gutters-16 offer-carousel" data-items="1" data-arrows="true" data-dots="true" data-autoplay="true" data-infinite="true">
-                @foreach ($home_offers as $offer)
-                    <div class="carousel-box">
-                        <div class="premium-offer-section p-4 p-md-5 d-flex flex-wrap align-items-center">
-                            
-                            <!-- Decorative background soft blurs (Warm luxury ambient glows) -->
-                            <div class="position-absolute" style="top: -40px; right: -20px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(226, 156, 9, 0.08) 0%, rgba(226, 156, 9, 0) 70%); filter: blur(40px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
-                            <div class="position-absolute" style="bottom: -50px; left: 5%; width: 320px; height: 320px; background: radial-gradient(circle, var(--soft-primary) 0%, rgba(255,255,255,0) 70%); filter: blur(50px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
-                            <div class="position-absolute" style="top: 20%; right: 30%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(236, 223, 232, 0.6) 0%, rgba(236, 223, 232, 0) 70%); filter: blur(40px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
 
-                            <!-- Left content -->
-                            <div class="col-lg-5 col-12 mb-4 mb-lg-0 z-1 text-left">
-                                <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 8px;">
-                                    <span class="fs-10 fw-800 text-uppercase tracking-wider px-3 text-white" style="padding: 10px !important;background: #000000 !important; color: #ffffff !important; border-radius: 30px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
-                                        {{ translate($offer->name) }}
-                                    </span>
-                                    @if($offer->badge_text)
-                                        @php
-                                            $badge_txt = $offer->badge_text;
-                                            if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
-                                                $badge_txt .= ' OFF';
-                                            }
-                                        @endphp
-                                        <span class="fs-10 fw-800 text-uppercase tracking-wider px-2.5 py-1" style="padding:10px;background: rgba(254, 243, 199, 0.85); color: #b45309; border: 1px solid rgba(253, 230, 138, 0.8); border-radius: 6px;">
-                                            🔥 {{ $badge_txt }}
-                                        </span>
-                                    @endif
-                                </div>
-                                <h2 class="fs-28 fs-md-36 fw-800 leading-tight mb-2" style="color: #0f172a !important; font-family: 'Outfit', sans-serif; letter-spacing: -0.8px;">
-                                    {{ translate($offer->name) }}
-                                </h2>
-                                @if($offer->custom_text)
-                                    <p class="fs-14 fs-md-15 mb-4" style="color: #475569 !important; max-width: 420px; line-height: 1.6; font-weight: 450;">
-                                        {{ $offer->custom_text }}
-                                    </p>
-                                @endif
-                                
-                                <!-- Premium countdown timer -->
-                                @if($offer->ends_at)
-                                    <div class="premium-countdown-timer d-flex align-items-center mb-4" data-end-date="{{ $offer->ends_at->format('Y/m/d H:i:s') }}" style="gap: 8px;">
-                                        <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
-                                            <span class="days fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
-                                            <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Days</span>
+        @media (max-width: 767.98px) {
+            .home-offers-wrap {
+                margin-top: 18px !important;
+                margin-bottom: 26px !important;
+                overflow: hidden !important;
+            }
+            .home-offers-wrap .container {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+            .premium-offer-section {
+                border-radius: 20px !important;
+                min-height: 0 !important;
+                padding: 18px 12px 34px !important;
+                outline-width: 3px;
+                box-shadow: 0 18px 42px -24px rgba(103, 93, 76, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+            }
+            .premium-offer-card:hover {
+                transform: none !important;
+            }
+            .offer-copy-panel {
+                order: 1;
+                margin-bottom: 18px !important;
+                text-align: left !important;
+                padding-left: 6px !important;
+                padding-right: 6px !important;
+            }
+            .offer-products-panel {
+                order: 2;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                overflow: hidden !important;
+            }
+            .offer-copy-panel h2 {
+                font-size: 25px !important;
+                line-height: 1.2 !important;
+                letter-spacing: 0 !important;
+                margin-bottom: 9px !important;
+            }
+            .offer-copy-panel p {
+                font-size: 14px !important;
+                line-height: 1.45 !important;
+                max-width: none !important;
+                margin-bottom: 16px !important;
+            }
+            .offer-copy-panel .fw-800.text-uppercase {
+                font-size: 11px !important;
+                padding: 9px 13px !important;
+                letter-spacing: 0 !important;
+            }
+            .premium-countdown-timer {
+                gap: 5px !important;
+                margin-bottom: 16px !important;
+                max-width: 100% !important;
+                flex-wrap: nowrap !important;
+            }
+            .premium-countdown-timer > div:not(.fs-16) {
+                width: 48px !important;
+                height: 54px !important;
+                border-radius: 12px !important;
+            }
+            .premium-countdown-timer .days,
+            .premium-countdown-timer .hours,
+            .premium-countdown-timer .minutes,
+            .premium-countdown-timer .seconds {
+                font-size: 18px !important;
+            }
+            .premium-countdown-timer .fs-9 {
+                font-size: 9px !important;
+            }
+            .premium-countdown-timer .fs-16 {
+                font-size: 12px !important;
+                line-height: 54px !important;
+            }
+            .offer-copy-panel .btn {
+                padding: 9px 16px !important;
+                font-size: 12px !important;
+                line-height: 1.2 !important;
+                min-height: 38px !important;
+                gap: 6px !important;
+            }
+            .premium-offer-section .btn,
+            .offer-dark-panel .btn,
+            .premium-offer-section.offer-style-3 .btn {
+                padding: 9px 16px !important;
+                font-size: 12px !important;
+                line-height: 1.2 !important;
+                min-height: 38px !important;
+            }
+            .offer-inner-carousel {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .offer-inner-carousel .slick-list {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                overflow: hidden !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            .offer-inner-carousel .slick-track {
+                padding-top: 0 !important;
+            }
+            .offer-inner-carousel .slick-track,
+            .offer-inner-carousel .slick-slide,
+            .offer-inner-carousel .slick-slide > div,
+            .offer-inner-carousel .carousel-box {
+                display: flex !important;
+                align-items: stretch !important;
+            }
+            .offer-inner-carousel .carousel-box {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                height: auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .offer-inner-carousel .modern-product-card {
+                border-radius: 12px !important;
+                padding: 7px !important;
+                height: 100% !important;
+                min-height: 180px !important;
+                justify-content: space-between !important;
+                min-width: 0 !important;
+                box-shadow: 0 7px 20px rgba(104, 91, 78, 0.07) !important;
+            }
+            .offer-inner-carousel .modern-product-img-wrap {
+                height: 98px !important;
+                border-radius: 10px !important;
+            }
+            .offer-inner-carousel .modern-product-card > div:last-child {
+                padding: 7px 2px 2px !important;
+                flex-grow: 1 !important;
+                justify-content: space-between !important;
+            }
+            .offer-inner-carousel .modern-product-title {
+                min-height: 0 !important;
+                margin-bottom: 8px !important;
+            }
+            .offer-inner-carousel .modern-product-title a {
+                display: block !important;
+                font-size: 11px !important;
+                line-height: 1.3 !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                -webkit-line-clamp: unset !important;
+                -webkit-box-orient: initial !important;
+            }
+            .offer-inner-carousel .modern-card-bottom-row {
+                padding-top: 6px !important;
+                margin-top: auto !important;
+                min-height: 46px !important;
+                align-items: flex-end !important;
+                justify-content: space-between !important;
+                gap: 5px !important;
+            }
+            .offer-inner-carousel .modern-price-wrap,
+            .offer-inner-carousel .modern-price-wrap .text-primary,
+            .offer-inner-carousel .modern-price-wrap span {
+                font-size: 9.5px !important;
+                line-height: 1.35 !important;
+                min-width: 0 !important;
+            }
+            .offer-inner-carousel .modern-price-wrap {
+                width: auto !important;
+                flex: 1 1 auto !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
+            }
+            .offer-inner-carousel .modern-price-wrap del {
+                font-size: 9px !important;
+            }
+            .offer-inner-carousel .modern-card-actions-bottom {
+                gap: 8px !important;
+                width: auto !important;
+                flex: 0 0 auto !important;
+            }
+            .offer-inner-carousel .modern-card-actions-bottom .modern-action-btn {
+                width: 18px !important;
+                height: 18px !important;
+            }
+            .offer-inner-carousel .modern-action-btn svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+            .offer-single-product-carousel .slick-track {
+                justify-content: center !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                transform: none !important;
+            }
+            .offer-inner-carousel .modern-discount-tag,
+            .offer-inner-carousel .modern-wholesale-tag {
+                font-size: 8px !important;
+                padding: 4px 7px !important;
+                margin-left: 6px !important;
+                margin-top: 6px !important;
+            }
+            .offer-carousel .slick-dots {
+                bottom: -25px !important;
+            }
+            .offer-inner-carousel .slick-dots {
+                bottom: -22px !important;
+            }
+            .offer-carousel .slick-dots,
+            .offer-inner-carousel .slick-dots {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 6px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .offer-carousel .slick-dots li,
+            .offer-inner-carousel .slick-dots li {
+                width: auto !important;
+                height: 8px !important;
+                margin: 0 !important;
+            }
+            .offer-carousel .slick-dots li button,
+            .offer-inner-carousel .slick-dots li button {
+                width: 7px !important;
+                height: 7px !important;
+                padding: 0 !important;
+                border-radius: 999px !important;
+                background: #d7c8b5 !important;
+                opacity: 1 !important;
+                transition: width 0.25s ease, background-color 0.25s ease !important;
+            }
+            .offer-carousel .slick-dots li.slick-active button,
+            .offer-inner-carousel .slick-dots li.slick-active button {
+                width: 24px !important;
+                background: #685b4e !important;
+                box-shadow: 0 4px 10px rgba(104, 91, 78, 0.24) !important;
+            }
+        }
+
+        /* Style 2 Styles */
+        .premium-offer-section.offer-style-2 {
+            background: linear-gradient(135deg, #fcfbf9 0%, #f6eee0 100%) !important;
+            border: 1px solid rgba(226, 215, 192, 0.5) !important;
+            border-radius: 32px !important;
+            box-shadow: 0 25px 60px -25px rgba(103, 93, 76, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            min-height: auto !important;
+        }
+        .offer-dark-panel {
+            background: linear-gradient(135deg, #51463a 0%, #685b4e 100%) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 15px 35px rgba(81, 70, 58, 0.25) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Style 3 Styles */
+        .premium-offer-section.offer-style-3 {
+            background: #fafaf8 !important;
+            border: 4px double #685b4e !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 45px -20px rgba(103, 93, 76, 0.1) !important;
+            min-height: auto !important;
+        }
+        .premium-offer-section.offer-style-3 .offer-inner-carousel .modern-product-card {
+            border: 1px solid #f0ebe2 !important;
+            box-shadow: 0 8px 24px rgba(104, 91, 78, 0.04) !important;
+        }
+        .premium-offer-section.offer-style-3 .offer-inner-carousel .modern-product-card:hover {
+            box-shadow: 0 15px 35px rgba(104, 91, 78, 0.1) !important;
+            border-color: #685b4e !important;
+        }
+
+        @media (max-width: 767.98px) {
+            .offer-dark-panel {
+                padding: 1.5rem !important;
+                min-height: auto !important;
+                margin-bottom: 24px !important;
+            }
+            .premium-offer-section.offer-style-3 {
+                padding: 24px 16px !important;
+            }
+        }
+    </style>
+    <section class="mb-4 mt-5 home-offers-wrap">
+        <div class="container">
+            <div class="aiz-carousel gutters-16 offer-carousel" data-items="1" data-arrows="true" data-dots="true" data-autoplay="false" data-infinite="true">
+                @foreach ($home_offers as $offer)
+                    @php
+                        $style = $offer->template_style ?? 'style_1';
+                        $offerProductCount = $offer->products->count();
+                        $offerProductCarouselClass = $offerProductCount === 1 ? ' offer-single-product-carousel' : '';
+                    @endphp
+                    <div class="carousel-box">
+                        @if($style === 'style_2')
+                            <!-- Render Style 2: Dark Warm Split -->
+                            <div class="premium-offer-section offer-style-2 p-4 d-flex flex-wrap align-items-center position-relative overflow-hidden">
+                                <!-- Decorative background soft blurs (Warm luxury ambient glows) -->
+                                <div class="position-absolute" style="top: -40px; right: -20px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(226, 156, 9, 0.05) 0%, rgba(226, 156, 9, 0) 70%); filter: blur(40px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+
+                                <!-- Left content (Dark container block) -->
+                                <div class="col-lg-5 col-12 mb-4 mb-lg-0 z-1 text-left offer-dark-panel p-4 p-md-5 d-flex flex-column justify-content-between" style="min-height: 380px;">
+                                    <div>
+                                        <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 8px;">
+                                            <span class="fs-10 fw-800 text-uppercase tracking-wider px-3 text-white" style="padding: 8px 14px !important; background: rgba(255,255,255,0.15) !important; border: 1px solid rgba(255,255,255,0.25); border-radius: 30px; letter-spacing: 1px;">
+                                                {{ translate($offer->name) }}
+                                            </span>
+                                            @if($offer->badge_text)
+                                                @php
+                                                    $badge_txt = $offer->badge_text;
+                                                    if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
+                                                        $badge_txt .= ' OFF';
+                                                    }
+                                                @endphp
+                                                <span class="fs-10 fw-800 text-uppercase tracking-wider px-2.5 py-1" style="padding: 8px 12px !important; background: rgba(254, 243, 199, 0.2); color: #fef3c7; border: 1px solid rgba(253, 230, 138, 0.3); border-radius: 6px;">
+                                                    🔥 {{ $badge_txt }}
+                                                </span>
+                                            @endif
                                         </div>
-                                        <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
-                                        <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
-                                            <span class="hours fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
-                                            <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Hours</span>
-                                        </div>
-                                        <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
-                                        <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
-                                            <span class="minutes fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
-                                            <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Mins</span>
-                                        </div>
-                                        <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
-                                        <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
-                                            <span class="seconds fs-18 fw-800" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
-                                            <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Secs</span>
-                                        </div>
+                                        <h2 class="fs-28 fs-md-36 fw-800 leading-tight mb-3 text-white" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.8px;">
+                                            {{ translate($offer->name) }}
+                                        </h2>
+                                        @if($offer->custom_text)
+                                            <p class="fs-14 fs-md-15 mb-4" style="color: #ebd9c5 !important; line-height: 1.6; font-weight: 400; max-width: none;">
+                                                {{ $offer->custom_text }}
+                                            </p>
+                                        @endif
                                     </div>
-                                @endif
- 
-                                @if($offer->products->count() > 0)
-                                    <a href="{{ route('product', $offer->products->first()->slug) }}" class="btn px-4 py-2.5 text-white fw-700 fs-13 d-inline-flex align-items-center" 
-                                       style="background: #000000 !important; color: #ffffff !important; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; gap: 8px;">
-                                        <span>{{ translate('Shop Now') }}</span>
-                                        <i class="las la-arrow-right"></i>
-                                    </a>
-                                @endif
-                            </div>
- 
-                            <!-- Right products grid -->
-                            <div class="col-lg-7 col-12 z-1">
-                                @php
-                                    $offer_products = $offer->products->take(3);
-                                    $prod_count = $offer_products->count();
-                                @endphp
-                                <div class="row gutters-10 justify-content-center justify-content-lg-end">
-                                    @foreach($offer_products as $product)
-                                        <div class="{{ $prod_count == 1 ? 'col-md-6 col-10' : ($prod_count == 2 ? 'col-sm-6 col-12' : 'col-md-4 col-6') }} mb-2">
-                                            <div class="premium-offer-card text-center h-100 d-flex flex-column justify-content-between">
-                                                <!-- Top Image (Full-bleed cover) -->
-                                                <a href="{{ route('product', $product->slug) }}" class="d-block overflow-hidden position-relative" style="height: 230px; display: flex; align-items: center; justify-content: center; background: transparent; border-bottom: 1px solid rgba(226, 215, 192, 0.25); padding: 0 !important;">
-                                                    <img src="{{ $product->thumbnail != null ? my_asset($product->thumbnail->file_name) : static_asset('assets/img/placeholder.jpg') }}" 
-                                                         class="img-fluid lazyload has-transition" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);" 
-                                                         alt="{{ $product->getTranslation('name') }}"
-                                                         onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                                </a>
-                                                <!-- Bottom Info (Padded) -->
-                                                <div class="p-3 d-flex flex-column justify-content-between flex-grow-1">
-                                                    <h3 class="fs-13 text-truncate-2 mb-3" style="font-weight: 700; line-height: 1.4; min-height: 38px;">
-                                                        <a href="{{ route('product', $product->slug) }}" class="text-reset hov-text-primary" style="color: #0f172a; transition: color 0.2s ease;">{{ $product->getTranslation('name') }}</a>
-                                                    </h3>
-                                                    <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-top: 1px solid rgba(226, 215, 192, 0.25) !important;">
-                                                        <div class="text-left">
-                                                            <span class="d-block fs-10 fw-600 text-muted text-uppercase mb-0.5" style="letter-spacing: 0.5px;">Offer Price</span>
-                                                            <span class="d-block fw-800 fs-15" style="color: #e29c09 !important; font-family: 'Outfit', sans-serif;">{{ home_discounted_base_price($product) }}</span>
-                                                        </div>
-                                                        @php
-                                                            $old_price = home_offer_old_price($product);
-                                                        @endphp
-                                                        @if($old_price)
-                                                            <div class="text-right">
-                                                                <span class="d-block fs-10 fw-600 text-muted text-uppercase mb-0.5" style="letter-spacing: 0.5px; opacity: 0.7;">Original</span>
-                                                                <del class="d-block fs-12 fw-600" style="color: #94a3b8; text-decoration: line-through;">{{ $old_price }}</del>
-                                                            </div>
-                                                        @endif
-                                                    </div>
+
+                                    <div>
+                                        <!-- Premium countdown timer -->
+                                        @if($offer->ends_at)
+                                            <div class="premium-countdown-timer d-flex align-items-center mb-4" data-end-date="{{ $offer->ends_at->format('Y/m/d H:i:s') }}" style="gap: 8px;">
+                                                <div class="d-flex flex-column align-items-center justify-content-center" style="width: 52px; height: 56px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 12px !important;">
+                                                    <span class="days fs-18 fw-800 text-white" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                    <span class="fs-9 fw-600 text-white-50 text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important; opacity:0.75;">Days</span>
+                                                </div>
+                                                <div class="fs-16 fw-700 text-white" style="opacity: 0.4; line-height: 56px;">:</div>
+                                                <div class="d-flex flex-column align-items-center justify-content-center" style="width: 52px; height: 56px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 12px !important;">
+                                                    <span class="hours fs-18 fw-800 text-white" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                    <span class="fs-9 fw-600 text-white-50 text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important; opacity:0.75;">Hours</span>
+                                                </div>
+                                                <div class="fs-16 fw-700 text-white" style="opacity: 0.4; line-height: 56px;">:</div>
+                                                <div class="d-flex flex-column align-items-center justify-content-center" style="width: 52px; height: 56px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 12px !important;">
+                                                    <span class="minutes fs-18 fw-800 text-white" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                    <span class="fs-9 fw-600 text-white-50 text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important; opacity:0.75;">Mins</span>
+                                                </div>
+                                                <div class="fs-16 fw-700 text-white" style="opacity: 0.4; line-height: 56px;">:</div>
+                                                <div class="d-flex flex-column align-items-center justify-content-center" style="width: 52px; height: 56px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2) !important; border-radius: 12px !important;">
+                                                    <span class="seconds fs-18 fw-800 text-white" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                    <span class="fs-9 fw-600 text-white-50 text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important; opacity:0.75;">Secs</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endif
+
+                                        @if($offer->products->count() > 0)
+                                            <a href="{{ route('product', $offer->products->first()->slug) }}" class="btn px-4 py-2.5 text-primary fw-700 fs-13 d-inline-flex align-items-center justify-content-center w-100"
+                                               style="background: #ffffff !important; color: #685b4e !important; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; gap: 8px;">
+                                                <span>{{ translate('Shop Now') }}</span>
+                                                <i class="las la-arrow-right"></i>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Right products grid using premium carousel and unified template -->
+                                <div class="col-lg-7 col-12 z-1 offer-products-panel pl-lg-4">
+                                    <div class="aiz-carousel sm-gutters-16 offer-inner-carousel arrow-none{{ $offerProductCarouselClass }}" data-items="2" data-xl-items="2" data-lg-items="2" data-md-items="2" data-sm-items="2.35" data-xs-items="2.35" data-arrows="false" data-dots="true" data-infinite="false" data-autoplay="false">
+                                        @foreach($offer->products as $product)
+                                            <div class="carousel-box p-1">
+                                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1', ['product' => $product])
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
- 
-                        </div>
+                        @elseif($style === 'style_3')
+                            <!-- Render Style 3: Minimalist Outline Frame -->
+                            <div class="premium-offer-section offer-style-3 p-4 p-md-5 d-flex flex-column align-items-center position-relative overflow-hidden">
+
+                                <!-- Top Centered Header -->
+                                <div class="col-12 text-center mb-4 z-1">
+                                    <div class="d-flex justify-content-center align-items-center mb-2" style="gap: 8px;">
+                                        <span class="fs-10 fw-800 text-uppercase tracking-wider px-3" style="padding: 6px 12px !important; background: transparent; color: #685b4e; border: 1px solid #685b4e; border-radius: 4px; letter-spacing: 1px;">
+                                            {{ translate($offer->name) }}
+                                        </span>
+                                        @if($offer->badge_text)
+                                            @php
+                                                $badge_txt = $offer->badge_text;
+                                                if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
+                                                    $badge_txt .= ' OFF';
+                                                }
+                                            @endphp
+                                            <span class="fs-10 fw-800 text-uppercase tracking-wider px-2 py-1" style="padding: 6px 10px !important; background: #685b4e; color: #ffffff; border-radius: 4px;">
+                                                {{ $badge_txt }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <h2 class="fs-28 fs-md-36 fw-800 leading-tight mb-2" style="color: #3e3327 !important; font-family: 'Playfair Display', 'Outfit', serif; letter-spacing: -0.5px;">
+                                        {{ translate($offer->name) }}
+                                    </h2>
+
+                                    @if($offer->custom_text)
+                                        <p class="fs-14 fs-md-15 mb-4 mx-auto" style="color: #7c6f62 !important; max-width: 600px; line-height: 1.6; font-style: italic;">
+                                            &ldquo;{{ $offer->custom_text }}&rdquo;
+                                        </p>
+                                    @endif
+
+                                    <!-- Minimal Centered Countdown -->
+                                    @if($offer->ends_at)
+                                        <div class="premium-countdown-timer d-inline-flex align-items-center justify-content-center py-2 px-4 mb-2" data-end-date="{{ $offer->ends_at->format('Y/m/d H:i:s') }}" style="gap: 12px; border-top: 1px solid rgba(104,91,78,0.15); border-bottom: 1px solid rgba(104,91,78,0.15); font-family: 'Outfit', sans-serif;">
+                                            <span class="text-uppercase fs-10 fw-700 tracking-wider text-muted-theme" style="letter-spacing: 1px;">Ends In:</span>
+                                            <span class="days fs-14 fw-800 text-dark">00</span><span class="fs-10 text-muted-theme" style="margin-left:-6px; font-weight:700;">D</span>
+                                            <span class="hours fs-14 fw-800 text-dark">00</span><span class="fs-10 text-muted-theme" style="margin-left:-6px; font-weight:700;">H</span>
+                                            <span class="minutes fs-14 fw-800 text-dark">00</span><span class="fs-10 text-muted-theme" style="margin-left:-6px; font-weight:700;">M</span>
+                                            <span class="seconds fs-14 fw-800 text-primary">00</span><span class="fs-10 text-muted-theme" style="margin-left:-6px; font-weight:700;">S</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Bottom Products Row -->
+                                <div class="col-12 z-1 offer-products-panel">
+                                    <div class="aiz-carousel sm-gutters-16 offer-inner-carousel arrow-none{{ $offerProductCarouselClass }}" data-items="3" data-xl-items="3" data-lg-items="3" data-md-items="2" data-sm-items="2.35" data-xs-items="2.35" data-arrows="false" data-dots="true" data-infinite="false" data-autoplay="false">
+                                        @foreach($offer->products as $product)
+                                            <div class="carousel-box p-1">
+                                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1', ['product' => $product])
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                @if($offer->products->count() > 0)
+                                    <div class="text-center mt-4 z-1 w-100">
+                                        <a href="{{ route('product', $offer->products->first()->slug) }}" class="btn px-5 py-2.5 text-primary fw-700 fs-13 d-inline-flex align-items-center"
+                                           style="background: transparent !important; color: #685b4e !important; border: 1.5px solid #685b4e !important; border-radius: 4px; transition: all 0.3s ease; gap: 8px;">
+                                            <span>{{ translate('Discover Collection') }}</span>
+                                            <i class="las la-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <!-- Render Style 1: Premium Glassmorphism (Default) -->
+                            <div class="premium-offer-section p-4 p-md-5 d-flex flex-wrap align-items-center position-relative overflow-hidden">
+
+                                <!-- Decorative background soft blurs (Warm luxury ambient glows) -->
+                                <div class="position-absolute" style="top: -40px; right: -20px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(226, 156, 9, 0.08) 0%, rgba(226, 156, 9, 0) 70%); filter: blur(40px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+                                <div class="position-absolute" style="bottom: -50px; left: 5%; width: 320px; height: 320px; background: radial-gradient(circle, var(--soft-primary) 0%, rgba(255,255,255,0) 70%); filter: blur(50px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+                                <div class="position-absolute" style="top: 20%; right: 30%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(236, 223, 232, 0.6) 0%, rgba(236, 223, 232, 0) 70%); filter: blur(40px); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+
+                                <!-- Left content -->
+                                <div class="col-lg-7 col-12 mb-4 mb-lg-0 z-1 text-left offer-copy-panel">
+                                    <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 8px;">
+                                        <span class="fs-10 fw-800 text-uppercase tracking-wider px-3 text-white" style="padding: 10px !important;background: #685b4e !important; color: #ffffff !important; border-radius: 30px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(104, 91, 78, 0.25);">
+                                            {{ translate($offer->name) }}
+                                        </span>
+                                        @if($offer->badge_text)
+                                            @php
+                                                $badge_txt = $offer->badge_text;
+                                                if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
+                                                    $badge_txt .= ' OFF';
+                                                }
+                                            @endphp
+                                            <span class="fs-10 fw-800 text-uppercase tracking-wider px-2.5 py-1" style="padding:10px;background: rgba(254, 243, 199, 0.85); color: #b45309; border: 1px solid rgba(253, 230, 138, 0.8); border-radius: 6px;">
+                                                🔥 {{ $badge_txt }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h2 class="fs-28 fs-md-36 fw-800 leading-tight mb-2" style="color: #3e3327 !important; font-family: 'Outfit', sans-serif; letter-spacing: -0.8px;">
+                                        {{ translate($offer->name) }}
+                                    </h2>
+                                    @if($offer->custom_text)
+                                        <p class="fs-14 fs-md-15 mb-4" style="color: #8c8276 !important; max-width: 420px; line-height: 1.6; font-weight: 450;">
+                                            {{ $offer->custom_text }}
+                                        </p>
+                                    @endif
+
+                                    <!-- Premium countdown timer -->
+                                    @if($offer->ends_at)
+                                        <div class="premium-countdown-timer d-flex align-items-center mb-4" data-end-date="{{ $offer->ends_at->format('Y/m/d H:i:s') }}" style="gap: 8px;">
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
+                                                <span class="days fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Days</span>
+                                            </div>
+                                            <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
+                                                <span class="hours fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Hours</span>
+                                            </div>
+                                            <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
+                                                <span class="minutes fs-18 fw-800 text-dark" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Mins</span>
+                                            </div>
+                                            <div class="fs-16 fw-700" style="color: rgba(226, 156, 9, 0.4) !important; line-height: 58px;">:</div>
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="width: 54px; height: 58px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(226, 156, 9, 0.25) !important; border-radius: 12px !important; box-shadow: 0 6px 12px -2px rgba(103, 93, 76, 0.05) !important;">
+                                                <span class="seconds fs-18 fw-800" style="font-family: 'Outfit', sans-serif; line-height: 1.2;">00</span>
+                                                <span class="fs-9 fw-600 text-muted text-uppercase" style="letter-spacing: 0.5px; font-size: 8px !important;">Secs</span>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($offer->products->count() > 0)
+                                        <a href="{{ route('product', $offer->products->first()->slug) }}" class="btn px-4 py-2.5 text-white fw-700 fs-13 d-inline-flex align-items-center"
+                                           style="background: #685b4e !important; color: #ffffff !important; border-radius: 30px; box-shadow: 0 4px 15px rgba(104, 91, 78, 0.25); transition: all 0.3s ease; gap: 8px;">
+                                            <span>{{ translate('Shop Now') }}</span>
+                                            <i class="las la-arrow-right"></i>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                <!-- Right products grid using premium carousel and unified template -->
+                                <div class="col-lg-5 col-12 z-1 offer-products-panel">
+                                    <div class="aiz-carousel sm-gutters-16 offer-inner-carousel arrow-none{{ $offerProductCarouselClass }}" data-items="2" data-xl-items="2" data-lg-items="2" data-md-items="2" data-sm-items="2.35" data-xs-items="2.35" data-arrows="false" data-dots="true" data-infinite="false" data-autoplay="false">
+                                        @foreach($offer->products as $product)
+                                            <div class="carousel-box p-1">
+                                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1', ['product' => $product])
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
         </div>
     </section>
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const timers = document.querySelectorAll('.premium-countdown-timer');
@@ -224,16 +631,16 @@
                 const endDateStr = timer.getAttribute('data-end-date');
                 if (!endDateStr) return;
                 const endDate = new Date(endDateStr).getTime();
-                
+
                 const daysVal = timer.querySelector('.days');
                 const hoursVal = timer.querySelector('.hours');
                 const minsVal = timer.querySelector('.minutes');
                 const secsVal = timer.querySelector('.seconds');
-                
+
                 function updateTimer() {
                     const now = new Date().getTime();
                     const difference = endDate - now;
-                    
+
                     if (difference <= 0) {
                         if (daysVal) daysVal.innerText = '00';
                         if (hoursVal) hoursVal.innerText = '00';
@@ -241,18 +648,18 @@
                         if (secsVal) secsVal.innerText = '00';
                         return;
                     }
-                    
+
                     const days = Math.floor(difference / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-                    
+
                     if (daysVal) daysVal.innerText = String(days).padStart(2, '0');
                     if (hoursVal) hoursVal.innerText = String(hours).padStart(2, '0');
                     if (minsVal) minsVal.innerText = String(minutes).padStart(2, '0');
                     if (secsVal) secsVal.innerText = String(seconds).padStart(2, '0');
                 }
-                
+
                 updateTimer();
                 setInterval(updateTimer, 1000);
             });

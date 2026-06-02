@@ -144,14 +144,28 @@
                                             </div>
 
                                             @foreach ($cartItem_addons as $addon)
+                                            @php
+                                                $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                                                $addonImageSrc = $addonImage
+                                                    ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                                                        ? $addonImage
+                                                        : asset(ltrim($addonImage, '/')))
+                                                    : '';
+                                            @endphp
                                             <table
                                                 class="table table-borderless table-sm addon-table mb-0">
                                                 <tr class="addon-item align-middle">
                                                     <td style="width:32px;"
                                                         class="text-center p-0 align-middle">
-                                                        <span class="addon-icon">
-                                                            <i class="las la-check-circle"></i>
-                                                        </span>
+                                                        @if ($addonImageSrc)
+                                                            <img src="{{ $addonImageSrc }}"
+                                                                alt="{{ $addon['name'] ?? 'Addon' }}"
+                                                                style="width:28px;height:28px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;">
+                                                        @else
+                                                            <span class="addon-icon">
+                                                                <i class="las la-check-circle"></i>
+                                                            </span>
+                                                        @endif
                                                     </td>
                                                     <td
                                                         class="addon-name-text fw-600 text-dark align-middle">
@@ -317,8 +331,21 @@
                                                         </th>
                                                     </tr>
                                                     @foreach ($cartItem_addons as $addon)
+                                                    @php
+                                                        $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                                                        $addonImageSrc = $addonImage
+                                                            ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                                                                ? $addonImage
+                                                                : asset(ltrim($addonImage, '/')))
+                                                            : '';
+                                                    @endphp
                                                     <tr>
                                                         <td>
+                                                            @if ($addonImageSrc)
+                                                            <img src="{{ $addonImageSrc }}"
+                                                                alt="{{ $addon['name'] ?? 'Addon' }}"
+                                                                style="width:24px;height:24px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:6px;vertical-align:middle;">
+                                                            @endif
                                                             {{ $addon['addon_name'] ?? '' }}
                                                             @if (isset($addon['name']))
                                                             <span

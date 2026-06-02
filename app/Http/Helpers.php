@@ -2756,6 +2756,32 @@ if (!function_exists('get_product_addon_option_details')) {
         $price = isset($option->price) ? (float) $option->price : 0;
         $quantity = isset($option->quantity) ? (int) $option->quantity : 0;
         $image = $option->img ?? '';
+
+        if (empty($image)) {
+            static $globalAddonImageMap = null;
+
+            if ($globalAddonImageMap === null) {
+                $globalAddonImageMap = \App\Models\ProductAddonGlobal::with('options')
+                    ->get()
+                    ->flatMap(function ($addon) {
+                        return $addon->options
+                            ->filter(function ($globalOption) {
+                                return !empty($globalOption->img);
+                            })
+                            ->mapWithKeys(function ($globalOption) use ($addon) {
+                                $key = strtolower(trim($addon->name)) . '|' . strtolower(trim($globalOption->option_name));
+
+                                return [$key => $globalOption->img];
+                            });
+                    });
+            }
+
+            $addonName = optional($option->addon)->name;
+            $optionName = $option->option_name ?? '';
+            $fallbackKey = strtolower(trim($addonName)) . '|' . strtolower(trim($optionName));
+            $image = $globalAddonImageMap[$fallbackKey] ?? '';
+        }
+
         $imageUrl = $image ? my_asset($image) : '';
         $formattedPrice = $price > 0 ? single_price($price) : '';
 

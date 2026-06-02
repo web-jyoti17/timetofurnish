@@ -54,14 +54,14 @@
                                 </div>
 
                                 <!-- Categories -->
-                                <div class="bg-white border mb-3">
+                                <div class="bg-white mb-3 custom-filter-box custom-categories-box">
                                     <div class="fs-16 fw-700 p-3">
                                         <a href="#collapse_1" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
                                             {{ translate('Categories')}}
                                         </a>
                                     </div>
                                     <div class="collapse show" id="collapse_1">
-                                        <ul class="p-3 mb-0 list-unstyled">
+                                        <ul class="p-0 mb-0 list-unstyled" style="padding:0 !important;">
                                             @if (!isset($category_id))
                                                 @foreach ($categories as $category)
                                                     <li class="mb-3 text-dark">
@@ -105,7 +105,7 @@
                                 </div>
 
                                 <!-- Price range -->
-                                <div class="bg-white border mb-3">
+                                <div class="bg-white mb-3 custom-filter-box custom-price-box">
                                     <div class="fs-16 fw-700 p-3">
                                         {{ translate('Price range')}}
                                     </div>
@@ -191,7 +191,7 @@
                                     
                                 <!-- Color -->
                                 @if (get_setting('color_filter_activation'))
-                                    <div class="bg-white border mb-3">
+                                    <div class="bg-white mb-3 custom-filter-box custom-color-box">
                                         <div class="fs-16 fw-700 p-3">
                                             <a href="#" class="dropdown-toggle text-dark filter-section collapsed d-flex align-items-center justify-content-between" data-toggle="collapse" data-target="#collapse_color">
                                                 {{ translate('Filter by color')}}
@@ -297,9 +297,9 @@
                         
                         <!-- Products -->
                         <div class="px-3">
-                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left">
+                            <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2">
                                 @foreach ($products as $key => $product)
-                                    <div class="col border-right border-bottom has-transition hov-shadow-out z-1 custom-profuct-image-style">
+                                    <div class="col mb-4 pl-0 pr-1 d-flex align-items-stretch">
                                         @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                                     </div>
                                 @endforeach

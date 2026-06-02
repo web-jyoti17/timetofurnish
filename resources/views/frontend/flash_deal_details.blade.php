@@ -26,7 +26,7 @@
                 <div class="col-xxl-8 col-lg-7">
                     @if($flash_deal->status == 1 && strtotime(date('Y-m-d H:i:s')) <= $flash_deal->end_date) 
                         <div class="px-3 z-5">
-                            <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-3 row-cols-sm-2 row-cols-2 gutters-16 border-top border-left">
+                            <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-3 row-cols-sm-2 row-cols-2 gutters-16">
                                 @foreach ($flash_deal->flash_deal_products as $key => $flash_deal_product)
                                     @php
                                         $product = get_single_product($flash_deal_product->product_id);
@@ -38,7 +38,7 @@
                                                 $product_url = route('auction-product', $product->slug);
                                             }
                                         @endphp
-                                        <div class="col text-center border-right border-bottom has-transition hov-shadow-out z-1">
+                                        <div class="col mb-4 d-flex align-items-stretch">
                                             @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                                         </div>
                                     @endif

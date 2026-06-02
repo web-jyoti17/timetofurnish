@@ -195,12 +195,14 @@ class CartController extends Controller
 
                     if (!$option) continue;
 
+                    $optionDetails = get_product_addon_option_details($option);
+
                     $addons[] = [
                         'addon_id'   => $addon->id,
                         'addon_name' => $addon->name,          // "Assembly Required"
                         'name'       => $option->option_name,  // "Yes"
                         'price'      => (float) $option->price,
-                        'image'      => $option->img,
+                        'image'      => $optionDetails['image'] ?? '',
                     ];
                 }
             }

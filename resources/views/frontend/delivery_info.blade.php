@@ -309,8 +309,23 @@
                                                                             </button>
                                                                             <div class="collapse addon-details mt-2" id="{{ $toggleId }}">
                                                                                 @foreach ($cartItem_addons as $addon)
+                                                                                    @php
+                                                                                        $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                                                                                        $addonImageSrc = $addonImage
+                                                                                            ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                                                                                                ? $addonImage
+                                                                                                : asset(ltrim($addonImage, '/')))
+                                                                                            : '';
+                                                                                    @endphp
                                                                                     <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
-                                                                                        <span class="addon-name-text hh">•
+                                                                                        <span class="addon-name-text hh">
+                                                                                            @if ($addonImageSrc)
+                                                                                                <img src="{{ $addonImageSrc }}"
+                                                                                                    alt="{{ $addon['name'] ?? 'Addon' }}"
+                                                                                                    style="width:24px;height:24px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:6px;vertical-align:middle;">
+                                                                                            @else
+                                                                                                •
+                                                                                            @endif
                                                                                          <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                                                             @if (isset($addon['name']))
                                                                                                 | {{ $addon['name'] }}
@@ -471,8 +486,23 @@
                                                                     </button>
                                                                     <div class="collapse addon-details mt-2" id="{{ $toggleIdMobile }}">
                                                                         @foreach ($cartItem_addons as $addon)
+                                                                            @php
+                                                                                $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                                                                                $addonImageSrc = $addonImage
+                                                                                    ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                                                                                        ? $addonImage
+                                                                                        : asset(ltrim($addonImage, '/')))
+                                                                                    : '';
+                                                                            @endphp
                                                                             <div class="d-flex justify-content-between align-items-center fs-12 text-secondary py-1 addon-row">
-                                                                                <span class="addon-name-text">•
+                                                                                <span class="addon-name-text">
+                                                                                    @if ($addonImageSrc)
+                                                                                        <img src="{{ $addonImageSrc }}"
+                                                                                            alt="{{ $addon['name'] ?? 'Addon' }}"
+                                                                                            style="width:24px;height:24px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:6px;vertical-align:middle;">
+                                                                                    @else
+                                                                                        •
+                                                                                    @endif
                                                                                     <strong class="text-black"> {{ $addon['addon_name'] ?? '' }}</strong>
                                                                                     @if (isset($addon['name']))
                                                                                         | {{ $addon['name'] }}

@@ -273,7 +273,7 @@
                                 @endforeach
 
                             </div>
-                            {{-- <div class="product-option-preview d-none" id="addon-preview-{{ $addon->id }}"></div> --}}
+                            <div class="product-option-preview d-none" id="addon-preview-{{ $addon->id }}"></div>
                         @else
                             {{-- NORMAL DESIGN --}}
                             @php
@@ -291,7 +291,8 @@
                                 }
                             @endphp
                             <select class="form-select custom-dropdown" name="addons[{{ $addon->id }}]"
-                                data-addonid="{{ $addon->id }}">
+                                data-addonid="{{ $addon->id }}"
+                                onchange="updateAddonOptionPreview({{ $addon->id }}, this);">
 
                                 <option value="">Choose Option</option>
 
@@ -316,7 +317,7 @@
                             </select>
 
                             {{-- <span id="addon-price-info-{{ $addon->id }}" class="addon-price-info d-none"></span> --}}
-                            {{-- <div class="product-option-preview d-none" id="addon-preview-{{ $addon->id }}"></div> --}}
+                            <div class="product-option-preview d-none" id="addon-preview-{{ $addon->id }}"></div>
                         @endif
 
                     </div>
@@ -417,6 +418,7 @@
                         display: inline-flex;
                         align-items: center;
                         min-height: 34px;
+                        gap: 8px;
                     }
 
                     .product-option-preview.d-none {
@@ -431,6 +433,12 @@
                         border: 1px solid #e5e5e5;
                         background: #f7f7f7;
                         cursor: zoom-in;
+                    }
+
+                    .product-option-preview-name {
+                        color: #555;
+                        font-size: 12px;
+                        line-height: 1.3;
                     }
                 </style>
 
@@ -514,7 +522,6 @@
                             {{ home_discounted_base_price($detailedProduct) }}
                         @endif
                     </strong>
-
                 </div>
             </div>
 
@@ -864,13 +871,26 @@
             }
 
             var html = '';
-            // if (hasImage) {
-            //     html += '<img class="product-option-preview-img" src="' + details.image + '" alt="' + (details.name ||
-            //         'Selected option') + '" data-preview-img="' + details.image + '" data-preview-name="' + (details.name ||
-            //         'Selected option') + '">';
-            // }
+            if (hasImage) {
+                var safeName = $('<div>').text(details.name || 'Selected option').html();
+                var safeImage = $('<div>').text(details.image).html();
+                html += '<img class="product-option-preview-img" src="' + safeImage + '" alt="' + safeName +
+                    '" data-preview-img="' + safeImage + '" data-preview-name="' + safeName + '">';
+                html += '<span class="product-option-preview-name">' + safeName + '</span>';
+            }
 
             $target.removeClass('d-none').html(html);
+        }
+
+        function updateAddonOptionPreview(addonId, selectElem) {
+            var selected = $(selectElem).find('option:selected');
+            var image = selected.attr('data-img') || selected.data('img') || '';
+            var name = selected.attr('data-name') || selected.data('name') || selected.text() || '';
+
+            renderProductOptionPreview('#addon-preview-' + addonId, {
+                image: image,
+                name: $.trim(name)
+            });
         }
 
         // ---------------------------------
@@ -1115,7 +1135,21 @@
 
             // Initialize Fabric dropdown views
             $('.fabric-dropdown').each(function() {
-                updateFabricPreview($(this).data('addonid'), this);
+                var addonId = $(this).data('addonid');
+                updateFabricPreview(addonId, this);
+
+                var selectedFabric = $('#fabric-preview-block-' + addonId).find('.fabric-color-box.selected');
+                if (selectedFabric.length) {
+                    renderProductOptionPreview('#addon-preview-' + addonId, {
+                        image: selectedFabric.data('img') || '',
+                        name: selectedFabric.data('fabricname') || ''
+                    });
+                }
+            });
+
+            $('.addon-block select:not(.fabric-dropdown)').each(function() {
+                var addonId = $(this).data('addonid');
+                updateAddonOptionPreview(addonId, this);
             });
 
             // Initial Price Refresh
@@ -1148,13 +1182,8 @@
                 // so we only need to trigger getVariantPrice here
                 var addonId = $(this).data('addonid');
                 if (!$(this).hasClass('fabric-dropdown')) {
-                    var selected = $(this).find(':selected');
                     $('#addon-price-info-' + addonId).addClass('d-none').html('');
-
-                    renderProductOptionPreview('#addon-preview-' + addonId, {
-                        image: selected.data('img') || '',
-                        name: selected.data('name') || selected.text() || ''
-                    });
+                    updateAddonOptionPreview(addonId, this);
                 }
                 getVariantPrice();
                 if (typeof checkEnableDisableButtons === 'function') {
@@ -1165,6 +1194,10 @@
                 if (!$(this).hasClass('fabric-dropdown') && typeof focusNextSelect === 'function') {
                     focusNextSelect($(this));
                 }
+            });
+
+            $(document).on('select2:select', '.addon-block select:not(.fabric-dropdown)', function() {
+                updateAddonOptionPreview($(this).data('addonid'), this);
             });
 
             // Fabric color box clicks

@@ -56,6 +56,65 @@
     border-radius: 5px !important;
 }
 
+.product-action-buttons {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+}
+
+.product-action-buttons .product-action-button-col {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.product-detail-action-btn {
+    min-height: 54px !important;
+    border-radius: 6px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.product-detail-action-btn.is-outline {
+    background: #ffffff !important;
+    border: 2px solid #8f8f8f !important;
+    color: #858585 !important;
+}
+
+.product-detail-action-btn.is-filled {
+    background: #e8e2dd !important;
+    border: 2px solid #c8beb7 !important;
+    color: #858585 !important;
+}
+
+.product-detail-action-btn:hover,
+.product-detail-action-btn:focus {
+    color: #685c4e !important;
+    border-color: #685c4e !important;
+}
+
+@media (max-width: 575.98px) {
+    .product-action-buttons {
+        gap: 10px !important;
+    }
+
+    .product-detail-action-btn {
+        min-height: 48px !important;
+        font-size: 14px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+}
+
 .border-width-1 {
     border-width: 1px !important;
 }
@@ -281,6 +340,21 @@ ul.social.colored [class*="linkedin"] {
         height: auto;
         min-height: 100vh;
     }
+
+}
+
+@media screen and (min-width:1025px) {
+    .modern-price-wrap {
+        flex: 0 0 80%;
+    }
+
+    .modern-card-actions-bottom {
+        flex: 0 0 20%;
+    }
+
+    .modern-card-bottom-row {
+        padding: 0px 15px;
+    }
 }
 
 .content {
@@ -312,6 +386,22 @@ ul.social.colored [class*="linkedin"] {
     .content {
         margin-top: 20px;
     }
+
+    .offer-inner-carousel .slick-list.draggable {
+        margin-bottom: 20px;
+    }
+}
+
+span.badge.badge-primary.badge-circle.position-absolute {
+
+    color: #fff !important;
+    border-radius: 50px;
+    background: #685c4e !important;
+    border-radius: 50px !important;
+    height: 20px;
+    display: flex !important;
+    width: 20px !important;
+    min-height: 20px !important;
 }
 
 @media screen and (max-width: 576px) {
@@ -1597,4 +1687,1753 @@ ul.social.colored [class*="linkedin"] {
     color: #991b1b !important;
     border-radius: 6px !important;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.06) !important;
+}
+
+/* ==========================================================================
+   ULTRA-MODERN PREMIUM SIDEBAR FILTERS (CATEGORIES & PRICE RANGE)
+   ========================================================================== */
+
+/* Outer Box Containers - Sleek Round Corner Premium Cards */
+.custom-filter-box {
+    border-radius: 24px !important;
+    border: 1px solid #e2d2c0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(104, 91, 78, 0.03) !important;
+    overflow: hidden !important;
+    margin-bottom: 24px !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.custom-filter-box:hover {
+    border-color: #685b4e !important;
+    box-shadow: 0 8px 30px rgba(104, 91, 78, 0.07) !important;
+}
+
+/* Premium Filter Headers - Warm Soft Theme Background & Poppins Font */
+.custom-filter-box .fs-16.fw-700 {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
+    color: #685b4e !important;
+    background-color: #FAF7F2 !important;
+    border-bottom: 1px solid #f2ede4 !important;
+    padding: 14px 20px !important;
+}
+
+/* Filter Section Headings & Dropdown Toggles */
+.custom-filter-box .filter-section {
+    color: #685b4e !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.custom-filter-box .dropdown-toggle::after {
+    border: none !important;
+    font-family: 'Line Awesome Free';
+    font-weight: 900;
+    content: "\f107";
+    font-size: 14px;
+    color: #685b4e;
+    transition: transform 0.25s ease;
+}
+
+.custom-filter-box .dropdown-toggle:not(.collapsed)::after {
+    transform: rotate(180deg);
+}
+
+
+
+/* Categories Select Checkbox Styling (Seller Shop Categories view) */
+.custom-categories-box .collapse {
+    padding: 16px 0px !important;
+}
+
+.custom-categories-box .aiz-checkbox {
+    padding-left: 0 !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer;
+}
+
+/* Make category checklist options extremely rounded ("same like in payment option round shape") */
+.custom-categories-box .aiz-square-check {
+    position: relative !important;
+    display: inline-block !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    /* Perfect round shape */
+    border: 2px solid #e2d2c0 !important;
+    background-color: #ffffff !important;
+    margin-right: 10px !important;
+    transition: all 0.25s ease !important;
+    top: 0 !important;
+}
+
+.custom-categories-box input[type="checkbox"]:checked~.aiz-square-check {
+    background-color: #685b4e !important;
+    border-color: #685b4e !important;
+}
+
+.custom-categories-box .aiz-square-check::after {
+    content: "" !important;
+    position: absolute !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0) !important;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    border: none !important;
+}
+
+.custom-categories-box input[type="checkbox"]:checked~.aiz-square-check::after {
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+
+.custom-categories-box .aiz-checkbox .text-dark {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #4e453c !important;
+    transition: color 0.2s ease;
+}
+
+.custom-categories-box .aiz-checkbox:hover .text-dark {
+    color: #685b4e !important;
+}
+
+
+/* Price Range Box Styling - Compact & Modern ("bit small") */
+.custom-price-box .p-3 {
+    padding: 16px 20px !important;
+}
+
+.custom-price-box .aiz-range-slider {
+    margin-top: 8px !important;
+    padding: 10px 5px !important;
+}
+
+/* range slider track */
+.custom-price-box .noUi-target {
+    background: #FAF7F2 !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 5px !important;
+    margin-bottom: 25px !important;
+    border-radius: 10px !important;
+}
+
+.custom-price-box .noUi-connect {
+    background: #685b4e !important;
+    border-radius: 10px !important;
+}
+
+/* range slider handle - beautiful round minimal knobs */
+.custom-price-box .noUi-handle {
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 50% !important;
+    background: #685b4e !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 2px 6px rgba(104, 91, 78, 0.3) !important;
+    cursor: pointer !important;
+    right: -8px !important;
+    top: -6px !important;
+    outline: none !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.custom-price-box .noUi-handle:hover {
+    transform: scale(1.15) !important;
+    box-shadow: 0 3px 8px rgba(104, 91, 78, 0.4) !important;
+}
+
+.custom-price-box .noUi-handle::before,
+.custom-price-box .noUi-handle::after {
+    display: none !important;
+    /* Remove legacy ugly vertical lines */
+}
+
+/* Price Range Value Badges - Styled as Elegant Premium Pills */
+.custom-price-box .range-slider-value {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #685b4e !important;
+    background-color: #f5eee6 !important;
+    padding: 4px 12px !important;
+    border-radius: 30px !important;
+    border: 1px solid #e2d2c0 !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+    letter-spacing: 0.2px !important;
+}
+
+.custom-price-box .value-low {
+    float: left;
+}
+
+.custom-price-box .value-high {
+    float: right;
+}
+
+
+/* Unified Rating & Brand Checkboxes (for full modern consistency) */
+.custom-ratings-box .collapse,
+.custom-brands-box .collapse {
+    padding: 16px 20px !important;
+}
+
+.custom-ratings-box .aiz-checkbox,
+.custom-brands-box .aiz-checkbox {
+    padding-left: 0 !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer;
+}
+
+.custom-ratings-box .aiz-square-check,
+.custom-brands-box .aiz-square-check {
+    position: relative !important;
+    display: inline-block !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    /* Perfect round shape */
+    border: 2px solid #e2d2c0 !important;
+    background-color: #ffffff !important;
+    margin-right: 10px !important;
+    transition: all 0.25s ease !important;
+    top: 0 !important;
+}
+
+.custom-ratings-box input[type="radio"]:checked~.aiz-square-check,
+.custom-ratings-box input[type="checkbox"]:checked~.aiz-square-check,
+.custom-brands-box input[type="radio"]:checked~.aiz-square-check,
+.custom-brands-box input[type="checkbox"]:checked~.aiz-square-check {
+    background-color: #685b4e !important;
+    border-color: #685b4e !important;
+}
+
+.custom-ratings-box .aiz-square-check::after,
+.custom-brands-box .aiz-square-check::after {
+    content: "" !important;
+    position: absolute !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0) !important;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    border: none !important;
+}
+
+.custom-ratings-box input[type="radio"]:checked~.aiz-square-check::after,
+.custom-ratings-box input[type="checkbox"]:checked~.aiz-square-check::after,
+.custom-brands-box input[type="radio"]:checked~.aiz-square-check::after,
+.custom-brands-box input[type="checkbox"]:checked~.aiz-square-check::after {
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+
+/* Modernized Sort By Dropdown Styling */
+.bootstrap-select .dropdown-toggle {
+    border-radius: 8px !important;
+    border: 1.5px solid #e2d2c0 !important;
+    padding: 8px 18px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+    color: #4e453c !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease !important;
+}
+
+.bootstrap-select .dropdown-toggle:focus,
+.bootstrap-select>select.mobile-device:focus+.dropdown-toggle {
+    outline: none !important;
+}
+
+.aiz-carousel .slick-track {
+    padding-top: 20px;
+}
+
+.bootstrap-select .dropdown-toggle:hover,
+.bootstrap-select .dropdown-toggle:focus {
+    border-color: #685b4e !important;
+    background-color: #FAF7F2 !important;
+    outline: none !important;
+}
+
+/* Premium Sort By Options Dropdown Panel */
+.bootstrap-select .dropdown-menu {
+    border-radius: 14px !important;
+    box-shadow: 0 12px 30px rgba(104, 91, 78, 0.12) !important;
+    padding: 4px !important;
+    margin-top: 0px !important;
+    overflow: hidden !important;
+    background-color: #ffffff !important;
+    z-index: 9999 !important;
+}
+
+.bootstrap-select .dropdown-menu li {
+    padding: 2px 0 !important;
+    margin: 0 !important;
+}
+
+.bootstrap-select .dropdown-menu li a {
+    border-radius: 8px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    color: #4e453c !important;
+    padding: 10px 16px !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Option Hover State */
+.bootstrap-select .dropdown-menu li a:hover,
+.bootstrap-select .dropdown-menu li a:focus {
+    background-color: #FAF7F2 !important;
+    color: #685b4e !important;
+}
+
+/* Option Active/Selected State - eliminating legacy harsh black */
+.bootstrap-select .dropdown-menu li.selected a,
+.bootstrap-select .dropdown-menu li.active a,
+.bootstrap-select .dropdown-menu li.selected.active a {
+    background-color: #685b4e !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   ULTRA-MODERN PREMIUM PRODUCT CARD REDESIGN
+   ========================================================================== */
+
+/* Product Card - Elevated Modern Rounded Card */
+.modern-product-card {
+    border-radius: 24px !important;
+    border: 1px solid #f2ede4 !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(104, 91, 78, 0.02) !important;
+    overflow: hidden !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    height: 100% !important;
+    width: 100% !important;
+    flex: 1 1 auto !important;
+}
+
+/* Card Hover Float & Highlight Effect */
+.modern-product-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 12px 30px rgba(104, 91, 78, 0.08) !important;
+    border-color: #685b4e !important;
+}
+
+/* Height Synchronization - Ensure all columns stretch cards to equal heights */
+.row>.col:has(> .modern-product-card),
+.row>[class*="col-"]:has(> .modern-product-card),
+.slick-track {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+.slick-slide {
+    height: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.slick-slide>div {
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Neutralize legacy grid outlines, shadows, and borders that wrap modern cards */
+.row>.col:has(> .modern-product-card),
+.row>[class*="col-"]:has(> .modern-product-card),
+.carousel-box:has(> .modern-product-card),
+.slick-slide:has(> .modern-product-card) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    overflow: visible !important;
+}
+
+.hov-shadow-out:has(> .modern-product-card):hover,
+.hov-animate-outline:has(> .modern-product-card):hover,
+.custom-profuct-image-style:has(> .modern-product-card):hover {
+    box-shadow: none !important;
+    border-color: transparent !important;
+    background: transparent !important;
+    outline: none !important;
+    z-index: 10 !important;
+}
+
+/* Rounded Wrapper for the Product Image */
+.modern-product-img-wrap {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    background-color: #FAF7F2 !important;
+    /* Soft backdrop for high contrast */
+    position: relative !important;
+    flex-shrink: 0 !important;
+}
+
+/* Image Hover Zoom Animation */
+.modern-product-img {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.modern-product-card:hover .modern-product-img {
+    transform: scale(1.06) !important;
+}
+
+/* Modern Discount & Wholesale Tags */
+.modern-discount-tag {
+    background-color: #685b4e !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(104, 91, 78, 0.15) !important;
+    letter-spacing: 0.5px !important;
+    padding: 3px 8px !important;
+}
+
+.modern-wholesale-tag {
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 3px 8px !important;
+}
+
+/* Modern Floating Actions on Top Right - Clean Transparent Vector style */
+.modern-card-actions {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    /* Horizontal inline float feels ultra-modern! */
+    gap: 12px !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+    opacity: 0 !important;
+    transform: translateY(-8px) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Make actions visible on card hover */
+.modern-product-card:hover .modern-card-actions {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+@media (max-width: 991.98px) {
+    .modern-card-actions {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+
+/* Transparent modern action buttons - completely no background rounder */
+.modern-action-btn {
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: #8c8276 !important;
+    /* Elegant neutral tone */
+    font-size: 24px !important;
+    /* crisp readable size */
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25)) !important;
+    /* ensure contrast over furniture pictures */
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+}
+
+.modern-action-btn:hover {
+    transform: scale(1.25) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Wishlist Hover Style - turns to elegant soft red */
+.wishlist-btn:hover {
+    color: #e55353 !important;
+    background: transparent !important;
+}
+
+/* Cart Hover Style - turns to primary theme gold/brown */
+.cart-btn:hover {
+    color: #685b4e !important;
+    background: transparent !important;
+}
+
+/* Active State Styles */
+.wishlist-btn.active {
+    color: #e55353 !important;
+}
+
+.cart-btn.active {
+    color: #685b4e !important;
+}
+
+/* Text details wrapper */
+.modern-product-card>div:last-child {
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 10px 4px !important;
+}
+
+.modern-product-title a {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #3e3327 !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+.modern-product-title a:hover {
+    color: #e29c09 !important;
+    /* Premium accent gold */
+}
+
+/* Price typography values */
+.modern-price-wrap {
+    margin-top: auto !important;
+}
+
+
+.modern-price-wrap .text-primary {
+    color: #685b4e !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.modern-price-wrap del {
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 400 !important;
+    color: #9c9184 !important;
+}
+
+/* Ultra-Modern E-Commerce Tree View for Sidebar Categories */
+.custom-categories-box ul {
+    list-style: none !important;
+    padding: 14px 22px 24px 22px !important;
+    margin: 0 !important;
+}
+
+.custom-categories-box ul li {
+    margin-bottom: 6px !important;
+    position: relative !important;
+}
+
+.custom-categories-box ul li a {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+    color: #6d6152 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 16px !important;
+    border-radius: 30px !important;
+    /* Perfect rounded pill shape */
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    text-decoration: none !important;
+    background-color: transparent !important;
+}
+
+.custom-categories-box ul li a:hover {
+    background-color: #FAF7F2 !important;
+    color: #685b4e !important;
+    padding-left: 18px !important;
+}
+
+.custom-categories-box ul li a i {
+    font-size: 10px !important;
+    color: #b3a79a !important;
+    transition: transform 0.2s ease !important;
+}
+
+.custom-categories-box ul li a:hover i {
+    color: #685b4e !important;
+    transform: translateX(-3px) !important;
+}
+
+/* Selected parent category item */
+.custom-categories-box ul li a.fw-600 {
+    font-weight: 600 !important;
+    color: #685b4e !important;
+    background-color: #FAF7F2 !important;
+    /* Premium warm soft accent */
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+}
+
+/* Indented nested category list style (minimalist & clean, no busy lines) */
+.custom-categories-box ul li.ml-4 {
+    margin-left: 20px !important;
+    padding-left: 0 !important;
+    border-left: none !important;
+    /* Removed busy vertical tree lines */
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
+}
+
+.custom-categories-box ul li.ml-4 a {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #8c7e6e !important;
+    padding: 6px 14px !important;
+    border-radius: 30px !important;
+}
+
+.custom-categories-box ul li.ml-4 a:hover {
+    padding-left: 18px !important;
+    background-color: #FAF7F2 !important;
+    color: #685b4e !important;
+}
+
+.custom-categories-box ul li.ml-4 a::before {
+    display: none !important;
+    /* Removed list bullets/dots */
+}
+
+/* ==========================================================================
+   MODERN COMPACT PRODUCT CARD & PREMIUM HEADER REDESIGN (WISH-CART RELOCATION)
+   ========================================================================= */
+
+/* 1. Tighten Product Card Padding and Adjust Grid Heights */
+.modern-product-card {
+    padding: 10px !important;
+    box-shadow: 0 4px 15px rgba(104, 91, 78, 0.04) !important;
+}
+
+.modern-product-img-wrap {
+    height: 140px !important;
+}
+
+@media (min-width: 768px) {
+    .modern-product-img-wrap {
+        height: 160px !important;
+    }
+}
+
+/* 2. Modern Product Card Title Spacing (Centered) */
+.modern-product-title {
+    margin-top: 4px !important;
+    text-align: center !important;
+}
+
+.modern-product-title a {
+    text-align: left !important;
+}
+
+/* 3. Product Card Bottom Row (Price & Actions Centered) */
+.modern-card-bottom-row {
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #f3ece4 !important;
+    display: flex !important;
+    align-items: end !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    gap: 8px !important;
+}
+
+/* 4. Center Align Price */
+.modern-price-wrap {
+    margin-top: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    /* Horizontal layout for prices */
+    align-items: center !important;
+    justify-content: start !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.modern-price-wrap .price,
+.modern-price-wrap .text-primary {
+    text-align: center !important;
+    font-size: 14px !important;
+    color: #685b4e !important;
+}
+
+.modern-price-wrap del {
+    font-size: 11px !important;
+    margin-right: 6px !important;
+}
+
+/* 5. Center Bottom Action Icons (Perfecty Aligned & Conflict Reset) */
+.modern-card-actions-bottom {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    /* Spacious gap for easy tapping */
+    width: 100% !important;
+}
+
+.modern-card-actions-bottom .modern-action-btn,
+.modern-card-actions-bottom .wishlist-btn,
+.modern-card-actions-bottom .cart-btn {
+    width: 24px !important;
+    height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    transform: none !important;
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    opacity: 0.8 !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow: visible !important;
+}
+
+/* Clear aiz-core.css translate conflicts on hover */
+.aiz-card-box:hover .modern-card-actions-bottom .cart-btn {
+    transform: none !important;
+}
+
+.modern-card-actions-bottom .modern-action-btn:hover,
+.modern-card-actions-bottom .wishlist-btn:hover,
+.modern-card-actions-bottom .cart-btn:hover {
+    transform: scale(1.15) !important;
+    opacity: 1 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* SVG stroke & fill properties for elegant vector styles */
+.modern-card-actions-bottom .modern-action-btn svg {
+    display: block !important;
+    stroke: #8c8276 !important;
+    /* Cozy neutral gold-gray outline */
+    fill: none !important;
+    transition: stroke 0.2s ease, fill 0.2s ease !important;
+}
+
+/* Specific heart & cart SVG hover styles */
+.modern-card-actions-bottom .wishlist-btn:hover svg {
+    stroke: #e55353 !important;
+    fill: #e55353 !important;
+}
+
+.modern-card-actions-bottom .cart-btn:hover svg {
+    stroke: #685b4e !important;
+}
+
+/* Active states */
+.modern-card-actions-bottom .wishlist-btn.active svg {
+    stroke: #e55353 !important;
+    fill: #e55353 !important;
+}
+
+.modern-card-actions-bottom .cart-btn.active svg {
+    stroke: #685b4e !important;
+}
+
+/* 6. Cozy Premium Search Bar Redesign */
+.custom-header-class .search-input-box {
+    max-width: 500px !important;
+    position: relative !important;
+    width: 100% !important;
+}
+
+.custom-header-class .search-input-box>input {
+    height: 42px !important;
+    border-radius: 30px !important;
+    border: 1px solid #eae5d9 !important;
+    background-color: #ffffff !important;
+    padding-left: 20px !important;
+    padding-right: 50px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    color: #3e3327 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class .search-input-box>input::placeholder {
+    color: #9c9184 !important;
+    opacity: 0.85 !important;
+}
+
+.custom-header-class .search-input-box>input:focus {
+    border-color: #685b4e !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(104, 91, 78, 0.08) !important;
+    outline: none !important;
+}
+
+.custom-header-class .search-input-box>svg:not(.clear-search-icon) {
+    position: absolute !important;
+    right: 20px !important;
+    top: 11px !important;
+    width: 20px !important;
+    height: 20px !important;
+    pointer-events: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.custom-header-class .search-input-box>svg:not(.clear-search-icon) :is(path, line, circle, rect, polyline) {
+    stroke: #8c8276 !important;
+    fill: none !important;
+    transition: stroke 0.3s ease !important;
+}
+
+.custom-header-class .search-input-box:focus-within>svg:not(.clear-search-icon) :is(path, line, circle, rect, polyline) {
+    stroke: #685b4e !important;
+}
+
+/* 7. Cozy Pill Flag Selector Styling */
+.footer-flag-wrapper {
+    position: relative !important;
+}
+
+.flag-btn {
+    background: #ffffff !important;
+    border: 1px solid #eae5d9 !important;
+    border-radius: 18px !important;
+    padding: 4px 11px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+    outline: none !important;
+    height: 34px !important;
+}
+
+.flag-btn:hover {
+    background: #ffffff !important;
+    border-color: #685b4e !important;
+    box-shadow: 0 4px 10px rgba(104, 91, 78, 0.06) !important;
+}
+
+.flag-icon {
+    border-radius: 2px !important;
+    width: 22px !important;
+    height: 14px !important;
+    object-fit: cover !important;
+}
+
+.flag-dropdown {
+    border-radius: 12px !important;
+    border: 1px solid #eae5d9 !important;
+    box-shadow: 0 10px 30px rgba(104, 91, 78, 0.12) !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
+    margin-top: 6px !important;
+}
+
+.flag-item {
+    transition: background 0.2s ease, color 0.2s ease !important;
+    cursor: pointer !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 12px !important;
+    color: #4a3e3d !important;
+}
+
+.flag-item:hover {
+    background: #fcfbfa !important;
+    color: #685b4e !important;
+}
+
+/* 8. Top Header Icons - simple icon-only controls */
+.custom-header-class .nav-user-info a span.size-40px,
+.custom-header-class #wishlist a span,
+.custom-header-class .nav-cart-box>a span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    padding: 0 !important;
+    transition: color 0.2s ease !important;
+    color: #685b4e !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class #wishlist>a,
+.custom-header-class .nav-cart-box>a {
+    min-width: 28px !important;
+    height: 34px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.custom-header-class #wishlist svg,
+.custom-header-class .nav-cart-box>a svg {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.custom-header-class .nav-user-info a span.size-40px svg :is(path, line, circle, rect, polyline) {
+    stroke: #685b4e !important;
+    transition: stroke 0.25s ease !important;
+}
+
+.custom-header-class #wishlist a span svg :is(path, line, circle, rect, polyline) {
+    fill: none !important;
+    stroke: #685b4e !important;
+    stroke-width: 1.5 !important;
+    transition: all 0.25s ease !important;
+}
+
+.custom-header-class .nav-cart-box>a span svg :is(path, line, circle, rect, polyline) {
+    stroke: #685b4e !important;
+    stroke-width: 1.5 !important;
+    transition: all 0.25s ease !important;
+}
+
+/* Hover states for simple icons */
+.custom-header-class .nav-user-info a span.size-40px:hover,
+.custom-header-class #wishlist a span:hover,
+.custom-header-class .nav-cart-box>a span:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: #3e3327 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class .nav-user-info a span.size-40px:hover svg :is(path, line, circle, rect, polyline) {
+    stroke: #3e3327 !important;
+}
+
+.custom-header-class #wishlist a span:hover svg :is(path, line, circle, rect, polyline) {
+    stroke: #3e3327 !important;
+    fill: none !important;
+}
+
+.custom-header-class .nav-cart-box>a span:hover svg :is(path, line, circle, rect, polyline) {
+    stroke: #3e3327 !important;
+}
+
+/* 9. Premium Custom Badge Styling */
+.custom-header-class .nav-cart-box .badge,
+.custom-header-class #wishlist .badge {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 800 !important;
+    color: #685b4e !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class .nav-cart-box .badge {
+    top: -7px !important;
+    right: -9px !important;
+}
+
+.custom-header-class #wishlist .badge {
+    top: -7px !important;
+    right: -9px !important;
+}
+
+.custom-header-class #nav-user-info {
+    min-height: 32px !important;
+    padding: 0 !important;
+    border: 1px solid transparent !important;
+    border-radius: 0 !important;
+    color: #3e3327 !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+}
+
+.custom-header-class #nav-user-info:hover {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class #nav-user-info>span:first-child {
+    width: 28px !important;
+    height: 28px !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.custom-header-class #nav-user-info h4 {
+    color: #3e3327 !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.custom-header-class .hover-user-top-menu {
+    top: calc(100% + 1px) !important;
+    pointer-events: none !important;
+}
+
+.custom-header-class .hover-user-top-menu.active {
+    pointer-events: auto !important;
+}
+
+.custom-header-class .hover-user-top-menu .position-static.float-right {
+    padding-top: 0 !important;
+}
+
+.custom-header-class .aiz-user-top-menu {
+    position: relative !important;
+    width: 250px !important;
+    padding: 0 !important;
+    border: 1px solid #e8e2dc !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+    box-shadow: 0 12px 28px rgba(62, 51, 39, 0.1) !important;
+    overflow: hidden !important;
+}
+
+.custom-header-class .aiz-user-top-menu::before {
+    display: none !important;
+}
+
+.custom-header-class .aiz-user-top-menu ul {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element {
+    border: 0 !important;
+    border-bottom: 1px solid #f0ece7 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element a {
+    min-height: 46px !important;
+    padding: 0 18px !important;
+    border-radius: 0 !important;
+    color: #3e3327 !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+    gap: 0 !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element a:hover {
+    background: #faf7f3 !important;
+    color: #685b4e !important;
+    transform: none !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element svg {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-menu-name {
+    margin-left: 12px !important;
+    font-size: 14px !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element:last-child {
+    margin-top: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element:last-child a {
+    color: #b94a3a !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element:last-child a:hover {
+    background: #fff1ee !important;
+    color: #a63b2d !important;
+}
+
+.custom-header-class .aiz-user-top-menu .user-top-nav-element:last-child svg :is(path, rect, circle, line, polyline),
+.custom-header-class .aiz-user-top-menu .user-top-nav-element:last-child svg g :is(path, rect, circle, line, polyline) {
+    stroke: #b94a3a !important;
+}
+
+/* 10. Navigation Menu Links Custom Typography & Indicators */
+.header_menu_links {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px !important;
+    transition: color 0.3s ease !important;
+    position: relative !important;
+}
+
+.header_menu_links:hover,
+.header_menu_links.active {
+    color: #685b4e !important;
+}
+
+.animate-underline-white a::after {
+    background: #685b4e !important;
+}
+
+/* 10b. Modern featured category nav strip */
+.custom-header-class .logo-bar-area {
+    border-color: #f0e8dc !important;
+}
+
+.custom-header-class section.my-2.mt-2 {
+    margin: 0 !important;
+    padding: 14px 0 16px !important;
+    border-bottom: 1px solid #f0e8dc !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fffdf9 100%) !important;
+    box-shadow: 0 10px 24px rgba(104, 91, 78, 0.04) !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category {
+    overflow: hidden !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category ul {
+    align-items: stretch !important;
+    margin: 0 !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category ul li {
+    padding: 0 8px !important;
+    transform: none !important;
+}
+
+
+
+.custom-header-class .banner-category.custom-banner-category ul li>a:first-child {
+    width: 56px !important;
+    height: 56px !important;
+    margin: 0 auto 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.25s ease !important;
+}
+
+
+
+.custom-header-class .banner-category.custom-banner-category ul li img {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    object-fit: contain !important;
+    transition: transform 0.25s ease, filter 0.25s ease !important;
+}
+
+
+.custom-header-class .banner-category.custom-banner-category ul li .category_a {
+    padding: 0 !important;
+    color: #3e3327 !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.22 !important;
+    min-height: 32px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    transition: color 0.22s ease !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category ul li:hover .category_a {
+    color: #685b4e !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category ul li .category_a span {
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category .slick-prev,
+.custom-header-class .banner-category.custom-banner-category .slick-next {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 999px !important;
+    background: #ffffff !important;
+    border: 1px solid #eadfce !important;
+    box-shadow: 0 10px 22px rgba(104, 91, 78, 0.1) !important;
+    z-index: 3 !important;
+}
+
+.custom-header-class .banner-category.custom-banner-category .slick-prev:hover,
+.custom-header-class .banner-category.custom-banner-category .slick-next:hover {
+    background: #685b4e !important;
+    border-color: #685b4e !important;
+}
+
+@media (max-width: 991.98px) {
+    .custom-header-class section.my-2.mt-2 {
+        padding: 10px 0 12px !important;
+    }
+
+    .custom-header-class .banner-category.custom-banner-category ul li>a:first-child {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 18px !important;
+    }
+
+    .custom-header-class .banner-category.custom-banner-category ul li img {
+        width: 38px !important;
+        height: 38px !important;
+        max-width: 38px !important;
+        max-height: 38px !important;
+    }
+
+    .custom-header-class .banner-category.custom-banner-category ul li .category_a {
+        font-size: 11px !important;
+        min-height: 28px !important;
+    }
+}
+
+/* 11. Global Layout Width Extension for Modern Spacious Grids */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1400px !important;
+    }
+}
+
+/* 12. Modern Section Headers and Countdown Timers */
+.modern-section-header {
+    text-align: center;
+    margin-bottom: 24px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.modern-section-header .modern-section-title {
+    font-family: 'DM Serif Display', serif !important;
+    font-size: 28px !important;
+    font-weight: 400 !important;
+    color: #685b4e !important;
+    margin-bottom: 6px !important;
+    letter-spacing: 0.5px !important;
+    text-transform: capitalize !important;
+}
+
+.modern-section-header .modern-section-subtitle {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+    color: #8c7f72 !important;
+    margin-bottom: 8px !important;
+    letter-spacing: 0.3px !important;
+}
+
+.modern-view-all-link {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #685b4e !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    transition: all 0.2s ease-in-out !important;
+    border-bottom: 1.5px solid transparent !important;
+    padding-bottom: 2px !important;
+}
+
+.modern-view-all-link:hover {
+    color: #3e3327 !important;
+    border-bottom-color: #3e3327 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Countdown styling inside section header */
+.modern-countdown-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.modern-countdown-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8c7f72;
+    letter-spacing: 0.3px;
+}
+
+.aiz-count-down {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+}
+
+.aiz-count-down .countdown-item {
+    background: #685b4e !important;
+    color: #ffffff !important;
+    border-radius: 4px;
+    padding: 3px 6px;
+    min-width: 28px;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    line-height: 1.2;
+}
+
+.aiz-count-down .countdown-separator {
+    color: #685b4e;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* Today's Deals section specific styling */
+.todays-deal-card-wrap {
+    background: #faf8f5 !important;
+    border: 1px solid #f3ece4 !important;
+    border-radius: 12px !important;
+    padding: 24px 16px !important;
+    box-shadow: 0 4px 20px rgba(104, 91, 78, 0.04) !important;
+}
+
+/* slick slider overrides to make sure they look uniform and correct */
+.aiz-carousel.slick-initialized .slick-track {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+.aiz-carousel .carousel-box {
+    height: 100% !important;
+}
+
+.aiz-carousel .slick-slide {
+    display: flex !important;
+    height: auto !important;
+}
+
+/* slick dots style override - theme-colored dots */
+.slick-dots {
+    bottom: -25px !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.slick-dots li {
+    margin: 0 !important;
+    width: 8px !important;
+    height: 8px !important;
+}
+
+.slick-dots li button {
+    width: 8px !important;
+    height: 8px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #dbd0c5 !important;
+    /* light beige */
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.slick-dots li button::before {
+    display: none !important;
+}
+
+.slick-dots li.slick-active button {
+    background: #685b4e !important;
+    /* theme color */
+    transform: scale(1.2) !important;
+}
+
+/* border wrapping for other sections on home */
+.modern-section-bordered-wrap {
+    background: #ffffff !important;
+    border: 1px solid #f3ece4 !important;
+    border-radius: 12px !important;
+    padding: 24px 16px !important;
+    box-shadow: 0 4px 20px rgba(104, 91, 78, 0.02) !important;
+}
+
+/* Unique Today's Deal Card Styling */
+.modern-deal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(104, 91, 78, 0.08) !important;
+    border-color: #685b4e !important;
+}
+
+.modern-deal-card:hover .img-fit,
+.modern-deal-card:hover img {
+    transform: scale(1.05);
+}
+
+.modern-deal-btn {
+    border: 1px solid #685b4e !important;
+    color: #685b4e !important;
+    background: transparent !important;
+}
+
+.modern-deal-btn:hover {
+    background: #685b4e !important;
+    color: #ffffff !important;
+    border-color: #685b4e !important;
+}
+
+.modern-deal-card .btn:focus,
+.modern-deal-card .btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.home-section-heading-with-arrows {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+    text-align: left !important;
+}
+
+.home-section-heading-copy {
+    min-width: 0 !important;
+}
+
+.home-section-arrow-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.home-section-arrows-only {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.home-section-arrow {
+    width: 38px !important;
+    height: 38px !important;
+    border: 1px solid #e8d9c7 !important;
+    border-radius: 999px !important;
+    background: #fffaf2 !important;
+    color: #685b4e !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+}
+
+.home-section-arrow:hover {
+    background: #685b4e !important;
+    border-color: #685b4e !important;
+    color: #ffffff !important;
+}
+
+@media (min-width: 768px) {
+    .home-arrows-desktop-disabled .home-section-arrows-only {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .home-mobile-product-section {
+        margin-top: 26px !important;
+        margin-bottom: 34px !important;
+    }
+
+    .home-mobile-product-section .container {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    .home-mobile-product-section .modern-section-bordered-wrap,
+    .home-mobile-product-section .todays-deal-card-wrap {
+        border-radius: 16px !important;
+        padding: 18px 12px 24px !important;
+        overflow: hidden !important;
+        background: #fffdf9 !important;
+        border-color: #f0e5d6 !important;
+        box-shadow: 0 12px 32px rgba(104, 91, 78, 0.04) !important;
+    }
+
+    .home-mobile-product-section .modern-section-header {
+        margin-top: 0 !important;
+        margin-bottom: 18px !important;
+    }
+
+    .home-mobile-product-section .home-section-heading-with-arrows {
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .home-mobile-product-section .modern-section-title {
+        font-size: 19px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .home-mobile-product-section .modern-section-subtitle {
+        font-size: 10.5px !important;
+        line-height: 1.4 !important;
+        max-width: 185px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .home-mobile-product-section .home-section-arrow-group {
+        flex-direction: column !important;
+        align-items: flex-end !important;
+        gap: 7px !important;
+    }
+
+    .home-mobile-product-section .home-section-arrows-only {
+        gap: 7px !important;
+    }
+
+    .home-mobile-product-section .home-section-arrow {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 18px !important;
+    }
+
+    .home-arrows-mobile-disabled .home-section-arrows-only {
+        display: none !important;
+    }
+
+    .home-mobile-product-section .px-sm-3 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .home-mobile-product-carousel .slick-list {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .home-mobile-product-carousel .slick-track,
+    .home-mobile-product-carousel .slick-slide,
+    .home-mobile-product-carousel .slick-slide>div,
+    .home-mobile-product-carousel .carousel-box {
+        display: flex !important;
+        align-items: stretch !important;
+    }
+
+    .home-mobile-product-carousel .carousel-box {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    .home-mobile-product-carousel .modern-product-card {
+        border-radius: 11px !important;
+        padding: 6px !important;
+        height: 100% !important;
+        min-height: 170 !important;
+        justify-content: space-between !important;
+        box-shadow: 0 7px 20px rgba(104, 91, 78, 0.06) !important;
+    }
+
+    .home-mobile-product-carousel .modern-product-img-wrap {
+        height: 94px !important;
+        border-radius: 9px !important;
+    }
+
+    .home-mobile-product-carousel .modern-product-card>div:last-child {
+        padding: 7px 1px 2px !important;
+        flex-grow: 1 !important;
+        justify-content: space-between !important;
+    }
+
+    .home-mobile-product-carousel .modern-product-title {
+        min-height: 0 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .home-mobile-product-carousel .modern-product-title a {
+        display: block !important;
+        font-size: 10.5px !important;
+        line-height: 1.3 !important;
+        letter-spacing: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        -webkit-line-clamp: unset !important;
+        -webkit-box-orient: initial !important;
+    }
+
+    .home-mobile-product-carousel .modern-card-bottom-row {
+        min-height: 46px !important;
+        margin-top: auto !important;
+        padding-top: 6px !important;
+        gap: 5px !important;
+    }
+
+    .home-mobile-product-carousel .modern-price-wrap,
+    .home-mobile-product-carousel .modern-price-wrap .text-primary,
+    .home-mobile-product-carousel .modern-price-wrap span {
+        font-size: 9px !important;
+        line-height: 1.35 !important;
+    }
+
+    .home-mobile-product-carousel .modern-price-wrap del {
+        font-size: 9.5px !important;
+    }
+
+    .home-mobile-product-carousel .modern-card-actions-bottom {
+        gap: 8px !important;
+    }
+
+    .home-mobile-product-carousel .modern-card-actions-bottom .modern-action-btn,
+    .home-mobile-product-carousel .modern-card-actions-bottom .wishlist-btn,
+    .home-mobile-product-carousel .modern-card-actions-bottom .cart-btn {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .home-mobile-product-carousel .modern-card-actions-bottom svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .home-mobile-product-carousel .modern-discount-tag,
+    .home-mobile-product-carousel .modern-wholesale-tag {
+        font-size: 7px !important;
+        padding: 2px 5px !important;
+        margin-left: 5px !important;
+        margin-top: 5px !important;
+    }
+
+    .home-mobile-product-section .slick-dots {
+        display: none !important;
+    }
+
+    .home-mobile-product-section .slick-dots li,
+    .home-mobile-product-section .slick-dots li button {
+        width: 7px !important;
+        height: 7px !important;
+    }
+
+    .home-mobile-product-section .slick-dots li.slick-active,
+    .home-mobile-product-section .slick-dots li.slick-active button {
+        width: 22px !important;
+        border-radius: 999px !important;
+    }
+
+    .home-mobile-product-section .modern-view-all-link {
+        font-size: 10px !important;
+        letter-spacing: 0.8px !important;
+    }
+
+    .home-mobile-product-section .text-center.mt-4 {
+        display: none !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card {
+        border-radius: 14px !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .modern-product-img-wrap {
+        height: 170px !important;
+        border-radius: 0 !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .p-3 {
+        padding: 10px !important;
+        flex-grow: 0 !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card h4 {
+        height: auto !important;
+        min-height: 0 !important;
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+        margin-bottom: 7px !important;
+        flex-grow: 0 !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .fs-10 {
+        font-size: 8px !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .fs-15 {
+        font-size: 12px !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .modern-deal-btn {
+        display: none !important;
+    }
+
+    .home-todays-deal-section .modern-deal-card .position-absolute .badge {
+        font-size: 8px !important;
+        padding: 4px 6px !important;
+    }
 }

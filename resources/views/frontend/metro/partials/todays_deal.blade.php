@@ -1,66 +1,58 @@
 @if(count($todays_deal_products) > 0)
-    <section class="">
+    @php
+        $todaysDealCount = count($todays_deal_products);
+    @endphp
+    <section class="mb-4 mt-4 home-mobile-product-section home-todays-deal-section" id="section_todays_deals_home">
         <div class="container">
-            <div class="bg-white">
-                <!-- Top Section -->
-                <div class="mt-4  mb-2 mb-md-3 ">
-                    <!-- Title -->
-                    <h3 class=" mb-2 text-center mb-sm-0 ">
-                        <span class="">Today's Deals</span>
-                    </h3>
-                    <p class="text-center">Unbeatable offers await, ensuring maximum savings. </p>
-                </div>
-            </div>
-            <!-- Banner -->
-            @if (get_setting('todays_deal_banner') != null || get_setting('todays_deal_banner_small') != null)
-                <div class="overflow-hidden d-none d-md-block">
-                    <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                        data-src="{{ uploaded_asset(get_setting('todays_deal_banner')) }}" 
-                        alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-                </div>
-                <div class="overflow-hidden d-md-none">
-                    <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}" 
-                        data-src="{{ get_setting('todays_deal_banner_small') != null ? uploaded_asset(get_setting('todays_deal_banner_small')) : uploaded_asset(get_setting('todays_deal_banner')) }}" 
-                        alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit h-100 has-transition" 
-                        onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
-                </div>
-            @endif
-            <!-- Products -->
-            @php
-                $todays_deal_banner_text_color =  ((get_setting('todays_deal_banner_text_color') == 'light') ||  (get_setting('todays_deal_banner_text_color') == null)) ? 'text-white' : 'text-dark';
-            @endphp
-            <div class="" style="background-color: {{ get_setting('todays_deal_bg_color', '#3d4666') }}">
-                <div class="c-scrollbar-light overflow-hidden px-4 px-md-5 pb-3 pt-3 pt-md-3 pb-md-5">
-                    <div class="h-100 d-flex flex-column justify-content-center">
-                        <div class="todays-deal aiz-carousel vf" data-items="7" data-xxl-items="7" data-xl-items="6" data-lg-items="5" data-md-items="4" data-sm-items="3" data-xs-items="2" data-arrows="true" data-dots="false" data-autoplay="true" data-infinite="true">
-                            @foreach ($todays_deal_products as $key => $product)
-                                <div class="carousel-box h-100 px-3 px-lg-0">
-                                    <a href="{{ route('product', $product->slug) }}" class="h-100 overflow-hidden hov-scale-img mx-auto" title="{{  $product->getTranslation('name')  }}">
-                                        <!-- Image -->
-                                        <div class="img h-80px w-80px rounded-content overflow-hidden mx-auto">
-                                            <img class="lazyload img-fit m-auto has-transition"
-                                              style="height: 100% !important;"
-                                                src="{{ static_asset('assets/img/placeholder.jpg') }}"
-                                                data-src="{{ get_image($product->thumbnail) }}"
-                                                alt="{{ $product->getTranslation('name') }}"
-                                                onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                                        </div>
-                                        <!-- Price -->
-                                        <div class="fs-14 mt-3 text-center">
-                                            <span class="d-block {{ $todays_deal_banner_text_color }} fw-700">{{ home_discounted_base_price($product) }}</span>
-                                            @if(home_base_price($product) != home_discounted_base_price($product))
-                                                <del class="d-block text-secondary fw-400">{{ home_base_price($product) }}</del>
-                                            @endif
-                                        </div>
-                                    </a>
-                                </div>
-                            @endforeach
+            <div class="todays-deal-card-wrap">
+                <!-- Section Header - Centered with Theme Color -->
+                <div class="modern-section-header home-section-heading-with-arrows mb-4">
+                    <div class="home-section-heading-copy">
+                        <h3 class="modern-section-title">
+                            {{ translate("Today's Deals") }}
+                        </h3>
+                        <div class="modern-section-subtitle">
+                            {{ translate('Unbeatable offers await, ensuring maximum savings') }}
                         </div>
                     </div>
+                    <div class="home-section-arrow-group @if($todaysDealCount <= 5) home-arrows-desktop-disabled @endif @if($todaysDealCount <= 2) home-arrows-mobile-disabled @endif">
+                        <a href="{{ route('todays-deal') }}" class="modern-view-all-link">{{ translate('View All') }} &rarr;</a>
+                        <span class="home-section-arrows-only">
+                            <button type="button" class="home-section-arrow is-prev" aria-label="{{ translate('Previous') }}" onclick="homeSectionSlide('prev','section_todays_deals_home')">
+                                <i class="las la-angle-left"></i>
+                            </button>
+                            <button type="button" class="home-section-arrow is-next" aria-label="{{ translate('Next') }}" onclick="homeSectionSlide('next','section_todays_deals_home')">
+                                <i class="las la-angle-right"></i>
+                            </button>
+                        </span>
+                    </div>
                 </div>
-                <div class="text-center  px-4 px-xl-5 pt-4 pt-md-3">
-                    <a href="{{ route('todays-deal') }}" class="fs-12 fw-700 {{ $todays_deal_banner_text_color }} has-transition custom_btn hov-text-secondary-base">{{ translate('View All') }}</a>
+
+                <!-- Banner -->
+                @if (get_setting('todays_deal_banner') != null || get_setting('todays_deal_banner_small') != null)
+                    <div class="mb-4 overflow-hidden rounded-12 shadow-sm d-none d-md-block">
+                        <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                            data-src="{{ uploaded_asset(get_setting('todays_deal_banner')) }}"
+                            alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit w-100 has-transition"
+                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
+                    </div>
+                    <div class="mb-4 overflow-hidden rounded-12 shadow-sm d-md-none">
+                        <img src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                            data-src="{{ get_setting('todays_deal_banner_small') != null ? uploaded_asset(get_setting('todays_deal_banner_small')) : uploaded_asset(get_setting('todays_deal_banner')) }}"
+                            alt="{{ env('APP_NAME') }} promo" class="lazyload img-fit w-100 has-transition"
+                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';">
+                    </div>
+                @endif
+
+                <!-- Products -->
+                <div class="px-sm-3">
+                    <div class="aiz-carousel sm-gutters-16 arrow-none home-mobile-product-carousel" data-items="5" data-xxl-items="5" data-xl-items="5" data-lg-items="4" data-md-items="3" data-sm-items="2.35" data-xs-items="2.35" data-arrows="true" data-dots="false" data-infinite="false" data-autoplay="false">
+                        @foreach ($todays_deal_products as $key => $product)
+                            <div class="carousel-box px-2 position-relative">
+                                @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1', ['product' => $product])
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>

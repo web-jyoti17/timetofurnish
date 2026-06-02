@@ -26,14 +26,10 @@
 <a href="javascript:void(0)" class="d-flex align-items-center text-dark px-3 h-100 position-relative"
     data-toggle="dropdown" data-display="static" title="{{ translate('Cart') }}">
     <span class="position-relative">
-        <svg class="icon-bag" aria-hidden="true" focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg"
-            width="22" height="24" viewBox="0 0 22 24" fill="none">
-            <path
-                d="M6.91699 10.993V4.95104C6.91699 2.72645 8.70785 0.923065 10.917 0.923065C13.1261 0.923065 14.917 2.72645 14.917 4.95104V10.993"
-                stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M18.131 23.0769C19.6697 23.0769 20.917 21.8209 20.917 20.2714C20.9174 20.1285 20.9067 19.9857 20.885 19.8445L19.221 8.95686C19.0463 7.81137 18.0679 6.96551 16.917 6.96503H4.917C3.76678 6.96536 2.78859 7.81016 2.613 8.95485L0.949001 19.8545C0.927336 19.9958 0.916636 20.1386 0.917001 20.2815C0.92251 21.827 2.16823 23.0769 3.703 23.0769H18.131Z"
-                stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <svg class="icon-bag" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#685b4e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
         @if ($cart_count > 0)
             <span class="badge badge-primary badge-circle position-absolute"
@@ -114,10 +110,24 @@
                                         <div class="p-2 addoncolor simple-addon-list">
                                             @foreach ($addons as $addon)
                                                 @if (is_array($addon))
+                                                    @php
+                                                        $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                                                        $addonImageSrc = $addonImage
+                                                            ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                                                                ? $addonImage
+                                                                : asset(ltrim($addonImage, '/')))
+                                                            : '';
+                                                    @endphp
                                                     <div
                                                         class="d-flex justify-content-between align-items-start fs-12 text-black mb-1 addon-row">
                                                         <span class="addon-name-text">
-                                                            <i class="la la-check-circle fs-12 mr-1 text-success"></i>
+                                                            @if ($addonImageSrc)
+                                                                <img src="{{ $addonImageSrc }}"
+                                                                    alt="{{ $addon['name'] ?? 'Addon' }}"
+                                                                    style="width:22px;height:22px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:5px;vertical-align:middle;">
+                                                            @else
+                                                                <i class="la la-check-circle fs-12 mr-1 text-success"></i>
+                                                            @endif
                                                             <strong class="text-black">  {{ $addon['addon_name'] }}:</strong>
                                                             {{ $addon['name'] ?? ($addon[0] ?? '') }}
                                                         </span>

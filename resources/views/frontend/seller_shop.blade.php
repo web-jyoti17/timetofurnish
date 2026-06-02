@@ -400,7 +400,7 @@
                                     </div>
 
                                     <!-- Categories -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
+                                    <div class="bg-white mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0 custom-filter-box custom-categories-box">
                                         <div class="fs-16 fw-700 p-3">
                                             <a href="#collapse_1" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Categories')}}
@@ -424,7 +424,7 @@
                                     </div>
 
                                     <!-- Price range -->
-                                    <div class="bg-white border mb-3">
+                                    <div class="bg-white mb-3 custom-filter-box custom-price-box">
                                         <div class="fs-16 fw-700 p-3">
                                             {{ translate('Price range')}}
                                         </div>
@@ -470,7 +470,7 @@
                                     </div>
 
                                     <!-- Ratings -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
+                                    <div class="bg-white mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0 custom-filter-box custom-ratings-box">
                                         <div class="fs-16 fw-700 p-3">
                                             <a href="#collapse_2" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Ratings')}}
@@ -540,7 +540,7 @@
                                     </div>
 
                                     <!-- Brands -->
-                                    <div class="bg-white border mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0">
+                                    <div class="bg-white mb-4 mx-3 mx-xl-0 mt-3 mt-xl-0 custom-filter-box custom-brands-box">
                                         <div class="fs-16 fw-700 p-3">
                                             <a href="#collapse_3" class="dropdown-toggle filter-section text-dark d-flex align-items-center justify-content-between" data-toggle="collapse">
                                                 {{ translate('Brands')}}
@@ -601,9 +601,9 @@
 
                             <!-- Products -->
                             <div class="px-3">
-                                <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2 border-top border-left">
+                                <div class="row gutters-16 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2">
                                     @foreach ($products as $key => $product)
-                                        <div class="col border-right border-bottom has-transition hov-shadow-out z-1">
+                                        <div class="col mb-4 d-flex align-items-stretch">
                                             @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                                         </div>
                                     @endforeach
@@ -618,9 +618,9 @@
             @else
                 <!-- Top Selling Products Section -->
                 <div class="px-3">
-                    <div class="row gutters-16 row-cols-xxl-6 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2 border-left border-top">
+                    <div class="row gutters-16 row-cols-xxl-6 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-2">
                         @foreach ($products as $key => $product)
-                            <div class="col border-bottom border-right overflow-hidden has-transition hov-shadow-out z-1 custom-profuct-image-style">
+                            <div class="col mb-4 d-flex align-items-stretch">
                                 @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1',['product' => $product])
                             </div>
                         @endforeach

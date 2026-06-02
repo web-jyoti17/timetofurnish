@@ -40,6 +40,7 @@ class OfferController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'products' => 'required|array',
             'priority' => 'nullable|integer|min:0',
+            'template_style' => 'nullable|string|in:style_1,style_2,style_3',
         ];
 
         if ($request->discount_type === 'percentage') {
@@ -50,15 +51,7 @@ class OfferController extends Controller
 
         $request->validate($rules);
 
-        // Active Offer Validation: Ensure none of the chosen products are already in another active/pending offer
-        $busy_product_ids = Offer::getBusyProductIds();
-        $duplicate_products = array_intersect($request->products, $busy_product_ids);
-        if (!empty($duplicate_products)) {
-            $product_names = Product::whereIn('id', $duplicate_products)->pluck('name')->toArray();
-            return back()->withInput()->withErrors([
-                'products' => translate('The following products already have an active offer: ') . implode(', ', $product_names)
-            ]);
-        }
+        // Sync products directly without duplicate check
 
         $offer = new Offer();
         $offer->user_id = Auth::id(); // Owned by this seller
@@ -81,6 +74,7 @@ class OfferController extends Controller
 
         $offer->priority = $request->priority ?? 0;
         $offer->show_on_home = 0; // Seller offers don't show on admin homepage section by default without admin approval
+        $offer->template_style = $request->template_style ?? 'style_1';
         $offer->save();
 
         // Enforce security: Sync only products belonging to this seller
@@ -119,6 +113,7 @@ class OfferController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'products' => 'required|array',
             'priority' => 'nullable|integer|min:0',
+            'template_style' => 'nullable|string|in:style_1,style_2,style_3',
         ];
 
         if ($request->discount_type === 'percentage') {
@@ -129,15 +124,7 @@ class OfferController extends Controller
 
         $request->validate($rules);
 
-        // Active Offer Validation: Ensure none of the chosen products are already in another active/pending offer
-        $busy_product_ids = Offer::getBusyProductIds($id);
-        $duplicate_products = array_intersect($request->products, $busy_product_ids);
-        if (!empty($duplicate_products)) {
-            $product_names = Product::whereIn('id', $duplicate_products)->pluck('name')->toArray();
-            return back()->withInput()->withErrors([
-                'products' => translate('The following products already have an active offer: ') . implode(', ', $product_names)
-            ]);
-        }
+        // Sync products directly without duplicate check
 
         $offer = Offer::where('user_id', Auth::id())->findOrFail($id);
         $offer->name = $request->name;
@@ -151,6 +138,7 @@ class OfferController extends Controller
         $offer->ends_at = $request->ends_at ? Carbon::parse($request->ends_at)->addMinutes($offset) : null;
         
         $offer->priority = $request->priority ?? 0;
+        $offer->template_style = $request->template_style ?? 'style_1';
         
         // Auto-approve if trusted, otherwise if edited, reset status to pending for admin re-verification
         if (Auth::user()->auto_approve_offers == 1) {

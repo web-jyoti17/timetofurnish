@@ -106,7 +106,13 @@ $payment_status = $order->orderDetails->where('seller_id', Auth::user()->id)->fi
 
                         <tr>
                             <td class="text-main text-bold">{{ translate('Additional Info') }}</td>
-                            <td class="text-right">{{ $order->additional_info }}</td>
+                            @php
+                                $additionalInfo = json_decode($order->additional_info, true);
+                                $additionalNote = is_array($additionalInfo)
+                                    ? ($additionalInfo['note'] ?? '')
+                                    : $order->additional_info;
+                            @endphp
+                            <td class="text-right">{{ $additionalNote }}</td>
                         </tr>
                         @if ($order->tracking_code)
                             <tr>

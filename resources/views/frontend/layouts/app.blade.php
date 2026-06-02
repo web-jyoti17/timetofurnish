@@ -780,6 +780,7 @@
             function(data) {
                 $('#todays_deal').html(data);
                 AIZ.plugins.slickCarousel();
+                AIZ.plugins.countDown();
             });
 
         $.post('{{ route('home.section.best_selling') }}', {
@@ -1339,22 +1340,30 @@
             getVariantPrice();
 
             // Preview update
+            if (!$(this).is('select[name^="addons["]')) {
+                return;
+            }
+
             let selected = $(this).find('option:selected');
-            let addonId = $(this).attr('name').match(/\d+/)[0];
+            let addonMatch = ($(this).attr('name') || '').match(/\d+/);
+            if (!addonMatch) {
+                return;
+            }
+
+            let addonId = addonMatch[0];
             let previewBox = $('#addon-preview-' + addonId);
+            if (typeof renderProductOptionPreview === 'function') {
+                return;
+            }
 
             if (selected.data('img')) {
-                previewBox.html(`
+                previewBox.removeClass('d-none').html(`
                     <div class="fabric-box active-preview">
-                        <img src="${selected.data('img')}" style="width:60px;height:60px;object-fit:cover;">
+                        <img src="${selected.data('img')}" style="width:34px;height:34px;object-fit:cover;">
                     </div>
                 `);
             } else {
-                previewBox.html(`
-                    <div class="fabric-box no-image active-preview">
-                        <span>${selected.data('name')}</span>
-                    </div>
-                `);
+                previewBox.empty().addClass('d-none');
             }
 
         });
@@ -1450,6 +1459,14 @@
             if ($('#' + id + ' .aiz-carousel').find('.' + btn).hasClass('slick-disabled')) {
                 $('#' + id).find('.' + arrow).addClass('link-disable');
             }
+        }
+
+        function homeSectionSlide(direction, id) {
+            var $carousel = $('#' + id + ' .aiz-carousel').first();
+            if (!$carousel.length || !$carousel.hasClass('slick-initialized')) {
+                return;
+            }
+            $carousel.slick(direction === 'prev' ? 'slickPrev' : 'slickNext');
         }
 
         function goToView(params) {

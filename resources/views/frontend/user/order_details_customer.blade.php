@@ -70,7 +70,13 @@
                         </tr>
                         <tr>
                             <td class="text-main text-bold">{{ translate('Additional Info') }}</td>
-                            <td class="">{{ $order->additional_info }}</td>
+                            @php
+                                $additionalInfo = json_decode($order->additional_info, true);
+                                $additionalNote = is_array($additionalInfo)
+                                    ? ($additionalInfo['note'] ?? '')
+                                    : $order->additional_info;
+                            @endphp
+                            <td class="">{{ $additionalNote }}</td>
                         </tr>
                         @if ($order->tracking_code)
                             <tr>

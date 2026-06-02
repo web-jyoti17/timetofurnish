@@ -106,12 +106,23 @@
                 @foreach($cartItem_addons as $addon)
                 @php
                 $addon_price_total = ($addon['price'] ?? 0) * $cartItem->quantity;
+                $addonImage = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+                $addonImageSrc = $addonImage
+                    ? (\Illuminate\Support\Str::startsWith($addonImage, ['http://', 'https://', 'data:'])
+                        ? $addonImage
+                        : asset(ltrim($addonImage, '/')))
+                    : '';
                 $subtotal += $addon_price_total;
                 $total += $addon_price_total;
                 @endphp
                 <tr>
                     <td class="pl-4" colspan="2">
                         <span style="font-weight:400;" class="addons-price">
+                            @if($addonImageSrc)
+                            <img src="{{ $addonImageSrc }}"
+                                alt="{{ $addon['name'] ?? 'Addon' }}"
+                                style="width:24px;height:24px;object-fit:cover;border-radius:4px;border:1px solid #e5e5e5;margin-right:6px;vertical-align:middle;">
+                            @endif
                             @if(isset($addon['addon_name']))
                             <span class="text-black" style="font-weight:700;">{{ $addon['addon_name'] }}:&nbsp;</span>
                             @endif

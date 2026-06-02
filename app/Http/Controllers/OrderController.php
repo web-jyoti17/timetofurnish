@@ -336,12 +336,29 @@ class OrderController extends Controller
              $tax =  array_sum($taxes);
         }
         foreach ($seller_products as $seller_product) {
+            $service_details = [];
+            $service_total = 0;
+
+            if (!empty($seller_product[0]->services)) {
+                $decodedServices = json_decode($seller_product[0]->services, true);
+                if (is_array($decodedServices)) {
+                    $service_details = $decodedServices;
+                    $service_total = collect($service_details)->sum(function ($service) {
+                        return (float) ($service['price'] ?? 0);
+                    });
+                }
+            }
+
             $order = new Order;
             $order->combined_order_id = $combined_order->id;
             $order->user_id = Auth::user()->id;
             $order->shipping_address = $combined_order->shipping_address;
 
-            $order->additional_info = $request->additional_info;
+            $order->additional_info = json_encode([
+                'note' => $request->additional_info,
+                'services' => $service_details,
+                'service_total' => $service_total,
+            ]);
             $order->igst = $igst;
 
             // $order->shipping_type = $carts[0]['shipping_type'];
@@ -442,7 +459,7 @@ class OrderController extends Controller
             
             $ptax = 0;
             if(!empty($taxes[$product->id])) $ptax = $taxes[$product->id];
-            $order->grand_total = $subtotal + $shipping + $ptax;
+            $order->grand_total = $subtotal + $shipping + $ptax + $service_total;
 
             if ($seller_product[0]->coupon_code != null) {
                 $order->coupon_discount = $coupon_discount;

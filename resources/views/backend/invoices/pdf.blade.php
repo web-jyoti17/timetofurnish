@@ -278,6 +278,8 @@
         $shippingTotal = (float) $order->orderDetails->sum('shipping_cost');
         $itemsSubtotal = 0;
         $addonsSubtotal = 0;
+        $services = [];
+        $servicesTotal = 0;
         $companyEmail = 'sales@timetofurnish.com';
         $companyPhone = '+44 7751510365';
         $companyWebsite = 'www.timetofurnish.com';
@@ -296,6 +298,18 @@
 
             $mime = mime_content_type($absolutePath) ?: 'image/jpeg';
             return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($absolutePath));
+        };
+        $addonImageSrc = function ($addon) use ($assetPath) {
+            $image = $addon['image'] ?? ($addon['img'] ?? ($addon['image_url'] ?? ''));
+            if (empty($image)) {
+                return '';
+            }
+
+            if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, 'data:')) {
+                return $image;
+            }
+
+            return $assetPath(ltrim($image, '/'));
         };
         $paymentType = strtolower((string) ($order->payment_type ?? ''));
         $paymentMethod =
@@ -337,6 +351,14 @@
 
         if ($order->shop && $order->shop->user && $order->shop->user->addresses->count() > 0) {
             $sellerProfileAddress = $order->shop->user->addresses->sortByDesc('set_default')->first();
+        }
+
+        if (!empty($order->additional_info)) {
+            $additionalInfo = json_decode($order->additional_info, true);
+            if (is_array($additionalInfo)) {
+                $services = $additionalInfo['services'] ?? [];
+                $servicesTotal = (float) ($additionalInfo['service_total'] ?? collect($services)->sum('price'));
+            }
         }
 
         if ($sellerProfileAddress && !empty($sellerProfileAddress->address)) {
@@ -581,16 +603,28 @@
                                                         <table class="addons" width="100%" cellpadding="0"
                                                             cellspacing="0" role="presentation" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
                                                             <colgroup>
-                                                                <col style="width: 35%;">
-                                                                <col style="width: 48%;">
+                                                                <col style="width: 10%;">
+                                                                <col style="width: 30%;">
+                                                                <col style="width: 43%;">
                                                                 <col style="width: 17%;">
                                                             </colgroup>
                                                             @foreach ($addons as $addon)
+                                                                @php
+                                                                    $addonImage = $addonImageSrc($addon);
+                                                                @endphp
                                                                 <tr>
-                                                                    <td style="width: 35%; text-align: left; vertical-align: top; color: #6b5a45;">
+                                                                    <td style="width: 10%; text-align: left; vertical-align: top;">
+                                                                        @if ($addonImage)
+                                                                            <img src="{{ $addonImage }}"
+                                                                                alt="{{ $addon['name'] ?? ($addon['value'] ?? 'Addon') }}"
+                                                                                width="28" height="28"
+                                                                                style="display:block;width:28px;height:28px;object-fit:cover;border-radius:4px;border:1px solid #e5ddd3;">
+                                                                        @endif
+                                                                    </td>
+                                                                    <td style="width: 30%; text-align: left; vertical-align: top; color: #6b5a45;">
                                                                         {{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}
                                                                     </td>
-                                                                    <td style="width: 48%; text-align: left; vertical-align: top;">
+                                                                    <td style="width: 43%; text-align: left; vertical-align: top;">
                                                                         {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
                                                                     </td>
                                                                     <td class="nowrap" style="width: 17%; text-align: left; vertical-align: top;">
@@ -620,6 +654,24 @@
                                         <td class="hide-mobile"></td>
                                         <td class="item-td right nowrap"><span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>{{ single_price($shippingTotal) }}</td>
                                     </tr>
+                                    @if (!empty($services))
+                                        @foreach ($services as $service)
+                                            <tr>
+                                                <td class="item-td">
+                                                    Additional service
+                                                    <div class="muted" style="font-size:11px;margin-top:2px;">
+                                                        {{ $service['name'] ?? 'Service' }}
+                                                        @if (!empty($service['type']))
+                                                            ({{ ucfirst($service['type']) }})
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                                <td class="hide-mobile"></td>
+                                                <td class="hide-mobile"></td>
+                                                <td class="item-td right nowrap"><span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>{{ single_price($service['price'] ?? 0) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                     @if ((float) $order->coupon_discount > 0)
                                         <tr style="background:#faf8f5;">
                                             <td class="item-td">Promotion / coupon</td>
@@ -651,6 +703,12 @@
                                                 <td class="muted">Shipping charges</td>
                                                 <td class="right nowrap">{{ single_price($shippingTotal) }}</td>
                                             </tr>
+                                            @if ($servicesTotal > 0)
+                                                <tr>
+                                                    <td class="muted">Additional services</td>
+                                                    <td class="right nowrap">{{ single_price($servicesTotal) }}</td>
+                                                </tr>
+                                            @endif
                                             <tr class="total-row">
                                                 <td>Invoice total</td>
                                                 <td class="right nowrap">{{ single_price($order->grand_total) }}</td>

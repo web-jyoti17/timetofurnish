@@ -423,9 +423,9 @@
         }
     </style>
     <style>
-        /* Ensure buttons are stacked and full-width on small screens */
+        /* Keep product action buttons side by side on small screens */
         @media (max-width: 575.98px) {
-            .product-action-buttons .btn {
+            .product-action-buttons .btn:not(.product-detail-action-btn) {
                 margin-bottom: 10px;
                 width: 100% !important;
             }
@@ -444,6 +444,11 @@
             pointer-events: none !important;
             filter: grayscale(40%) !important;
             box-shadow: none !important;
+        }
+
+        .product-detail-action-btn.btn-disabled-custom {
+            opacity: 1 !important;
+            filter: none !important;
         }
 
         .disabled-wishlist {
@@ -671,7 +676,7 @@
                 <script>
                     window.productOfferConfig = {
                         discount_type: "{{ $active_offer->discount_type }}",
-                        discount_value: {{ (float)$active_offer->discount_value ?? 0 }},
+                        discount_value: {{ (float) $active_offer->discount_value ?? 0 }},
                         badge_text: "{{ $active_offer->badge_text }}"
                     };
                 </script>
@@ -683,15 +688,15 @@
                     </div>
                     <div class="col-sm-10 col-10">
                         <!-- Orange Offer Name above prices, matching reference screenshot -->
-                        <div class="fs-15 fw-600 mb-1" style="color: #ff9800; font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0.3px;">
+                        <div class="fs-15 fw-600 mb-1"
+                            style="color: #ff9800; font-family: 'Outfit', 'Inter', sans-serif; letter-spacing: 0.3px;">
                             {{ translate($active_offer->name) }}
                         </div>
                         <div class="flex-wrap d-flex align-items-center">
                             <!-- Fake Old Price -->
                             @php $offer_old_price = home_offer_old_price($detailedProduct); @endphp
-                            <del class="js-product-old-price"
-                                 data-default-old-price-text="{{ $offer_old_price }}"
-                                 style="text-decoration: line-through; color: #757575 !important; font-size: 18px; font-weight: 500; {{ $offer_old_price ? '' : 'display: none;' }}">
+                            <del class="js-product-old-price" data-default-old-price-text="{{ $offer_old_price }}"
+                                style="text-decoration: line-through; color: #757575 !important; font-size: 18px; font-weight: 500; {{ $offer_old_price ? '' : 'display: none;' }}">
                                 {{ $offer_old_price }}
                             </del>
                             <!-- Actual Selling Price -->
@@ -708,7 +713,8 @@
                                 <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
                                     style="background: #fff3e5;
                                     border-radius: 6px;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                        viewBox="0 0 12 12">
                                         <circle cx="6" cy="6" r="6" fill="#f3af3d" />
                                         <path d="M7.667,3H4.333L3,5,6,9,9,5Z" fill="#fff" />
                                     </svg>
@@ -720,9 +726,10 @@
                         </div>
 
                         <!-- Custom Description / Details -->
-                        @if($active_offer->custom_text)
+                        @if ($active_offer->custom_text)
                             <div class="mt-2 text-warning fs-13 fw-600">
-                                <i class="las la-tags mr-1"></i> {{ translate($active_offer->name) }}: {{ $active_offer->custom_text }}
+                                <i class="las la-tags mr-1"></i> {{ translate($active_offer->name) }}:
+                                {{ $active_offer->custom_text }}
                             </div>
                         @endif
                     </div>
@@ -791,9 +798,11 @@
                                         border-radius: 6px;">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
                                             viewBox="0 0 12 12">
-                                            <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
-                                                <circle id="Ellipse_39" data-name="Ellipse 39" cx="6" cy="6"
-                                                    r="6" transform="translate(973 633)" fill="#f3af3d" />
+                                            <g id="Group_23922" data-name="Group 23922"
+                                                transform="translate(-973 -633)">
+                                                <circle id="Ellipse_39" data-name="Ellipse 39" cx="6"
+                                                    cy="6" r="6" transform="translate(973 633)"
+                                                    fill="#f3af3d" />
                                                 <g id="Group_23920" data-name="Group 23920"
                                                     transform="translate(973 633)">
                                                     <path id="Path_28698" data-name="Path 28698"
@@ -812,69 +821,73 @@
                     </div>
                 @else
                     <div class="mb-3 row no-gutters">
-                        
+
                         <div class="col-sm-10 col-10 ">
                             <div class="flex-wrap d-flex align-items-center" style="gap:15px;">
-                                <div class="text-black fs-18 fw-600" style="color: #333 !important;">{{ translate('Price') }}
-                            </div>
+                                <div class="text-black fs-18 fw-600" style="color: #333 !important;">
+                                    {{ translate('Price') }}
+                                </div>
                                 <div>
-                                <!-- Regular Price -->
-                                <strong class="fs-18 fw-600 text-primary js-product-total-price"
-                                    data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
-                                    @if(isset($cartItem))
-                                        {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
-                                    @else
-                                        {{ home_discounted_base_price($detailedProduct) }}
-                                    @endif
-                                </strong>
-                                @php
-                                    $actual_base_price = $detailedProduct->unit_price;
-                                    $discount_applicable = false;
-                                    if ($detailedProduct->discount_start_date == null) {
-                                        $discount_applicable = true;
-                                    } elseif (
-                                        strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
-                                        strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
-                                    ) {
-                                        $discount_applicable = true;
-                                    }
-                                    if ($discount_applicable && !get_product_active_offer($detailedProduct)) {
-                                        if ($detailedProduct->discount_type == 'percent') {
-                                            $actual_base_price -= ($actual_base_price * $detailedProduct->discount) / 100;
-                                        } elseif ($detailedProduct->discount_type == 'amount') {
-                                            $actual_base_price -= $detailedProduct->discount;
+                                    <!-- Regular Price -->
+                                    <strong class="fs-18 fw-600 text-primary js-product-total-price"
+                                        data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
+                                        @if (isset($cartItem))
+                                            {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
+                                        @else
+                                            {{ home_discounted_base_price($detailedProduct) }}
+                                        @endif
+                                    </strong>
+                                    @php
+                                        $actual_base_price = $detailedProduct->unit_price;
+                                        $discount_applicable = false;
+                                        if ($detailedProduct->discount_start_date == null) {
+                                            $discount_applicable = true;
+                                        } elseif (
+                                            strtotime(date('d-m-Y H:i:s')) >= $detailedProduct->discount_start_date &&
+                                            strtotime(date('d-m-Y H:i:s')) <= $detailedProduct->discount_end_date
+                                        ) {
+                                            $discount_applicable = true;
                                         }
-                                    }
-                                    $actual_base_price = max(0, $actual_base_price);
-                                @endphp
-                                <!-- Hidden span to store the base price -->
-                                <span class="d-none js-product-base-price"
-                                    data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
-                                    data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
-                                    {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
-                                </span>
-                                @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
-                                    <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
-                                        style="background: #fff3e5;
+                                        if ($discount_applicable && !get_product_active_offer($detailedProduct)) {
+                                            if ($detailedProduct->discount_type == 'percent') {
+                                                $actual_base_price -=
+                                                    ($actual_base_price * $detailedProduct->discount) / 100;
+                                            } elseif ($detailedProduct->discount_type == 'amount') {
+                                                $actual_base_price -= $detailedProduct->discount;
+                                            }
+                                        }
+                                        $actual_base_price = max(0, $actual_base_price);
+                                    @endphp
+                                    <!-- Hidden span to store the base price -->
+                                    <span class="d-none js-product-base-price"
+                                        data-base-price="{{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}"
+                                        data-actual-base-price="{{ isset($cartItem) ? $cartItem->price : $actual_base_price }}">
+                                        {{ isset($cartItem) ? $cartItem->price : home_discounted_base_price($detailedProduct, false) }}
+                                    </span>
+                                    @if (addon_is_activated('club_point') && $detailedProduct->earn_point > 0)
+                                        <div class="px-3 py-1 ml-2 d-inline-flex align-items-center"
+                                            style="background: #fff3e5;
                                         border-radius: 6px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                            viewBox="0 0 12 12">
-                                            <g id="Group_23922" data-name="Group 23922" transform="translate(-973 -633)">
-                                                <circle id="Ellipse_39" data-name="Ellipse 39" cx="6"
-                                                    cy="6" r="6" transform="translate(973 633)" fill="#f3af3d" />
-                                                <g id="Group_23920" data-name="Group 23920"
-                                                    transform="translate(973 633)">
-                                                    <path id="Path_28698" data-name="Path 28698"
-                                                        d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
-                                                        fill="#fff" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                viewBox="0 0 12 12">
+                                                <g id="Group_23922" data-name="Group 23922"
+                                                    transform="translate(-973 -633)">
+                                                    <circle id="Ellipse_39" data-name="Ellipse 39" cx="6"
+                                                        cy="6" r="6" transform="translate(973 633)"
+                                                        fill="#f3af3d" />
+                                                    <g id="Group_23920" data-name="Group 23920"
+                                                        transform="translate(973 633)">
+                                                        <path id="Path_28698" data-name="Path 28698"
+                                                            d="M7.667,3H4.333L3,5,6,9,9,5Z" transform="translate(0 0)"
+                                                            fill="#fff" />
+                                                    </g>
                                                 </g>
-                                            </g>
-                                        </svg>
-                                        <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
-                                            {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
-                                        </small>
-                                    </div>
-                                @endif
+                                            </svg>
+                                            <small class="ml-2 fs-11 fw-500" style="color: #f3af3d;">
+                                                {{ translate('Club Point') }}: {{ $detailedProduct->earn_point }}
+                                            </small>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -914,16 +927,21 @@
         @endif
     @else
         @if (isset($alreadyInCart) && $alreadyInCart && !isset($cartItem))
-            <div class="p-3 mb-3 d-flex align-items-center" style="background-color: #fcf9f5; border: 1px solid #ebdcd0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                <div class="mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #f7ede4; border-radius: 50%; color: #cfa07c; flex-shrink: 0;">
-                    <i class="las la-shopping-basket" style="font-size: 20px;"></i>
+            <div class="p-3 mb-3 d-flex align-items-center"
+                style="background-color: #fcf9f5; border: 1px solid #ebdcd0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div class="mr-3 d-flex align-items-center justify-content-center"
+                    style="width: 36px; height: 36px; background-color: #f7ede4; border-radius: 50%; color: #cfa07c; flex-shrink: 0;">
+                    <i class="las la-shopping-bag" style="font-size: 20px;"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <span class="d-block fs-14 fw-600 text-dark" style="color: #242121 !important;">{{ translate('This item is already in your basket') }}</span>
-                    <span class="d-block fs-12 text-muted mt-0.5" style="color: #888 !important;">{{ translate('You can review your selections or make updates in your cart.') }}</span>
+                    <span class="d-block fs-14 fw-600 text-dark"
+                        style="color: #242121 !important;">{{ translate('This item is already in your basket') }}</span>
+                    <span class="d-block fs-12 text-muted mt-0.5"
+                        style="color: #888 !important;">{{ translate('You can review your selections or make updates in your cart.') }}</span>
                 </div>
                 <div class="ml-3" style="flex-shrink: 0;">
-                    <a href="{{ route('cart') }}" class="btn btn-sm fw-600" style="background-color: #242121; color: #ffffff !important; border-radius: 6px; padding: 6px 14px; font-size: 12px; transition: all 0.2s;">
+                    <a href="{{ route('cart') }}" class="btn btn-sm fw-600"
+                        style="background-color: #242121; color: #ffffff !important; border-radius: 6px; padding: 6px 14px; font-size: 12px; transition: all 0.2s;">
                         {{ translate('Review Cart') }}
                     </a>
                 </div>
@@ -931,7 +949,7 @@
         @endif
 
         <!-- Add to cart & Buy now Buttons -->
-        <div class="mt-3 product-action-buttons d-flex justify-content-between flex-row flex-wrap">
+        <div class="mt-3 product-action-buttons">
             @php
                 // Calculate stock availability for physical products
                 $in_stock = true;
@@ -953,9 +971,9 @@
             @endphp
 
             @if (isset($cartItem))
-                <div class="mb-2 d-flex w-100">
+                <div class="mb-2 d-flex w-50 product-action-button-col">
                     <button type="button"
-                        class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                        class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300 product-detail-action-btn is-filled"
                         disabled
                         @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
                         style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
@@ -965,26 +983,26 @@
             @else
                 @if ($detailedProduct->digital == 0)
                     @if ($detailedProduct->external_link != null)
-                        <div class="mb-2 d-flex w-100">
-                            <a type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-100 rounded-0"
+                        <div class="mb-2 d-flex w-49 product-action-button-col">
+                            <a type="button" class="btn btn-primary buy-now fw-600 add-to-cart w-100 rounded-0 product-detail-action-btn is-filled"
                                 href="{{ $detailedProduct->external_link }}">
                                 <i class="la la-share"></i> {{ translate($detailedProduct->external_link_btn) }}
                             </a>
                         </div>
                     @else
                         @if ($in_stock)
-                            <div class="mb-2 d-flex w-100">
+                            <div class="mb-2 d-flex w-49 product-action-button-col">
                                 <button type="button"
-                                    class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                                    class="btn add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300 product-detail-action-btn is-outline"
                                     style="background: #fff; border: 1.5px solid #242121; color: #242121 !important; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;"
                                     disabled
                                     @if (Auth::check()) onclick="validatedAddToCart()" @else onclick="showLoginModal()" @endif>
                                     <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
                                 </button>
                             </div>
-                            <div class="mb-2 d-flex w-100">
+                            <div class="mb-2 d-flex w-49 product-action-button-col">
                                 <button type="button"
-                                    class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
+                                    class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300 product-detail-action-btn is-filled"
                                     disabled
                                     @if (Auth::check()) onclick="validatedBuyNow()" @else onclick="showLoginModal()" @endif
                                     style="background-color: #DBCABC; color: #242121; border: 1.5px solid #9b8d81; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); height: 50px;">
@@ -992,9 +1010,9 @@
                                 </button>
                             </div>
                         @else
-                            <div class="mb-2 d-flex w-100">
+                            <div class="mb-2 d-flex w-49 product-action-button-col">
                                 <button type="button"
-                                    class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300"
+                                    class="btn btn-secondary out-of-stock fw-600 w-100 transition-all duration-300 product-detail-action-btn is-filled"
                                     style="border-radius: 6px; height: 50px;" disabled>
                                     <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock') }}
                                 </button>
@@ -1002,20 +1020,22 @@
                         @endif
                     @endif
                 @elseif ($detailedProduct->digital == 1)
-                    <div class="mb-2 d-flex w-100">
+                    <div class="mb-2 d-flex w-49 product-action-button-col">
                         <button type="button"
-                            class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300"
+                            class="btn btn-secondary-base add-to-cart btn-disabled-custom fw-600 w-100 transition-all duration-300 product-detail-action-btn is-outline"
                             style="border-radius: 6px; height: 50px;" disabled
                             @if (Auth::check()) onclick="addToCart()" @else onclick="showLoginModal()" @endif>
                             <i class="las la-shopping-bag"></i> {{ translate('Add to Basket') }}
                         </button>
                     </div>
-                    <button type="button"
-                        class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300"
-                        style="border-radius: 6px; height: 50px;" disabled
-                        @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
-                        <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
-                    </button>
+                    <div class="mb-2 d-flex w-49 product-action-button-col">
+                        <button type="button"
+                            class="btn btn-primary buy-now btn-disabled-custom fw-600 add-to-cart w-100 transition-all duration-300 product-detail-action-btn is-filled"
+                            style="border-radius: 6px; height: 50px;" disabled
+                            @if (Auth::check()) onclick="buyNow()" @else onclick="showLoginModal()" @endif>
+                            <i class="la la-shopping-cart"></i> {{ translate('Buy Now') }}
+                        </button>
+                    </div>
                 @endif
             @endif
         </div>
