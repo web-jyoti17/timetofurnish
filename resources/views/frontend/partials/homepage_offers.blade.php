@@ -245,7 +245,7 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 flex: 0 0 100% !important;
-                overflow: hidden !important;
+                overflow: visible !important;
             }
             .offer-copy-panel h2 {
                 font-size: 25px !important;
@@ -427,12 +427,17 @@
                 gap: 6px !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                z-index: 10 !important;
+                pointer-events: auto !important;
             }
             .offer-carousel .slick-dots li,
             .offer-inner-carousel .slick-dots li {
                 width: auto !important;
                 height: 8px !important;
                 margin: 0 !important;
+                position: relative !important;
+                z-index: 10 !important;
+                pointer-events: auto !important;
             }
             .offer-carousel .slick-dots li button,
             .offer-inner-carousel .slick-dots li button {
@@ -443,6 +448,23 @@
                 background: #d7c8b5 !important;
                 opacity: 1 !important;
                 transition: width 0.25s ease, background-color 0.25s ease !important;
+                position: relative !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+            }
+            .offer-carousel .slick-dots li button::after,
+            .offer-inner-carousel .slick-dots li button::after {
+                content: "" !important;
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 24px !important;
+                height: 24px !important;
+                background: transparent !important;
+                display: block !important;
+                z-index: 12 !important;
+                pointer-events: auto !important;
             }
             .offer-carousel .slick-dots li.slick-active button,
             .offer-inner-carousel .slick-dots li.slick-active button {
@@ -816,8 +838,7 @@
             });
         });
     </script>
-    @section('script')
-        <script type="text/javascript">
+  <script type="text/javascript">
             function initOfferCarousel() {
                 if (typeof $ !== 'undefined' && $.fn.slick) {
                     $('.offer-carousel').each(function() {
@@ -858,11 +879,17 @@
                             ]
                         });
                     });
+
+                    // Prevent nested carousel touch events from bubbling up and triggering outer slider drag/swipes,
+                    // which blocks dot clicking and inner carousel swiping on mobile. We delegate on the static container
+                    // .offer-products-panel to intercept the events before they bubble up to the outer carousel.
+                    $('.offer-products-panel').on('mousedown touchstart touchmove touchend mouseup pointerdown pointermove pointerup', '.offer-inner-carousel', function(e) {
+                        e.stopPropagation();
+                    });
                 } else {
                     setTimeout(initOfferCarousel, 50);
                 }
             }
             initOfferCarousel();
         </script>
-    @endsection
 @endif

@@ -111,7 +111,7 @@
             @endif --}}
                 @if (get_setting('home_slider_images') != null)
                     <div class="aiz-carousel home_banner_img dots-inside-bottom mobile-img-auto-height" data-dots="true"
-                        data-autoplay="true" data-infinite="true">
+                        data-autoplay="false" data-infinite="true">
                         @php
                             $decoded_slider_images = json_decode(get_setting('home_slider_images'), true);
                             $sliders = get_slider_images($decoded_slider_images);
