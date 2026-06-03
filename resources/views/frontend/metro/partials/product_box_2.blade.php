@@ -2,7 +2,16 @@
     $cart_added = [];
     $active_offer = get_product_active_offer($product);
 @endphp
-<div class="aiz-card-box h-auto bg-white p-3 hov-scale-img modern-product-card">
+<div class="aiz-card-box h-auto bg-white p-3 hov-scale-img modern-product-card position-relative">
+    @php
+        $product_url = route('product', $product->slug);
+        if ($product->auction_product == 1) {
+            $product_url = route('auction-product', $product->slug);
+        }
+    @endphp
+    <!-- Card Link Overlay -->
+    <a href="{{ $product_url }}" class="position-absolute h-100 w-100" style="top: 0; left: 0; z-index: 1;"></a>
+
     <div class="position-relative h-140px h-md-160px img-fit overflow-hidden modern-product-img-wrap">
         @php
             $product_url = route('product', $product->slug);
@@ -93,7 +102,7 @@
             </div>
 
             <!-- Action Buttons (Right) -->
-            <div class="modern-card-actions-bottom">
+            <div class="modern-card-actions-bottom" style="position: relative; z-index: 2;">
                 @if ($product->auction_product == 0)
                     <!-- Wishlist Icon -->
                     <a href="javascript:void(0)" class="modern-action-btn wishlist-btn"

@@ -46,7 +46,7 @@
 
                 <!-- Products -->
                 <div class="px-sm-3">
-                    <div class="aiz-carousel sm-gutters-16 arrow-none home-mobile-product-carousel" data-items="5" data-xxl-items="5" data-xl-items="5" data-lg-items="4" data-md-items="3" data-sm-items="2.35" data-xs-items="2.35" data-arrows="true" data-dots="false" data-infinite="false" data-autoplay="false">
+                    <div class="aiz-carousel sm-gutters-16 arrow-none home-mobile-product-carousel" data-items="5" data-xxl-items="5" data-xl-items="5" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows="true" data-dots="false" data-infinite="false" data-autoplay="false">
                         @foreach ($todays_deal_products as $key => $product)
                             <div class="carousel-box px-2 position-relative">
                                 @include('frontend.'.get_setting('homepage_select').'.partials.product_box_1', ['product' => $product])

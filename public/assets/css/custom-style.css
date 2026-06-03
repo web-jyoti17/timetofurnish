@@ -1605,27 +1605,14 @@ span.badge.badge-primary.badge-circle.position-absolute {
 }
 
 @media screen and (max-width: 768px) {
-    .banner-category ul li img {
-        /* height: 35px;
-        width: 35px;
-        margin-right: 15px;
-    }
-    .banner-category ul li {
-        display: flex;
-        flex-direction: column;
-        background-color: rgba(208, 206, 206, 0.5);
-        padding: 16px;
-        /* border-radius: 50%; */
-        margin-bottom: 10px !important;
-        margin-right: 10px !important;
-    }
+
 
     .banner-category ul {
         margin: 0px 5px !important;
         justify-content: center;
     }
 
-    */
+
 }
 
 
@@ -1654,7 +1641,7 @@ span.badge.badge-primary.badge-circle.position-absolute {
     }
 
     .banner-category {
-        top: 18%;
+        top: 0%;
     }
 
     .banner-category ul {
@@ -2302,7 +2289,7 @@ span.badge.badge-primary.badge-circle.position-absolute {
 /* Product Card - Elevated Modern Rounded Card */
 .modern-product-card {
     border-radius: 24px !important;
-    border: 1px solid #f2ede4 !important;
+    border: 1px solid #ece5d8 !important;
     background: #ffffff !important;
     box-shadow: 0 4px 15px rgba(104, 91, 78, 0.02) !important;
     overflow: hidden !important;
@@ -2999,8 +2986,9 @@ span.badge.badge-primary.badge-circle.position-absolute {
 }
 
 .custom-header-class .hover-user-top-menu {
-    top: calc(100% + 1px) !important;
+    top: calc(100% + -16px) !important;
     pointer-events: none !important;
+
 }
 
 .custom-header-class .hover-user-top-menu.active {
@@ -3610,7 +3598,7 @@ span.badge.badge-primary.badge-circle.position-absolute {
     }
 
     .home-mobile-product-carousel .modern-card-bottom-row {
-        min-height: 36px !important;
+        min-height: 28px !important;
         margin-top: auto !important;
         padding-top: 6px !important;
         gap: 5px !important;

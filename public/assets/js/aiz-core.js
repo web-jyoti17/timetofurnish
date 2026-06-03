@@ -1403,7 +1403,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                             breakpoint: 992,
                             settings: {
                                 arrows: false,
-                                dots: true,
+                                dots: slidesDots,
                                 slidesToShow: slidesPerViewMd,
                                 vertical: verticalMd,
                                 rtl: slidesRtlMd,
@@ -1413,7 +1413,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                             breakpoint: 768,
                             settings: {
                                 arrows: false,
-                                dots: true,
+                                dots: slidesDots,
                                 slidesToShow: slidesPerViewSm,
                                 vertical: verticalSm,
                                 rtl: slidesRtlSm,
@@ -1423,7 +1423,7 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                             breakpoint: 576,
                             settings: {
                                 arrows: false,
-                                dots: true,
+                                dots: slidesDots,
                                 slidesToShow: slidesPerViewXs,
                                 vertical: verticalXs,
                                 rtl: slidesRtlXs,
