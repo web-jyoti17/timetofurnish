@@ -22,7 +22,10 @@
         @if ($active_offer)
             @php
                 $badge_txt = $active_offer->badge_text;
-                if (is_numeric($badge_txt) || (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))) {
+                if (
+                    is_numeric($badge_txt) ||
+                    (str_ends_with($badge_txt, '%') && !str_contains(strtolower($badge_txt), 'off'))
+                ) {
                     $badge_txt .= ' OFF';
                 }
             @endphp
@@ -60,9 +63,10 @@
                         @php
                             $old_offer_price = home_offer_old_price($product);
                         @endphp
-                        <div class="d-flex align-items-center flex-wrap" style="gap: 6px;">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 2px;">
                             @if ($old_offer_price)
-                                <del class="fw-400 fs-11 text-secondary" style="text-decoration: line-through; opacity: 0.6; color: #9e9e9e !important;">{{ $old_offer_price }}</del>
+                                <del class="fw-400 fs-11 text-secondary"
+                                    style="text-decoration: line-through; opacity: 0.6; color: #9e9e9e !important;">{{ $old_offer_price }}</del>
                             @endif
                             <span class="fw-700 fs-14 text-primary">{{ home_discounted_base_price($product) }}</span>
                         </div>
@@ -70,7 +74,8 @@
                         <!-- Previous price -->
                         @if (home_base_price($product) != home_discounted_base_price($product))
                             <div class="disc-amount has-transition mr-2">
-                                <del class="fw-400 text-secondary fs-11" style="opacity: 0.6;">{{ home_base_price($product) }}</del>
+                                <del class="fw-400 text-secondary fs-11"
+                                    style="opacity: 0.6;">{{ home_base_price($product) }}</del>
                             </div>
                         @endif
                         <!-- price -->
@@ -91,18 +96,26 @@
             <div class="modern-card-actions-bottom">
                 @if ($product->auction_product == 0)
                     <!-- Wishlist Icon -->
-                    <a href="javascript:void(0)" class="modern-action-btn wishlist-btn" onclick="addToWishList({{ $product->id }})"
-                        data-toggle="tooltip" data-title="{{ translate('Add to wishlist') }}" data-placement="top">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-heart-icon">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    <a href="javascript:void(0)" class="modern-action-btn wishlist-btn"
+                        onclick="addToWishList({{ $product->id }})" data-toggle="tooltip"
+                        data-title="{{ translate('Add to wishlist') }}" data-placement="top">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="svg-heart-icon">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
                         </svg>
                     </a>
 
                     <!-- Add to Basket (Sleek Cart Icon) -->
-                    <a href="javascript:void(0)" class="modern-action-btn cart-btn @if (in_array($product->id, $cart_added)) active @endif"
+                    <a href="javascript:void(0)"
+                        class="modern-action-btn cart-btn @if (in_array($product->id, $cart_added)) active @endif"
                         @if (Auth::check()) onclick="showAddToCartModal({{ $product->id }})" @else onclick="showLoginModal()" @endif
                         data-toggle="tooltip" data-title="{{ translate('Add to Basket') }}" data-placement="top">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-cart-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="svg-cart-icon">
                             <circle cx="9" cy="21" r="1"></circle>
                             <circle cx="20" cy="21" r="1"></circle>
                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -123,11 +136,15 @@
                         $highest_bid = $product->bids->max('amount');
                         $min_bid_amount = $highest_bid != null ? $highest_bid + 1 : $product->starting_bid;
                     @endphp
-                    <a href="javascript:void(0)" class="modern-action-btn bid-btn" 
-                        onclick="bid_single_modal({{ $product->id }}, {{ $min_bid_amount }})"
-                        data-toggle="tooltip" data-title="{{ translate('Place Bid') }}" data-placement="top">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-bid-icon">
-                            <path d="m14 13-5 5M16 11l-3.5 3.5M6 15H2v8h8v-4M21 3l-7 7M21 3a2.5 2.5 0 1 0-3.5 3.5L21 3Z"></path>
+                    <a href="javascript:void(0)" class="modern-action-btn bid-btn"
+                        onclick="bid_single_modal({{ $product->id }}, {{ $min_bid_amount }})" data-toggle="tooltip"
+                        data-title="{{ translate('Place Bid') }}" data-placement="top">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="svg-bid-icon">
+                            <path
+                                d="m14 13-5 5M16 11l-3.5 3.5M6 15H2v8h8v-4M21 3l-7 7M21 3a2.5 2.5 0 1 0-3.5 3.5L21 3Z">
+                            </path>
                         </svg>
                     </a>
                 @endif
@@ -135,4 +152,3 @@
         </div>
     </div>
 </div>
-

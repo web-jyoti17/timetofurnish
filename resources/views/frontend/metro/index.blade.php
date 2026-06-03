@@ -9,7 +9,7 @@
 
         #flash_deal .slick-slider .slick-list .slick-slide,
         #section_featured .slick-slider .slick-list .slick-slide {
-            margin-bottom: -5px;
+            margin-bottom: 0px;
         }
 
         .home_slider_img {
@@ -29,7 +29,7 @@
 
         @media (max-width: 575px) {
             #section_featured .slick-slider .slick-list .slick-slide {
-                margin-bottom: -4px;
+                margin-bottom: 0px;
             }
         }
     </style>
@@ -139,68 +139,68 @@
     @include('frontend.partials.homepage_offers')
 
     <!-- <div class="slider-container">
-        <div class="slider-control left inactive"></div>
-        <div class="slider-control right"></div>
-        <ul class="slider-pagi"></ul>
-        <div class="slider">
-            <div class="slide slide-0 active">
-                <div class="slide__bg"></div>
-                <div class="slide__content">
-                    <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
-                        <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
-                    </svg>
-                    <div class="slide__text">
-                        <h5 class="slide__text-heading">Pi Kart</h5>
-                        <p class="slide__text-desc">Radiant Confidence with Our. Exclusive Beauty Collection</p>
+                    <div class="slider-control left inactive"></div>
+                    <div class="slider-control right"></div>
+                    <ul class="slider-pagi"></ul>
+                    <div class="slider">
+                        <div class="slide slide-0 active">
+                            <div class="slide__bg"></div>
+                            <div class="slide__content">
+                                <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
+                                    <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
+                                </svg>
+                                <div class="slide__text">
+                                    <h5 class="slide__text-heading">Pi Kart</h5>
+                                    <p class="slide__text-desc">Radiant Confidence with Our. Exclusive Beauty Collection</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide slide-1 ">
+                            <div class="slide__bg"></div>
+                            <div class="slide__content">
+                                <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
+                                    <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
+                                </svg>
+                                <div class="slide__text">
+                                    <h5 class="slide__text-heading">Pi Kart</h5>
+                                    <p class="slide__text-desc">Unveil Your Glow with. Our Exclusive Collection</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="slide slide-1 ">
-                <div class="slide__bg"></div>
-                <div class="slide__content">
-                    <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
-                        <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
-                    </svg>
-                    <div class="slide__text">
-                        <h5 class="slide__text-heading">Pi Kart</h5>
-                        <p class="slide__text-desc">Unveil Your Glow with. Our Exclusive Collection</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
+                </div> -->
 
     <!-- Flash Deal -->
     <!-- <section class="mb-2 mt-5">
-        <div class="container">
-            Categories
-            <div class="row">
-                <div class="col-md-12">
-                @if (count($featured_categories) > 0)
+                    <div class="container">
+                        Categories
+                        <div class="row">
+                            <div class="col-md-12">
+                            @if (count($featured_categories) > 0)
     <div class="banner-category">
-                    <ul>
-                        @foreach ($featured_categories as $key => $category)
+                                <ul>
+                                    @foreach ($featured_categories as $key => $category)
     @if ($key < 8)
     @php
         $category_name = $category->getTranslation('name');
     @endphp
-                        <li style="position: relative;">
-                            <a href="{{ route('products.category', $category->slug) }}">
-                                <img src="{{ isset($category->coverImage->file_name) ? my_asset($category->coverImage->file_name) : static_asset('assets/img/placeholder.jpg') }}" alt="{{ $category_name }}" class="img-fluid">
-                            </a>
-                            <a href="{{ route('products.category', $category->slug) }}" class="">
-                                <span>{{ $category_name }}</span>
-                            </a>
-                        </li>
+                                    <li style="position: relative;">
+                                        <a href="{{ route('products.category', $category->slug) }}">
+                                            <img src="{{ isset($category->coverImage->file_name) ? my_asset($category->coverImage->file_name) : static_asset('assets/img/placeholder.jpg') }}" alt="{{ $category_name }}" class="img-fluid">
+                                        </a>
+                                        <a href="{{ route('products.category', $category->slug) }}" class="">
+                                            <span>{{ $category_name }}</span>
+                                        </a>
+                                    </li>
     @endif
     @endforeach
-                    </ul>
-                </div>
+                                </ul>
+                            </div>
     @endif
-                </div>
-            </div>
-        </div>
-    </section> -->
+                            </div>
+                        </div>
+                    </div>
+                </section> -->
 
 
     @php
