@@ -465,6 +465,7 @@ Route::resource('sellers', SellerController::class);
 
         // AJAX Attribute Value (inline from index page)
         Route::post('/ajax-store-attribute-value', 'ajax_store_attribute_value')->name('ajax.store-attribute-value');
+        Route::post('/ajax-update-attribute-value-image/{id}', 'ajax_update_attribute_value_image')->name('ajax.update-attribute-value-image');
         Route::delete('/ajax-destroy-attribute-value/{id}', 'ajax_destroy_attribute_value')->name('ajax.destroy-attribute-value');
 
         //Colors

@@ -2228,9 +2228,7 @@ span.badge.badge-primary.badge-circle.position-absolute {
     outline: none !important;
 }
 
-.aiz-carousel .slick-track {
-    padding-top: 20px;
-}
+
 
 .bootstrap-select .dropdown-toggle:hover,
 .bootstrap-select .dropdown-toggle:focus {
@@ -3608,7 +3606,7 @@ span.badge.badge-primary.badge-circle.position-absolute {
     .home-mobile-product-carousel .modern-price-wrap,
     .home-mobile-product-carousel .modern-price-wrap .text-primary,
     .home-mobile-product-carousel .modern-price-wrap span {
-        font-size: 9px !important;
+        font-size: 8.6px !important;
         line-height: 1.35 !important;
         flex: 0 0 80%;
         text-align: left !important;

@@ -351,20 +351,29 @@
             font-weight: 800;
         }
 
-        .attr-values-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
+        .attr-value-heading,
+        .attr-value-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 2fr) minmax(220px, 1.2fr) 48px;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .attr-value-heading {
+            margin: 20px 0 10px;
+            padding: 0 16px;
+            color: #8e8376;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .attr-value-row {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
+            margin-bottom: 12px;
+            padding: 16px;
             border: 1.5px solid #edf0f2;
-            border-radius: 999px;
+            border-radius: var(--border-radius-md);
             background: #fbfbf9;
             transition: var(--transition-smooth);
         }
@@ -381,9 +390,39 @@
             font-weight: 700;
         }
 
+        .attr-value-image-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .attr-value-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            border: 1px solid #e8e4de;
+            background: #f7f4ef;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .attr-value-image-empty {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #b8ada0;
+            font-size: 16px;
+        }
+
+        .attr-value-image-input,
+        .attr-new-image-input {
+            font-size: 12px;
+        }
+
         .attr-value-row .btn-remove-value {
-            width: 20px;
-            height: 20px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: none;
             background: #e8e4de;
@@ -415,14 +454,30 @@
         }
 
         .attr-add-value-row {
-            display: flex;
-            gap: 12px;
+            grid-template-columns: minmax(220px, 1fr) minmax(220px, 0.6fr) minmax(150px, 150px);
             margin-top: 16px;
-            align-items: center;
         }
 
         .attr-add-value-row .form-control {
-            flex: 1;
+            width: 100%;
+        }
+
+        .attr-add-value-row .attr-add-value-btn {
+            width: 100%;
+            height: 44px;
+            justify-content: center;
+            padding-left: 12px;
+            padding-right: 12px;
+            white-space: nowrap;
+            line-height: 1.15;
+        }
+
+        .attr-image-save-note {
+            display: block;
+            margin-top: 6px;
+            color: #8e8376;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         /* ── Categories display inside accordion ──────────────────── */
@@ -472,8 +527,28 @@
             }
 
             .attr-add-value-row {
-                flex-direction: column;
-                align-items: stretch;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .attr-value-heading {
+                display: none;
+            }
+
+            .attr-value-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .attr-value-row>div::before {
+                content: attr(data-label);
+                display: block;
+                margin-bottom: 6px;
+                color: #8e8376;
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
 
             .attribute-save-row {
@@ -596,24 +671,53 @@
                                     <div class="attr-values-heading">
                                         <h6><i class="las la-list-ul" style="margin-right:4px;"></i>{{ translate('Attribute Values') }}</h6>
                                     </div>
+                                    <div class="attr-value-heading">
+                                        <span>{{ translate('Option Name') }}</span>
+                                        <span>{{ translate('Image') }}</span>
+                                        <span></span>
+                                    </div>
                                     <div class="attr-values-list" data-attribute-id="{{ $attribute->id }}">
                                         @forelse ($attribute->attribute_values as $value)
                                             <div class="attr-value-row" data-value-id="{{ $value->id }}">
-                                                <span class="value-text">{{ $value->value }}</span>
-                                                <button type="button" class="btn-remove-value" title="{{ translate('Remove value') }}" data-value-id="{{ $value->id }}">
-                                                    <i class="las la-times"></i>
-                                                </button>
+                                                <div data-label="{{ translate('Option Name') }}">
+                                                    <span class="value-text">{{ $value->value }}</span>
+                                                </div>
+                                                <div class="attr-value-image-field" data-label="{{ translate('Image') }}">
+                                                    @if (!empty($value->image))
+                                                        <img class="attr-value-image" src="{{ my_asset($value->image) }}" alt="{{ $value->value }}">
+                                                    @else
+                                                        <span class="attr-value-image attr-value-image-empty">
+                                                            <i class="las la-image"></i>
+                                                        </span>
+                                                    @endif
+                                                    <div>
+                                                        <input type="file" class="form-control attr-value-image-input" accept="image/*" data-value-id="{{ $value->id }}">
+                                                        <span class="attr-image-save-note">{{ translate('Auto saves after choosing file') }}</span>
+                                                    </div>
+                                                </div>
+                                                <div data-label="{{ translate('Remove') }}">
+                                                    <button type="button" class="btn-remove-value" title="{{ translate('Remove value') }}" data-value-id="{{ $value->id }}">
+                                                        <i class="las la-times"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         @empty
                                             <div class="attr-value-empty">{{ translate('No values yet. Add values below.') }}</div>
                                         @endforelse
                                     </div>
 
-                                    <div class="attr-add-value-row">
-                                        <input type="text" class="form-control attr-new-value-input" placeholder="{{ translate('Type a value name and press Add...') }}" data-attribute-id="{{ $attribute->id }}">
-                                        <button type="button" class="btn btn-soft-primary btn-sm attr-add-value-btn" data-attribute-id="{{ $attribute->id }}">
-                                            <i class="las la-plus"></i> {{ translate('Add Value') }}
-                                        </button>
+                                    <div class="attr-value-row attr-add-value-row">
+                                        <div data-label="{{ translate('Option Name') }}">
+                                            <input type="text" class="form-control attr-new-value-input" placeholder="{{ translate('Type a value name and press Add...') }}" data-attribute-id="{{ $attribute->id }}">
+                                        </div>
+                                        <div data-label="{{ translate('Image') }}">
+                                            <input type="file" class="form-control attr-new-image-input" accept="image/*">
+                                        </div>
+                                        <div data-label="{{ translate('Add') }}">
+                                            <button type="button" class="btn btn-soft-primary btn-sm attr-add-value-btn" data-attribute-id="{{ $attribute->id }}">
+                                                <i class="las la-plus"></i> {{ translate('Add Value') }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -677,15 +781,23 @@
             function addValue(attributeId, inputEl) {
                 var value = inputEl.val().trim();
                 if (!value) return;
+                var rowEl = inputEl.closest('.attr-add-value-row');
+                var imageInput = rowEl.find('.attr-new-image-input')[0];
+                var formData = new FormData();
+                formData.append('attribute_id', attributeId);
+                formData.append('value', value);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                if (imageInput && imageInput.files && imageInput.files[0]) {
+                    formData.append('image', imageInput.files[0]);
+                }
 
                 $.ajax({
                     type: 'POST',
                     url: '{{ route("seller.ajax.store-attribute-value") }}',
-                    data: {
-                        attribute_id: attributeId,
-                        value: value,
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
+                    data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function (resp) {
                         if (!resp.success) return;
 
@@ -694,14 +806,22 @@
 
                         var row = $(
                             '<div class="attr-value-row" data-value-id="' + resp.id + '">' +
-                                '<span class="value-text">' + $('<span>').text(resp.value).html() + '</span>' +
-                                '<button type="button" class="btn-remove-value" title="{{ translate("Remove value") }}" data-value-id="' + resp.id + '">' +
-                                    '<i class="las la-times"></i>' +
-                                '</button>' +
+                                '<div data-label="{{ translate("Option Name") }}"><span class="value-text">' + $('<span>').text(resp.value).html() + '</span></div>' +
+                                '<div class="attr-value-image-field" data-label="{{ translate("Image") }}">' +
+                                    (resp.image_url ?
+                                        '<img class="attr-value-image" src="' + $('<span>').text(resp.image_url).html() + '" alt="' + $('<span>').text(resp.value).html() + '">' :
+                                        '<span class="attr-value-image attr-value-image-empty"><i class="las la-image"></i></span>'
+                                    ) +
+                                    '<div><input type="file" class="form-control attr-value-image-input" accept="image/*" data-value-id="' + resp.id + '">' +
+                                    '<span class="attr-image-save-note">{{ translate("Auto saves after choosing file") }}</span></div>' +
+                                '</div>' +
+                                '<div data-label="{{ translate("Remove") }}"><button type="button" class="btn-remove-value" title="{{ translate("Remove value") }}" data-value-id="' +
+                                    resp.id + '"><i class="las la-times"></i></button></div>' +
                             '</div>'
                         );
                         list.append(row);
                         inputEl.val('');
+                        if (imageInput) imageInput.value = '';
 
                         // Update count in header
                         var card = inputEl.closest('.attr-editor-card');
@@ -711,10 +831,44 @@
                     error: function (xhr) {
                         if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.value) {
                             alert(xhr.responseJSON.errors.value[0]);
+                        } else if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.image) {
+                            alert(xhr.responseJSON.errors.image[0]);
                         }
                     }
                 });
             }
+
+            $(document).on('change', '.attr-value-image-input', function () {
+                var input = this;
+                var valueId = $(input).data('value-id');
+                if (!input.files || !input.files[0]) return;
+
+                var formData = new FormData();
+                formData.append('image', input.files[0]);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/seller/ajax-update-attribute-value-image/' + valueId,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (resp) {
+                        if (!resp.success) return;
+
+                        var row = $(input).closest('.attr-value-row');
+                        var imageHtml = '<img class="attr-value-image" src="' + $('<span>').text(resp.image_url).html() + '" alt="">';
+                        row.find('.attr-value-image').first().replaceWith(imageHtml);
+                        input.value = '';
+                    },
+                    error: function (xhr) {
+                        if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.image) {
+                            alert(xhr.responseJSON.errors.image[0]);
+                        }
+                        input.value = '';
+                    }
+                });
+            });
 
             $(document).on('click', '.attr-add-value-btn', function () {
                 var attributeId = $(this).data('attribute-id');

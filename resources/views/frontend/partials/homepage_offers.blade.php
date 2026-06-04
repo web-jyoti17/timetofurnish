@@ -365,7 +365,7 @@
             }
             .offer-inner-carousel .modern-card-bottom-row {
                 padding-top: 6px !important;
-                margin-top: auto !important;
+                margin-top: 0px !important;
                 min-height: 28px !important;
                 align-items: flex-end !important;
                 justify-content: space-between !important;

@@ -103,11 +103,8 @@
 
                             </select>
 
-                            <!-- PRICE INFO -->
-                            {{-- <div class=" attribute-price-info" id="attribute-price-info-{{ $choice->attribute_id }}">
-                            </div>
                             <div class="product-option-preview d-none"
-                                id="attribute-preview-{{ $choice->attribute_id }}"></div> --}}
+                                id="attribute-preview-{{ $choice->attribute_id }}"></div>
 
                         </div>
 

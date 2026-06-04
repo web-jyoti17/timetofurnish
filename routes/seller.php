@@ -26,6 +26,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Seller', 'prefix' => 'seller'
         Route::get('/attributes/edit/{id}', 'edit')->name('attributes.edit');
         Route::get('/attributes/destroy/{id}', 'destroy')->name('attributes.destroy');
         Route::post('/ajax-store-attribute-value', 'ajax_store_attribute_value')->name('ajax.store-attribute-value');
+        Route::post('/ajax-update-attribute-value-image/{id}', 'ajax_update_attribute_value_image')->name('ajax.update-attribute-value-image');
         Route::delete('/ajax-destroy-attribute-value/{id}', 'ajax_destroy_attribute_value')->name('ajax.destroy-attribute-value');
     });
     

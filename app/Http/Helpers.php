@@ -2733,6 +2733,14 @@ if (!function_exists('get_product_attribute_option_details')) {
         })->first();
         $imageId = $displayStock->image ?? $matchedStocks->pluck('image')->filter()->first();
         $imageUrl = $imageId ? uploaded_asset($imageId) : '';
+        $attributeValueImage = '';
+
+        if (empty($imageUrl) && $attributeId && $value !== '' && \Illuminate\Support\Facades\Schema::hasColumn('attribute_values', 'image')) {
+            $attributeValueImage = \App\Models\AttributeValue::where('attribute_id', $attributeId)
+                ->where('value', $value)
+                ->value('image') ?? '';
+            $imageUrl = $attributeValueImage ? my_asset($attributeValueImage) : '';
+        }
 
         return [
             'attribute_id' => $attributeId,
@@ -2742,7 +2750,7 @@ if (!function_exists('get_product_attribute_option_details')) {
             'highest_price' => $highestPrice,
             'formatted_price' => $formattedPrice,
             'quantity' => (int) $matchedStocks->sum('qty'),
-            'image' => $imageId,
+            'image' => $imageId ?: $attributeValueImage,
             'image_url' => $imageUrl,
             'stocks' => $matchedStocks,
             'label' => $formattedPrice !== '' ? $value . ' (+' . $formattedPrice . ')' : $value,

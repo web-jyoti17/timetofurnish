@@ -10,6 +10,7 @@ use App\Models\AttributeValue;
 use App\Models\Category;
 use App\Models\AttributeCategory;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 use CoreComponentRepository;
 use Str; 
 class AttributeController extends Controller
@@ -51,17 +52,44 @@ class AttributeController extends Controller
         $request->validate([
             'attribute_id' => 'required|exists:attributes,id',
             'value' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
         ]);
 
         $attribute_value = new AttributeValue;
         $attribute_value->attribute_id = $request->attribute_id;
         $attribute_value->value = ucfirst($request->value);
+        if ($this->canSaveAttributeValueImage($request)) {
+            $attribute_value->image = $this->storeAttributeValueImage($request);
+        }
         $attribute_value->save();
 
         return response()->json([
             'success' => true,
             'id' => $attribute_value->id,
             'value' => $attribute_value->value,
+            'image' => $attribute_value->image,
+            'image_url' => $attribute_value->image ? my_asset($attribute_value->image) : '',
+        ]);
+    }
+
+    /**
+     * AJAX: Update an existing attribute value image inline.
+     */
+    public function ajax_update_attribute_value_image(Request $request, $id)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        ]);
+        $this->ensureAttributeValueImageColumn();
+
+        $attribute_value = AttributeValue::findOrFail($id);
+        $attribute_value->image = $this->storeAttributeValueImage($request);
+        $attribute_value->save();
+
+        return response()->json([
+            'success' => true,
+            'image' => $attribute_value->image,
+            'image_url' => $attribute_value->image ? my_asset($attribute_value->image) : '',
         ]);
     }
 
@@ -206,6 +234,9 @@ class AttributeController extends Controller
         $attribute_value = new AttributeValue;
         $attribute_value->attribute_id = $request->attribute_id;
         $attribute_value->value = ucfirst($request->value);
+        if ($this->canSaveAttributeValueImage($request)) {
+            $attribute_value->image = $this->storeAttributeValueImage($request);
+        }
         $attribute_value->save();
 
         flash(translate('Attribute value has been inserted successfully'))->success();
@@ -224,6 +255,9 @@ class AttributeController extends Controller
         
         $attribute_value->attribute_id = $request->attribute_id;
         $attribute_value->value = ucfirst($request->value);
+        if ($this->canSaveAttributeValueImage($request)) {
+            $attribute_value->image = $this->storeAttributeValueImage($request);
+        }
         
         $attribute_value->save();
 
@@ -239,6 +273,44 @@ class AttributeController extends Controller
         flash(translate('Attribute value has been deleted successfully'))->success();
         return redirect()->route('attributes.show', $attribute_values->attribute_id);
 
+    }
+
+    private function storeAttributeValueImage(Request $request): ?string
+    {
+        if (!$request->hasFile('image')) {
+            return null;
+        }
+
+        $dir = public_path('attribute');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $file = $request->file('image');
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($dir, $filename);
+
+        return 'attribute/' . $filename;
+    }
+
+    private function canSaveAttributeValueImage(Request $request): bool
+    {
+        if (!$request->hasFile('image')) {
+            return false;
+        }
+
+        $this->ensureAttributeValueImageColumn();
+
+        return true;
+    }
+
+    private function ensureAttributeValueImageColumn(): void
+    {
+        if (!Schema::hasColumn('attribute_values', 'image')) {
+            throw ValidationException::withMessages([
+                'image' => translate('Missing database column: attribute_values.image'),
+            ]);
+        }
     }
     
     public function colors(Request $request) {
