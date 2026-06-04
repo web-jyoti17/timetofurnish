@@ -576,19 +576,30 @@
 <div class="aiz-top-menu-sidebar collapse-sidebar-wrap sidebar-xl sidebar-left d-lg-none z-1035">
     <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle" data-target=".aiz-top-menu-sidebar"
         data-same=".hide-top-menu-bar"></div>
-    <div class="collapse-sidebar c-scrollbar-light text-left">
-        <button type="button"
-            class="btn btn-sm p-4 hide-top-menu-bar d-flex align-items-center justify-content-center"
-            data-toggle="class-toggle" data-target=".aiz-top-menu-sidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                fill="none" stroke="#685b4e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
+    <div class="collapse-sidebar c-scrollbar-light text-left mobile-menu-drawer">
+        <div class="mobile-menu-head">
+            <a href="{{ route('home') }}" class="mobile-menu-brand">
+                @if ($header_logo != null)
+                    <img src="{{ uploaded_asset($header_logo) }}" alt="{{ env('APP_NAME') }}">
+                @else
+                    <img src="{{ static_asset('assets/img/logo.png') }}" alt="{{ env('APP_NAME') }}">
+                @endif
+            </a>
+            <button type="button"
+                class="btn btn-sm hide-top-menu-bar mobile-menu-close d-flex align-items-center justify-content-center"
+                data-toggle="class-toggle" data-target=".aiz-top-menu-sidebar"
+                aria-label="{{ translate('Close') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                    fill="none" stroke="#685b4e" stroke-width="1.75" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
         @auth
-            <span class="d-flex align-items-center nav-user-info pl-4">
-                <!-- Image -->
+            <div class="mobile-menu-user">
                 <span class="size-40px rounded-circle overflow-hidden border border-transparent nav-user-img">
                     @if ($user->avatar_original != null)
                         <img src="{{ $user_avatar }}" class="img-fit h-100 sajdhgfjakhdgfjs"
@@ -600,13 +611,13 @@
                             onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                     @endif
                 </span>
-                <!-- Name -->
-                <h4 class="h5 fs-14 fw-700 text-dark ml-2 mb-0">{{ $user->name }}</h4>
-            </span>
+                <div class="mobile-menu-user-copy">
+                    <span>{{ translate('Welcome back') }}</span>
+                    <h4>{{ $user->name }}</h4>
+                </div>
+            </div>
         @else
-            <!--Login & Registration -->
-            <span class="d-flex align-items-center nav-user-info pl-4">
-                <!-- Image -->
+            <div class="mobile-menu-user">
                 <span
                     class="size-40px rounded-circle overflow-hidden border d-flex align-items-center justify-content-center nav-user-img">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -616,14 +627,15 @@
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </span>
-                <a href="{{ route('user.login') }}"
-                    class="text-reset opacity-60 hov-opacity-100 hov-text-primary fs-12 d-inline-block border-right border-soft-light border-width-2 pr-2 ml-3">{{ translate('Login') }}</a>
-                <!-- <a href="{{ route('user.registration') }}"
-                                    class="text-reset opacity-60 hov-opacity-100 hov-text-primary fs-12 d-inline-block py-2 pl-2">{{ translate('Registration') }}</a>-->
-            </span>
+                <div class="mobile-menu-user-copy">
+                    <span>{{ translate('Account') }}</span>
+                    <a href="{{ route('user.login') }}">{{ translate('Login') }}</a>
+                </div>
+            </div>
         @endauth
-        <hr>
-        <ul class="mb-0 pl-3 pb-3  ethe">
+
+        <div class="mobile-menu-section-title">{{ translate('Menu') }}</div>
+        <ul class="mb-0 pl-0 pb-3 ethe mobile-menu-list">
             @if (get_setting('header_menu_labels') != null)
                 @foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
                     <li class="mr-0">
@@ -637,7 +649,6 @@
             @endif
             @auth
                 @if (isAdmin())
-                    <hr>
                     <li class="mr-0">
                         <a href="{{ route('admin.dashboard') }}"
                             class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links">
@@ -645,7 +656,6 @@
                         </a>
                     </li>
                 @else
-                    <hr>
                     <li class="mr-0">
                         <a href="{{ route('dashboard') }}"
                             class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
@@ -677,7 +687,6 @@
                         </a>
                     </li>
                 @endif
-                <hr>
                 <li class="mr-0">
                     <a href="{{ route('logout') }}"
                         class="fs-13 px-3 ethe py-3 w-100 d-inline-block fw-700 text-primary header_menu_links">
@@ -685,18 +694,18 @@
                     </a>
                 </li>
             @endauth
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('') }}" class="fs-13 text-dark header_menu_links">
                     Home
                 </a>
             </li>
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('about-us') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('about-us') }}" class="fs-13 text-dark header_menu_links">
                     About Us
                 </a>
             </li>
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('categories') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('categories') }}" class="fs-13 text-dark header_menu_links">
                     Categories
                 </a>
             </li>
@@ -705,18 +714,18 @@
             Brands
             </a>
             </li> --}}
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('blog') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('blog') }}" class="fs-13 text-dark header_menu_links">
                     Blogs
                 </a>
             </li>
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('contact-us') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('contact-us') }}" class="fs-13 text-dark header_menu_links">
                     Contact Us
                 </a>
             </li>
-            <li class="mb-2 pb-2  active">
-                <a href="{{ url('career') }}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
+            <li class="mb-2 pb-2">
+                <a href="{{ url('career') }}" class="fs-13 text-dark header_menu_links">
                     Carrer
                 </a>
             </li>
@@ -856,6 +865,275 @@
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
+    }
+
+    .aiz-top-menu-sidebar .overlay.dark {
+        background: rgba(79, 66, 56, 0.42) !important;
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+
+    .mobile-menu-drawer {
+        width: min(88vw, 360px) !important;
+        max-width: 360px !important;
+        background: #fffdf9 !important;
+        border-right: 1px solid #d8c8b7 !important;
+        box-shadow: 18px 0 42px rgba(79, 66, 56, 0.18) !important;
+        padding: 0 16px 22px !important;
+    }
+
+    .mobile-menu-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 -16px;
+        padding: 18px 16px 14px;
+        background: #fffdf9;
+        border-bottom: 1px solid #eadfd3;
+    }
+
+    .mobile-menu-brand {
+        display: inline-flex;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .mobile-menu-brand img {
+        display: block;
+        max-width: 150px;
+        max-height: 42px;
+        object-fit: contain;
+    }
+
+    .mobile-menu-close {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        padding: 0 !important;
+        border: 1px solid #d8c8b7 !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        box-shadow: 0 8px 18px rgba(104, 91, 78, 0.08) !important;
+    }
+
+    .mobile-menu-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 14px 0 18px;
+        padding: 12px 4px;
+        border: 0;
+        border-bottom: 1px solid #eadfd3;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .mobile-menu-user .nav-user-img {
+        width: 46px !important;
+        height: 46px !important;
+        min-width: 46px;
+        border: 1px solid #d8c8b7 !important;
+        background: #ffffff;
+    }
+
+    .mobile-menu-user-copy {
+        min-width: 0;
+    }
+
+    .mobile-menu-user-copy span {
+        display: block;
+        color: #8c8177;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+    }
+
+    .mobile-menu-user-copy h4,
+    .mobile-menu-user-copy a {
+        display: block;
+        margin: 0;
+        color: #4f4238 !important;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mobile-menu-section-title {
+        color: #8c8177;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        margin: 4px 0 12px;
+        text-transform: uppercase;
+    }
+
+    .mobile-menu-list {
+        list-style: none !important;
+        margin: 0 !important;
+    }
+
+    .mobile-menu-list li {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .mobile-menu-list li::before,
+    .mobile-menu-list li::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .mobile-menu-list li a {
+        position: relative;
+        display: flex !important;
+        align-items: center;
+        box-sizing: border-box;
+        min-height: 46px;
+        width: 100%;
+        padding: 12px 34px 12px 4px !important;
+        border: 0 !important;
+        border-bottom: 1px solid #f0e8df !important;
+        border-radius: 0;
+        color: #4f4238 !important;
+        background: transparent;
+        font-size: 14px !important;
+        font-weight: 650 !important;
+        letter-spacing: 0 !important;
+        line-height: 1.25;
+        text-decoration: none !important;
+        text-transform: none !important;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .mobile-menu-list li a::before {
+        content: none !important;
+        display: none !important;
+    }
+
+    .mobile-menu-list li a::after {
+        content: "›" !important;
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        width: auto;
+        height: auto;
+        border: 0 !important;
+        background: transparent !important;
+        color: #9a8d80;
+        font-size: 24px;
+        font-weight: 300;
+        line-height: 1;
+        transform: translateY(-50%);
+    }
+
+    .mobile-menu-list li>a>i,
+    .mobile-menu-list li>a>.la,
+    .mobile-menu-list li>a>.las {
+        display: none !important;
+    }
+
+    .mobile-menu-list li:last-child a {
+        border-bottom: 0 !important;
+    }
+
+    .mobile-menu-list li a.animate-underline-white::before,
+    .mobile-menu-list li a.animate-underline-white::after,
+    .mobile-menu-list li a.text-sm-secondary::before,
+    .mobile-menu-list li a.text-sm-secondary::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    .mobile-menu-list li a:hover,
+    .mobile-menu-list li a.active {
+        background: #f8f4ef !important;
+        color: #685b4e !important;
+        padding-left: 12px !important;
+        border-bottom-color: #eadfd3 !important;
+    }
+
+    .mobile-menu-list li a.text-primary,
+    .mobile-menu-list li a[href*="logout"] {
+        color: #685b4e !important;
+    }
+
+    .mobile-menu-drawer .footer-social {
+        margin: 14px 0 0 !important;
+        padding: 14px 4px 0;
+        border-top: 1px solid #eadfd3;
+    }
+
+    .mobile-menu-drawer .footer-social h5 {
+        color: #8c8177 !important;
+        font-size: 11px !important;
+        letter-spacing: 0.6px;
+        margin-bottom: 12px !important;
+    }
+
+    .mobile-menu-drawer .footer-social .social {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 9px;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .mobile-menu-drawer .footer-social .social li {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .mobile-menu-drawer .footer-social .social a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border: 1px solid #d8c8b7;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #685b4e !important;
+        box-shadow: 0 6px 14px rgba(104, 91, 78, 0.07);
+    }
+
+    .mobile-menu-drawer .footer-social .social a i {
+        color: #685b4e !important;
+        font-size: 18px;
+        line-height: 1;
+    }
+
+    .mobile-menu-drawer .footer-social .social a img {
+        width: 17px;
+        height: 17px;
+        object-fit: contain;
+    }
+
+    @media (max-width: 380px) {
+        .mobile-menu-drawer {
+            width: 92vw !important;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+
+        .mobile-menu-head {
+            margin-left: -14px;
+            margin-right: -14px;
+        }
     }
 </style>
 

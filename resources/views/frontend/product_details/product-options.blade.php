@@ -2,7 +2,7 @@
     <form id="option-choice-form">
         @csrf
         <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
-        @if(isset($cartItem))
+        @if (isset($cartItem))
             <input type="hidden" name="cart_item_id" value="{{ $cartItem->id }}">
         @endif
         @php
@@ -64,7 +64,8 @@
                                 data-attribute="{{ $choice->attribute_id }}"
                                 onchange="getVariantPrice(); updateVariantOptionPrice(this);">
 
-                                <option value="" @if(!isset($cartItem) || !$cartItem->variation) selected @endif>Choose Option</option>
+                                <option value="" @if (!isset($cartItem) || !$cartItem->variation) selected @endif>Choose Option
+                                </option>
                                 @foreach (get_product_choice_values($choice) as $choiceKey => $choiceValue)
                                     @php
                                         $value = \App\Utility\ProductUtility::choice_value($choiceValue);
@@ -72,24 +73,28 @@
                                             'product' => $detailedProduct,
                                             'attribute_id' => $choice->attribute_id,
                                         ]);
-                                        
+
                                         // Normalize option value by stripping spaces, double quotes, and single quotes
                                         $normalizedValue = str_replace([' ', '"', "'"], '', $value);
-                                        
+
                                         // Normalize variation parts by stripping spaces, double quotes, and single quotes
-                                        $normalizedParts = array_map(function($part) {
+                                        $normalizedParts = array_map(function ($part) {
                                             return str_replace([' ', '"', "'"], '', $part);
                                         }, $variationParts);
-                                        
+
                                         // Fallback for options containing dashes (e.g. "4FT Small Double -") where explode('-') splits the value
                                         $normalizedValNoDashes = str_replace([' ', '"', "'", '-'], '', $value);
-                                        $normalizedVariation = str_replace([' ', '"', "'", '-'], '', $cartItem->variation ?? '');
-                                        
-                                        $is_selected = isset($cartItem) && (
-                                            in_array($normalizedValue, $normalizedParts) || 
-                                            in_array($normalizedValNoDashes, $normalizedParts) ||
-                                            $normalizedVariation === $normalizedValNoDashes
+                                        $normalizedVariation = str_replace(
+                                            [' ', '"', "'", '-'],
+                                            '',
+                                            $cartItem->variation ?? '',
                                         );
+
+                                        $is_selected =
+                                            isset($cartItem) &&
+                                            (in_array($normalizedValue, $normalizedParts) ||
+                                                in_array($normalizedValNoDashes, $normalizedParts) ||
+                                                $normalizedVariation === $normalizedValNoDashes);
                                     @endphp
 
                                     <option value="{{ e($value) }}" data-price="{{ $optionDetails['price'] }}"
@@ -184,11 +189,15 @@
                                                         } else {
                                                             $selectedGroupName = $selectedOptionName;
                                                         }
-                                                        
-                                                        $addonOptionDetails = get_product_option_display_details('addon', $option);
+
+                                                        $addonOptionDetails = get_product_option_display_details(
+                                                            'addon',
+                                                            $option,
+                                                        );
                                                         $selectedFabricNameWithPrice = $addonOptionDetails['value'];
                                                         if ($addonOptionDetails['price'] > 0) {
-                                                            $selectedFabricNameWithPrice .= ' (+' . $addonOptionDetails['formatted_price'] . ')';
+                                                            $selectedFabricNameWithPrice .=
+                                                                ' (+' . $addonOptionDetails['formatted_price'] . ')';
                                                         }
                                                         break 2;
                                                     }
@@ -201,20 +210,21 @@
                             <select class="form-select custom-dropdown fabric-dropdown"
                                 name="addons_group[{{ $addon->id }}]" data-addonid="{{ $addon->id }}"
                                 onchange="updateFabricPreview({{ $addon->id }}, this);"
-                                @if($selectedFabricNameWithPrice) data-selected-fabric="{{ $selectedFabricNameWithPrice }}" @endif>
+                                @if ($selectedFabricNameWithPrice) data-selected-fabric="{{ $selectedFabricNameWithPrice }}" @endif>
 
                                 <option value="">Choose Option</option>
 
                                 @foreach ($fabricGroups as $groupName => $groupOptions)
                                     <option value="{{ $groupName }}" data-group="{{ $groupName }}"
-                                        @if($groupName == $selectedGroupName) selected @endif>
+                                        @if ($groupName == $selectedGroupName) selected @endif>
                                         {{ $groupName }}
                                     </option>
                                 @endforeach
                             </select>
 
-                            @if($selectedOptionId)
-                                <input type="hidden" name="addons[{{ $addon->id }}]" value="{{ $selectedOptionId }}" />
+                            @if ($selectedOptionId)
+                                <input type="hidden" name="addons[{{ $addon->id }}]"
+                                    value="{{ $selectedOptionId }}" />
                             @endif
 
                             <span id="addon-price-info-{{ $addon->id }}" class="addon-price-info d-none"></span>
@@ -223,7 +233,8 @@
                                 id="fabric-preview-block-{{ $addon->id }}">
 
                                 @foreach ($fabricGroups as $groupName => $groupOptions)
-                                    <div class="fabric-preview-group @if($groupName == $selectedGroupName) @else d-none @endif" data-group="{{ $groupName }}"
+                                    <div class="fabric-preview-group @if ($groupName == $selectedGroupName) @else d-none @endif"
+                                        data-group="{{ $groupName }}"
                                         id="fabric-preview-group-{{ $addon->id }}-{{ \Str::slug($groupName) }}">
 
                                         @foreach ($groupOptions as $option)
@@ -232,9 +243,10 @@
                                                     'addon',
                                                     $option,
                                                 );
-                                                $is_selected_fabric = ($option->option_name == $selectedOptionName);
+                                                $is_selected_fabric = $option->option_name == $selectedOptionName;
                                             @endphp
-                                            <button type="button" class="p-0 fabric-color-box btn @if($is_selected_fabric) selected @endif"
+                                            <button type="button"
+                                                class="p-0 fabric-color-box btn @if ($is_selected_fabric) selected @endif"
                                                 data-addonid="{{ $addon->id }}" data-group="{{ $groupName }}"
                                                 data-price="{{ $addonOptionDetails['price'] }}"
                                                 data-price-text="{{ $addonOptionDetails['formatted_price'] }}"
@@ -296,7 +308,7 @@
                                 @foreach ($addon->options as $option)
                                     @php
                                         $addonOptionDetails = get_product_option_display_details('addon', $option);
-                                        $is_selected_addon = ($option->option_name == $selectedOptionName);
+                                        $is_selected_addon = $option->option_name == $selectedOptionName;
                                     @endphp
                                     <option value="{{ $addonOptionDetails['id'] }}"
                                         data-price="{{ $addonOptionDetails['price'] }}"
@@ -304,7 +316,7 @@
                                         data-quantity="{{ $addonOptionDetails['quantity'] }}"
                                         data-img="{{ $addonOptionDetails['image_url'] }}"
                                         data-name="{{ $addonOptionDetails['value'] }}"
-                                        @if($is_selected_addon) selected @endif>
+                                        @if ($is_selected_addon) selected @endif>
 
                                         {{ $addonOptionDetails['label'] }}
 
@@ -414,7 +426,7 @@
                         margin-top: 10px;
                         display: inline-flex;
                         align-items: center;
-                        min-height: 34px;
+                        min-height: 60px;
                         gap: 8px;
                     }
 
@@ -423,8 +435,8 @@
                     }
 
                     .product-option-preview img {
-                        width: 34px;
-                        height: 34px;
+                        width: 60px;
+                        height: 60px;
                         object-fit: cover;
                         border-radius: 6px;
                         border: 1px solid #e5e5e5;
@@ -464,8 +476,9 @@
                             <input type="number" name="quantity" id="quantity"
                                 class="px-0 py-0 text-center border-0 form-control flex-grow-1 bg-divider quantity-input"
                                 style="width:60px;height:40px;box-shadow:none;background: #ded3c3; font-size: 22px; color: #888; font-weight: 500; border-radius: 0;"
-                                value="{{ isset($cartItem) ? max($cartItem->quantity, $detailedProduct->min_qty) : $detailedProduct->min_qty }}" min="{{ $detailedProduct->min_qty }}"
-                                max="10" placeholder="1" lang="en" autocomplete="off" onblur="change_qty()">
+                                value="{{ isset($cartItem) ? max($cartItem->quantity, $detailedProduct->min_qty) : $detailedProduct->min_qty }}"
+                                min="{{ $detailedProduct->min_qty }}" max="10" placeholder="1" lang="en"
+                                autocomplete="off" onblur="change_qty()">
                             <button
                                 class="border-0 btn btn-icon btn-quantity d-flex align-items-center justify-content-center"
                                 type="button" data-type="plus" data-field="quantity"
@@ -483,7 +496,8 @@
                                 $qty += $stock->qty;
                             }
                         @endphp
-                        <input type="hidden" name="qty1" id="qty1" value="{{ $qty1 + (isset($cartItem) ? $cartItem->quantity : 0) }}">
+                        <input type="hidden" name="qty1" id="qty1"
+                            value="{{ $qty1 + (isset($cartItem) ? $cartItem->quantity : 0) }}">
                         <div class="pl-3 ml-2 available-amount border-left" style="font-size: 14px; color: #888;">
                             @if ($detailedProduct->stock_visibility_state == 'quantity')
                                 (<span id="available-quantity" style="font-weight:600;">{{ $qty }}</span>
@@ -502,7 +516,7 @@
             <input type="hidden" name="quantity" value="1">
         @endif
 
-        <div class="mb-3 row no-gutters @if(!isset($cartItem)) d-none @endif" id="total-price-div">
+        <div class="mb-3 row no-gutters @if (!isset($cartItem)) d-none @endif" id="total-price-div">
             <div class="col-sm-2">
                 <div class="text-black fs-18 fw-600" style="color: #333 !important;">
                     {{ translate('Total Price') }}
@@ -513,7 +527,7 @@
                     <!-- Regular Price (with Addon total UI dynamic addition) -->
                     <strong class="fs-20 fw-600 text-primary js-product-total-price" id="total-pricing"
                         data-default-price-text="{{ home_discounted_base_price($detailedProduct) }}">
-                        @if(isset($cartItem))
+                        @if (isset($cartItem))
                             {{ single_price(($cartItem->price + $cartItem->addon_price) * $cartItem->quantity) }}
                         @else
                             {{ home_discounted_base_price($detailedProduct) }}
@@ -552,7 +566,7 @@
                 <div class="col-sm-3">
                     <div class="mt-1 text-secondary fs-15 fw-500" style="color:#333 !important">
                         {{ translate('Dispatch
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Time') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Time') }}
                     </div>
                 </div>
                 <div class="col-sm-9">
@@ -992,7 +1006,7 @@
         // ---------------------------------
         // Dynamic Enable/Disable Action Buttons
         // ---------------------------------
-         function checkEnableDisableButtons() {
+        function checkEnableDisableButtons() {
             @if (isset($cartItem))
                 let isEligible = true;
             @else
@@ -1135,7 +1149,8 @@
                 var addonId = $(this).data('addonid');
                 updateFabricPreview(addonId, this);
 
-                var selectedFabric = $('#fabric-preview-block-' + addonId).find('.fabric-color-box.selected');
+                var selectedFabric = $('#fabric-preview-block-' + addonId).find(
+                    '.fabric-color-box.selected');
                 if (selectedFabric.length) {
                     renderProductOptionPreview('#addon-preview-' + addonId, {
                         image: selectedFabric.data('img') || '',
