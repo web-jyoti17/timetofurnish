@@ -12,81 +12,99 @@
         </div>
     </section>
 @endif
-<section class="py-3 text-light footer-widget iuytrey" style=" background-color: #dacbbc !important;">
+<section class="py-4 text-light footer-widget iuytrey footer-newsletter-section">
     <div class="container">
-
-        <div class="row">
+        <div class="row align-items-center footer-newsletter-row">
             <!-- about & subscription -->
-            <div class="col-xl-6 col-lg-6  justify-content-between gap-5">
+            <div class="col-lg-7 newsletter-column">
                 <!--<div class="mb-4 text-secondary text-justify">
                     {!! get_setting('about_us_description', null, App::getLocale()) !!}
                 </div>-->
-                <h5 class="fs-14 fw-700  mt-3 mb-3" style="color:#000">
+                <h5 class="fs-14 fw-700 mb-3">
                     {{ translate('Subscribe to our newsletter for regular updates about Offers, Coupons & more') }}</h5>
                 <div class="mb-3">
                     <form method="POST" action="{{ route('subscribers.store') }}">
                         @csrf
-                        <div class="position-relative">
-                            <input type="email" class="form-control text-white w-100"
+                        <div class="position-relative newsletter-form-wrap">
+                            <input type="email" class="form-control w-100"
                                 placeholder="{{ translate('Your Email Address') }}" name="email" required
-                                style="padding: 12px 160px 12px 24px; border-radius:50px; background: #fff; border:none;">
+                                style="padding: 12px 160px 12px 24px; border-radius:50px; background: #fff; border:1.5px solid #eadfd3; color:#39322a;">
                             <button type="submit"
                                 class="btn borderbtn position-absolute d-flex align-items-center justify-content-center"
-                                style="right: 4px; top: 4px; bottom: 4px; min-width: 130px; border-radius: 50px;">
-                                <span class="d-none d-sm-block ">{{ translate('Subscribe') }}</span>
+                                style="right: 4px; top: 4px; bottom: 4px; min-width: 130px; border-radius: 50px; background:#685b4e; color:#fff; border:none;">
+                                <span class="d-sm-block ">{{ translate('Subscribe') }}</span>
                                 <i class="las la-arrow-right d-sm-none" style="font-size: 20px;"></i>
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-            <!--shivani-->
-            <!--shivani-->
+            <!--col-xxl-6-->
 
 
 
             <!-- Follow & Apps -->
-            <div class="col-xxl-6 col-xl-6 col-lg-5  footer-social  justify-content-right align-items-right">
+            <div class="col-lg-5 footer-social">
                 <!-- Social -->
                 @if (get_setting('show_social_links'))
                     <h5 class="fs-14 fw-700 text-secondary text-right text-uppercase mt-3 mt-lg-0">
                         {{ translate('Follow Us') }}</h5>
-                    <ul class="list-inline social colored mb-4 w-75 justify-content-right ">
+                    <ul class="list-inline social footer-social-list mb-0 justify-content-right ">
                         @if (!empty(get_setting('facebook_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('facebook_link') }}" target="_blank" class="facebook"><i
-                                        class="lab la-facebook-f"></i></a>
+                                <a href="{{ get_setting('facebook_link') }}" target="_blank" class="facebook" aria-label="Facebook">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                    </svg>
+                                </a>
                             </li>
                         @endif
                         @if (!empty(get_setting('twitter_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('twitter_link') }}" target="_blank" class="twitter"><img
-                                        src="{{ static_asset('assets/img/x-logo.png') }}"
-                                        alt="{{ translate('x') }}"></a>
+                                <a href="{{ get_setting('twitter_link') }}" target="_blank" class="twitter" aria-label="X">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
+                                </a>
                             </li>
                         @endif
                         @if (!empty(get_setting('instagram_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('instagram_link') }}" target="_blank" class="instagram"><i
-                                        class="lab la-instagram"></i></a>
+                                <a href="{{ get_setting('instagram_link') }}" target="_blank" class="instagram" aria-label="Instagram">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                    </svg>
+                                </a>
                             </li>
                         @endif
                         @if (!empty(get_setting('youtube_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('youtube_link') }}" target="_blank" class="youtube"><i
-                                        class="lab la-youtube"></i></a>
+                                <a href="{{ get_setting('youtube_link') }}" target="_blank" class="youtube" aria-label="YouTube">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                                        <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor"/>
+                                    </svg>
+                                </a>
                             </li>
                         @endif
                         @if (!empty(get_setting('linkedin_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('linkedin_link') }}" target="_blank" class="linkedin"><i
-                                        class="lab la-linkedin-in"></i></a>
+                                <a href="{{ get_setting('linkedin_link') }}" target="_blank" class="linkedin" aria-label="LinkedIn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                                        <rect x="2" y="9" width="4" height="12"/>
+                                        <circle cx="4" cy="4" r="2" fill="currentColor"/>
+                                    </svg>
+                                </a>
                             </li>
                         @endif
                         @if (!empty(get_setting('pinterest_link')))
                             <li class="list-inline-item ml-2 mr-2">
-                                <a href="{{ get_setting('pinterest_link') }}" target="_blank" class="linkedin"><i
-                                        class="lab la-pinterest"></i></a>
+                                <a href="{{ get_setting('pinterest_link') }}" target="_blank" class="pinterest" aria-label="Pinterest">
+                                    <i class="lab la-pinterest-p"></i>
+                                </a>
                             </li>
                         @endif
                     </ul>
@@ -123,13 +141,7 @@
 
 
 
-
-
-
         </div>
-
-
-    </div>
     </div>
 </section>
 
@@ -708,12 +720,11 @@
 <div class="container px-xs-0">
     <div class="col-lg-12 order-1 order-lg-0 mt-2  mb-sm-50">
         <div class=" text-justify fs-14" current-verison="{{ get_setting('current_version') }}">
-            <p class="footer-content" style="letter-spacing:1px;">We operate as an independent third-party marketplace
-                and are not liable for the accuracy, originality, or legality of any images or content uploaded by
-                sellers. All such materials are the sole responsibility of the seller, including any content copied or
-                reproduced from external platforms.
-                Please read our <a href="/seller-terms-conditions" target="_blank" rel="noopener"> <b>Terms and
-                        Conditions </b></p>
+            <p class="footer-content" style="letter-spacing:0.5px; line-height: 1.6;">
+                <span class="footer-text-short">We operate as an independent third-party marketplace and are not liable...</span>
+                <span class="footer-text-full d-none">We operate as an independent third-party marketplace and are not liable for the accuracy, originality, or legality of any images or content uploaded by sellers. All such materials are the sole responsibility of the seller, including any content copied or reproduced from external platforms. Please read our <a href="/seller-terms-conditions" target="_blank" rel="noopener"><b>Terms and Conditions</b></a>.</span>
+                <a href="javascript:void(0);" class="footer-read-more-btn ml-1" style="color: #685b4e; font-weight: 700; font-size: 13px; text-decoration: underline;">Read More</a>
+            </p>
         </div>
     </div>
 </div>
@@ -1020,5 +1031,27 @@
     // Outside click close
     document.addEventListener('click', function() {
         document.getElementById('flagDropdown').style.display = 'none';
+    });
+
+    // Footer read more/less toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const readMoreBtn = document.querySelector('.footer-read-more-btn');
+        const shortText = document.querySelector('.footer-text-short');
+        const fullText = document.querySelector('.footer-text-full');
+        
+        if (readMoreBtn && shortText && fullText) {
+            readMoreBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (fullText.classList.contains('d-none')) {
+                    fullText.classList.remove('d-none');
+                    shortText.classList.add('d-none');
+                    readMoreBtn.textContent = 'Read Less';
+                } else {
+                    fullText.classList.add('d-none');
+                    shortText.classList.remove('d-none');
+                    readMoreBtn.textContent = 'Read More';
+                }
+            });
+        }
     });
 </script>

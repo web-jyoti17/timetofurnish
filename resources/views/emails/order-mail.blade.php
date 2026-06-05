@@ -149,9 +149,13 @@
         }
 
         .addons td {
-            border-bottom: 0;
-            font-size: 10px;
+            border-bottom: 1px solid #e5ddd3;
+            font-size: 9px;
             padding: 4px 6px;
+        }
+
+        .addons tr:last-child td {
+            border-bottom: 0 !important;
         }
 
         .totals {
@@ -239,11 +243,18 @@
                 margin-top: 10px !important;
             }
             .footer-col {
-                padding: 10px 0 !important;
+                padding: 5px 0 !important;
                 text-align: center !important;
             }
             .footer-col table {
                 margin: 0 auto !important;
+            }
+            .footer-col img {
+                width: 24px !important;
+                height: 24px !important;
+            }
+            .footer table {
+                margin: 10px auto 0 !important;
             }
             /* Items responsive stacking */
             .items > thead, .items > thead > tr > th, .items > tbody > tr > th {
@@ -602,39 +613,38 @@
                                                             {{ $orderDetail->variation }}</div>
                                                     @endif
                                                     @if (!empty($addons))
-                                                         <table class="addons" width="100%" cellpadding="0"
-                                                             cellspacing="0" role="presentation" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
-                                                             <colgroup>
-                                                                 <col style="width: 10%;">
-                                                                 <col style="width: 30%;">
-                                                                 <col style="width: 43%;">
-                                                                 <col style="width: 17%;">
-                                                             </colgroup>
-                                                             @foreach ($addons as $addon)
-                                                                 @php
-                                                                     $addonImage = $addonImageSrc($addon);
-                                                                 @endphp
-                                                                 <tr>
-                                                                     <td style="width: 10%; text-align: left; vertical-align: top;">
-                                                                         @if ($addonImage)
-                                                                             <img src="{{ $addonImage }}"
-                                                                                 alt="{{ $addon['name'] ?? ($addon['value'] ?? 'Addon') }}"
-                                                                                 width="28" height="28"
-                                                                                 style="display:block;width:28px;height:28px;object-fit:cover;border-radius:4px;border:1px solid #e5ddd3;">
-                                                                         @endif
-                                                                     </td>
-                                                                     <td style="width: 30%; text-align: left; vertical-align: top; color: #6b5a45;">
-                                                                         {{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}
-                                                                     </td>
-                                                                     <td style="width: 43%; text-align: left; vertical-align: top;">
-                                                                         {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
-                                                                     </td>
-                                                                     <td class="nowrap" style="width: 17%; text-align: left; vertical-align: top;">
-                                                                         {{ single_price($addon['price'] ?? 0) }}
-                                                                     </td>
-                                                                 </tr>
-                                                             @endforeach
-                                                         </table>
+                                                          <table class="addons" width="100%" cellpadding="0"
+                                                              cellspacing="0" role="presentation" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
+                                                              <colgroup>
+                                                                  <col style="width: 38%;">
+                                                                  <col style="width: 45%;">
+                                                                  <col style="width: 17%;">
+                                                              </colgroup>
+                                                              @foreach ($addons as $addon)
+                                                                  @php
+                                                                      $addonImage = $addonImageSrc($addon);
+                                                                  @endphp
+                                                                  <tr>
+                                                                      <td style="width: 38%; text-align: left; vertical-align: top; color: #6b5a45; font-size: 9px;">
+                                                                          <div>{{ $addon['addon_name'] ?? ($addon['key'] ?? 'Addon') }}</div>
+                                                                          @if ($addonImage)
+                                                                              <div style="margin-top: 4px;">
+                                                                                  <img src="{{ $addonImage }}"
+                                                                                      alt="{{ $addon['name'] ?? ($addon['value'] ?? 'Addon') }}"
+                                                                                      width="28" height="28"
+                                                                                      style="display:block;width:28px;height:28px;object-fit:cover;border-radius:4px;border:1px solid #e5ddd3;">
+                                                                              </div>
+                                                                          @endif
+                                                                      </td>
+                                                                      <td style="width: 45%; text-align: left; vertical-align: top; font-size: 9px;">
+                                                                          {{ $addon['name'] ?? ($addon['value'] ?? '-') }}
+                                                                      </td>
+                                                                      <td class="nowrap" style="width: 17%; text-align: left; vertical-align: top; font-size: 9px;">
+                                                                          {{ single_price($addon['price'] ?? 0) }}
+                                                                      </td>
+                                                                  </tr>
+                                                              @endforeach
+                                                          </table>
                                                      @endif
                                                 </td>
                                                 <td class="item-td center">
@@ -733,84 +743,29 @@
                             </div>
 
                             <table cellpadding="0" cellspacing="0" role="presentation"
-                                style="margin:20px auto 0;width:100%;max-width:700px;">
-
+                                style="margin:15px auto 0;width:100%;max-width:320px;">
                                 <tr>
-
-                                    <!-- EMAIL -->
-                                    <td class="col-block footer-col" align="center"
-                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
-
-                                        <table cellpadding="0" cellspacing="0" role="presentation">
-                                            <tr>
-                                                <td style="vertical-align:middle;padding-right:10px;">
-                                                    <img src="{{ asset('public/assets/img/email.jpeg') }}"
-                                                        alt="Email" width="40" height="40"
-                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
-                                                </td>
-
-                                                <td style="vertical-align:middle;">
-                                                    {{ $companyEmail }}
-                                                </td>
-                                            </tr>
-                                        </table>
-
+                                    <td align="center" style="font-size:12px;color:#333;line-height:1.6;padding:10px 0;">
+                                        <div style="margin-bottom:8px;">
+                                            <img src="{{ $assetPath('assets/img/email.jpeg') }}"
+                                                alt="Email" width="16" height="16"
+                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
+                                            <span style="vertical-align:middle;">{{ $companyEmail }}</span>
+                                        </div>
+                                        <div style="margin-bottom:8px;">
+                                            <img src="{{ $assetPath('assets/img/website.jpeg') }}"
+                                                alt="Website" width="16" height="16"
+                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
+                                            <span style="vertical-align:middle;">{{ $companyWebsite }}</span>
+                                        </div>
+                                        <div>
+                                            <img src="{{ $assetPath('assets/img/whatsapp.jpeg') }}"
+                                                alt="Phone" width="16" height="16"
+                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
+                                            <span style="vertical-align:middle;">{{ $companyPhone }}</span>
+                                        </div>
                                     </td>
-
-
-                                    <!-- WEBSITE -->
-                                    <td class="col-block footer-col" align="center"
-                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
-
-                                        <table cellpadding="0" cellspacing="0" role="presentation">
-                                            <tr>
-
-                                                <td style="vertical-align:middle;padding-right:10px;">
-
-                                                    <img src="{{ asset('public/assets/img/website.jpeg') }}"
-                                                        alt="Website" width="40" height="40"
-                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
-
-                                                </td>
-
-                                                <td style="vertical-align:middle;">
-                                                    {{ $companyWebsite }}
-                                                </td>
-
-                                            </tr>
-                                        </table>
-
-                                    </td>
-
-
-                                    <!-- PHONE -->
-                                    <td class="col-block footer-col" align="center"
-                                        style="font-size:13px;color:#333;vertical-align:middle;padding:0 10px;">
-
-                                        <table cellpadding="0" cellspacing="0" role="presentation">
-
-                                            <tr>
-
-                                                <td style="vertical-align:middle;padding-right:10px;">
-
-                                                    <img src="{{ asset('public/assets/img/whatsapp.jpeg') }}"
-                                                        alt="Phone" width="40" height="40"
-                                                        style="display:block;width:40px;height:40px;object-fit:contain;">
-
-                                                </td>
-
-                                                <td style="vertical-align:middle;">
-                                                    {{ $companyPhone }}
-                                                </td>
-
-                                            </tr>
-
-                                        </table>
-
-                                    </td>
-
                                 </tr>
-
                             </table>
                         </td>
                     </tr>

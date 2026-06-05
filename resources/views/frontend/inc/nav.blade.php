@@ -600,7 +600,7 @@
 
         @auth
             <div class="mobile-menu-user">
-                <span class="size-40px rounded-circle overflow-hidden border border-transparent nav-user-img">
+                <span class="nav-user-img">
                     @if ($user->avatar_original != null)
                         <img src="{{ $user_avatar }}" class="img-fit h-100 sajdhgfjakhdgfjs"
                             alt="{{ translate('avatar') }}"
@@ -618,13 +618,12 @@
             </div>
         @else
             <div class="mobile-menu-user">
-                <span
-                    class="size-40px rounded-circle overflow-hidden border d-flex align-items-center justify-content-center nav-user-img">
+                <span class="nav-user-img">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                        fill="none" stroke="#685b4e" stroke-width="1.75" stroke-linecap="round"
+                        fill="none" stroke="#685b4e" stroke-width="1.8" stroke-linecap="round"
                         stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                     </svg>
                 </span>
                 <div class="mobile-menu-user-copy">
@@ -636,99 +635,100 @@
 
         <div class="mobile-menu-section-title">{{ translate('Menu') }}</div>
         <ul class="mb-0 pl-0 pb-3 ethe mobile-menu-list">
+            <li class="mr-0">
+                <a href="{{ url('') }}" class="@if (request()->is('/')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="mr-0">
+                <a href="{{ url('about-us') }}" class="@if (request()->is('about-us')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>About Us</span>
+                </a>
+            </li>
+            <li class="mr-0">
+                <a href="{{ url('categories') }}" class="@if (request()->is('categories')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="mr-0">
+                <a href="{{ url('blog') }}" class="@if (request()->is('blog') || request()->is('blog/*')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li class="mr-0">
+                <a href="{{ url('contact-us') }}" class="@if (request()->is('contact-us')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>Contact Us</span>
+                </a>
+            </li>
+            <li class="mr-0">
+                <a href="{{ url('career') }}" class="@if (request()->is('career')) active @endif">
+                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    <span>Career</span>
+                </a>
+            </li>
             @if (get_setting('header_menu_labels') != null)
                 @foreach (json_decode(get_setting('header_menu_labels'), true) as $key => $value)
                     <li class="mr-0">
                         <a href="{{ json_decode(get_setting('header_menu_links'), true)[$key] }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
-                            @if (url()->current() == json_decode(get_setting('header_menu_links'), true)[$key]) active @endif">
-                            {{ translate($value) }}
+                            class="@if (url()->current() == json_decode(get_setting('header_menu_links'), true)[$key]) active @endif">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                            <span>{{ translate($value) }}</span>
                         </a>
                     </li>
                 @endforeach
             @endif
             @auth
                 @if (isAdmin())
-                    <li class="mr-0">
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links">
-                            {{ translate('My Account') }}
+                    <li class="mr-0 mobile-menu-account-item">
+                        <a href="{{ route('admin.dashboard') }}">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>{{ translate('My Account') }}</span>
                         </a>
                     </li>
                 @else
-                    <li class="mr-0">
+                    <li class="mr-0 mobile-menu-account-item">
                         <a href="{{ route('dashboard') }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
-                                {{ areActiveRoutes(['dashboard'], ' active') }}">
-                            {{ translate('My Account') }}
+                            class="{{ areActiveRoutes(['dashboard'], ' active') }}">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span>{{ translate('My Account') }}</span>
                         </a>
                     </li>
                 @endif
                 @if (isCustomer())
                     <li class="mr-0">
                         <a href="{{ route('all-notifications') }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
-                                {{ areActiveRoutes(['all-notifications'], ' active') }}">
-                            {{ translate('Notifications') }}
+                            class="{{ areActiveRoutes(['all-notifications'], ' active') }}">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            <span>{{ translate('Notifications') }}</span>
                         </a>
                     </li>
                     <li class="mr-0">
                         <a href="{{ route('wishlists.index') }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
-                                {{ areActiveRoutes(['wishlists.index'], ' active') }}">
-                            {{ translate('Wishlist') }}
+                            class="{{ areActiveRoutes(['wishlists.index'], ' active') }}">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            <span>{{ translate('Wishlist') }}</span>
                         </a>
                     </li>
                     <li class="mr-0">
                         <a href="{{ route('compare') }}"
-                            class="fs-13 px-3 py-3 w-100 d-inline-block fw-700 text-dark header_menu_links
-                                {{ areActiveRoutes(['compare'], ' active') }}">
-                            {{ translate('Compare') }}
+                            class="{{ areActiveRoutes(['compare'], ' active') }}">
+                            <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            <span>{{ translate('Compare') }}</span>
                         </a>
                     </li>
                 @endif
-                <li class="mr-0">
-                    <a href="{{ route('logout') }}"
-                        class="fs-13 px-3 ethe py-3 w-100 d-inline-block fw-700 text-primary header_menu_links">
-                        {{ translate('Logout') }}
+                <li class="mr-0 mobile-menu-logout-item">
+                    <a href="{{ route('logout') }}" class="logout-link">
+                        <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>{{ translate('Logout') }}</span>
                     </a>
                 </li>
             @endauth
-            <li class="mb-2 pb-2">
-                <a href="{{ url('') }}" class="fs-13 text-dark header_menu_links">
-                    Home
-                </a>
-            </li>
-            <li class="mb-2 pb-2">
-                <a href="{{ url('about-us') }}" class="fs-13 text-dark header_menu_links">
-                    About Us
-                </a>
-            </li>
-            <li class="mb-2 pb-2">
-                <a href="{{ url('categories') }}" class="fs-13 text-dark header_menu_links">
-                    Categories
-                </a>
-            </li>
-            {{-- <li class="mb-2 pb-2  active">
-                            <a href="{{url('brands')}}" class="fs-13 text-dark text-sm-secondary animate-underline-white">
-            Brands
-            </a>
-            </li> --}}
-            <li class="mb-2 pb-2">
-                <a href="{{ url('blog') }}" class="fs-13 text-dark header_menu_links">
-                    Blogs
-                </a>
-            </li>
-            <li class="mb-2 pb-2">
-                <a href="{{ url('contact-us') }}" class="fs-13 text-dark header_menu_links">
-                    Contact Us
-                </a>
-            </li>
-            <li class="mb-2 pb-2">
-                <a href="{{ url('career') }}" class="fs-13 text-dark header_menu_links">
-                    Carrer
-                </a>
-            </li>
         </ul>
         <div class="ml-2 footer-social">
             <!-- Social -->
@@ -739,7 +739,9 @@
                         <li class="list-inline-item ml-2 mr-2">
                             <a href="{{ get_setting('facebook_link') }}" target="_blank" rel="noopener"
                                 class="facebook" aria-label="{{ translate('Facebook') }}">
-                                <i class="lab la-facebook-f"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
                             </a>
                         </li>
                     @endif
@@ -747,6 +749,9 @@
                         <li class="list-inline-item ml-2 mr-2">
                             <a href="{{ get_setting('twitter_link') }}" target="_blank" rel="noopener"
                                 class="twitter" aria-label="{{ translate('X') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
                             </a>
                         </li>
                     @endif
@@ -754,7 +759,11 @@
                         <li class="list-inline-item ml-2 mr-2">
                             <a href="{{ get_setting('instagram_link') }}" target="_blank" rel="noopener"
                                 class="instagram" aria-label="{{ translate('Instagram') }}">
-                                <i class="lab la-instagram"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                </svg>
                             </a>
                         </li>
                     @endif
@@ -762,7 +771,10 @@
                         <li class="list-inline-item ml-2 mr-2">
                             <a href="{{ get_setting('youtube_link') }}" target="_blank" rel="noopener"
                                 class="youtube" aria-label="{{ translate('YouTube') }}">
-                                <i class="lab la-youtube"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="currentColor"/>
+                                </svg>
                             </a>
                         </li>
                     @endif
@@ -770,18 +782,21 @@
                         <li class="list-inline-item ml-2 mr-2">
                             <a href="{{ get_setting('linkedin_link') }}" target="_blank" rel="noopener"
                                 class="linkedin" aria-label="{{ translate('LinkedIn') }}">
-                                <i class="lab la-linkedin-in"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                                    <rect x="2" y="9" width="4" height="12"/>
+                                    <circle cx="4" cy="4" r="2" fill="currentColor"/>
+                                </svg>
                             </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('pinterest_link')))
-                        <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('pinterest_link') }}" target="_blank" rel="noopener"
-                                class="pinterest" aria-label="{{ translate('Pinterest') }}">
-                                <i class="lab la-pinterest"></i>
-                            </a>
-                        </li>
-                    @endif
+                            <li class="list-inline-item ml-2 mr-2">
+                                <a href="{{ get_setting('pinterest_link') }}" target="_blank" class="pinterest" aria-label="Pinterest">
+                                    <i class="lab la-pinterest-p"></i>
+                                </a>
+                            </li>
+                        @endif
 
                 </ul>
             @endif
@@ -929,48 +944,81 @@
     .mobile-menu-user {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin: 14px 0 18px;
-        padding: 12px 4px;
-        border: 0;
-        border-bottom: 1px solid #eadfd3;
-        border-radius: 0;
-        background: transparent;
+        gap: 14px;
+        margin: 16px 0 18px;
+        padding: 14px;
+        border: 0 !important;
+        border-radius: 14px !important;
+        background:linear-gradient(135deg, rgb(111 99 88 / 0%), rgba(246, 238, 228, 0.72)), linear-gradient(135deg, #f7efe6 0%, #fffdf9 100%);
+        box-shadow: 0 14px 32px rgba(104, 91, 78, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mobile-menu-user::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+        pointer-events: none;
     }
 
     .mobile-menu-user .nav-user-img {
-        width: 46px !important;
-        height: 46px !important;
-        min-width: 46px;
-        border: 1px solid #d8c8b7 !important;
-        background: #ffffff;
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px;
+        border: none !important;
+        border-radius: 14px !important;
+        background: #ffffff !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 8px 18px rgba(104, 91, 78, 0.12);
+        position: relative;
+        z-index: 1;
+    }
+
+    .mobile-menu-user .nav-user-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .mobile-menu-user-copy {
         min-width: 0;
+        position: relative;
+        z-index: 1;
     }
 
     .mobile-menu-user-copy span {
         display: block;
         color: #8c8177;
-        font-size: 11px;
-        font-weight: 700;
-        line-height: 1.2;
-        margin-bottom: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: 4px;
         text-transform: uppercase;
+        letter-spacing: 1.2px;
     }
 
     .mobile-menu-user-copy h4,
     .mobile-menu-user-copy a {
         display: block;
         margin: 0;
-        color: #4f4238 !important;
-        font-size: 15px;
+        color: #3d342d !important;
+        font-size: 17px;
         font-weight: 800;
-        line-height: 1.3;
+        line-height: 1.25;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-decoration: none !important;
+        transition: color 0.2s ease;
+    }
+
+    .mobile-menu-user-copy a:hover {
+        color: #8a6f4d !important;
     }
 
     .mobile-menu-section-title {
@@ -978,7 +1026,7 @@
         font-size: 11px;
         font-weight: 800;
         letter-spacing: 0.6px;
-        margin: 4px 0 12px;
+        margin: 6px 0 12px;
         text-transform: uppercase;
     }
 
@@ -986,6 +1034,10 @@
         list-style: none !important;
         margin: 0 !important;
     }
+
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  
 
     .mobile-menu-list li {
         margin: 0 !important;
@@ -1003,21 +1055,32 @@
         display: flex !important;
         align-items: center;
         box-sizing: border-box;
-        min-height: 46px;
+        min-height: 48px;
         width: 100%;
-        padding: 12px 34px 12px 4px !important;
+        padding: 12px 34px 12px 8px !important;
         border: 0 !important;
-        border-bottom: 1px solid #f0e8df !important;
+        border-bottom: 1px solid #f2e9de !important;
         border-radius: 0;
         color: #4f4238 !important;
         background: transparent;
-        font-size: 14px !important;
-        font-weight: 650 !important;
-        letter-spacing: 0 !important;
+        font-size: 13.5px !important;
+        font-weight: 550 !important;
+        letter-spacing: 0.1px !important;
         line-height: 1.25;
         text-decoration: none !important;
         text-transform: none !important;
-        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-menu-list li a svg {
+        stroke: currentColor;
+        transition: stroke 0.25s ease, transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-list li a:hover svg,
+    .mobile-menu-list li a.active svg {
+        transform: scale(1.05);
     }
 
     .mobile-menu-list li a::before {
@@ -1039,6 +1102,7 @@
         font-weight: 300;
         line-height: 1;
         transform: translateY(-50%);
+        transition: right 0.25s ease, color 0.25s ease;
     }
 
     .mobile-menu-list li>a>i,
@@ -1048,6 +1112,16 @@
     }
 
     .mobile-menu-list li:last-child a {
+        border-bottom: 0 !important;
+    }
+
+    .mobile-menu-list li.mobile-menu-account-item a {
+        margin-top: 12px;
+        padding-top: 14px !important;
+    }
+
+    .mobile-menu-list li.mobile-menu-logout-item a {
+        margin-top: 10px;
         border-bottom: 0 !important;
     }
 
@@ -1061,15 +1135,34 @@
 
     .mobile-menu-list li a:hover,
     .mobile-menu-list li a.active {
-        background: #f8f4ef !important;
-        color: #685b4e !important;
-        padding-left: 12px !important;
-        border-bottom-color: #eadfd3 !important;
+        background: #fcf9f5 !important;
+        color: #8a6f4d !important;
+        padding-left: 14px !important;
+        border-radius: 8px !important;
+        border-bottom-color: transparent !important;
     }
 
-    .mobile-menu-list li a.text-primary,
-    .mobile-menu-list li a[href*="logout"] {
-        color: #685b4e !important;
+    .mobile-menu-list li a:hover::after,
+    .mobile-menu-list li a.active::after {
+        right: 10px;
+        color: #8a6f4d;
+    }
+
+    .mobile-menu-list li a.logout-link {
+        color: #d43533 !important;
+    }
+
+    .mobile-menu-list li a.logout-link svg {
+        stroke: #d43533 !important;
+    }
+
+    .mobile-menu-list li a.logout-link:hover {
+        background: #fff5f5 !important;
+        color: #b92c2a !important;
+    }
+
+    .mobile-menu-list li a.logout-link:hover svg {
+        stroke: #b92c2a !important;
     }
 
     .mobile-menu-drawer .footer-social {
@@ -1113,82 +1206,47 @@
     }
 
     .mobile-menu-drawer .footer-social .social a {
-        --social-color: #685b4e;
-        --social-bg: #f7f2ec;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
-        border: 1px solid color-mix(in srgb, var(--social-color) 16%, #ffffff);
+        width: 42px;
+        height: 42px;
+        border: 1px solid #eadfd3;
         border-radius: 999px;
-        background: var(--social-bg);
-        color: var(--social-color) !important;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 18px rgba(79, 66, 56, 0.08);
+        background: #ffffff;
+        color: #685b4e !important;
+        box-shadow: 0 10px 24px rgba(104, 91, 78, 0.08);
         text-decoration: none !important;
         transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
     }
 
     .mobile-menu-drawer .footer-social .social a:hover,
     .mobile-menu-drawer .footer-social .social a:focus {
-        background: var(--social-color);
-        border-color: var(--social-color);
+        background: #685b4e;
+        border-color: #685b4e;
         color: #ffffff !important;
-        box-shadow: 0 12px 24px color-mix(in srgb, var(--social-color) 28%, transparent);
+        box-shadow: 0 8px 20px rgba(104, 91, 78, 0.18);
         outline: none;
         transform: translateY(-1px);
     }
 
+    .mobile-menu-drawer .footer-social .social a svg,
     .mobile-menu-drawer .footer-social .social a i {
         color: currentColor !important;
-        font-size: 18px;
-        line-height: 1;
-        transition: color 0.22s ease;
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
     }
 
+    .mobile-menu-drawer .footer-social .social a i {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .mobile-menu-drawer .footer-social .social a:hover svg,
+    .mobile-menu-drawer .footer-social .social a:focus svg,
     .mobile-menu-drawer .footer-social .social a:hover i,
     .mobile-menu-drawer .footer-social .social a:focus i {
-        color: #ffffff !important;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.twitter::before {
-        content: "X";
-        color: currentColor;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 15px;
-        font-weight: 800;
-        line-height: 1;
-        transform: translateY(-0.5px);
-    }
-
-    .mobile-menu-drawer .footer-social .social a.facebook {
-        --social-color: #1877f2;
-        --social-bg: #eef5ff;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.twitter {
-        --social-color: #111111;
-        --social-bg: #f1f1f1;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.instagram {
-        --social-color: #dd2a7b;
-        --social-bg: #fff0f6;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.youtube {
-        --social-color: #ff0033;
-        --social-bg: #fff0f3;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.linkedin {
-        --social-color: #0a66c2;
-        --social-bg: #eef6ff;
-    }
-
-    .mobile-menu-drawer .footer-social .social a.pinterest {
-        --social-color: #e60023;
-        --social-bg: #fff0f2;
+        transform: scale(1.1);
     }
 
     @media (max-width: 380px) {

@@ -1509,15 +1509,11 @@ span.badge.badge-primary.badge-circle.position-absolute {
     max-width: 700px;
 }
 
-.section-padding {
-    padding-top: 70px;
-    padding-bottom: 50px;
-}
 
 @media screen and (max-width: 768px) {
     .section-padding {
-        padding-top: 30px;
-        padding-bottom: 30px;
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
 }
 
@@ -4282,5 +4278,229 @@ span.badge.badge-primary.badge-circle.position-absolute {
 
     .home-offers-wrap .offer-carousel .slick-next {
         right: 6px !important;
+    }
+}
+
+.slick-list.draggable {
+    padding: 20px 0px;
+}
+
+/* ==========================================================================
+   PREMIUM MODERN FOOTER CTA & SOCIAL ICONS REDESIGN
+   ========================================================================== */
+
+/* Social Icons in Footer */
+.footer-social-list {
+    display: flex !important;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.footer-social-list .list-inline-item {
+    margin: 0 !important;
+}
+
+.footer-social-list li a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    border: 1px solid #eadfd3 !important;
+    color: #685b4e !important;
+    box-shadow: 0 10px 24px rgba(104, 91, 78, 0.08);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    text-decoration: none !important;
+}
+
+.footer-social-list li a svg,
+.footer-social-list li a i {
+    color: #685b4e !important;
+    transition: all 0.3s ease !important;
+}
+
+.footer-social-list li a i {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.footer-social-list li a svg[fill="none"] {
+    stroke: #685b4e !important;
+}
+
+.footer-social-list li a svg[fill="currentColor"] {
+    fill: #685b4e !important;
+}
+
+/* Custom stroke/fill overrides for specific SVGs */
+.footer-social-list li a.twitter svg,
+.footer-social-list li a.youtube svg polygon,
+.footer-social-list li a.linkedin svg circle {
+    fill: #685b4e !important;
+}
+
+/* Hover effects */
+.footer-social-list li a:hover {
+    background-color: #685b4e !important;
+    border-color: #685b4e !important;
+    color: #ffffff !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(104, 91, 78, 0.18);
+}
+
+.footer-social-list li a:hover svg,
+.footer-social-list li a:hover i {
+    color: #ffffff !important;
+}
+
+.footer-social-list li a:hover svg[fill="none"] {
+    stroke: #ffffff !important;
+}
+
+.footer-social-list li a:hover svg[fill="currentColor"] {
+    fill: #ffffff !important;
+}
+
+.footer-social-list li a.twitter:hover svg,
+.footer-social-list li a.youtube:hover svg polygon,
+.footer-social-list li a.linkedin:hover svg circle {
+    fill: #ffffff !important;
+}
+
+/* Newsletter Input and Button styling */
+.footer-widget.iuytrey {
+    background:
+        linear-gradient(135deg, rgb(104 91 78 / 30%), rgba(166, 140, 108, 0.56)), linear-gradient(90deg, #dacbbc 0%, #f3eadf 48%, #d5c0a7 100%) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+    border-bottom: 1px solid rgba(104, 91, 78, 0.2);
+    color: #39322a !important;
+    padding-top: 34px !important;
+    padding-bottom: 34px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer-widget.iuytrey::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 100%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 100%);
+    background-size: 48px 48px;
+    opacity: 0.34;
+    pointer-events: none;
+}
+
+.footer-newsletter-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.footer-newsletter-row {
+    row-gap: 24px;
+}
+
+.footer-newsletter-row .newsletter-column,
+.footer-newsletter-row .footer-social {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.footer-widget.iuytrey h5 {
+    color: #39322a !important;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800 !important;
+    letter-spacing: 0.2px;
+    line-height: 1.35;
+}
+
+.footer-widget.iuytrey input[type="email"] {
+    background: #ffffff !important;
+    color: #39322a !important;
+    border: 1.5px solid #eadfd3 !important;
+    min-height: 56px;
+    box-shadow: 0 8px 18px rgba(104, 91, 78, 0.06);
+    transition: all 0.3s ease;
+}
+
+.footer-widget.iuytrey input[type="email"]::placeholder {
+    color: #a3968a !important;
+}
+
+.footer-widget.iuytrey input[type="email"]:focus {
+    border-color: #685b4e !important;
+    box-shadow: 0 0 0 3px rgba(104, 91, 78, 0.1) !important;
+    outline: none;
+}
+
+.footer-widget.iuytrey .btn {
+    background-color: #685b4e !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none !important;
+}
+
+.footer-widget.iuytrey .btn:hover {
+    background-color: #53483e !important;
+    color: #ffffff !important;
+    transform: scale(1.02);
+}
+
+.footer-widget.iuytrey .footer-social h5 {
+    margin-bottom: 14px !important;
+}
+
+@media (max-width: 991.98px) {
+    .footer-widget.iuytrey .footer-social h5 {
+        text-align: left !important;
+    }
+
+    .footer-social-list {
+        justify-content: flex-start;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .footer-widget.iuytrey {
+        padding-top: 22px !important;
+        padding-bottom: 24px !important;
+    }
+
+    .newsletter-form-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .newsletter-form-wrap input[type="email"] {
+        min-height: 50px;
+        padding: 13px 18px !important;
+    }
+
+    .newsletter-form-wrap .btn {
+        position: static !important;
+        min-height: 48px;
+        width: 100%;
+    }
+
+    .footer-social-list {
+        gap: 10px;
+        flex-direction: row;
+    }
+
+    .footer-social-list li a {
+        width: 42px;
+        height: 42px;
     }
 }
