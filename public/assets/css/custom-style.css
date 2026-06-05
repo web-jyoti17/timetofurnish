@@ -567,24 +567,8 @@ a {
     letter-spacing: 1px !important;
 }
 
-ul.social [class*="facebook"]:hover,
-ul.social.colored [class*="facebook"] {
-    background: #685b4e;
-}
-
-ul.social [class*="twitter"]:hover,
-ul.social.colored [class*="twitter"] {
-    background-color: #685b4e !important;
-}
-
-ul.social [class*="instagram"]:hover,
-ul.social.colored [class*="instagram"] {
-    background-color: #685b4e;
-}
-
-ul.social [class*="linkedin"]:hover,
-ul.social.colored [class*="linkedin"] {
-    background-color: #685b4e;
+.mobile-menu-drawer .footer-social .social a img {
+    filter: brightness(.5);
 }
 
 .twitter img {
@@ -654,6 +638,11 @@ ul.social.colored [class*="linkedin"] {
 @media screen and (max-width: 767px) {
     .content {
         margin-top: 20px;
+    }
+
+    .home-offers-wrap .offer-inner-carousel .modern-product-card:hover {
+
+        transform: none !important;
     }
 
     .modern-card-bottom-row {

@@ -737,45 +737,51 @@
                 <ul class="list-inline social colored mb-4">
                     @if (!empty(get_setting('facebook_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('facebook_link') }}" target="_blank" class="facebook"><i
-                                    class="lab la-facebook-f"></i></a>
+                            <a href="{{ get_setting('facebook_link') }}" target="_blank" rel="noopener"
+                                class="facebook" aria-label="{{ translate('Facebook') }}">
+                                <i class="lab la-facebook-f"></i>
+                            </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('twitter_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('twitter_link') }}" target="_blank" class="twitter"><img
-                                    src="{{ static_asset('assets/img/x-logo.png') }}"
-                                    alt="{{ translate('x') }}"></a>
+                            <a href="{{ get_setting('twitter_link') }}" target="_blank" rel="noopener"
+                                class="twitter" aria-label="{{ translate('X') }}">
+                            </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('instagram_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('instagram_link') }}" target="_blank" class="instagram"><i
-                                    class="lab la-instagram"></i></a>
+                            <a href="{{ get_setting('instagram_link') }}" target="_blank" rel="noopener"
+                                class="instagram" aria-label="{{ translate('Instagram') }}">
+                                <i class="lab la-instagram"></i>
+                            </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('youtube_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('youtube_link') }}" target="_blank" class="youtube"><i
-                                    class="lab la-youtube"></i></a>
+                            <a href="{{ get_setting('youtube_link') }}" target="_blank" rel="noopener"
+                                class="youtube" aria-label="{{ translate('YouTube') }}">
+                                <i class="lab la-youtube"></i>
+                            </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('linkedin_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('linkedin_link') }}" target="_blank" class="linkedin"><i
-                                    class="lab la-linkedin-in"></i></a>
+                            <a href="{{ get_setting('linkedin_link') }}" target="_blank" rel="noopener"
+                                class="linkedin" aria-label="{{ translate('LinkedIn') }}">
+                                <i class="lab la-linkedin-in"></i>
+                            </a>
                         </li>
                     @endif
                     @if (!empty(get_setting('pinterest_link')))
                         <li class="list-inline-item ml-2 mr-2">
-                            <a href="{{ get_setting('pinterest_link') }}" target="_blank" class="linkedin"><i
-                                    class="lab la-pinterest"></i></a>
+                            <a href="{{ get_setting('pinterest_link') }}" target="_blank" rel="noopener"
+                                class="pinterest" aria-label="{{ translate('Pinterest') }}">
+                                <i class="lab la-pinterest"></i>
+                            </a>
                         </li>
                     @endif
-                    <li class="list-inline-item ml-2 mr-2">
-                        <a href="{{ get_setting('pinterest_link') }}" target="_blank" class="linkedin"><i
-                                class="lab la-pinterest"></i></a>
-                    </li>
 
                 </ul>
             @endif
@@ -1067,16 +1073,19 @@
     }
 
     .mobile-menu-drawer .footer-social {
-        margin: 14px 0 0 !important;
-        padding: 14px 4px 0;
+        margin: 16px 0 0 !important;
+        padding: 16px 2px 0;
         border-top: 1px solid #eadfd3;
     }
 
     .mobile-menu-drawer .footer-social h5 {
-        color: #8c8177 !important;
-        font-size: 11px !important;
-        letter-spacing: 0.6px;
-        margin-bottom: 12px !important;
+        color: #6f6257 !important;
+        font-size: 12px !important;
+        font-weight: 750 !important;
+        letter-spacing: 0 !important;
+        line-height: 1.25;
+        margin-bottom: 13px !important;
+        text-transform: none !important;
     }
 
     .mobile-menu-drawer .footer-social .social {
@@ -1084,11 +1093,16 @@
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-        gap: 9px;
+        gap: 10px;
         margin: 0 !important;
         padding: 0 !important;
         overflow-x: auto;
         overflow-y: hidden;
+        scrollbar-width: none;
+    }
+
+    .mobile-menu-drawer .footer-social .social::-webkit-scrollbar {
+        display: none;
     }
 
     .mobile-menu-drawer .footer-social .social li {
@@ -1099,28 +1113,82 @@
     }
 
     .mobile-menu-drawer .footer-social .social a {
+        --social-color: #685b4e;
+        --social-bg: #f7f2ec;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 38px;
-        height: 38px;
-        border: 1px solid #d8c8b7;
-        border-radius: 50%;
-        background: #ffffff;
-        color: #685b4e !important;
-        box-shadow: 0 6px 14px rgba(104, 91, 78, 0.07);
+        width: 40px;
+        height: 40px;
+        border: 1px solid color-mix(in srgb, var(--social-color) 16%, #ffffff);
+        border-radius: 999px;
+        background: var(--social-bg);
+        color: var(--social-color) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 18px rgba(79, 66, 56, 0.08);
+        text-decoration: none !important;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .mobile-menu-drawer .footer-social .social a:hover,
+    .mobile-menu-drawer .footer-social .social a:focus {
+        background: var(--social-color);
+        border-color: var(--social-color);
+        color: #ffffff !important;
+        box-shadow: 0 12px 24px color-mix(in srgb, var(--social-color) 28%, transparent);
+        outline: none;
+        transform: translateY(-1px);
     }
 
     .mobile-menu-drawer .footer-social .social a i {
-        color: #685b4e !important;
+        color: currentColor !important;
         font-size: 18px;
         line-height: 1;
+        transition: color 0.22s ease;
     }
 
-    .mobile-menu-drawer .footer-social .social a img {
-        width: 17px;
-        height: 17px;
-        object-fit: contain;
+    .mobile-menu-drawer .footer-social .social a:hover i,
+    .mobile-menu-drawer .footer-social .social a:focus i {
+        color: #ffffff !important;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.twitter::before {
+        content: "X";
+        color: currentColor;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1;
+        transform: translateY(-0.5px);
+    }
+
+    .mobile-menu-drawer .footer-social .social a.facebook {
+        --social-color: #1877f2;
+        --social-bg: #eef5ff;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.twitter {
+        --social-color: #111111;
+        --social-bg: #f1f1f1;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.instagram {
+        --social-color: #dd2a7b;
+        --social-bg: #fff0f6;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.youtube {
+        --social-color: #ff0033;
+        --social-bg: #fff0f3;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.linkedin {
+        --social-color: #0a66c2;
+        --social-bg: #eef6ff;
+    }
+
+    .mobile-menu-drawer .footer-social .social a.pinterest {
+        --social-color: #e60023;
+        --social-bg: #fff0f2;
     }
 
     @media (max-width: 380px) {

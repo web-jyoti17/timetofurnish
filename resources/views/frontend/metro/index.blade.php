@@ -139,68 +139,68 @@
     @include('frontend.partials.homepage_offers')
 
     <!-- <div class="slider-container">
-                    <div class="slider-control left inactive"></div>
-                    <div class="slider-control right"></div>
-                    <ul class="slider-pagi"></ul>
-                    <div class="slider">
-                        <div class="slide slide-0 active">
-                            <div class="slide__bg"></div>
-                            <div class="slide__content">
-                                <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
-                                    <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
-                                </svg>
-                                <div class="slide__text">
-                                    <h5 class="slide__text-heading">Pi Kart</h5>
-                                    <p class="slide__text-desc">Radiant Confidence with Our. Exclusive Beauty Collection</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="slide slide-1 ">
-                            <div class="slide__bg"></div>
-                            <div class="slide__content">
-                                <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
-                                    <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
-                                </svg>
-                                <div class="slide__text">
-                                    <h5 class="slide__text-heading">Pi Kart</h5>
-                                    <p class="slide__text-desc">Unveil Your Glow with. Our Exclusive Collection</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+                                            <div class="slider-control left inactive"></div>
+                                            <div class="slider-control right"></div>
+                                            <ul class="slider-pagi"></ul>
+                                            <div class="slider">
+                                                <div class="slide slide-0 active">
+                                                    <div class="slide__bg"></div>
+                                                    <div class="slide__content">
+                                                        <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
+                                                            <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
+                                                        </svg>
+                                                        <div class="slide__text">
+                                                            <h5 class="slide__text-heading">Pi Kart</h5>
+                                                            <p class="slide__text-desc">Radiant Confidence with Our. Exclusive Beauty Collection</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="slide slide-1 ">
+                                                    <div class="slide__bg"></div>
+                                                    <div class="slide__content">
+                                                        <svg class="slide__overlay" viewBox="0 0 720 405" preserveAspectRatio="xMaxYMax slice">
+                                                            <path class="slide__overlay-path" d="M0,0 150,0 500,405 0,405" />
+                                                        </svg>
+                                                        <div class="slide__text">
+                                                            <h5 class="slide__text-heading">Pi Kart</h5>
+                                                            <p class="slide__text-desc">Unveil Your Glow with. Our Exclusive Collection</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> -->
 
     <!-- Flash Deal -->
     <!-- <section class="mb-2 mt-5">
-                    <div class="container">
-                        Categories
-                        <div class="row">
-                            <div class="col-md-12">
-                            @if (count($featured_categories) > 0)
+                                            <div class="container">
+                                                Categories
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                    @if (count($featured_categories) > 0)
     <div class="banner-category">
-                                <ul>
-                                    @foreach ($featured_categories as $key => $category)
+                                                        <ul>
+                                                            @foreach ($featured_categories as $key => $category)
     @if ($key < 8)
     @php
         $category_name = $category->getTranslation('name');
     @endphp
-                                    <li style="position: relative;">
-                                        <a href="{{ route('products.category', $category->slug) }}">
-                                            <img src="{{ isset($category->coverImage->file_name) ? my_asset($category->coverImage->file_name) : static_asset('assets/img/placeholder.jpg') }}" alt="{{ $category_name }}" class="img-fluid">
-                                        </a>
-                                        <a href="{{ route('products.category', $category->slug) }}" class="">
-                                            <span>{{ $category_name }}</span>
-                                        </a>
-                                    </li>
+                                                            <li style="position: relative;">
+                                                                <a href="{{ route('products.category', $category->slug) }}">
+                                                                    <img src="{{ isset($category->coverImage->file_name) ? my_asset($category->coverImage->file_name) : static_asset('assets/img/placeholder.jpg') }}" alt="{{ $category_name }}" class="img-fluid">
+                                                                </a>
+                                                                <a href="{{ route('products.category', $category->slug) }}" class="">
+                                                                    <span>{{ $category_name }}</span>
+                                                                </a>
+                                                            </li>
     @endif
     @endforeach
-                                </ul>
-                            </div>
+                                                        </ul>
+                                                    </div>
     @endif
-                            </div>
-                        </div>
-                    </div>
-                </section> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section> -->
 
 
     @php
@@ -372,66 +372,6 @@
 
     </div>
 
-    {{-- <!-- Featured Categories -->
-@if (count($featured_categories) > 0)
-<section class="mb-2 mb-md-3 mt-2 mt-md-3">
-    <div class="container">
-        <div class="bg-white">
-            <!-- Top Section -->
-            <div class="d-flex mt-2 mt-md-3 mb-2 mb-md-3 align-items-baseline justify-content-between">
-                <!-- Title -->
-                <h3 class="fs-16 fs-md-20 fw-700 mb-2 mb-sm-0">
-                    <span class="">{{ translate('Featured Categories') }}</span>
-                </h3>
-            </div>
-        </div>
-        <!-- Categories -->
-        <div class="bg-white px-sm-3">
-            <div class="aiz-carousel sm-gutters-17" data-items="4" data-xxl-items="4" data-xl-items="3.5"
-                data-lg-items="3" data-md-items="2" data-sm-items="2" data-xs-items="1" data-arrows="true"
-                data-dots="false" data-autoplay="false" data-infinite="true">
-                @foreach ($featured_categories as $key => $category)
-                @php
-                $category_name = $category->getTranslation('name');
-                @endphp
-                <div
-                    class="carousel-box position-relative p-0 has-transition border-right border-top border-bottom @if ($key == 0) border-left @endif">
-                    <div class="h-200px h-sm-250px h-md-340px">
-                        <div class="h-100 w-100 w-xl-auto position-relative hov-scale-img overflow-hidden">
-                            <div class="position-absolute h-100 w-100 overflow-hidden">
-                                <img src="{{ isset($category->coverImage->file_name) ? my_asset($category->coverImage->file_name) : static_asset('assets/img/placeholder.jpg') }}"
-                                    alt="{{ $category_name }}" class="img-fit h-100 has-transition"
-                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';">
-                            </div>
-                            <div class="pb-4 px-4 absolute-bottom-left has-transition h-50 w-100 d-flex flex-column align-items-center justify-content-end"
-                                style="background: linear-gradient(to top, rgba(0,0,0,0.5) 50%,rgba(0,0,0,0) 100%) !important;">
-                                <div class="w-100">
-                                    <a class="fs-16 fw-700 text-white animate-underline-white home-category-name d-flex align-items-center hov-column-gap-1"
-                                        href="{{ route('products.category', $category->slug) }}"
-                                        style="width: max-content;">
-                                        {{ $category_name }}&nbsp;
-                                        <i class="las la-angle-right"></i>
-                                    </a>
-                                    <div class="d-flex flex-wrap h-50px overflow-hidden mt-2">
-                                        @foreach ($category->childrenCategories->take(6) as $key => $child_category)
-                                        <a href="{{ route('products.category', $child_category->slug) }}"
-                                            class="fs-13 fw-300 text-soft-light hov-text-white pr-3 pt-1">
-                                            {{ $child_category->getTranslation('name') }}
-                                        </a>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</section>
-@endif
---}}
     <!-- Banner section 1 -->
     @if (get_setting('home_banner1_images') != null)
         <div class="section-padding" style="background: #fff;">
@@ -445,7 +385,7 @@
                         data-items="{{ count($banner_1_imags) }}" data-xxl-items="{{ count($banner_1_imags) }}"
                         data-xl-items="{{ count($banner_1_imags) }}" data-lg-items="{{ $data_md }}"
                         data-md-items="{{ $data_md }}" data-sm-items="1" data-xs-items="1" data-arrows="true"
-                        data-dots="false">
+                        data-dots="true">
                         @foreach ($banner_1_imags as $key => $value)
                             <div class="carousel-box overflow-hidden hov-scale-img">
                                 <a href="{{ json_decode(get_setting('home_banner1_links'), true)[$key] }}"
@@ -497,11 +437,11 @@
     @endif
 
     <!-- Best Selling  -->
-    <div id="section_best_selling" class="pt-5 pb-3">
+    <div id="section_best_selling" class="pt-3 pb-3">
 
     </div>
     <!-- New Products -->
-    <div id="section_newest" class="pt-5 pb-3">
+    <div id="section_newest" class="pt-3 pb-3">
 
     </div>
     <!-- Category wise Products -->
