@@ -1006,6 +1006,7 @@ class ProductController extends Controller
 
     public function storeAttribute(Request $request)
     {
+        Log::info('STORE ATTRIBUTE REQUEST:', ['request' => $request->all()]);
         $request->validate([
             'name' => 'required|string|max:255',
             'values' => 'nullable',

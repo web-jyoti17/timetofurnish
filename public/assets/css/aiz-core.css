@@ -8576,10 +8576,6 @@ input[type="number"] {
     background-color: #3a3f50;
 }
 
-.aiz-side-nav-wrap {
-    padding: 15px 0;
-}
-
 .aiz-side-nav-wrap #menu-search {
     border: 1px solid #3a3f50;
     transition: 0.4s;
@@ -8671,6 +8667,7 @@ input[type="number"] {
     font-size: 80%;
 }
 
+
 .aiz-side-nav-list .aiz-side-nav-link:hover .aiz-side-nav-icon {
     color: #9191a0;
 }
@@ -8681,6 +8678,7 @@ input[type="number"] {
     font-weight: 900;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
+    color: #000000 !important;
 }
 
 [dir="rtl"] .aiz-side-nav-list .aiz-side-nav-arrow::after {
@@ -8742,7 +8740,7 @@ input[type="number"] {
 .aiz-side-nav-list .aiz-side-nav-link.level-3-active,
 .aiz-side-nav-list .aiz-side-nav-link.active {
     color: #fff;
-    background-color: #3a3f50;
+    background-color: ;
 }
 
 .aiz-side-nav-list .aiz-side-nav-link:hover .aiz-side-nav-icon>svg *,
@@ -14319,4 +14317,366 @@ input[type="color"]::-webkit-color-swatch {
 
 .custom-profuct-image-style {
     padding: 0px !important;
+}
+
+
+//shivani
+/* =============================================
+Time To Furnish - Admin Sidebar (Brand Match)
+============================================= */
+
+/* Main sidebar */
+.aiz-sidebar {
+    background: #FAF9F6 !important;
+    border-right: 1px solid #E8DFD4 !important;
+    box-shadow: 2px 0 16px rgba(44, 36, 22, 0.06) !important;
+    width: 260px !important;
+}
+
+/* Logo area */
+.aiz-side-nav-logo-wrap {
+    background: #FAF9F6 !important;
+    border-bottom: 1px solid #E8DFD4 !important;
+    padding: 18px 16px !important;
+}
+
+.aiz-side-nav-logo-wrap .admin-logo {
+    max-height: 48px !important;
+}
+
+/* Menu wrapper */
+.aiz-side-nav-wrap {
+    background: #FAF9F6 !important;
+    padding: 14px 0 28px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}
+
+.aiz-side-nav-wrap::-webkit-scrollbar {
+    width: 4px;
+}
+
+.aiz-side-nav-wrap::-webkit-scrollbar-thumb {
+    background: #D4C4B0;
+    border-radius: 10px;
+}
+
+/* Search box */
+.aiz-side-nav-wrap #menu-search {
+    background: #FFFFFF !important;
+    border: 1px solid #E8DFD4 !important;
+    color: #1A1A1A !important;
+    border-radius: 10px !important;
+    height: 40px !important;
+    font-size: 13px !important;
+}
+
+.aiz-side-nav-text {
+    font-family: popins !important;
+}
+
+.aiz-side-nav-wrap #menu-search:focus {
+    border-color: #9B5A2E !important;
+    box-shadow: 0 0 0 3px rgba(155, 90, 46, 0.15) !important;
+    outline: none !important;
+}
+
+.aiz-side-nav-wrap #menu-search::placeholder {
+    color: #A89888 !important;
+}
+
+/* Menu links */
+.aiz-side-nav-wrap .aiz-side-nav-link {
+    color: #3D3429 !important;
+    border-radius: 10px !important;
+    margin: 2px 10px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Hover */
+.aiz-side-nav-wrap .aiz-side-nav-link:hover {
+    background: #F0E8DF !important;
+    color: #1A1A1A !important;
+}
+
+/* Active */
+.aiz-side-nav-wrap .aiz-side-nav-link.active,
+.aiz-side-nav-wrap .aiz-side-nav-item.mm-active>.aiz-side-nav-link,
+.aiz-sidebar .aiz-side-nav-link.active {
+    background: #F5E6D8 !important;
+    color: #9B5A2E !important;
+    font-weight: 600 !important;
+}
+
+/* Icons */
+.aiz-side-nav-wrap .aiz-side-nav-icon svg path,
+.aiz-side-nav-wrap .aiz-side-nav-icon svg rect,
+.aiz-side-nav-wrap .aiz-side-nav-icon svg g {
+    fill: #6B5E54 !important;
+    transition: fill 0.2s ease;
+}
+
+.aiz-side-nav-wrap .aiz-side-nav-link:hover .aiz-side-nav-icon svg path {
+    fill: #3D3429 !important;
+}
+
+.aiz-side-nav-wrap .aiz-side-nav-link.active .aiz-side-nav-icon svg path,
+.aiz-side-nav-wrap .aiz-side-nav-item.mm-active .aiz-side-nav-icon svg path {
+    fill: #9B5A2E !important;
+}
+
+/* Submenu */
+.aiz-side-nav-wrap .aiz-side-nav-list.level-2 .aiz-side-nav-link {
+    color: #6B5E54 !important;
+    font-size: 13px !important;
+    padding-left: 32px !important;
+}
+
+.aiz-side-nav-wrap .aiz-side-nav-list.level-2 .aiz-side-nav-link:hover {
+    background: #F0E8DF !important;
+    color: #3D3429 !important;
+}
+
+.aiz-side-nav-wrap .aiz-side-nav-list.level-2 .aiz-side-nav-link.active {
+    color: #9B5A2E !important;
+    background: transparent !important;
+    font-weight: 600 !important;
+}
+
+/* Dropdown arrow */
+.aiz-side-nav-wrap .aiz-side-nav-arrow {
+    opacity: 0.4;
+}
+
+/* Clear Cache button */
+.aiz-topbar .btn-outline-primary,
+.aiz-topbar .btn-soft-primary,
+.aiz-topbar a.btn[class*="primary"],
+.aiz-topbar .btn-primary-outline,
+header .btn-outline-primary,
+.aiz-navbar .btn-outline-primary {
+    color: #9B5A2E !important;
+    border-color: #9B5A2E !important;
+    background: transparent !important;
+}
+
+.aiz-topbar .btn-outline-primary:hover,
+.aiz-topbar .btn-soft-primary:hover,
+.aiz-topbar a.btn[class*="primary"]:hover,
+header .btn-outline-primary:hover,
+.aiz-navbar .btn-outline-primary:hover {
+    color: #FFFFFF !important;
+    background: #9B5A2E !important;
+    border-color: #9B5A2E !important;
+}
+
+/* Clear Cache icon */
+.aiz-topbar .btn-outline-primary svg path,
+.aiz-topbar .btn-soft-primary svg path,
+.aiz-topbar a.btn svg path {
+    fill: #9B5A2E !important;
+}
+
+.aiz-topbar .btn-outline-primary:hover svg path,
+.aiz-topbar .btn-soft-primary:hover svg path {
+    fill: #FFFFFF !important;
+}
+
+/* Sidebar background fix */
+.adminsidebar,
+.adminsidebar .aiz-sidebar-wrap,
+.adminsidebar .aiz-sidebar,
+.adminsidebar .aiz-side-nav-wrap {
+    background: #FAF9F6 !important;
+}
+
+/* Remove old dark gradient */
+.adminsidebar .aiz-sidebar.left {
+    background: #FAF9F6 !important;
+    background-image: none !important;
+}
+
+/* Bottom spacing */
+.adminsidebar .aiz-side-nav-list {
+    padding-bottom: 20px !important;
+}
+
+.adminsidebar .aiz-side-nav-item {
+    position: relative !important;
+    width: 100% !important;
+}
+
+.adminsidebar .aiz-side-nav-link {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ==========================================
+   Premium Top Navbar - Time To Furnish
+   ========================================== */
+
+/* Premium navbar without changing layout */
+
+.aiz-topbar {
+    background: #FAF9F6 !important;
+    border-bottom: 1px solid #E8DFD4 !important;
+    box-shadow: 0 3px 15px rgba(44, 36, 22, .08) !important;
+}
+
+/* Clear Cache */
+.aiz-topbar .btn-soft-blue {
+    background: #9B5A2E !important;
+    border-color: #9B5A2E !important;
+    color: #fff !important;
+}
+
+.aiz-topbar .btn-soft-blue span {
+    color: #fff !important;
+}
+
+.aiz-topbar .btn-soft-blue svg path {
+    fill: #fff !important;
+}
+
+.aiz-topbar .btn-soft-blue:hover {
+    background: #8A4F28 !important;
+    border-color: #8A4F28 !important;
+}
+
+/* Profile area */
+.aiz-topbar .dropdown-toggle.text-dark {
+    border-radius: 12px !important;
+    padding: 8px 10px !important;
+    transition: .2s ease;
+}
+
+.aiz-topbar .dropdown-toggle.text-dark:hover {
+    background: #F5E6D8 !important;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    border: 1px solid #E8DFD4 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(44, 36, 22, .12) !important;
+}
+
+/* Dropdown items */
+.dropdown-menu .dropdown-item:hover {
+    background: #F5E6D8 !important;
+    color: #9B5A2E !important;
+}
+
+/* ==========================================
+   Time To Furnish - Dashboard Enhancement
+   ========================================== */
+
+/* Dashboard cards */
+.bg-grad-1,
+.bg-grad-2,
+.bg-grad-3,
+.bg-grad-4 {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 10px 25px rgba(44, 36, 22, 0.10) !important;
+    transition: all 0.3s ease !important;
+}
+
+.bg-grad-1:hover,
+.bg-grad-2:hover,
+.bg-grad-3:hover,
+.bg-grad-4:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(44, 36, 22, 0.15) !important;
+}
+
+/* Luxury color palette */
+.bg-grad-1 {
+    background: linear-gradient(135deg, #D7B89A, #C8A27E) !important;
+}
+
+.bg-grad-2 {
+    background: linear-gradient(135deg, #9B5A2E, #C08B5C) !important;
+}
+
+.bg-grad-3 {
+    background: linear-gradient(135deg, #7B5A40, #A8794D) !important;
+}
+
+.bg-grad-4 {
+    background: linear-gradient(135deg, #8A6A4E, #B88A5A) !important;
+}
+
+/* Dashboard numbers */
+.bg-grad-1 .h3,
+.bg-grad-2 .h3,
+.bg-grad-3 .h3,
+.bg-grad-4 .h3 {
+    font-size: 42px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+}
+
+/* Card labels */
+.bg-grad-1 .opacity-50,
+.bg-grad-2 .opacity-50,
+.bg-grad-3 .opacity-50,
+.bg-grad-4 .opacity-50 {
+    opacity: 0.95 !important;
+    color: rgba(255, 255, 255, .85) !important;
+}
+
+/* Dashboard graph cards */
+.card {
+    border: none !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 25px rgba(44, 36, 22, 0.08) !important;
+}
+
+/* Card headers */
+.card-header {
+    background: #FAF9F6 !important;
+    border-bottom: 1px solid #E8DFD4 !important;
+    padding: 16px 20px !important;
+}
+
+.card-header h6,
+.card-header h5 {
+    color: #3D3429 !important;
+    font-weight: 600 !important;
+}
+
+/* Card body */
+.card-body {
+    background: #FFFFFF !important;
+}
+
+/* Product slider cards */
+.aiz-card-box {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    transition: all .3s ease !important;
+}
+
+.aiz-card-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(44, 36, 22, 0.12) !important;
+}
+
+/* Dashboard spacing */
+.gutters-10 {
+    margin-bottom: 10px !important;
+}
+
+/* Chart canvas area */
+canvas {
+    max-width: 100% !important;
+}
+
+.text {
+    margin-left: 26px !important;
 }

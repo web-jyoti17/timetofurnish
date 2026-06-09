@@ -678,9 +678,14 @@
                                     </div>
                                     <div class="attr-values-list" data-attribute-id="{{ $attribute->id }}">
                                         @forelse ($attribute->attribute_values as $value)
-                                            <div class="attr-value-row" data-value-id="{{ $value->id }}">
+                                            <div class="attr-value-row q234" data-value-id="{{ $value->id }}">
+                                                {{-- Option Name Edit Field --}}
                                                 <div data-label="{{ translate('Option Name') }}">
-                                                    <span class="value-text">{{ $value->value }}</span>
+                                                    <span class="value-text" style="display:none;">{{ $value->value }}</span>
+                                                    <input type="text" class="form-control attr-value-edit-input" value="{{ $value->value }}" data-value-id="{{ $value->id }}" style="display:inline-block;width:auto;">
+                                                    <button type="button" class="btn btn-soft-primary btn-sm attr-value-edit-btn" data-value-id="{{ $value->id }}" style="margin-left:8px;">
+                                                        <i class="las la-save"></i>
+                                                    </button>
                                                 </div>
                                                 <div class="attr-value-image-field" data-label="{{ translate('Image') }}">
                                                     @if (!empty($value->image))
@@ -806,7 +811,10 @@
 
                         var row = $(
                             '<div class="attr-value-row" data-value-id="' + resp.id + '">' +
-                                '<div data-label="{{ translate("Option Name") }}"><span class="value-text">' + $('<span>').text(resp.value).html() + '</span></div>' +
+                                '<div data-label="{{ translate("Option Name") }}">' +
+                                    '<input type="text" class="form-control attr-value-edit-input" value="' + $('<span>').text(resp.value).html() + '" data-value-id="' + resp.id + '" style="display:inline-block;width:auto;">' +
+                                    '<button type="button" class="btn btn-soft-primary btn-sm attr-value-edit-btn" data-value-id="' + resp.id + '" style="margin-left:8px;"><i class="las la-save"></i></button>' +
+                                '</div>' +
                                 '<div class="attr-value-image-field" data-label="{{ translate("Image") }}">' +
                                     (resp.image_url ?
                                         '<img class="attr-value-image" src="' + $('<span>').text(resp.image_url).html() + '" alt="' + $('<span>').text(resp.value).html() + '">' :
@@ -838,13 +846,64 @@
                 });
             }
 
+            // ── Edit attribute value option name ─────────────
+            $(document).on('click', '.attr-value-edit-btn', function () {
+                var btn = $(this);
+                var valueId = btn.data('value-id');
+                var input = btn.closest('div[data-label]').find('.attr-value-edit-input');
+                var newValue = input.val().trim();
+                if (!newValue) return alert('{{ translate("Please enter a value name") }}');
+
+                btn.prop('disabled', true);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/seller/ajax-update-attribute-value-image/' + valueId,
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        value: newValue
+                    },
+                    success: function (resp) {
+                        if (resp.success) {
+                            input.val(resp.value);
+                            // Optionally show a flash if needed
+                        }
+                        btn.prop('disabled', false);
+                    },
+                    error: function (xhr) {
+                        if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.value) {
+                            alert(xhr.responseJSON.errors.value[0]);
+                        }
+                        btn.prop('disabled', false);
+                    }
+                });
+            });
+
+            // ── Enter key on editable value option name (save) ──────
+            $(document).on('keypress', '.attr-value-edit-input', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    var input = $(this);
+                    var btn = input.closest('div[data-label]').find('.attr-value-edit-btn');
+                    btn.click();
+                }
+            });
+
             $(document).on('change', '.attr-value-image-input', function () {
                 var input = this;
                 var valueId = $(input).data('value-id');
                 if (!input.files || !input.files[0]) return;
 
+                // Find value name field to include in update (required by backend)
+                var row = $(input).closest('.attr-value-row');
+                var valInput = row.find('.attr-value-edit-input');
+                var value = valInput.length ? valInput.val() : '';
+
                 var formData = new FormData();
                 formData.append('image', input.files[0]);
+                if (value) {
+                    formData.append('value', value);
+                }
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
                 $.ajax({

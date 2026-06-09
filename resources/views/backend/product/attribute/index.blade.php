@@ -738,7 +738,18 @@
                                         @forelse ($attribute->attribute_values as $value)
                                             <div class="attr-value-row" data-value-id="{{ $value->id }}">
                                                 <div data-label="{{ translate('Option Name') }}">
-                                                    <span class="value-text">{{ $value->value }}</span>
+                                                    @can('edit_product_attribute_value')
+                                                        <input type="text"
+                                                            class="form-control attr-value-edit-input"
+                                                            value="{{ $value->value }}"
+                                                            data-value-id="{{ $value->id }}"
+                                                            style="width:auto;display:inline-block;max-width:200px;"
+                                                            autocomplete="off">
+                                                        <span class="value-text" style="display:none;">{{ $value->value }}</span>
+                                                        <span class="attr-value-edit-note" style="display:inline-block;color:#b8ada0;font-size:11px;">{{ translate('Press Enter to save') }}</span>
+                                                    @else
+                                                        <span class="value-text">{{ $value->value }}</span>
+                                                    @endcan
                                                 </div>
                                                 <div class="attr-value-image-field" data-label="{{ translate('Image') }}">
                                                     @if (!empty($value->image))
@@ -877,7 +888,15 @@
 
                         var row = $(
                             '<div class="attr-value-row" data-value-id="' + resp.id + '">' +
-                            '<div data-label="{{ translate('Option Name') }}"><span class="value-text">' + $('<span>').text(resp.value).html() + '</span></div>' +
+                            '<div data-label="{{ translate('Option Name') }}">' +
+                            '@can("edit_product_attribute_value")' +
+                            '<input type="text" class="form-control attr-value-edit-input" value="' + $('<span>').text(resp.value).html() + '" data-value-id="' + resp.id + '" style="width:auto;display:inline-block;max-width:200px;" autocomplete="off">' +
+                            '<span class="value-text" style="display:none;">' + $('<span>').text(resp.value).html() + '</span>' +
+                            '<span class="attr-value-edit-note" style="display:inline-block;color:#b8ada0;font-size:11px;">{{ translate('Press Enter to save') }}</span>' +
+                            '@else' +
+                            '<span class="value-text">' + $('<span>').text(resp.value).html() + '</span>' +
+                            '@endcan' +
+                            '</div>' +
                             '<div class="attr-value-image-field" data-label="{{ translate('Image') }}">' +
                                 (resp.image_url ?
                                     '<img class="attr-value-image" src="' + $('<span>').text(resp.image_url).html() + '" alt="' + $('<span>').text(resp.value).html() + '">' :
@@ -909,6 +928,56 @@
                 });
             }
 
+            // ── Update attribute value (AJAX) ────────────────────────
+            $(document).on('keypress', '.attr-value-edit-input', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    var input = $(this);
+                    var valueId = input.data('value-id');
+                    var newValue = input.val().trim();
+                    if (newValue === '') return;
+
+                    var formData = new FormData();
+                    formData.append('value', newValue);
+                    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/ajax-update-attribute-value-image/' + valueId,
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(resp) {
+                            if (!resp.success) return;
+                            input.val(resp.value);
+                            input.siblings('.value-text').text(resp.value);
+                            // Optional: show a saved indicator, hide error notes
+                        },
+                        error: function(xhr) {
+                            if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.value) {
+                                alert(xhr.responseJSON.errors.value[0]);
+                            }
+                        }
+                    });
+                }
+            });
+
+            // ── Add attribute value (AJAX) ──────────────────────────
+            $(document).on('click', '.attr-add-value-btn', function() {
+                var attributeId = $(this).data('attribute-id');
+                var inputEl = $(this).closest('.attr-add-value-row').find('.attr-new-value-input');
+                addValue(attributeId, inputEl);
+            });
+
+            $(document).on('keypress', '.attr-new-value-input', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    var attributeId = $(this).data('attribute-id');
+                    addValue(attributeId, $(this));
+                }
+            });
+
+            // ── Image update (AJAX) ────────────────────────────────
             $(document).on('change', '.attr-value-image-input', function() {
                 var input = this;
                 var valueId = $(input).data('value-id');
@@ -939,20 +1008,6 @@
                         input.value = '';
                     }
                 });
-            });
-
-            $(document).on('click', '.attr-add-value-btn', function() {
-                var attributeId = $(this).data('attribute-id');
-                var inputEl = $(this).closest('.attr-add-value-row').find('.attr-new-value-input');
-                addValue(attributeId, inputEl);
-            });
-
-            $(document).on('keypress', '.attr-new-value-input', function(e) {
-                if (e.which === 13) {
-                    e.preventDefault();
-                    var attributeId = $(this).data('attribute-id');
-                    addValue(attributeId, $(this));
-                }
             });
 
             // ── Remove attribute value (AJAX) ───────────────────────

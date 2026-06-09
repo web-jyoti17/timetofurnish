@@ -185,22 +185,36 @@ class AttributeController extends Controller
     public function ajax_update_attribute_value_image(Request $request, $id)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+            'value' => 'nullable|string|max:255',
         ]);
+    
         $this->ensureAttributeValueImageColumn();
-
+    
         $attribute_value = AttributeValue::findOrFail($id);
-
-        // Ensure the seller owns the parent attribute
-        Attribute::where('user_id', auth()->id())->findOrFail($attribute_value->attribute_id);
-
-        $attribute_value->image = $this->storeAttributeValueImage($request);
+    
+        Attribute::where('user_id', auth()->id())
+            ->findOrFail($attribute_value->attribute_id);
+    
+        // Update image only if a new image was uploaded
+        if ($request->hasFile('image')) {
+            $attribute_value->image = $this->storeAttributeValueImage($request);
+        }
+    
+        // Update value only if provided
+        if ($request->filled('value')) {
+            $attribute_value->value = ucfirst($request->value);
+        }
+    
         $attribute_value->save();
-
+    
         return response()->json([
-            'success' => true,
-            'image' => $attribute_value->image,
-            'image_url' => $attribute_value->image ? my_asset($attribute_value->image) : '',
+            'success'   => true,
+            'value'     => $attribute_value->value,
+            'image'     => $attribute_value->image,
+            'image_url' => $attribute_value->image
+                ? my_asset($attribute_value->image)
+                : '',
         ]);
     }
 

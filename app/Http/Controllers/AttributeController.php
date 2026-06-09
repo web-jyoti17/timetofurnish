@@ -76,23 +76,41 @@ class AttributeController extends Controller
      * AJAX: Update an existing attribute value image inline.
      */
     public function ajax_update_attribute_value_image(Request $request, $id)
-    {
-        $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
-        ]);
-        $this->ensureAttributeValueImageColumn();
+{
+    $request->validate([
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        'value' => 'nullable|string|max:255',
+    ]);
 
-        $attribute_value = AttributeValue::findOrFail($id);
+    $this->ensureAttributeValueImageColumn();
+
+    $attribute_value = AttributeValue::findOrFail($id);
+
+    // Attribute::where('user_id', auth()->id())
+        // ->findOrFail($attribute_value->attribute_id);
+
+    // Update image only if a new image was uploaded
+    if ($request->hasFile('image')) {
         $attribute_value->image = $this->storeAttributeValueImage($request);
-        $attribute_value->save();
-
-        return response()->json([
-            'success' => true,
-            'image' => $attribute_value->image,
-            'image_url' => $attribute_value->image ? my_asset($attribute_value->image) : '',
-        ]);
     }
 
+    // Update value only if provided
+    if ($request->filled('value')) {
+        $attribute_value->value = ucfirst($request->value);
+    }
+
+    $attribute_value->save();
+    flash(translate('Attribute has been update successfully'))->success();
+
+    return response()->json([
+        'success'   => true,
+        'value'     => $attribute_value->value,
+        'image'     => $attribute_value->image,
+        'image_url' => $attribute_value->image
+            ? my_asset($attribute_value->image)
+            : '',
+    ]);
+}
     /**
      * AJAX: Delete an attribute value inline.
      */

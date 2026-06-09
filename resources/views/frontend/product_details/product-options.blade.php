@@ -49,8 +49,11 @@
 
                         <div class="col-sm-12">
                             <h5 class="mb-2">
-
-                                {{ ucfirst($choice->name ?? get_single_attribute_name($choice->attribute_id)) }}
+							   @if($loop->first)
+       Color
+    @else
+        {{ ucfirst($choice->name ?? get_single_attribute_name($choice->attribute_id)) }}
+    @endif
                                 <span style="color: red;">*</span>
                             </h5>
                         </div>
