@@ -2601,7 +2601,6 @@ if (!function_exists('get_single_attribute_name')) {
         if (!is_numeric($attribute)) {
             return $attribute;
         }
-
         if ($attribute < 0) {
             $custom_attr = \DB::table('product_stock_attributes')
                 ->select('attribute_name')
@@ -2616,7 +2615,7 @@ if (!function_exists('get_single_attribute_name')) {
                 return $custom_attr->attribute_name;
             }
         }
-
+        
         // Direct DB query first (gets exact name as stored in `attributes` table, e.g. "Sizes")
         $raw_attr = \DB::table('attributes')->where('id', $attribute)->first();
         if ($raw_attr && !empty($raw_attr->name)) {
@@ -2631,7 +2630,6 @@ if (!function_exists('get_single_attribute_name')) {
                 return $name;
             }
         }
-
         return 'Sizes';
     }
 }

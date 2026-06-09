@@ -41,19 +41,16 @@
                     ? get_product_stock_choices($detailedProduct)
                     : json_decode($detailedProduct->choice_options ?? '[]');
                 $variationParts = isset($cartItem) && $cartItem->variation ? explode('-', $cartItem->variation) : [];
+                // dd($productStockChoices);
             @endphp
             @if (!empty($productStockChoices))
-
+    
                 @foreach ($productStockChoices as $key => $choice)
                     <div class="mb-2 row no-gutters">
 
                         <div class="col-sm-12">
                             <h5 class="mb-2">
-							   @if($loop->first)
-       Color
-    @else
-        {{ ucfirst($choice->name ?? get_single_attribute_name($choice->attribute_id)) }}
-    @endif
+                                    {{ ucfirst($choice->name ?? get_single_attribute_name($choice->attribute_id)) }}
                                 <span style="color: red;">*</span>
                             </h5>
                         </div>

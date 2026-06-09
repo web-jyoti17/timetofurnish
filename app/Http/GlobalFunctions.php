@@ -102,7 +102,6 @@ if (!function_exists('get_product_stock_choices')) {
     {
         $attributes = \App\Models\ProductStockAttribute::where('product_id', $product->id)
             ->get();
-
         if ($attributes->isEmpty()) {
             $decoded = json_decode($product->choice_options ?? '[]');
             $choices = [];
@@ -136,7 +135,16 @@ if (!function_exists('get_product_stock_choices')) {
             }
 
             $name = optional($namedItem)->attribute_name
-                ?? get_single_attribute_name($attributeId);
+    ?? ($attributeId ? get_single_attribute_name($attributeId) : null);
+
+            // Detect color attribute
+            if (
+                empty($name) &&
+                $items->first() &&
+                preg_match('/^#[A-Fa-f0-9]{3,8}$/', trim($items->first()->attribute_value))
+            ) {
+                $name = 'Color';
+            }
 
             $values = $items->sortBy('value_sort_order')
                 ->unique('attribute_value')
