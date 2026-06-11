@@ -10,22 +10,23 @@ class CartUtility
 
     public static function create_cart_variant($product, $request)
     {
-        $str = null;
-        if (isset($request['color'])) {
-            $str = $request['color'];
-        }
+        $selected_attributes = [];
 
-        if (isset($product->choice_options) && count(json_decode($product->choice_options)) > 0) {
-            //Gets all the choice values of customer choice option and generate a string like Black-S-Cotton
-            foreach (json_decode($product->choice_options) as $key => $choice) {
-                if ($str != null) {
-                    $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
-                } else {
-                    $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+        foreach (get_product_stock_choices($product) as $choice) {
+            $field = 'attribute_id_' . $choice->attribute_id;
+            if (isset($request[$field]) && !empty($request[$field])) {
+                $val = trim($request[$field]);
+                if (preg_match('/^#[A-Fa-f0-9]{3,8}$/', $val)) {
+                    $color = \App\Models\Color::where('code', $val)->first();
+                    if ($color) {
+                        $val = $color->name;
+                    }
                 }
+                $selected_attributes[] = str_replace(' ', '', $val);
             }
         }
-        return $str;
+
+        return implode('-', $selected_attributes);
     }
 
     public static function get_price($product, $product_stock, $quantity)

@@ -541,7 +541,14 @@ class HomeController extends Controller
         foreach (get_product_stock_choices($product) as $choice) {
             $field = 'attribute_id_' . $choice->attribute_id;
             if ($request->has($field) && !empty($request->$field)) {
-                $selected_attributes[] = str_replace(' ', '', trim($request->$field));
+                $val = trim($request->$field);
+                if (preg_match('/^#[A-Fa-f0-9]{3,8}$/', $val)) {
+                    $color = \App\Models\Color::where('code', $val)->first();
+                    if ($color) {
+                        $val = $color->name;
+                    }
+                }
+                $selected_attributes[] = str_replace(' ', '', $val);
             }
         }
 

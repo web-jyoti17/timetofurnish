@@ -55,7 +55,12 @@
         @endif
 
     </div>
+<style>
+form#sort_products{
+    overflow:scroll;
+}
 
+</style>
     <div class="card">
         <form class="" id="sort_products" action="" method="GET">
             <div class="card-header row gutters-5">

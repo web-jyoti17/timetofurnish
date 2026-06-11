@@ -11,11 +11,13 @@
         border: 1px solid #f0eeea;
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-        overflow: hidden;
+        overflow-x: auto;
         margin-bottom: 2rem;
+        -webkit-overflow-scrolling: touch;
     }
     .premium-var-table {
         width: 100%;
+        min-width: 750px;
         margin-bottom: 0;
         border-collapse: separate;
         border-spacing: 0;

@@ -96,7 +96,7 @@
                             @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
                                 <option value="{{ $color->code }}"
                                     data-content="<span class='mr-2 border rounded-circle d-inline-block align-middle' style='background:{{ $color->code }};width:18px;height:18px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);'></span><span>{{ $color->name }}</span>"
-                                    {{ in_array($color->code, old('colors', [])) ? 'selected' : '' }}>
+                                    {{ in_array($color->code, old('colors', isset($product) ? json_decode($product->colors ?? '[]', true) : [])) ? 'selected' : '' }}>
                                 </option>
                             @endforeach
                         </select>
@@ -649,7 +649,10 @@
     }
 
     #choice_form .productvariation .card-body {
-        padding: 24px;
+        padding: 10px;
+    }
+    #choice_form .addon-option-row{
+        overflow:scroll;
     }
 
     /* Info Alert Stylings */
@@ -1087,10 +1090,32 @@
     }
 
     @media (max-width: 991px) {
-        #choice_form .productvariation .premium-field-row,
-        #choice_form .seller-variation-options #customer_choice_options>.attribute-variation-row {
+        #choice_form .productvariation .premium-field-row {
             grid-template-columns: 1fr;
             gap: 12px;
+        }
+
+        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row {
+            grid-template-columns: 1fr 48px;
+            gap: 12px;
+        }
+
+        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(1) {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(2) {
+            grid-column: 1 / span 2;
+            grid-row: 2;
+        }
+
+        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(3) {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
         }
         
         .seller-attribute-title-cell {

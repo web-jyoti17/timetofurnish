@@ -23,7 +23,7 @@ if (!function_exists('save_product_stock_attributes')) {
                 'product_id' => $product_stock->product_id,
                 'product_stock_id' => $product_stock->id,
                 'attribute_id' => $attributeId,
-                'attribute_name' => $item['attribute_name'] ?? get_single_attribute_name($item['attribute_id']),
+                'attribute_name' => !empty($item['attribute_name']) ? $item['attribute_name'] : get_single_attribute_name($item['attribute_id']),
                 'attribute_value' => $item['value'],
                 'attribute_sort_order' => $item['attribute_sort_order'] ?? 0,
                 'value_sort_order' => $item['value_sort_order'] ?? 0,

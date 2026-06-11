@@ -621,6 +621,10 @@
     #choice_form .productvariation .card-body {
         padding: 16px;
     }
+    .premium-var-table-container,
+    #choice_form .sku_combination table{
+        overflow-x: scroll;
+    }
 
     #choice_form .seller-addons-body {
         padding: 24px;
@@ -849,7 +853,7 @@
 
     @media (max-width: 991px) {
         #choice_form {
-            padding: 12px;
+            padding: 0px;
         }
 
         #choice_form .seller-listing-title-card .card-body {
@@ -866,7 +870,12 @@
             grid-template-columns: 1fr;
         }
 
+        #choice_form .seller-main-stack {
+            order: 2;
+        }
+
         #choice_form .seller-sidebar-stack {
+            order: 1;
             position: static;
             max-height: none;
             overflow: visible;
@@ -898,7 +907,71 @@
             max-height: 280px !important;
         }
 
-        /* Removed responsive vertical stack layout for addons to keep them horizontally aligned in single row */
+        /* Product Add-ons section responsiveness */
+        #choice_form .seller-addons-body {
+            padding: 12px !important;
+        }
+
+        #choice_form .seller-addon-option-head {
+            display: none !important;
+        }
+
+        #choice_form .addon-option-row {
+            display: flex !important;
+            flex-direction: column !important;
+            min-width: 0 !important;
+            gap: 12px !important;
+            padding: 12px !important;
+            border: 1px solid #eadfd2 !important;
+            border-radius: 12px !important;
+            background: #fff !important;
+            margin-bottom: 16px !important;
+        }
+
+        #choice_form .addon-option-row > div[data-label] {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            gap: 12px !important;
+        }
+
+        #choice_form .addon-option-row > div[data-label]::before {
+            content: attr(data-label) ":";
+            font-weight: 700;
+            color: var(--seller-text);
+            min-width: 100px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        #choice_form .addon-option-row > div[data-label] > input,
+        #choice_form .addon-option-row > div[data-label] > select {
+            flex-grow: 1 !important;
+            width: auto !important;
+            max-width: 100% !important;
+        }
+
+        #choice_form .addon-option-row .name {
+            flex: none !important;
+        }
+
+        #choice_form .addon-collapse-header .d-flex {
+            flex-wrap: wrap !important;
+        }
+        
+        #choice_form .addon-collapse-header > div {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+
+        #choice_form .addon-collapse-header .group-name {
+            flex-grow: 1 !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
     }
 </style>
 

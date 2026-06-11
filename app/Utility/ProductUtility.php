@@ -113,6 +113,15 @@ class ProductUtility
                 }
             }
 
+            if (is_null($matched) && preg_match('/^#[A-Fa-f0-9]{3,8}$/', trim($cleanValue))) {
+                $matched = [
+                    'attribute_id' => null,
+                    'attribute_name' => 'Color',
+                    'attribute_sort_order' => -1,
+                    'value_sort_order' => $combinationIndex,
+                ];
+            }
+
             $metadata[] = [
                 'attribute_id' => $matched['attribute_id'] ?? null,
                 'attribute_name' => $matched['attribute_name'] ?? '',

@@ -144,4 +144,13 @@ class Product extends Model
     {
         return $this->offers()->active()->orderBy('priority', 'desc')->orderBy('id', 'desc')->first();
     }
+
+    public function getColorsActiveAttribute()
+    {
+        if (empty($this->colors)) {
+            return false;
+        }
+        $decoded = json_decode($this->colors, true);
+        return is_array($decoded) && count($decoded) > 0;
+    }
 }
