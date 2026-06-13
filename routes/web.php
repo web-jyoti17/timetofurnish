@@ -65,6 +65,7 @@ use App\Http\Controllers\Seller\ProductController as SellerProductController;
  */
 use App\Models\CombinedOrder;
 use App\Models\Order;
+use App\Models\Product as ProductModel;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -287,6 +288,65 @@ Route::get('/seller/get-shipping-charges', [SellerProductController::class, 'get
 Route::get('/sitemap.xml', function () {
     return base_path('sitemap.xml');
 });
+
+Route::get('/google-merchant-feed.xml', function () {
+    $xml = new XMLWriter();
+    $xml->openMemory();
+    $xml->startDocument('1.0', 'UTF-8');
+    $xml->startElement('rss');
+    $xml->writeAttribute('version', '2.0');
+    $xml->writeAttribute('xmlns:g', 'http://base.google.com/ns/1.0');
+    $xml->startElement('channel');
+    $xml->writeElement('title', get_setting('meta_title') ?: config('app.name'));
+    $xml->writeElement('link', url('/'));
+    $xml->writeElement('description', get_setting('meta_description') ?: config('app.name') . ' product feed');
+
+    ProductModel::with(['brand', 'stocks'])
+        ->where('published', 1)
+        ->where('approved', 1)
+        ->where('digital', 0)
+        ->orderBy('id')
+        ->chunk(200, function ($products) use ($xml) {
+            foreach ($products as $product) {
+                $imageId = $product->thumbnail_img;
+                if (empty($imageId) && !empty($product->photos)) {
+                    $imageId = collect(explode(',', $product->photos))->filter()->first();
+                }
+                if (empty($imageId)) {
+                    $imageId = optional($product->stocks->firstWhere('image', '!=', null))->image;
+                }
+                if (empty($imageId)) {
+                    $imageId = $product->meta_img;
+                }
+
+                $price = number_format((float) home_discounted_base_price($product, false), 2, '.', '');
+                $currency = get_system_default_currency()->code;
+                $qty = $product->variant_product
+                    ? $product->stocks->sum('qty')
+                    : (int) optional($product->stocks->first())->qty;
+
+                $xml->startElement('item');
+                $xml->writeElement('g:id', 'product-' . $product->id);
+                $xml->writeElement('g:title', $product->getTranslation('name'));
+                $xml->writeElement('g:description', strip_tags($product->meta_description ?: $product->description ?: $product->getTranslation('name')));
+                $xml->writeElement('g:link', route('product', $product->slug));
+                $xml->writeElement('g:image_link', uploaded_asset($imageId));
+                $xml->writeElement('g:availability', $qty > 0 ? 'in_stock' : 'out_of_stock');
+                $xml->writeElement('g:price', $price . ' ' . $currency);
+                $xml->writeElement('g:condition', 'new');
+                $xml->writeElement('g:brand', $product->brand ? $product->brand->name : config('app.name'));
+                $xml->writeElement('g:identifier_exists', 'no');
+                $xml->endElement();
+            }
+        });
+
+    $xml->endElement();
+    $xml->endElement();
+    $xml->endDocument();
+
+    return response($xml->outputMemory(), 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('google.merchant.feed');
+
 Route::get('/test-mail', function () {
 
     Mail::raw('Laravel Mail Test', function ($message) {

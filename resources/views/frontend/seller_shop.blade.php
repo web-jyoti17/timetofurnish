@@ -441,8 +441,8 @@
                                                         <span class="range-slider-value value-low fs-14 fw-600 opacity-70"
                                                             @if ($min_price != null)
                                                                 data-range-value-low="{{ $min_price }}"
-                                                            @elseif($products->min('unit_price') > 0)
-                                                                data-range-value-low="{{ $products->min('unit_price') }}"
+                                                            @elseif(product_collection_min_listing_price($products) > 0)
+                                                                data-range-value-low="{{ product_collection_min_listing_price($products) }}"
                                                             @else
                                                                 data-range-value-low="0"
                                                             @endif
@@ -453,8 +453,8 @@
                                                         <span class="range-slider-value value-high fs-14 fw-600 opacity-70"
                                                             @if ($max_price != null)
                                                                 data-range-value-high="{{ $max_price }}"
-                                                            @elseif($products->max('unit_price') > 0)
-                                                                data-range-value-high="{{ $products->max('unit_price') }}"
+                                                            @elseif(product_collection_max_listing_price($products) > 0)
+                                                                data-range-value-high="{{ product_collection_max_listing_price($products) }}"
                                                             @else
                                                                 data-range-value-high="0"
                                                             @endif

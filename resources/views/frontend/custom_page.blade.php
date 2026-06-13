@@ -30,13 +30,13 @@
 @endsection
 
 @section('content')
-<section class="pb-3 pt-4 title">
+<section class="pb-3 pt-4 title breadcrumb-banner">
     <div class="container text-center">
         <div class="row ">
-            <div class="col-lg-6 text-center text-lg-left ">
+           {{-- <div class="col-lg-6 text-center text-lg-left ">
                 <h1 class="fw-600 h4 ">{{ $page->getTranslation('title') }}</h1>
-            </div>
-            <div class="col-lg-6">
+            </div>--}}
+            <div class="col-lg-12">
                 <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-end">
                     <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
                         <a class="text-reset" href="{{ route('home') }}">{{ translate('Home')}}</a>
@@ -49,6 +49,7 @@
         </div>
     </div>
 </section>
+
 <section class="mb-3">
 	<div class="container">
         <div class="p-4 bg-white rounded shadow-sm overflow-hidden mw-100 text-left">

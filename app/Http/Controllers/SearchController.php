@@ -70,9 +70,7 @@ class SearchController extends Controller
             // }
         }
 
-        if ($min_price != null && $max_price != null) {
-            $products->where('unit_price', '>=', $min_price)->where('unit_price', '<=', $max_price);
-        }
+        $products = apply_product_listing_price_filter($products, $min_price, $max_price);
 
         if ($query != null) {
             $searchController = new SearchController;
@@ -109,10 +107,10 @@ class SearchController extends Controller
                 $products->orderBy('created_at', 'asc');
                 break;
             case 'price-asc':
-                $products->orderBy('unit_price', 'asc');
+                $products = apply_product_listing_price_sort($products, 'asc');
                 break;
             case 'price-desc':
-                $products->orderBy('unit_price', 'desc');
+                $products = apply_product_listing_price_sort($products, 'desc');
                 break;
             default:
                 $products->orderBy('id', 'desc');
@@ -136,7 +134,7 @@ class SearchController extends Controller
             });
         }
 
-        $products = filter_products($products)->with('taxes')->paginate(24)->appends(request()->query());
+        $products = filter_products($products)->with(['taxes', 'stocks'])->paginate(24)->appends(request()->query());
 
         return view('frontend.product_listing', compact('products', 'query', 'category', 'categories', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attribute_values', 'colors', 'selected_color'));
     }

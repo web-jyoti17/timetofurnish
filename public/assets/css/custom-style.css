@@ -4502,3 +4502,54 @@ span.badge.badge-primary.badge-circle.position-absolute {
         height: 42px;
     }
 }
+
+@media (max-width: 768px) {
+
+    .note-float-right,
+    img[style*="float: right"] {
+        float: none !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto 20px !important;
+        padding: 20px !important;
+    }
+
+}
+
+.note-float-right,
+img[style*="float: right"] {
+    padding: 20px !important;
+}
+
+.breadcrumb-banner {
+    position: relative;
+    background-image: url('../img/breadcrumb-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.breadcrumb-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    /* Dark overlay */
+    z-index: 1;
+}
+
+.breadcrumb-banner .container {
+    position: relative;
+    z-index: 2;
+}
+
+.breadcrumb-banner h1,
+.breadcrumb-banner .breadcrumb-item,
+.breadcrumb-banner .breadcrumb-item a {
+    color: #fff !important;
+}

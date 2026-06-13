@@ -10,6 +10,19 @@
     @php
         $availability = 'out of stock';
         $qty = 0;
+        $merchantImageId = $detailedProduct->thumbnail_img;
+        if (empty($merchantImageId) && !empty($detailedProduct->photos)) {
+            $merchantImageId = collect(explode(',', $detailedProduct->photos))->filter()->first();
+        }
+        if (empty($merchantImageId)) {
+            $merchantImageId = optional($detailedProduct->stocks->firstWhere('image', '!=', null))->image;
+        }
+        if (empty($merchantImageId)) {
+            $merchantImageId = $detailedProduct->meta_img;
+        }
+        $merchantImage = uploaded_asset($merchantImageId);
+        $merchantPrice = number_format((float) home_discounted_base_price($detailedProduct, false), 2, '.', '');
+        $merchantCurrency = get_system_default_currency()->code;
         if ($detailedProduct->variant_product) {
             foreach ($detailedProduct->stocks as $key => $stock) {
                 $qty += $stock->qty;
@@ -24,7 +37,7 @@
     <!-- Schema.org markup for Google+ -->
     <meta itemprop="name" content="{{ $detailedProduct->meta_title }}">
     <meta itemprop="description" content="{{ $detailedProduct->meta_description }}">
-    <meta itemprop="image" content="{{ uploaded_asset($detailedProduct->meta_img) }}">
+    <meta itemprop="image" content="{{ $merchantImage }}">
 
     <!-- Twitter Card data -->
     <meta name="twitter:card" content="product">
@@ -32,26 +45,48 @@
     <meta name="twitter:title" content="{{ $detailedProduct->meta_title }}">
     <meta name="twitter:description" content="{{ $detailedProduct->meta_description }}">
     <meta name="twitter:creator" content="@author_handle">
-    <meta name="twitter:image" content="{{ uploaded_asset($detailedProduct->meta_img) }}">
-    <meta name="twitter:data1" content="{{ single_price($detailedProduct->unit_price) }}">
+    <meta name="twitter:image" content="{{ $merchantImage }}">
+    <meta name="twitter:data1" content="{{ single_price($merchantPrice) }}">
     <meta name="twitter:label1" content="Price">
 
     <!-- Open Graph data -->
     <meta property="og:title" content="{{ $detailedProduct->meta_title }}" />
     <meta property="og:type" content="og:product" />
     <meta property="og:url" content="{{ route('product', $detailedProduct->slug) }}" />
-    <meta property="og:image" content="{{ uploaded_asset($detailedProduct->meta_img) }}" />
+    <meta property="og:image" content="{{ $merchantImage }}" />
     <meta property="og:description" content="{{ $detailedProduct->meta_description }}" />
     <meta property="og:site_name" content="{{ get_setting('meta_title') }}" />
-    <meta property="og:price:amount" content="{{ single_price($detailedProduct->unit_price) }}" />
+    <meta property="og:price:amount" content="{{ $merchantPrice }}" />
     <meta property="product:brand" content="{{ $detailedProduct->brand ? $detailedProduct->brand->name : env('APP_NAME') }}">
     <meta property="product:availability" content="{{ $availability }}">
     <meta property="product:condition" content="new">
-    <meta property="product:price:amount" content="{{ number_format($detailedProduct->unit_price, 2) }}">
+    <meta property="product:price:amount" content="{{ $merchantPrice }}">
     <meta property="product:retailer_item_id" content="{{ $detailedProduct->slug }}">
     <meta property="product:price:currency"
-        content="{{ get_system_default_currency()->code }}" />
+        content="{{ $merchantCurrency }}" />
     <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org/',
+            '@type' => 'Product',
+            'name' => $detailedProduct->meta_title ?: $detailedProduct->getTranslation('name'),
+            'description' => $detailedProduct->meta_description,
+            'image' => [$merchantImage],
+            'sku' => $detailedProduct->slug,
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => $detailedProduct->brand ? $detailedProduct->brand->name : env('APP_NAME'),
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('product', $detailedProduct->slug),
+                'priceCurrency' => $merchantCurrency,
+                'price' => $merchantPrice,
+                'availability' => $availability === 'in stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'itemCondition' => 'https://schema.org/NewCondition',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
 @endsection
 
 @section('content')

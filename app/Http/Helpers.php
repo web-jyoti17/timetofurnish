@@ -971,6 +971,65 @@ if (!function_exists('product_variant_price_range')) {
     }
 }
 
+if (!function_exists('product_listing_price_expression')) {
+    function product_listing_price_expression()
+    {
+        return 'COALESCE((SELECT MIN(product_stocks.price) FROM product_stocks WHERE product_stocks.product_id = products.id AND product_stocks.price > 0), NULLIF(products.unit_price, 0), products.unit_price, 0)';
+    }
+}
+
+if (!function_exists('apply_product_listing_price_filter')) {
+    function apply_product_listing_price_filter($products, $min_price = null, $max_price = null)
+    {
+        if ($min_price !== null && $max_price !== null) {
+            $products->whereRaw(product_listing_price_expression() . ' BETWEEN ? AND ?', [$min_price, $max_price]);
+        }
+
+        return $products;
+    }
+}
+
+if (!function_exists('apply_product_listing_price_sort')) {
+    function apply_product_listing_price_sort($products, $direction = 'asc')
+    {
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+        return $products->orderByRaw(product_listing_price_expression() . ' ' . $direction);
+    }
+}
+
+if (!function_exists('product_listing_base_price_value')) {
+    function product_listing_base_price_value($product)
+    {
+        $variant_range = product_variant_price_range($product);
+        return (float) ($variant_range['lowest'] ?? $product->unit_price ?? 0);
+    }
+}
+
+if (!function_exists('product_collection_min_listing_price')) {
+    function product_collection_min_listing_price($products)
+    {
+        $items = method_exists($products, 'getCollection') ? $products->getCollection() : collect($products);
+        return $items->map(function ($product) {
+            return product_listing_base_price_value($product);
+        })->filter(function ($price) {
+            return $price > 0;
+        })->min();
+    }
+}
+
+if (!function_exists('product_collection_max_listing_price')) {
+    function product_collection_max_listing_price($products)
+    {
+        $items = method_exists($products, 'getCollection') ? $products->getCollection() : collect($products);
+        return $items->map(function ($product) {
+            $variant_range = product_variant_price_range($product);
+            return (float) ($variant_range['highest'] ?? $product->unit_price ?? 0);
+        })->filter(function ($price) {
+            return $price > 0;
+        })->max();
+    }
+}
+
 if (!function_exists('format_price_range')) {
     function format_price_range($lowest_price, $highest_price, $formatted = true)
     {
@@ -1082,7 +1141,7 @@ if (!function_exists('home_base_price')) {
     function home_base_price($product, $formatted = true)
     {
         $variant_range = product_variant_price_range($product);
-        if ($variant_range && (float) $product->unit_price <= 0) {
+        if ($variant_range) {
             return $formatted
                 ? format_price_range($variant_range['lowest'], $variant_range['highest'], true)
                 : convert_price($variant_range['lowest']);
@@ -1151,7 +1210,7 @@ if (!function_exists('home_discounted_base_price')) {
     function home_discounted_base_price($product, $formatted = true)
     {
         $variant_range = product_variant_price_range($product);
-        if ($variant_range && (float) $product->unit_price <= 0) {
+        if ($variant_range) {
             $lowest_price = $variant_range['lowest'];
             $highest_price = $variant_range['highest'];
         } else {
@@ -2351,7 +2410,10 @@ if (!function_exists('get_product_min_unit_price')) {
         if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
-        return $product_query->isApprovedPublished()->min('unit_price');
+        return $product_query
+            ->isApprovedPublished()
+            ->selectRaw('MIN(' . product_listing_price_expression() . ') as min_price')
+            ->value('min_price');
     }
 }
 
@@ -2363,7 +2425,10 @@ if (!function_exists('get_product_max_unit_price')) {
         if ($user_id) {
             $product_query = $product_query->where('user_id', $user_id);
         }
-        return $product_query->isApprovedPublished()->max('unit_price');
+        return $product_query
+            ->isApprovedPublished()
+            ->selectRaw('MAX(' . product_listing_price_expression() . ') as max_price')
+            ->value('max_price');
     }
 }
 

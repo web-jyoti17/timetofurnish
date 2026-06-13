@@ -428,9 +428,7 @@ class HomeController extends Controller
                     $products->whereIn('category_id', $selected_categories);
                 }
 
-                if ($min_price != null && $max_price != null) {
-                    $products->where('unit_price', '>=', $min_price)->where('unit_price', '<=', $max_price);
-                }
+                $products = apply_product_listing_price_filter($products, $min_price, $max_price);
 
                 if ($request->has('rating')) {
                     $rating = $request->rating;
@@ -445,17 +443,17 @@ class HomeController extends Controller
                         $products->orderBy('created_at', 'asc');
                         break;
                     case 'price-asc':
-                        $products->orderBy('unit_price', 'asc');
+                        $products = apply_product_listing_price_sort($products, 'asc');
                         break;
                     case 'price-desc':
-                        $products->orderBy('unit_price', 'desc');
+                        $products = apply_product_listing_price_sort($products, 'desc');
                         break;
                     default:
                         $products->orderBy('id', 'desc');
                         break;
                 }
 
-                $products = $products->paginate(24)->appends(request()->query());
+                $products = $products->with('stocks')->paginate(24)->appends(request()->query());
 
                 return view('frontend.seller_shop', compact('shop', 'type', 'products', 'selected_categories', 'min_price', 'max_price', 'brand_id', 'sort_by', 'rating'));
             }

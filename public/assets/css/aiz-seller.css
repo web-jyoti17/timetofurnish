@@ -8650,7 +8650,7 @@ input[type="number"] {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-right: 0;
+    margin-left: 0;
     vertical-align: bottom;
 }
 
