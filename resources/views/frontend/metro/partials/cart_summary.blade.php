@@ -14,12 +14,16 @@
                 $coupon_discount = 0;
                 $total = 0;
                 $subtotal = 0;
+                $product_discount_total = 0;
                 $shipping_total = 0;
                 @endphp
                 @foreach($carts as $cartItem)
                 @php
                 $product = get_single_product($cartItem->product_id);
+                $base_price = cart_product_base_price($cartItem, $product, false);
                 $price = cart_product_price($cartItem, $product, false, false);
+                $line_product_discount = max(0, ($base_price - $price) * $cartItem->quantity);
+                $product_discount_total += $line_product_discount;
                 $product_name_with_choice = $product->getTranslation('name');
                 $tax += $cartItem['tax'] * $cartItem['quantity'];
                 if(empty($coupon_discount)){
@@ -55,8 +59,18 @@
                     <td class="text-right product-price cartdetails" style="font-weight: 500;">
                        
                     <strong>
-                    @if($product->unit_price > 0)
-                        £{{ number_format($product->unit_price * $cartItem->quantity, 2) }}
+                    @if($price > 0)
+                        @if($line_product_discount > 0)
+                            <span class="d-block text-muted" style="font-size:12px;text-decoration:line-through;">
+                                £{{ number_format($base_price * $cartItem->quantity, 2) }}
+                            </span>
+                        @endif
+                        £{{ number_format($price * $cartItem->quantity, 2) }}
+                        @if($line_product_discount > 0)
+                            <span class="d-block text-danger" style="font-size:12px;">
+                                Discount -£{{ number_format($line_product_discount, 2) }}
+                            </span>
+                        @endif
                         @else
                         -
                         @endif
@@ -165,6 +179,20 @@
         {{-- TOTALS --}}
         <table class="table summary-total-table mb-0 cartdetails" style="background: #f8f7f5;">
             <tbody>
+                @if($product_discount_total > 0)
+                <tr>
+                    <td style="border: none;">Items before discount</td>
+                    <td class="text-right cartdetails" style="border: none;">
+                        £{{ number_format($subtotal + $product_discount_total,2) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="border: none;">Product Discount</td>
+                    <td class="text-right text-danger" style="border: none;">
+                        -£{{ number_format($product_discount_total,2) }}
+                    </td>
+                </tr>
+                @endif
                 <tr>
                     <td style="border: none;">Subtotal</td>
                     <td class="text-right cartdetails" style="border: none;">
@@ -174,7 +202,7 @@
                 @if(!empty($coupon_discount))
                 <tr>
                     <td style="border: none;">Discount</td>
-                    <td class="text-right" style="border: none;">
+                    <td class="text-right text-danger" style="border: none;">
                         <span id="discount_amount">-£{{ number_format($coupon_discount,2) }}</span>
                     </td>
                 </tr>

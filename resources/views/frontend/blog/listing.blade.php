@@ -1,6 +1,26 @@
 @extends('frontend.layouts.app')
 
 @section('content')
+
+<section class="pb-3 pt-4 title breadcrumb-banner">
+    <div class="container text-center breadcrumbfont">
+        <div class="row">
+           {{-- <div class="col-lg-6 text-center text-lg-left">
+                <h1 class="fw-600 h4">{{ $page->getTranslation('title') }}</h1>
+            </div>--}}
+            <div class="col-lg-12">
+                <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-center">
+                    <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
+                        <a class="text-reset" href="{{ route('home') }}">{{ translate('Home')}}</a>
+                    </li>
+                    <li class="text-dark fw-600 breadcrumb-item">
+                        "{{ translate('Blogs') }}"
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
     <section class="pb-4 pt-5">
         <div class="container">
             <div class="row gutters-16">
@@ -8,10 +28,10 @@
                 <div class="col-xl-9 order-xl-1">
                     <!-- Breadcrumb -->
                     <div class="row gutters-16 mb-4">
-                        <div class="col-5 col-xl-6">
+                        {{-- <div class="col-5 col-xl-6">
                             <h1 class="fw-700 fs-20 fs-md-24 text-dark mb-0">{{ translate('Blogs')}}</h1>
                         </div>
-                        <div class="col-5 col-xl-6">
+                       <div class="col-5 col-xl-6">
                             <ul class="breadcrumb bg-transparent p-0 justify-content-end">
                                 <li class="breadcrumb-item has-transition opacity-60 hov-opacity-100">
                                     <a class="text-reset" href="{{ route('home') }}">
@@ -22,7 +42,7 @@
                                     "{{ translate('Blog') }}"
                                 </li>
                             </ul>
-                        </div>
+                        </div>--}}
                         <div class="col d-xl-none mb-lg-3 text-right">
                             <button type="button" class="btn btn-icon p-0 active" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
                                 <i class="la la-filter la-2x"></i>

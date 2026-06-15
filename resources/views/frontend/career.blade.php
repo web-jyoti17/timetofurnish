@@ -1,6 +1,27 @@
 @extends('frontend.layouts.app')
 
 @section('content')
+<!-- Breadcrumb Section -->
+<section class="pb-3 pt-4 title breadcrumb-banner">
+    <div class="container text-center breadcrumbfont">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="breadcrumb bg-transparent p-0 justify-content-center">
+                    <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
+                        <a class="text-reset" href="{{ route('home') }}">
+                            {{ translate('Home') }}
+                        </a>
+                    </li>
+                    <li class="text-dark fw-600 breadcrumb-item">
+                        "{{ translate('Career') }}"
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Existing Career Form Section -->
 <section class="gry-bg py-6" style="background:#FAF7F2">
     <div class="container">
         <div class="row justify-content-center">

@@ -73,47 +73,30 @@
 
 
 <div class="card productvariation shadow-sm mb-4 mt-4">
-    <div class="card-header border-bottom-0 pb-2 pt-3 seller-variation-header">
+    <div class="card-header border-bottom-0 pb-2 pt-3 seller-variation-header d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div class="d-flex align-items-center">
-            <div class="seller-variation-header-icon mr-2">
-                <i class="las la-tags"></i>
-            </div>
-            <h5 class="mb-0 h6 text-black font-weight-bold">{{ translate('Product Variation') }}</h5>
+            <h5 class="mb-0 h6 font-weight-bold d-flex align-items-center">
+                <span class="prefix-number" style="color: #b57a45; font-size: 20px; font-weight: 700; margin-right: 6px;">01</span>
+                <span style="font-size: 14px; font-weight: 700; color: #2c3138; letter-spacing: 0.5px;">{{ translate('ATTRIBUTE SELECTION') }}</span>
+            </h5>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-beige btn-sm font-weight-bold" id="reset-attributes-btn">
+                {{ translate('Reset') }}
+            </button>
+            <a href="{{ route('seller.attributes.index') }}" target="_blank" class="btn btn-solid-beige btn-sm font-weight-bold">
+                + {{ translate('Create Custom Attribute') }}
+            </a>
         </div>
     </div>
 
     <div class="card-body pb-3">
         <div class="row gutters-16">
             <div class="col-lg-12">
-                <div class="form-group row align-items-center mb-4 premium-field-row">
-                    <label class="col-md-3 col-form-label font-weight-bold text-muted-dark">
-                        {{ translate('Colors') }}
-                    </label>
-                    <div class="col-md-8">
-                        <select class="form-control aiz-selectpicker rounded-pill premium-select" data-live-search="true"
-                            name="colors[]" data-selected-text-format="count" id="colors" multiple
-                            {{ old('colors_active', $product->colors_active ?? '') ? '' : 'disabled' }}>
-                            @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
-                                <option value="{{ $color->code }}"
-                                    data-content="<span class='mr-2 border rounded-circle d-inline-block align-middle' style='background:{{ $color->code }};width:18px;height:18px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);'></span><span>{{ $color->name }}</span>"
-                                    {{ in_array($color->code, old('colors', isset($product) ? json_decode($product->colors ?? '[]', true) : [])) ? 'selected' : '' }}>
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-1 text-center d-flex align-items-center justify-content-center">
-                        <label class="premium-switch">
-                            <input value="1" type="checkbox" id="colors_active" name="colors_active"
-                                {{ old('colors_active', $product->colors_active ?? '') ? 'checked' : '' }}>
-                            <span class="premium-slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="alert alert-info mb-4 premium-info-alert" style="background: linear-gradient(135deg, #fdfaf6 0%, #f7f1e5 100%); border-left: 5px solid #c59259; border-radius: 12px; box-shadow: 0 4px 15px rgba(197, 146, 89, 0.08); border-top: 1px solid rgba(197,146,89,0.1); border-right: 1px solid rgba(197,146,89,0.1); border-bottom: 1px solid rgba(197,146,89,0.1);">
+                <div class="alert alert-info mb-4 premium-info-alert">
                     <div class="d-flex align-items-start align-items-md-center flex-column flex-md-row">
-                        <div class="alert-icon-wrap mr-3 mb-2 mb-md-0" style="background: rgba(197, 146, 89, 0.1); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(197, 146, 89, 0.2); flex-shrink: 0;">
-                            <i class="las la-info-circle" style="color: #c59259; font-size: 24px;"></i>
+                        <div class="alert-icon-wrap mr-3 mb-2 mb-md-0">
+                            <i class="las la-info-circle"></i>
                         </div>
                         <div class="flex-grow-1">
                             <span class="font-weight-bold d-block mb-1 text-dark" style="font-size: 15px; letter-spacing: -0.2px;">{{ translate('Set Up Product Variations') }}</span>
@@ -139,7 +122,7 @@
                     </label>
                     <div class="col-md-8 seller-variation-select-col">
                         <select name="choice_attributes[]" id="choice_attributes"
-                            class="form-control aiz-selectpicker rounded-pill premium-select" data-live-search="true"
+                            class="form-control aiz-selectpicker premium-select" data-live-search="true"
                             data-selected-text-format="count" multiple
                             data-placeholder="{{ translate('Choose Attributes') }}" data-container="body">
                             @php
@@ -222,12 +205,43 @@
                         <small class="text-muted-dark">{{ translate('Select attributes above to add variant options for the product.') }}</small>
                     </div>
 
-                    <!-- My Custom Attributes Section -->
-                    <div id="custom-attributes-section" class="mb-4">
-                        <div class="seller-section-subtitle mb-3 font-weight-bold" style="color: #a27038; font-size: 13.5px; border-bottom: 2px solid rgba(197,146,89,0.12); padding-bottom: 8px; letter-spacing: -0.1px;">
-                            <i class="las la-user-cog mr-1" style="font-size: 18px; vertical-align: middle;"></i> {{ translate('My Custom Attributes') }}
+                    <div class="attributes-list-wrapper">
+                        <!-- Color Attribute Row (Global) -->
+                        <div class="form-group row align-items-center mb-0 attribute-variation-row" id="color-attribute-row">
+                            <div class="col-lg-3">
+                                <div class="seller-attribute-title-cell">
+                                    <span class="attribute-badge badge-global">{{ translate('Global') }}</span>
+                                    <span class="font-weight-bold text-dark-title" style="font-size: 13.5px; color: #202223; margin-left: 6px;">{{ translate('Color') }}</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 seller-variation-select-col">
+                                <select class="form-control aiz-selectpicker premium-select" data-live-search="true"
+                                    name="colors[]" data-selected-text-format="count" id="colors" multiple
+                                    {{ old('colors_active', $product->colors_active ?? '') ? '' : 'disabled' }}>
+                                    @foreach (\App\Models\Color::orderBy('name', 'asc')->get() as $key => $color)
+                                        <option value="{{ $color->code }}"
+                                            data-content="<span class='mr-2 border rounded-circle d-inline-block align-middle' style='background:{{ $color->code }};width:18px;height:18px;box-shadow: 0 2px 4px rgba(0,0,0,0.1);'></span><span>{{ $color->name }}</span>"
+                                            {{ in_array($color->code, old('colors', isset($product) ? json_decode($product->colors ?? '[]', true) : [])) ? 'selected' : '' }}>
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                <button type="button" class="btn premium-btn-circle premium-btn-edit premium-icon-btn" disabled>
+                                    <i class="las la-pen"></i>
+                                </button>
+                            </div>
+                            <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                <label class="premium-switch">
+                                    <input value="1" type="checkbox" id="colors_active" name="colors_active"
+                                        {{ old('colors_active', $product->colors_active ?? '') ? 'checked' : '' }}>
+                                    <span class="premium-slider"></span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="customer_choice_options p-2" id="customer_choice_options_custom">
+
+                        <!-- Custom Attributes Container -->
+                        <div class="customer_choice_options" id="customer_choice_options_custom">
                             @foreach ($selected_custom_choice_no as $key => $choice_no)
                                 @php
                                     $productChoiceOption = $productChoiceOptions->first(function ($choiceOption) use ($choice_no) {
@@ -239,38 +253,28 @@
                                         $productChoiceOption->name ?? ($opt_att ? $opt_att->getTranslation('name') : '')
                                     );
                                 @endphp
-                                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
+                                <div class="form-group row align-items-center mb-0 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
                                     <div class="col-lg-3">
                                         <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
                                         @if (!empty($choiceName))
                                             <div class="seller-attribute-title-cell">
-                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title"
-                                                    name="choice[]" value="{{ $choiceName }}"
-                                                    placeholder="{{ translate('Choice Title') }}" readonly>
-                                                <button type="button"
-                                                    class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn"
-                                                    data-attribute-id="{{ $choice_no }}"
-                                                    data-attribute-name="{{ $choiceName }}">
-                                                    <i class="las la-pen"></i>
-                                                </button>
+                                                <span class="attribute-badge badge-custom">{{ translate('Custom') }}</span>
+                                                <span class="font-weight-bold text-dark-title text-truncate attribute-name-label">{{ $choiceName }}</span>
+                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title d-none" name="choice[]" value="{{ $choiceName }}" placeholder="{{ translate('Choice Title') }}" readonly>
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="col-lg-8 seller-variation-select-col">
+                                    <div class="col-lg-7 seller-variation-select-col">
                                         @php
                                             $old_options = old('choice_options_' . $choice_no);
-                                            $value_orders = [];
                                             if (
                                                 !$old_options &&
                                                 isset($productChoiceOption) &&
                                                 isset($productChoiceOption->values)
                                             ) {
                                                 $old_options = collect($productChoiceOption->values)
-                                                    ->map(function ($value) use (&$value_orders) {
-                                                        $val = \App\Utility\ProductUtility::choice_value($value);
-                                                        $order = \App\Utility\ProductUtility::choice_value_sort_order($value, 0);
-                                                        $value_orders[$val] = $order;
-                                                        return $val;
+                                                    ->map(function ($value) {
+                                                        return \App\Utility\ProductUtility::choice_value($value);
                                                     })
                                                     ->filter()
                                                     ->values()
@@ -286,7 +290,7 @@
                                                 ->unique()
                                                 ->values();
                                         @endphp
-                                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select"
+                                        <select class="form-control aiz-selectpicker attribute_choice premium-select"
                                             data-live-search="true" name="choice_options_{{ $choice_no }}[]"
                                             multiple data-container="body"
                                             {{ !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
@@ -297,25 +301,14 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="seller-select-help">
-                                            {{ translate('Search options. If there is no match, add it from the dropdown.') }}
-                                        </small>
-
-                                        <!-- Selected Values & Custom Sort Order Editor -->
-                                        <!-- <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
-                                            <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
-                                            <div class="seller-selected-values-list">
-                                                @foreach((array) $old_options as $index => $val)
-                                                    @php
-                                                        $order = $value_orders[$val] ?? $index;
-                                                    @endphp
-                                                    <div class="seller-selected-value-row" data-value="{{ $val }}">
-                                                        <span class="premium-badge">{{ $val }}</span>
-                                                        <input type="number" class="seller-selected-value-sort-input" name="value_sort_order_{{ $choice_no }}[{{ $val }}]" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div> -->
+                                    </div>
+                                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                        <button type="button"
+                                            class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn"
+                                            data-attribute-id="{{ $choice_no }}"
+                                            data-attribute-name="{{ $choiceName }}">
+                                            <i class="las la-pen"></i>
+                                        </button>
                                     </div>
                                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
                                         <label class="premium-switch">
@@ -330,14 +323,9 @@
                                 </div>
                             @endforeach
                         </div>
-                    </div>
 
-                    <!-- Global Admin Attributes Section -->
-                    <div id="admin-attributes-section" class="mb-2">
-                        <div class="seller-section-subtitle mb-3 font-weight-bold" style="color: #4b5259; font-size: 13.5px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 8px; letter-spacing: -0.1px;">
-                            <i class="las la-globe mr-1" style="font-size: 18px; vertical-align: middle;"></i> {{ translate('Global Admin Attributes') }}
-                        </div>
-                        <div class="customer_choice_options p-2" id="customer_choice_options_admin">
+                        <!-- Admin Attributes Container -->
+                        <div class="customer_choice_options" id="customer_choice_options_admin">
                             @foreach ($selected_admin_choice_no as $key => $choice_no)
                                 @php
                                     $productChoiceOption = $productChoiceOptions->first(function ($choiceOption) use ($choice_no) {
@@ -349,33 +337,28 @@
                                         $productChoiceOption->name ?? ($opt_att ? $opt_att->getTranslation('name') : '')
                                     );
                                 @endphp
-                                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
+                                <div class="form-group row align-items-center mb-0 attribute-variation-row" data-user-id="{{ $opt_att ? $opt_att->user_id : '' }}">
                                     <div class="col-lg-3">
                                         <input type="hidden" name="choice_no[]" value="{{ $choice_no }}">
                                         @if (!empty($choiceName))
                                             <div class="seller-attribute-title-cell">
-                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title"
-                                                    name="choice[]" value="{{ $choiceName }}"
-                                                    placeholder="{{ translate('Choice Title') }}" readonly>
-                                                <!-- NO pencil icon rename button rendered for admin global attributes -->
+                                                <span class="attribute-badge badge-global">{{ translate('Global') }}</span>
+                                                <span class="font-weight-bold text-dark-title text-truncate attribute-name-label">{{ $choiceName }}</span>
+                                                <input type="text" class="form-control-plaintext font-weight-bold text-dark-title d-none" name="choice[]" value="{{ $choiceName }}" placeholder="{{ translate('Choice Title') }}" readonly>
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="col-lg-8 seller-variation-select-col">
+                                    <div class="col-lg-7 seller-variation-select-col">
                                         @php
                                             $old_options = old('choice_options_' . $choice_no);
-                                            $value_orders = [];
                                             if (
                                                 !$old_options &&
                                                 isset($productChoiceOption) &&
                                                 isset($productChoiceOption->values)
                                             ) {
                                                 $old_options = collect($productChoiceOption->values)
-                                                    ->map(function ($value) use (&$value_orders) {
-                                                        $val = \App\Utility\ProductUtility::choice_value($value);
-                                                        $order = \App\Utility\ProductUtility::choice_value_sort_order($value, 0);
-                                                        $value_orders[$val] = $order;
-                                                        return $val;
+                                                    ->map(function ($value) {
+                                                        return \App\Utility\ProductUtility::choice_value($value);
                                                     })
                                                     ->filter()
                                                     ->values()
@@ -391,7 +374,7 @@
                                                 ->unique()
                                                 ->values();
                                         @endphp
-                                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select"
+                                        <select class="form-control aiz-selectpicker attribute_choice premium-select"
                                             data-live-search="true" name="choice_options_{{ $choice_no }}[]"
                                             multiple data-container="body"
                                             {{ !old('attribute_choice_active_' . $choice_no, 1) ? 'disabled' : '' }}>
@@ -402,25 +385,11 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="seller-select-help">
-                                            {{ translate('Search options. If there is no match, add it from the dropdown.') }}
-                                        </small>
-
-                                        <!-- Selected Values & Custom Sort Order Editor -->
-                                        <!-- <div class="seller-selected-values-editor mt-2 @if(empty($old_options)) d-none @endif" id="selected-values-editor-{{ $choice_no }}">
-                                            <div class="seller-selected-values-title">{{ translate('Set Option Values Sort Order') }}</div>
-                                            <div class="seller-selected-values-list">
-                                                @foreach((array) $old_options as $index => $val)
-                                                    @php
-                                                        $order = $value_orders[$val] ?? $index;
-                                                    @endphp
-                                                    <div class="seller-selected-value-row" data-value="{{ $val }}">
-                                                        <span class="premium-badge">{{ $val }}</span>
-                                                        <input type="number" class="seller-selected-value-sort-input" name="value_sort_order_{{ $choice_no }}[{{ $val }}]" value="{{ $order }}" data-value="{{ $val }}" title="{{ translate('Sort Order') }}">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div> -->
+                                    </div>
+                                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
+                                        <button type="button" class="btn premium-btn-circle premium-btn-edit premium-icon-btn" disabled>
+                                            <i class="las la-pen"></i>
+                                        </button>
                                     </div>
                                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">
                                         <label class="premium-switch">
@@ -626,22 +595,83 @@
 <style>
     /* Product Variation Premium Stylesheet */
     
+    .btn-outline-beige {
+        background: #ffffff !important;
+        border: 1px solid #d9d0c1 !important;
+        color: #a89c8f !important;
+        border-radius: 8px !important;
+        padding: 6px 16px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease;
+    }
+    .btn-outline-beige:hover {
+        background: #faf7f2 !important;
+        border-color: #a89c8f !important;
+        color: #8c8273 !important;
+    }
+    
+    .btn-solid-beige {
+        background: #a89c8f !important;
+        border: 1px solid #a89c8f !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 6px 16px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        transition: all 0.2s ease;
+    }
+    .btn-solid-beige:hover {
+        background: #958779 !important;
+        border-color: #958779 !important;
+        color: #ffffff !important;
+    }
+
+    .selectpicker-tag {
+        display: inline-flex !important;
+        align-items: center !important;
+        background: #fdfbfc !important;
+        border: 1px solid #e8e3db !important;
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        margin: 2px 4px 2px 0 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #4a463e !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    }
+    .selectpicker-tag .color-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        display: inline-block;
+        border: 1px solid rgba(0,0,0,0.15);
+        flex-shrink: 0;
+    }
+    .bootstrap-select .dropdown-toggle .filter-option-inner-inner {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 4px 2px !important;
+    }
+    
     #choice_form .productvariation {
         margin-top: 24px;
         border-radius: 12px;
-        border: 1px solid rgba(197, 146, 89, 0.12);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.035) !important;
+        border: 1px solid rgba(168, 156, 143, 0.18);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.015) !important;
         background: #fff;
         overflow: hidden;
     }
 
     .seller-variation-header {
-        background: linear-gradient(to right, rgba(197, 146, 89, 0.05) 0%, rgba(197, 146, 89, 0.01) 100%);
-        border-bottom: 1px solid rgba(197, 146, 89, 0.08) !important;
+        background: linear-gradient(to right, rgba(168, 156, 143, 0.05) 0%, rgba(168, 156, 143, 0.01) 100%);
+        border-bottom: 1px solid rgba(168, 156, 143, 0.1) !important;
     }
 
     .seller-variation-header-icon {
-        color: #c59259;
+        color: #8c8273;
         font-size: 20px;
         display: flex;
         align-items: center;
@@ -658,19 +688,33 @@
     /* Info Alert Stylings */
     #choice_form .productvariation .premium-info-alert {
         margin: 16px 0 24px;
-        padding: 14px 16px;
-        border: 1px solid rgba(197, 146, 89, 0.2);
-        border-radius: 8px;
-        background: #fdfaf6;
-        color: #5f4a35;
+        padding: 16px 20px;
+        border: 1px solid rgba(168, 156, 143, 0.15) !important;
+        border-left: 3px solid #a89c8f !important;
+        border-radius: 8px !important;
+        background: #fbf9f6 !important;
+        color: #615a51 !important;
         font-size: 13px;
-        box-shadow: 0 2px 6px rgba(197, 146, 89, 0.04);
+        box-shadow: none !important;
     }
 
     #choice_form .productvariation .premium-info-alert .alert-icon-wrap {
-        font-size: 22px;
-        color: #c59259;
+        background: rgba(168, 156, 143, 0.08) !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid rgba(168, 156, 143, 0.15) !important;
+        color: #8c8273 !important;
+        flex-shrink: 0;
         line-height: 1;
+    }
+
+    #choice_form .productvariation .premium-info-alert .alert-icon-wrap i {
+        font-size: 20px !important;
+        color: #8c8273 !important;
     }
 
     /* Form Layout Grid & Rows */
@@ -709,8 +753,8 @@
 
     #choice_form .productvariation .bootstrap-select.show .dropdown-toggle,
     #choice_form .productvariation .bootstrap-select .dropdown-toggle:focus {
-        border-color: #c59259 !important;
-        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.15) !important;
+        border-color: #a89c8f !important;
+        box-shadow: 0 0 0 3px rgba(168, 156, 143, 0.15) !important;
     }
 
     /* Premium Standalone Switch (iOS style, Bronze theme) */
@@ -753,7 +797,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     .premium-switch input:checked + .premium-slider {
-        background-color: #c59259;
+        background-color: #a89c8f;
     }
     .premium-switch input:checked + .premium-slider:before {
         transform: translateX(22px);
@@ -767,60 +811,58 @@
     .seller-variation-options {
         max-height: none;
         overflow: visible;
-        border-radius: 10px;
-        background: #fafbfc;
-        padding: 14px;
-        border: 1px solid rgba(0, 0, 0, 0.035);
-        box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+        border-radius: 8px;
+        background: #fdfdfd;
+        padding: 16px;
+        border: 1px solid #e8e3db;
     }
 
     /* Visibility controls via :has() */
-    #custom-attributes-section {
-        display: none !important;
-    }
-    #custom-attributes-section:has(.attribute-variation-row) {
-        display: block !important;
-    }
-
-    #admin-attributes-section {
-        display: none !important;
-    }
-    #admin-attributes-section:has(.attribute-variation-row) {
-        display: block !important;
-    }
-
     #attributes-container:not(:has(.attribute-variation-row)) #variant-table-prompt {
         display: block !important;
     }
+    #attributes-container:not(:has(.attribute-variation-row)) .attributes-list-wrapper {
+        display: none !important;
+    }
 
     #choice_form .seller-variation-options .customer_choice_options {
-        display: grid;
-        gap: 12px;
+        display: block;
         padding: 0 !important;
     }
 
-    /* Individual Attribute variation Blocks */
-    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row {
+    /* Unified Attributes List Wrapper */
+    .attributes-list-wrapper {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid rgba(168, 156, 143, 0.18);
+        overflow: hidden;
+    }
+
+    /* Individual Attribute variation Rows */
+    #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row {
         display: grid;
-        grid-template-columns: 180px minmax(0, 1fr) 48px;
-        gap: 10px 16px;
+        grid-template-columns: 180px minmax(0, 1fr) 38px 46px;
+        gap: 16px;
         align-items: center;
         margin: 0 !important;
-        padding: 16px;
-        border: 1px solid rgba(197, 146, 89, 0.09);
-        border-radius: 10px;
-        border-left: 4px solid #c59259;
+        padding: 12px 20px;
+        border-bottom: 1px solid #f6f5f2;
         background: #fff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-        transition: all 0.3s ease;
+        box-shadow: none;
+        transition: background 0.15s ease;
     }
 
-    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row:hover {
-        border-color: rgba(197, 146, 89, 0.3);
-        box-shadow: 0 6px 20px rgba(197, 146, 89, 0.05);
+    #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row:hover {
+        background: #fdfbf7;
     }
 
-    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>[class*="col-"] {
+    /* Remove bottom border of the last active row */
+    .attributes-list-wrapper > *:last-child > .attribute-variation-row:last-child,
+    .attributes-list-wrapper > .attribute-variation-row:last-child {
+        border-bottom: none !important;
+    }
+
+    #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row>[class*="col-"] {
         width: 100%;
         max-width: none;
         padding: 0;
@@ -829,25 +871,14 @@
 
     #choice_form .seller-variation-options .form-control-plaintext {
         color: #202223;
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 700;
         padding: 0;
-        min-height: 40px;
+        min-height: auto;
+        height: 38px;
         display: flex;
         align-items: center;
         letter-spacing: -0.2px;
-    }
-
-    /* Option values header info */
-    #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row .col-lg-8::before {
-        content: "Option Values";
-        display: block;
-        margin-bottom: 6px;
-        color: #8c959f;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     #choice_form .productvariation .seller-variation-select-col {
@@ -869,31 +900,58 @@
         align-items: center;
         gap: 8px;
         min-width: 0;
+        width: 100%;
         padding-top: 0;
     }
 
     .seller-attribute-title-cell input {
+        flex: 1;
         min-width: 0;
+        width: 0 !important;
+        max-width: none !important;
     }
 
     .premium-icon-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50% !important;
-        background: #fdf8f4 !important;
-        border: 1px solid rgba(197, 146, 89, 0.15) !important;
-        color: #c59259 !important;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px !important;
+        background: #faf9f6 !important;
+        border: 1px solid rgba(168, 156, 143, 0.2) !important;
+        color: #8c8273 !important;
         display: flex !important;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.25s ease;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
     }
 
     .premium-icon-btn:hover {
-        background: #c59259 !important;
+        background: #a89c8f !important;
         color: #fff !important;
-        border-color: #c59259 !important;
-        box-shadow: 0 4px 10px rgba(197, 146, 89, 0.25);
+        border-color: #a89c8f !important;
+        box-shadow: none;
+    }
+
+    /* Elegant Inline Badges */
+    .attribute-badge {
+        font-size: 9px !important;
+        font-weight: 800 !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .attribute-badge.badge-custom {
+        background: #fdf6ee !important;
+        color: #c59259 !important;
+        border: 1px solid rgba(197, 146, 89, 0.22) !important;
+    }
+    .attribute-badge.badge-global {
+        background: #f3f4f6 !important;
+        color: #6b7280 !important;
+        border: 1px solid #e5e7eb !important;
     }
 
     /* Selected Values Editor panel - Single Row Design */
@@ -908,7 +966,7 @@
     }
 
     .seller-selected-values-title {
-        color: #c59259;
+        color: #8c8273;
         font-size: 10.5px;
         font-weight: 800;
         text-transform: uppercase;
@@ -931,8 +989,8 @@
     .seller-selected-value-row {
         background: linear-gradient(135deg, #ffffff 0%, #fdfbf7 100%);
         border-radius: 50rem;
-        box-shadow: 0 2px 8px rgba(197, 146, 89, 0.05);
-        border: 1px solid rgba(197, 146, 89, 0.22);
+        box-shadow: 0 2px 8px rgba(168, 156, 143, 0.05);
+        border: 1px solid rgba(168, 156, 143, 0.22);
         display: inline-flex;
         align-items: center;
         overflow: hidden;
@@ -942,13 +1000,13 @@
 
     .seller-selected-value-row:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(197, 146, 89, 0.12);
-        border-color: rgba(197, 146, 89, 0.4);
+        box-shadow: 0 4px 12px rgba(168, 156, 143, 0.12);
+        border-color: rgba(168, 156, 143, 0.4);
     }
 
     .seller-selected-value-row .premium-badge {
         background: transparent !important;
-        color: #a27038 !important;
+        color: #8c8273 !important;
         border: none !important;
         font-size: 11.5px !important;
         font-weight: 750 !important;
@@ -968,27 +1026,26 @@
         font-size: 12px !important;
         text-align: center;
         border: none !important;
-        border-left: 1px solid rgba(197, 146, 89, 0.22) !important;
+        border-left: 1px solid rgba(168, 156, 143, 0.22) !important;
         background: #faf6f0 !important;
         padding: 0 !important;
-        color: #c59259 !important;
+        color: #8c8273 !important;
         outline: none !important;
         transition: all 0.25s ease;
     }
 
     .seller-selected-value-sort-input:focus {
         background: #ffffff !important;
-        color: #a27038 !important;
-        box-shadow: inset 0 0 0 1px rgba(197, 146, 89, 0.3) !important;
+        color: #8c8273 !important;
+        box-shadow: inset 0 0 0 1px rgba(168, 156, 143, 0.3) !important;
     }
-
 
     /* Premium Selectpicker Dropdown styling */
     #choice_form .productvariation .bootstrap-select .dropdown-toggle {
         min-height: 42px;
         padding: 8px 20px !important;
         border: 1px solid var(--seller-border-strong) !important;
-        border-radius: 50rem !important; /* Rounded pill look */
+        border-radius: 8px !important; /* rectangular modern look */
         background: #fff !important;
         color: var(--seller-text) !important;
         font-weight: 600 !important;
@@ -1001,8 +1058,8 @@
 
     #choice_form .productvariation .bootstrap-select.show .dropdown-toggle,
     #choice_form .productvariation .bootstrap-select .dropdown-toggle:focus {
-        border-color: #c59259 !important;
-        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.15) !important;
+        border-color: #a89c8f !important;
+        box-shadow: 0 0 0 3px rgba(168, 156, 143, 0.15) !important;
     }
 
     #choice_form .productvariation .bootstrap-select .dropdown-toggle .filter-option {
@@ -1013,9 +1070,9 @@
 
     /* Bootstrap selectpicker dropdown menu menu customisation */
     .productvariation .bootstrap-select .dropdown-menu {
-        border: 1px solid rgba(197, 146, 89, 0.15) !important;
-        border-radius: 14px !important;
-        box-shadow: 0 10px 30px rgba(197, 146, 89, 0.08) !important;
+        border: 1px solid rgba(168, 156, 143, 0.15) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 30px rgba(168, 156, 143, 0.08) !important;
         padding: 8px !important;
         margin-top: 6px !important;
         background: #fff !important;
@@ -1030,7 +1087,7 @@
 
     .productvariation .bootstrap-select .dropdown-menu .bs-searchbox input {
         height: 38px !important;
-        border-radius: 20px !important;
+        border-radius: 8px !important;
         border: 1px solid #d9dee3 !important;
         padding: 6px 16px !important;
         font-size: 13px !important;
@@ -1039,9 +1096,9 @@
     }
 
     .productvariation .bootstrap-select .dropdown-menu .bs-searchbox input:focus {
-        border-color: #c59259 !important;
+        border-color: #a89c8f !important;
         background: #fff !important;
-        box-shadow: 0 0 0 3px rgba(197, 146, 89, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(168, 156, 143, 0.12) !important;
         outline: none !important;
     }
 
@@ -1070,13 +1127,13 @@
 
     .productvariation .bootstrap-select .dropdown-menu li a:hover,
     .productvariation .bootstrap-select .dropdown-menu li.active a {
-        background: rgba(197, 146, 89, 0.08) !important;
-        color: #a27038 !important;
+        background: rgba(168, 156, 143, 0.08) !important;
+        color: #8c8273 !important;
     }
 
     .productvariation .bootstrap-select .dropdown-menu li.selected a {
-        background: rgba(197, 146, 89, 0.15) !important;
-        color: #a27038 !important;
+        background: rgba(168, 156, 143, 0.15) !important;
+        color: #615a51 !important;
         font-weight: 700 !important;
     }
 
@@ -1085,7 +1142,7 @@
         font-family: "Line Awesome Free";
         font-weight: 900;
         margin-left: auto;
-        color: #c59259;
+        color: #8c8273;
         font-size: 12px;
     }
 
@@ -1095,27 +1152,37 @@
             gap: 12px;
         }
 
-        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row {
-            grid-template-columns: 1fr 48px;
+        #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row {
+            grid-template-columns: 1fr auto auto;
             gap: 12px;
+            padding: 12px 16px;
         }
 
-        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(1) {
+        #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row > div:nth-child(1) { /* Title */
             grid-column: 1;
             grid-row: 1;
         }
 
-        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(2) {
-            grid-column: 1 / span 2;
+        #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row > div:nth-child(2) { /* Select */
+            grid-column: 1 / span 3;
             grid-row: 2;
+            width: 100%;
         }
 
-        #choice_form .seller-variation-options .customer_choice_options>.attribute-variation-row>div:nth-child(3) {
+        #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row > div:nth-child(3) { /* Pencil */
             grid-column: 2;
             grid-row: 1;
             display: flex;
-            justify-content: flex-end;
             align-items: center;
+            justify-content: center;
+        }
+
+        #choice_form .seller-variation-options .attributes-list-wrapper .attribute-variation-row > div:nth-child(4) { /* Toggle */
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .seller-attribute-title-cell {

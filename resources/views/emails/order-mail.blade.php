@@ -159,20 +159,33 @@
         }
 
         .totals {
-            border-top: 2px solid #222222;
-            margin-top: 8px;
+            border-top: 1px solid #222222;
+            margin-top: 16px;
         }
 
         .totals td {
-            font-size: 12px;
+            font-size: 11px;
             padding: 4px 0;
+        }
+
+        .summary-note {
+            color: #777777;
+            font-size: 9px;
+            line-height: 1.35;
+            margin-top: 2px;
+        }
+
+        .summary-divider td {
+            border-top: 1px solid #dddddd;
+            padding-top: 10px;
         }
 
         .total-row td {
             color: #222222;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
-            padding-top: 11px;
+            border-top: 1px solid #222222;
+            padding-top: 10px;
         }
 
         .footer {
@@ -289,11 +302,19 @@
         $shippingTotal = (float) $order->orderDetails->sum('shipping_cost');
         $itemsSubtotal = 0;
         $addonsSubtotal = 0;
+        $productDiscountTotal = 0;
         $services = [];
         $servicesTotal = 0;
         $companyEmail = 'sales@timetofurnish.com';
         $companyPhone = '+44 7751510365';
         $companyWebsite = 'www.timetofurnish.com';
+        $companyVatNumber = '519 7742 56';
+        $companyVatRate = '20%';
+        $companyVatRateValue = (float) rtrim($companyVatRate, '%');
+        $vatTotal = $companyVatRateValue > 0
+            ? round(((float) $order->grand_total * $companyVatRateValue) / (100 + $companyVatRateValue), 2)
+            : 0;
+        $totalExcludingVat = max(0, (float) $order->grand_total - $vatTotal);
         $invoiceCopy = $invoiceCopy ?? \App\Services\OrderInvoiceService::copyTypes()[$invoiceCopyType ?? 'customer'];
         $invoiceNumber = $invoiceNumber ?? app(\App\Services\OrderInvoiceService::class)->invoiceNumber($order);
         $invoiceName = $invoiceName ?? $invoiceCopy['name'];
@@ -362,6 +383,15 @@
             return $lines;
         };
 
+        $orderDetailBaseUnitPrice = function ($orderDetail) {
+            if (!$orderDetail->product || (int) $orderDetail->product->auction_product === 1) {
+                return $orderDetail->quantity > 0 ? (float) $orderDetail->price / $orderDetail->quantity : (float) $orderDetail->price;
+            }
+
+            $productStock = $orderDetail->product->stocks->where('variant', $orderDetail->variation)->first();
+            return $productStock ? (float) $productStock->price : (float) ($orderDetail->product->unit_price ?? 0);
+        };
+
         if ($order->shop && $order->shop->user && $order->shop->user->addresses->count() > 0) {
             $sellerProfileAddress = $order->shop->user->addresses->sortByDesc('set_default')->first();
         }
@@ -373,6 +403,8 @@
                 $servicesTotal = (float) ($additionalInfo['service_total'] ?? collect($services)->sum('price'));
             }
         }
+
+        $deliveryAndInstallationTotal = $shippingTotal + $servicesTotal;
 
         if ($sellerProfileAddress && !empty($sellerProfileAddress->address)) {
             $sellerAddressLines[] = $order->shop->name ?? 'Seller';
@@ -594,8 +626,12 @@
                                             @php
                                                 $lineBase = (float) $orderDetail->price;
                                                 $lineAddon = (float) ($orderDetail->addon_price ?? 0);
+                                                $baseUnitPrice = $orderDetailBaseUnitPrice($orderDetail);
+                                                $discountedUnitPrice = $orderDetail->quantity > 0 ? $lineBase / $orderDetail->quantity : $lineBase;
+                                                $lineProductDiscount = max(0, ($baseUnitPrice - $discountedUnitPrice) * $orderDetail->quantity);
                                                 $itemsSubtotal += $lineBase;
                                                 $addonsSubtotal += $lineAddon;
+                                                $productDiscountTotal += $lineProductDiscount;
                                                 $addons = [];
 
                                                 if (!empty($orderDetail->addons)) {
@@ -611,6 +647,11 @@
                                                         <div class="muted" style="font-size:11px;margin-top:2px;">
                                                             Variant:
                                                             {{ $orderDetail->variation }}</div>
+                                                    @endif
+                                                    @if ($lineProductDiscount > 0)
+                                                        <div class="muted" style="font-size:11px;margin-top:2px;">
+                                                            Product discount:
+                                                            -{{ single_price($lineProductDiscount) }}</div>
                                                     @endif
                                                     @if (!empty($addons))
                                                           <table class="addons" width="100%" cellpadding="0"
@@ -651,7 +692,11 @@
                                                     <span class="show-mobile small muted" style="display:none;font-weight:700;">Qty: </span>{{ $orderDetail->quantity }}
                                                 </td>
                                                 <td class="item-td right nowrap">
-                                                    <span class="show-mobile small muted" style="display:none;font-weight:700;">Unit price: </span>{{ single_price($orderDetail->quantity > 0 ? $lineBase / $orderDetail->quantity : $lineBase) }}
+                                                    <span class="show-mobile small muted" style="display:none;font-weight:700;">Unit price: </span>
+                                                    @if ($lineProductDiscount > 0)
+                                                        <span class="muted" style="text-decoration:line-through;font-size:10px;">{{ single_price($baseUnitPrice) }}</span><br>
+                                                    @endif
+                                                    {{ single_price($discountedUnitPrice) }}
                                                 </td>
                                                 <td class="item-td right nowrap">
                                                     <span class="show-mobile small muted" style="display:none;font-weight:700;">Subtotal: </span>{{ single_price($lineBase + $lineAddon) }}
@@ -697,32 +742,48 @@
 
                             <table class="totals" width="100%" cellpadding="0" cellspacing="0"
                                 role="presentation">
+                                @php
+                                    $discountAppliedTotal = $productDiscountTotal + (float) $order->coupon_discount;
+                                    $itemsBeforeDiscount = $itemsSubtotal + $productDiscountTotal;
+                                @endphp
                                 <tr>
-                                    <td class="hide-mobile" width="56%"></td>
-                                    <td class="col-block" width="44%">
+                                    <td class="hide-mobile" width="48%"></td>
+                                    <td class="col-block" width="52%">
                                         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                             <tr>
-                                                <td width="58%" class="muted">Items subtotal</td>
-                                                <td width="42%" class="right nowrap">
-                                                    {{ single_price($itemsSubtotal) }}
+                                                <td width="60%">Items
+                                                    @if ($discountAppliedTotal > 0)
+                                                        <div class="summary-note">
+                                                            Discount applied on items:
+                                                            {{ single_price($itemsBeforeDiscount) }} -
+                                                            {{ single_price($discountAppliedTotal) }}
+                                                        </div>
+                                                    @endif
                                                 </td>
+                                                <td width="40%" class="right nowrap">{{ single_price($itemsSubtotal) }}</td>
                                             </tr>
-                                            <tr>
-                                                <td class="muted">Addons subtotal</td>
-                                                <td class="right nowrap">{{ single_price($addonsSubtotal) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="muted">Shipping charges</td>
-                                                <td class="right nowrap">{{ single_price($shippingTotal) }}</td>
-                                            </tr>
-                                            @if ($servicesTotal > 0)
+                                            @if ($addonsSubtotal > 0)
                                                 <tr>
-                                                    <td class="muted">Additional services</td>
-                                                    <td class="right nowrap">{{ single_price($servicesTotal) }}</td>
+                                                    <td>Add-ons</td>
+                                                    <td class="right nowrap">{{ single_price($addonsSubtotal) }}</td>
                                                 </tr>
                                             @endif
+                                            @if ($deliveryAndInstallationTotal > 0)
+                                                <tr>
+                                                    <td>Delivery and services</td>
+                                                    <td class="right nowrap">{{ single_price($deliveryAndInstallationTotal) }}</td>
+                                                </tr>
+                                            @endif
+                                            <tr class="summary-divider">
+                                                <td>Total excluding VAT</td>
+                                                <td class="right nowrap">{{ single_price($totalExcludingVat) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>VAT (20% included)</td>
+                                                <td class="right nowrap">{{ single_price($vatTotal) }}</td>
+                                            </tr>
                                             <tr class="total-row">
-                                                <td>Invoice total</td>
+                                                <td>Total Amount:</td>
                                                 <td class="right nowrap">{{ single_price($order->grand_total) }}</td>
                                             </tr>
                                         </table>
@@ -741,29 +802,19 @@
                             <div style="font-size:12px;font-weight:700;margin-top:7px;">
                                 Thank you for shopping with Time To Furnish.
                             </div>
+                            <div class="muted" style="font-size:10px;line-height:1.5;margin-top:7px;">
+                                VAT Number: {{ $companyVatNumber }}
+                            </div>
 
                             <table cellpadding="0" cellspacing="0" role="presentation"
-                                style="margin:15px auto 0;width:100%;max-width:320px;">
+                                style="margin:15px auto 0;width:100%;max-width:100%;">
                                 <tr>
                                     <td align="center" style="font-size:12px;color:#333;line-height:1.6;padding:10px 0;">
-                                        <div style="margin-bottom:8px;">
-                                            <img src="{{ $assetPath('assets/img/email.jpeg') }}"
-                                                alt="Email" width="16" height="16"
-                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
-                                            <span style="vertical-align:middle;">{{ $companyEmail }}</span>
-                                        </div>
-                                        <div style="margin-bottom:8px;">
-                                            <img src="{{ $assetPath('assets/img/website.jpeg') }}"
-                                                alt="Website" width="16" height="16"
-                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
-                                            <span style="vertical-align:middle;">{{ $companyWebsite }}</span>
-                                        </div>
-                                        <div>
-                                            <img src="{{ $assetPath('assets/img/whatsapp.jpeg') }}"
-                                                alt="Phone" width="16" height="16"
-                                                style="display:inline-block;vertical-align:middle;margin-right:6px;width:16px;height:16px;">
-                                            <span style="vertical-align:middle;">{{ $companyPhone }}</span>
-                                        </div>
+                                        <span>{{ $companyEmail }}</span>
+                                        <span style="color:#b8afa4;padding:0 8px;">|</span>
+                                        <span>{{ $companyWebsite }}</span>
+                                        <span style="color:#b8afa4;padding:0 8px;">|</span>
+                                        <span>{{ $companyPhone }}</span>
                                     </td>
                                 </tr>
                             </table>

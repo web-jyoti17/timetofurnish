@@ -4555,3 +4555,7 @@ img[style*="float: right"] {
 .breadcrumb-banner .breadcrumb-item a {
     color: #fff !important;
 }
+
+.breadcrumbfont {
+    font-size: 22px;
+}

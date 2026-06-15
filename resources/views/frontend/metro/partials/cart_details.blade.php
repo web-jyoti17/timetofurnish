@@ -29,6 +29,7 @@
                         <ul class="list-group list-group-flush px-0 cart-list-responsive">
                             @php
                                 $total = 0;
+                                $productDiscountTotal = 0;
                                 $i = 1;
                             @endphp
                             @foreach ($carts as $key => $cartItem)
@@ -64,13 +65,7 @@
                                         $cartItem_addons = json_decode($cartItem->addons, true);
                                     }
 
-                                    $variant_price = 0;
-
-                                    if ($product_stock && isset($product_stock->price)) {
-                                        $variant_price = floatval($product_stock->price);
-                                    } else {
-                                        $variant_price = floatval($cartItem['price'] ?? 0);
-                                    }
+                                    $variant_price = cart_product_base_price($cartItem, $product, false);
 
                                     // attributes
                                     $attribute_price = 0;
@@ -93,7 +88,10 @@
                                     $total_addon = floatval($cartItem['addon_price'] ?? 0);
 
                                     // final unit price
-                                    $base_price = $variant_price;
+                                    $original_base_price = $variant_price;
+                                    $base_price = cart_product_price($cartItem, $product, false, false);
+                                    $lineProductDiscount = max(0, ($original_base_price - $base_price) * $cartItem['quantity']);
+                                    $productDiscountTotal += $lineProductDiscount;
 
                                     // row total
                                     $row_total =
@@ -138,6 +136,10 @@
                                                         <span
                                                             class="text-secondary">{{ translate('Product Price') }}</span>
                                                         <span class="fw-600 text-dark">
+                                                            @if ($lineProductDiscount > 0)
+                                                                <span class="d-block text-muted fs-11"
+                                                                    style="text-decoration:line-through;text-align:right;">{{ single_price($original_base_price + $attribute_price) }}</span>
+                                                            @endif
                                                             {{ single_price($base_price + $attribute_price) }}
                                                             @if ($cartItem['quantity'] > 1)
                                                                 <small class="text-muted fs-11"
@@ -367,6 +369,10 @@
                                             <div class="d-flex justify-content-between align-items-center mb-2 fs-13">
                                                 <span class="text-secondary">{{ translate('Product Price') }}</span>
                                                 <span class="fw-600 text-dark">
+                                                    @if ($lineProductDiscount > 0)
+                                                        <span class="d-block text-muted fs-11"
+                                                            style="text-decoration:line-through;text-align:right;">{{ single_price($original_base_price + $attribute_price) }}</span>
+                                                    @endif
                                                     {{ single_price($base_price + $attribute_price) }}
                                                     @if ($cartItem['quantity'] > 1)
                                                         <small class="text-muted fs-11"
@@ -490,6 +496,16 @@
                     </div>
 
                     <!-- Subtotal -->
+                    @if ($productDiscountTotal > 0)
+                        <div class="px-0 pt-3 d-flex justify-content-between align-items-center my-cart">
+                            <span class="opacity-70 fs-16 text-black">{{ translate('Items before discount') }}</span>
+                            <span style="font-weight: 700;" class="fs-16 text-dark">{{ single_price($total + $productDiscountTotal) }}</span>
+                        </div>
+                        <div class="px-0 py-2 d-flex justify-content-between align-items-center my-cart">
+                            <span class="opacity-70 fs-16 text-black">{{ translate('Product Discount') }}</span>
+                            <span style="font-weight: 700;" class="fs-16 text-danger">-{{ single_price($productDiscountTotal) }}</span>
+                        </div>
+                    @endif
                     <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center my-cart">
                         <span class="opacity-70 fs-20 text-black">{{ translate('Subtotal') }}</span>
                         <span style="font-weight: 700;" class="fs-20 text-dark">{{ single_price($total) }}</span>

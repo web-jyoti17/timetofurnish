@@ -30,6 +30,7 @@
                     <ul class="list-group list-group-flush px-0 cart-list-responsive">
                         @php
                         $total = 0;
+                        $productDiscountTotal = 0;
                         $i = 1;
                         @endphp
                         @foreach ($carts as $key => $cartItem)
@@ -65,8 +66,13 @@
                         $has_unit_price = !empty($product->unit_price) && floatval($product->unit_price) > 0;
 
                         $base_price = 0;
+                        $original_base_price = 0;
+                        $lineProductDiscount = 0;
                         if ($has_unit_price) {
+                            $original_base_price = cart_product_base_price($cartItem, $product, false);
                             $base_price = cart_product_price($cartItem, $product, false);
+                            $lineProductDiscount = max(0, ($original_base_price - $base_price) * $cartItem['quantity']);
+                            $productDiscountTotal += $lineProductDiscount;
                         }
 
                         $total += ($base_price + $attribute_price) * $cartItem['quantity'];
@@ -199,7 +205,17 @@
                                     $price_for_display = $base_price;
                                     @endphp
                                     @if($has_unit_price)
+                                        @if ($lineProductDiscount > 0)
+                                            <span class="d-block text-muted fs-12" style="text-decoration:line-through;">
+                                                {{ single_price($original_base_price) }}
+                                            </span>
+                                        @endif
                                         <span class="fw-700 fs-14">{{ single_price($price_for_display) }}</span>
+                                        @if ($lineProductDiscount > 0)
+                                            <span class="d-block text-danger fs-12">
+                                                {{ translate('Discount') }} -{{ single_price($lineProductDiscount) }}
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="fw-700 fs-14">—</span>
                                     @endif
@@ -378,7 +394,19 @@
                                             {{ translate('Price') }}
                                         </div>
                                         @if($has_unit_price)
+                                            <span>
+                                                @if ($lineProductDiscount > 0)
+                                                    <span class="d-block text-muted fs-12" style="text-decoration:line-through;">
+                                                        {{ single_price($original_base_price) }}
+                                                    </span>
+                                                @endif
                                             <span class="fw-700 fs-14">{{ single_price($base_price) }}</span>
+                                                @if ($lineProductDiscount > 0)
+                                                    <span class="d-block text-danger fs-12">
+                                                        {{ translate('Discount') }} -{{ single_price($lineProductDiscount) }}
+                                                    </span>
+                                                @endif
+                                            </span>
                                         @else
                                             <span class="fw-700 fs-14">—</span>
                                         @endif
@@ -462,6 +490,16 @@
                 </div>
 
                 <!-- Subtotal -->
+                @if ($productDiscountTotal > 0)
+                    <div class="px-0 pt-3 d-flex justify-content-between align-items-center">
+                        <span class="opacity-70 fs-14 text-black">{{ translate('Items before discount') }}</span>
+                        <span style="font-weight: 700;" class="fs-16 text-dark">{{ single_price($total + $productDiscountTotal) }}</span>
+                    </div>
+                    <div class="px-0 py-2 d-flex justify-content-between align-items-center">
+                        <span class="opacity-70 fs-14 text-black">{{ translate('Product Discount') }}</span>
+                        <span style="font-weight: 700;" class="fs-16 text-danger">-{{ single_price($productDiscountTotal) }}</span>
+                    </div>
+                @endif
                 <div class="px-0 py-3 mb-4 border-top d-flex justify-content-between align-items-center">
                     <span class="opacity-70 fs-14 text-black">{{ translate('Subtotal') }}</span>
                     <span style="font-weight: 700;" class="fs-20 text-dark">{{ single_price($total) }}</span>

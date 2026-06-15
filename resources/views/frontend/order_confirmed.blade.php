@@ -21,11 +21,12 @@
         }
 
         .order-confirmed-page .success-title {
-            display: inline-block;
-            padding: 8px 14px;
-            background: #dedede;
+            display: block;
+            margin: 0;
+            padding: 0;
+            background: transparent;
             color: #685b4e;
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 700;
             line-height: 1.15;
         }
@@ -102,7 +103,7 @@
 
         .order-confirmed-page .product-line {
             display: grid;
-            grid-template-columns: 96px minmax(0, 1fr) 130px 130px;
+            grid-template-columns: 96px minmax(0, 1fr) 90px 120px 130px;
             gap: 18px;
             padding: 18px 0;
             border-bottom: 1px solid #edf0f4;
@@ -147,6 +148,22 @@
         .order-confirmed-page .amount-value {
             color: #20202c;
             font-weight: 700;
+        }
+
+        .order-confirmed-page .old-price {
+            color: #8b8b96;
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: line-through;
+        }
+
+        .order-confirmed-page .discount-text {
+            color: #b42318;
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 4px;
         }
 
         .order-confirmed-page .addon-list,
@@ -394,6 +411,18 @@
                         } elseif (strtolower((string) $first_order->payment_type) === 'stripe') {
                             $paymentMethod = 'Card';
                         }
+
+                        $companyVatNumber = '519 7742 56';
+                        $companyVatRate = '20%';
+
+                        $orderDetailBaseUnitPrice = function ($orderDetail) {
+                            if (!$orderDetail->product || (int) $orderDetail->product->auction_product === 1) {
+                                return $orderDetail->quantity > 0 ? (float) $orderDetail->price / $orderDetail->quantity : (float) $orderDetail->price;
+                            }
+
+                            $productStock = $orderDetail->product->stocks->where('variant', $orderDetail->variation)->first();
+                            return $productStock ? (float) $productStock->price : (float) ($orderDetail->product->unit_price ?? 0);
+                        };
                     @endphp
 
                     <div class="text-center py-1 mb-4">
@@ -425,6 +454,10 @@
                                 <div class="summary-value">{{ translate($paymentMethod) }}</div>
                             </div>
                             <div class="summary-item">
+                                <div class="summary-label">{{ translate('VAT number') }}</div>
+                                <div class="summary-value">{{ $companyVatNumber }} ({{ $companyVatRate }})</div>
+                            </div>
+                            <div class="summary-item">
                                 <div class="summary-label">{{ translate('Email') }}</div>
                                 <div class="summary-value">{{ $shipping_address->email ?? '' }}</div>
                             </div>
@@ -450,6 +483,7 @@
                             $servicesTotal = (float) ($additionalInfo['service_total'] ?? collect($services)->sum('price'));
                             $itemsSubtotal = 0;
                             $addonsSubtotal = 0;
+                            $productDiscountTotal = 0;
                             $shippingTotal = (float) $order->orderDetails->sum('shipping_cost');
                             $taxTotal = (float) $order->orderDetails->sum('tax');
                         @endphp
@@ -464,8 +498,12 @@
                                 @php
                                     $lineBase = (float) $orderDetail->price;
                                     $lineAddon = (float) ($orderDetail->addon_price ?? 0);
+                                    $baseUnitPrice = $orderDetailBaseUnitPrice($orderDetail);
+                                    $discountedUnitPrice = $orderDetail->quantity > 0 ? $lineBase / $orderDetail->quantity : $lineBase;
+                                    $lineProductDiscount = max(0, ($baseUnitPrice - $discountedUnitPrice) * $orderDetail->quantity);
                                     $itemsSubtotal += $lineBase;
                                     $addonsSubtotal += $lineAddon;
+                                    $productDiscountTotal += $lineProductDiscount;
                                     $addons = [];
 
                                     if (!empty($orderDetail->addons)) {
@@ -535,7 +573,18 @@
                                     </div>
 
                                     <div class="amount-box">
-                                        <span class="amount-label">{{ translate('Subtotal') }}</span>
+                                        <span class="amount-label">{{ translate('Unit price') }}</span>
+                                        @if ($lineProductDiscount > 0)
+                                            <span class="old-price">{{ single_price($baseUnitPrice) }}</span>
+                                        @endif
+                                        <span class="amount-value">{{ single_price($discountedUnitPrice) }}</span>
+                                        @if ($lineProductDiscount > 0)
+                                            <span class="discount-text">-{{ single_price($lineProductDiscount) }}</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="amount-box">
+                                        <span class="amount-label">{{ translate('Line total') }}</span>
                                         <span class="amount-value">{{ single_price($lineBase + $lineAddon) }}</span>
                                     </div>
                                 </div>
@@ -560,6 +609,16 @@
                             @endif
 
                             <div class="totals">
+                                @if ($productDiscountTotal > 0)
+                                    <div class="total-row">
+                                        <span>{{ translate('Items before discount') }}</span>
+                                        <span>{{ single_price($itemsSubtotal + $productDiscountTotal) }}</span>
+                                    </div>
+                                    <div class="total-row">
+                                        <span>{{ translate('Product discount') }}</span>
+                                        <span>-{{ single_price($productDiscountTotal) }}</span>
+                                    </div>
+                                @endif
                                 <div class="total-row">
                                     <span>{{ translate('Items subtotal') }}</span>
                                     <span>{{ single_price($itemsSubtotal) }}</span>
@@ -579,13 +638,15 @@
                                     </div>
                                 @endif
                                 <div class="total-row">
-                                    <span>{{ translate('VAT') }}</span>
+                                    <span>{{ translate('VAT') }} ({{ $companyVatRate }})</span>
                                     <span>{{ single_price($taxTotal) }}</span>
                                 </div>
-                                <div class="total-row">
-                                    <span>{{ translate('Coupon Discount') }}</span>
-                                    <span>{{ single_price($order->coupon_discount) }}</span>
-                                </div>
+                                @if ((float) $order->coupon_discount > 0)
+                                    <div class="total-row">
+                                        <span>{{ translate('Coupon Discount') }}</span>
+                                        <span>-{{ single_price($order->coupon_discount) }}</span>
+                                    </div>
+                                @endif
                                 <div class="total-row">
                                     <strong>{{ translate('Total') }}</strong>
                                     <strong>{{ single_price($order->grand_total) }}</strong>

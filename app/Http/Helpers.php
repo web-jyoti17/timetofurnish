@@ -535,19 +535,53 @@ function calculate_vat_total($subtotal)
     $subtotal1 = ($subtotal * $vat) / 100;
     return $subtotal1;
 }
+if (!function_exists('cart_product_base_price')) {
+    function cart_product_base_price($cart_product, $product, $formatted = true)
+    {
+        if (!$product) {
+            return $formatted ? format_price(convert_price(0)) : 0;
+        }
+
+        if ($product->auction_product == 1) {
+            $price = $product->bids->max('amount') ?? 0;
+            return $formatted ? format_price(convert_price($price)) : $price;
+        }
+
+        $str = '';
+        if (!empty($cart_product['variation'])) {
+            $str = $cart_product['variation'];
+        }
+
+        $product_stock = $product->stocks->where('variant', $str)->first();
+        $price = $product_stock ? (float) $product_stock->price : (float) ($product->unit_price ?? 0);
+
+        if ($product->wholesale_product && $product_stock) {
+            $wholesalePrice = $product_stock->wholesalePrices
+                ->where('min_qty', '<=', $cart_product['quantity'])
+                ->where('max_qty', '>=', $cart_product['quantity'])
+                ->first();
+
+            if ($wholesalePrice) {
+                $price = (float) $wholesalePrice->price;
+            }
+        }
+
+        return $formatted ? format_price(convert_price($price)) : $price;
+    }
+}
+
 if (!function_exists('cart_product_discount')) {
     function cart_product_discount($cart_product, $product, $formatted = false)
     {
-        $str = '';
-        if ($cart_product['variation'] != null) {
-            $str = $cart_product['variation'];
-        }
-        $product_stock = $product->stocks->where('variant', $str)->first();
-        $price = $product_stock->price;
+        $price = cart_product_base_price($cart_product, $product, false);
 
         //discount calculation
         $discount_applicable = false;
         $discount = 0;
+
+        if (function_exists('get_product_active_offer') && get_product_active_offer($product)) {
+            return $formatted ? format_price(convert_price(0)) : 0;
+        }
 
         if ($product->discount_start_date == null) {
             $discount_applicable = true;
@@ -565,6 +599,8 @@ if (!function_exists('cart_product_discount')) {
                 $discount = $product->discount;
             }
         }
+
+        $discount = max(0, min($discount, $price));
 
         if ($formatted) {
             return format_price(convert_price($discount));

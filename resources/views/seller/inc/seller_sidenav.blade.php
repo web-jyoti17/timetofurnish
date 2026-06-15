@@ -1,27 +1,32 @@
 <div class="aiz-sidebar-wrap ">
     <div class="aiz-sidebar left c-scrollbar side">
         <div class="aiz-side-nav-logo-wrap ">
-            <div class="d-block text-center my-3 logo">
+            <div class="d-flex align-items-center justify-content-between p-3 logo position-relative">
                 @php
                     $user = Auth::user();
                     $shop = $user && isset($user->shop) ? $user->shop : null;
                 @endphp
 
-                @if ($shop && $shop->logo != null)
-                    <img class="logoimg" src="{{ asset('public/assets/img/logoT.png') }}"
-                        alt="{{ get_setting('site_name') }}">
-                @else
-                    <img class="logoimg" src="{{ uploaded_asset(get_setting('header_logo')) }}"
-                        alt="{{ get_setting('site_name') }}">
-                @endif
+                <div class="flex-grow-1 text-center">
+                    @if ($shop && $shop->logo != null)
+                        <img class="logoimg" src="{{ asset('public/assets/img/logoT.png') }}"
+                            alt="{{ get_setting('site_name') }}">
+                    @else
+                        <img class="logoimg" src="{{ uploaded_asset(get_setting('header_logo')) }}"
+                            alt="{{ get_setting('site_name') }}">
+                    @endif
+                </div>
 
-                <hr class="line">
-                <h3 class="fs-16  m-0 text-white">{{ optional(Auth::user()->shop)->name }}</h3>
-                <hr class="line">
-
-              {{--  <p class="text-primary">{{ Auth::user()->email }}</p>--}}
+                <button class="btn btn-icon btn-sm text-white d-xl-none position-absolute" style="right: 12px; top: 15px; z-index: 10;" onclick="closeMobileSidebar()">
+                    <i class="las la-times fs-20"></i>
+                </button>
             </div>
 
+            <div class="shop-title-container px-3 text-center mb-3">
+                <div class="shop-badge py-2 px-3">
+                    <span class="fs-14 fw-600 text-white d-block text-truncate">{{ optional(Auth::user()->shop)->name }}</span>
+                </div>
+            </div>
         </div>
 
         <div class="aiz-side-nav-wrap">
@@ -296,46 +301,184 @@
     </div><!-- .aiz-sidebar -->
     <div class="aiz-sidebar-overlay"></div>
 </div><!-- .aiz-sidebar -->
+<script>
+    function closeMobileSidebar() {
+        if (typeof $ !== 'undefined') {
+            $("body").removeClass("side-menu-open").addClass("side-menu-closed");
+        } else {
+            document.body.classList.remove("side-menu-open");
+            document.body.classList.add("side-menu-closed");
+        }
+    }
+</script>
 <style>
-    .side{
-        background:#a89c8f!important;
+    .aiz-sidebar.side {
+        background: #a89c8f !important;
+        border-right: none !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.03) !important;
     }
-    .shopname{
-        background:#a89c8f!important;
+    
+    .aiz-side-nav-logo-wrap {
+        background: #a89c8f !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
-    .t{
-        color:white;
-        font-size: 15px;
+    
+    .aiz-topbar {
+        background: #a89c8f !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
     }
-    .t:hover{
-        color:#39322a;
+    
+    .aiz-topbar .aiz-mobile-toggler span, 
+    .aiz-topbar .aiz-mobile-toggler span::before, 
+    .aiz-topbar .aiz-mobile-toggler span::after {
+        background-color: #ffffff !important;
     }
-    .logo{
-          background:#a89c8f!important;
+    
+    .aiz-topbar .btn-light {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
+    }
+    
+    .aiz-topbar .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
+    }
+    
+    .aiz-topbar .text-dark {
+        color: #ffffff !important;
+    }
+    
+    .aiz-topbar .opacity-60 {
+        color: rgba(255, 255, 255, 0.8) !important;
     }
 
-    .icon1{
-        color:white!important;
-        size:20px;
+    .aiz-sidebar-overlay {
+        backdrop-filter: blur(3px);
+        background: rgba(57, 50, 42, 0.3) !important;
     }
 
-  .logoimg{
-    height: 60px !important;
-    background:white;
-    margin-bottom: 13px;
-    padding: 6px  !important;
-    border-radius: 5px !important;
-}
-.line{
-     border: none;              /* default hr remove */
-    border-top: 2px solid #685b4e  !important; /* black line */
-    opacity: 1 !important;                /* bootstrap opacity remove */
-    margin: 8px 0;
-}
-.aiz-side-nav-link.active,
-.aiz-side-nav-link.active .aiz-side-nav-text {
-    color: #39322a !important;   /* black text */
-    font-weight: 600;
-}
+    .shop-badge {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        backdrop-filter: blur(4px);
+    }
 
+    .logo {
+        background: transparent !important;
+    }
+
+    .logoimg {
+        max-height: 48px !important;
+        height: auto !important;
+        width: auto !important;
+        background: #ffffff;
+        padding: 6px 12px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        display: inline-block;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-item {
+        margin: 4px 14px;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-link {
+        padding: 10px 16px;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        background: transparent;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-icon {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 1.25rem !important;
+        margin-right: 12px;
+        transition: all 0.25s ease;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-link:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-link:hover .aiz-side-nav-icon {
+        color: #ffffff !important;
+        transform: translateX(2px);
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-link.active,
+    .aiz-side-nav-list .aiz-side-nav-link.active .aiz-side-nav-text,
+    .aiz-side-nav-list .aiz-side-nav-link.level-2-active,
+    .aiz-side-nav-list .aiz-side-nav-link.level-2-active .aiz-side-nav-text {
+        color: #39322a !important;
+        background: #ffffff !important;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(57, 50, 42, 0.08) !important;
+    }
+
+    .aiz-side-nav-list .aiz-side-nav-link.active .aiz-side-nav-icon,
+    .aiz-side-nav-list .aiz-side-nav-link.level-2-active .aiz-side-nav-icon {
+        color: #39322a !important;
+    }
+
+    /* Submenu nesting indicator */
+    .aiz-side-nav-list .level-2 {
+        padding-left: 10px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    [dir="rtl"] .aiz-side-nav-list .level-2 {
+        padding-left: 0;
+        padding-right: 10px;
+        border-left: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .aiz-side-nav-list .level-2 .aiz-side-nav-item {
+        margin: 2px 0 2px 14px;
+    }
+
+    [dir="rtl"] .aiz-side-nav-list .level-2 .aiz-side-nav-item {
+        margin: 2px 14px 2px 0;
+    }
+
+    .aiz-side-nav-list .level-2 .aiz-side-nav-link {
+        padding: 8px 12px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8) !important;
+        border-radius: 8px;
+    }
+
+    .aiz-side-nav-list .level-2 .aiz-side-nav-link:after {
+        display: none !important;
+    }
+
+    .aiz-side-nav-list .level-2 .aiz-side-nav-link.active {
+        color: #39322a !important;
+        background: #ffffff !important;
+    }
+
+    /* Custom thin scrollbar */
+    .aiz-sidebar.c-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+    .aiz-sidebar.c-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .aiz-sidebar.c-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+    .aiz-sidebar.c-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.35);
+    }
 </style>

@@ -37,7 +37,7 @@
                 <h1 class="fw-600 h4 ">{{ $page->getTranslation('title') }}</h1>
             </div>--}}
             <div class="col-lg-12">
-                <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-end">
+                <ul class="breadcrumb bg-transparent p-0 justify-content-center justify-content-lg-center fs-500 breadcrumbfont" >
                     <li class="breadcrumb-item has-transition opacity-50 hov-opacity-100">
                         <a class="text-reset" href="{{ route('home') }}">{{ translate('Home')}}</a>
                     </li>

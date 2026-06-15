@@ -279,12 +279,11 @@
     #choice_form .input-group-text {
         min-height: 40px;
         border: 1px solid var(--seller-border-strong) !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         background: #fff !important;
         color: var(--seller-text);
         box-shadow: none !important;
         font-size: 14px;
-        border-radius: 50px !important;
     }
 
     #choice_form .bootstrap-select:not(.disabled) .dropdown-toggle,
@@ -313,19 +312,19 @@
     }
 
     #choice_form .input-group .input-group-prepend:first-child .input-group-text {
-        border-top-left-radius: 6px !important;
-        border-bottom-left-radius: 6px !important;
+        border-top-left-radius: 8px !important;
+        border-bottom-left-radius: 8px !important;
     }
 
     #choice_form .input-group .input-group-append:last-child .input-group-text,
     #choice_form .input-group .form-control:last-child {
-        border-top-right-radius: 6px !important;
-        border-bottom-right-radius: 6px !important;
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
     }
 
     #choice_form .btn {
         min-height: 38px;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         box-shadow: none !important;
         font-weight: 700;
     }
@@ -522,6 +521,22 @@
     #choice_form .seller-product-details-card .nav-tabs {
         border-bottom: 1px solid var(--seller-border);
         gap: 12px;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs::-webkit-scrollbar-thumb {
+        background: var(--seller-primary-soft);
+        border-radius: 4px;
+    }
+
+    #choice_form .seller-product-details-card .nav-tabs .nav-item {
+        white-space: nowrap;
     }
 
     #choice_form .seller-product-details-card .note-editor .note-editing-area .note-editable,

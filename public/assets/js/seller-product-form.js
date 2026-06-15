@@ -528,6 +528,94 @@
                 injectSearchedOptionAction(searchInput);
             }
         });
+
+        function formatSelectpickerTags(selectEl) {
+            let select = $(selectEl);
+            if (!select.hasClass('aiz-selectpicker')) return;
+            
+            let isColors = select.attr('id') === 'colors';
+            let isAttrChoice = select.hasClass('attribute_choice') || (select.attr('name') && select.attr('name').indexOf('choice_options_') === 0);
+            if (!isColors && !isAttrChoice) return;
+
+            let selectedOptions = select.find('option:selected');
+            let container = select.closest('.bootstrap-select').find('.filter-option-inner-inner');
+            if (!container.length) return;
+
+            if (selectedOptions.length === 0) {
+                container.html('<span class="text-muted font-weight-normal">' + (select.data('placeholder') || 'None Selected') + '</span>');
+                return;
+            }
+
+            container.empty();
+            selectedOptions.each(function() {
+                let option = $(this);
+                let val = option.val();
+                let text = option.text().trim();
+                
+                let tag = $('<span class="selectpicker-tag"></span>');
+                if (isColors) {
+                    let colorDot = $('<span class="color-dot"></span>').css('background-color', val);
+                    tag.append(colorDot);
+                }
+                tag.append($('<span></span>').text(text));
+                container.append(tag);
+            });
+        }
+
+        // Apply initially and hook into events
+        $(document).on('rendered.bs.select changed.bs.select refreshed.bs.select', '.aiz-selectpicker', function() {
+            formatSelectpickerTags(this);
+        });
+
+        // Trigger tag formatting for all existing selectpickers on page load
+        setTimeout(function() {
+            $('.aiz-selectpicker').each(function() {
+                formatSelectpickerTags(this);
+            });
+        }, 150);
+
+        // Reset button handler
+        $(document).on('click', '#reset-attributes-btn', function(e) {
+            e.preventDefault();
+            
+            // 1. Reset Colors active checkbox first
+            let colorsActive = $('#colors_active');
+            if (colorsActive.length) {
+                colorsActive.prop('checked', false);
+            }
+            
+            // 2. Reset Colors select
+            let colorsSelect = $('#colors');
+            if (colorsSelect.length) {
+                colorsSelect.val([]);
+                colorsSelect.prop('disabled', true);
+                if ($.fn && $.fn.selectpicker) {
+                    colorsSelect.selectpicker('refresh');
+                }
+            }
+
+            // 3. Reset Attributes select
+            let choiceAttrs = $('#choice_attributes');
+            if (choiceAttrs.length) {
+                choiceAttrs.val([]);
+                if ($.fn && $.fn.selectpicker) {
+                    choiceAttrs.selectpicker('refresh');
+                }
+            }
+
+            // 4. Remove all attribute rows
+            $('.attribute-variation-row').not('#color-attribute-row').remove();
+            
+            // 5. Update SKU table
+            if (typeof update_sku === 'function') {
+                update_sku();
+            }
+            
+            // 6. Refresh tags representation
+            $('.aiz-selectpicker').each(function() {
+                formatSelectpickerTags(this);
+            });
+        });
     });
 
     function clearProductFormErrors() {
@@ -983,13 +1071,15 @@
         let isEditing = button.data('editing') === true;
         let row = button.closest('.form-group.row');
         let labelInput = row.find('input[name="choice[]"]').first();
+        let labelSpan = row.find('.attribute-name-label').first();
 
         if (!isEditing) {
             button.data('editing', true);
             button.data('original-name', labelInput.val());
-            labelInput.prop('readonly', false)
-                .removeClass('form-control-plaintext')
-                .addClass('form-control seller-attribute-inline-name');
+            labelSpan.addClass('d-none');
+            labelInput.removeClass('d-none form-control-plaintext')
+                .addClass('form-control seller-attribute-inline-name')
+                .prop('readonly', false);
             button.find('i').removeClass('la-pen').addClass('la-check');
             labelInput.trigger('focus').trigger('select');
             return;
@@ -998,7 +1088,7 @@
         saveInlineAttributeName(button);
     });
 
-    $(document).on('dblclick', 'input[name="choice[]"]', function () {
+    $(document).on('dblclick', '.attribute-name-label', function () {
         let row = $(this).closest('.form-group.row');
         let button = row.find('.rename-attribute-btn').first();
 
@@ -1039,11 +1129,13 @@
     function finishInlineAttributeEdit(button, finalName) {
         let row = button.closest('.form-group.row');
         let labelInput = row.find('input[name="choice[]"]').first();
+        let labelSpan = row.find('.attribute-name-label').first();
 
         labelInput.val(finalName)
             .prop('readonly', true)
             .removeClass('form-control seller-attribute-inline-name')
-            .addClass('form-control-plaintext');
+            .addClass('form-control-plaintext d-none');
+        labelSpan.text(finalName).removeClass('d-none');
         button.data('editing', false);
         button.data('attribute-name', finalName);
         button.find('i').removeClass('la-check').addClass('la-pen');
@@ -1673,9 +1765,17 @@
                 $('#variant-table-prompt').remove();
 
                 let isAdmin = (!userId || userId === 'null' || userId === '');
+                let badgeHtml = isAdmin 
+                    ? '<span class="attribute-badge badge-global">Global</span>' 
+                    : '<span class="attribute-badge badge-custom">Custom</span>';
+                
                 let editBtnHtml = '';
                 if (!isAdmin) {
                     editBtnHtml = '<button type="button" class="btn premium-btn-circle premium-btn-edit rename-attribute-btn premium-icon-btn" data-attribute-id="' + i + '" data-attribute-name="' + name + '">\
+                                <i class="las la-pen"></i>\
+                            </button>';
+                } else {
+                    editBtnHtml = '<button type="button" class="btn premium-btn-circle premium-btn-edit premium-icon-btn" disabled>\
                                 <i class="las la-pen"></i>\
                             </button>';
                 }
@@ -1687,19 +1787,23 @@
                 }
 
                 container.append('\
-                <div class="form-group row align-items-center mb-3 attribute-variation-row" data-user-id="' + (userId || '') + '">\
+                <div class="form-group row align-items-center mb-0 attribute-variation-row" data-user-id="' + (userId || '') + '">\
                     <div class="col-lg-3">\
                         <input type="hidden" name="choice_no[]" value="' + i + '">\
                         <div class="seller-attribute-title-cell">\
-                            <input type="text" class="form-control-plaintext font-weight-bold text-dark-title" name="choice[]" value="' + name + '" placeholder="Choice Title" readonly>\
-                            ' + editBtnHtml + '\
+                            ' + badgeHtml + '\
+                            <span class="font-weight-bold text-dark-title text-truncate attribute-name-label">' + name + '</span>\
+                            <input type="text" class="form-control-plaintext font-weight-bold text-dark-title d-none" name="choice[]" value="' + name + '" placeholder="Choice Title" readonly>\
                         </div>\
                     </div>\
-                    <div class="col-lg-8 seller-variation-select-col">\
-                        <select class="form-control aiz-selectpicker attribute_choice rounded-pill premium-select" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
+                    <div class="col-lg-7 seller-variation-select-col">\
+                        <select class="form-control aiz-selectpicker attribute_choice premium-select" data-live-search="true" name="choice_options_' + i + '[]" multiple data-container="body">\
                             ' + obj + '\
                         </select>\
                         <small class="seller-select-help">Search options. If there is no match, add it from the dropdown.</small>\
+                    </div>\
+                    <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">\
+                        ' + editBtnHtml + '\
                     </div>\
                     <div class="col-lg-1 text-center d-flex align-items-center justify-content-center">\
                         <label class="premium-switch">\

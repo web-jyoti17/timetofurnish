@@ -94,13 +94,18 @@
                     $subtotal = 0;
                     $tax = 0;
                     $shipping = 0;
+                    $productDiscountTotal = 0;
                     $product_shipping_cost = 0;
                     $shipping_region = $shipping_info['city'];
                 @endphp
                 @foreach ($carts as $key => $cartItem)
                     @php
                         $product = get_single_product($cartItem['product_id']);
-                        $subtotal += cart_product_price($cartItem, $product, false, false) * $cartItem['quantity'];
+                        $unitBasePrice = cart_product_base_price($cartItem, $product, false);
+                        $unitDiscountedPrice = cart_product_price($cartItem, $product, false, false);
+                        $lineProductDiscount = max(0, ($unitBasePrice - $unitDiscountedPrice) * $cartItem['quantity']);
+                        $productDiscountTotal += $lineProductDiscount;
+                        $subtotal += $unitDiscountedPrice * $cartItem['quantity'];
                         $tax += cart_product_tax($cartItem, $product, false) * $cartItem['quantity'];
                         $product_shipping_cost = $cartItem['shipping_cost'];
                         
@@ -120,7 +125,19 @@
                         </td>
                         <td class="product-total text-right pr-0 fs-14 text-primary fw-600 border-top-0 border-bottom">
                             <span
-                                class="pl-4 pr-0">{{ single_price(cart_product_price($cartItem, $cartItem->product, false, false) * $cartItem['quantity']) }}</span>
+                                class="pl-4 pr-0">
+                                @if ($lineProductDiscount > 0)
+                                    <span class="d-block text-muted fs-12" style="text-decoration:line-through;">
+                                        {{ single_price($unitBasePrice * $cartItem['quantity']) }}
+                                    </span>
+                                @endif
+                                {{ single_price($unitDiscountedPrice * $cartItem['quantity']) }}
+                                @if ($lineProductDiscount > 0)
+                                    <span class="d-block text-danger fs-12">
+                                        {{ translate('Discount') }} -{{ single_price($lineProductDiscount) }}
+                                    </span>
+                                @endif
+                            </span>
                         </td>
                     </tr>
                 @endforeach
@@ -132,6 +149,20 @@
         <table class="table" style="margin-top: 2rem!important;">
             <tfoot>
                 <!-- Subtotal -->
+                @if ($productDiscountTotal > 0)
+                    <tr class="cart-subtotal">
+                        <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Items before discount') }}</th>
+                        <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-primary border-top-0">
+                            <span class="fw-600">{{ single_price($subtotal + $productDiscountTotal) }}</span>
+                        </td>
+                    </tr>
+                    <tr class="cart-shipping">
+                        <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Product Discount') }}</th>
+                        <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-danger border-top-0">
+                            <span class="fw-600">-{{ single_price($productDiscountTotal) }}</span>
+                        </td>
+                    </tr>
+                @endif
                 <tr class="cart-subtotal">
                     <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Subtotal') }}</th>
                     <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-primary border-top-0">
@@ -165,8 +196,8 @@
                 @if ($coupon_discount > 0)
                     <tr class="cart-shipping">
                         <th class="pl-0 fs-14 pt-0 pb-2 text-dark fw-600 border-top-0">{{ translate('Coupon Discount') }}</th>
-                        <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-primary border-top-0">
-                            <span class="fw-600">{{ single_price($coupon_discount) }}</span>
+                        <td class="text-right pr-0 fs-14 pt-0 pb-2 fw-600 text-danger border-top-0">
+                            <span class="fw-600">-{{ single_price($coupon_discount) }}</span>
                         </td>
                     </tr>
                 @endif
