@@ -332,7 +332,7 @@ class CheckoutController extends Controller
         */
             try {
 
-                $admin_email = 'manpreetsdev@gmail.com'; // sales@timetofurnish.com
+                $admin_email = 'sales@timetofurnish.com'; // sales@timetofurnish.com
                 $bcc_email = 'manpreetsdev@gmail.com'; // Set your BCC email here
                 Log::info('admin_email', [$admin_email]);
                 Mail::send(
