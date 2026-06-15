@@ -803,7 +803,7 @@
                                 Thank you for shopping with Time To Furnish.
                             </div>
                             <div class="muted" style="font-size:10px;line-height:1.5;margin-top:7px;">
-                                VAT Number: {{ $companyVatNumber }}
+                                VAT Number: GB - {{ $companyVatNumber }}
                             </div>
 
                             <table cellpadding="0" cellspacing="0" role="presentation"
