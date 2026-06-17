@@ -656,6 +656,8 @@ Route::controller(PageController::class)->group(function () {
     Route::get('/contact-us', [PageController::class, 'contact_us'])->name('contact_us');
     Route::post('/Contact-Us-submit', [PageController::class, 'submit_contact'])->name('contact_us.submit');
 
+    Route::get('/meet-the-team', [PageController::class, 'meet_the_team'])->name('meet.the.team');
+
 
 // Contact Us Page
 Route::get('/contact-us', [PageController::class, 'contact_us'])->name('contact_us');

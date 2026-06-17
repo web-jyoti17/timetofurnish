@@ -14449,6 +14449,7 @@ Time To Furnish - Admin Sidebar (Brand Match)
 /* Dropdown arrow */
 .aiz-side-nav-wrap .aiz-side-nav-arrow {
     opacity: 0.4;
+	margin-right:20px;
 }
 
 /* Clear Cache button */
@@ -14528,13 +14529,13 @@ header .btn-outline-primary:hover,
 
 /* Clear Cache */
 .aiz-topbar .btn-soft-blue {
-    background: #9B5A2E !important;
+    background: #fff !important;
     border-color: #9B5A2E !important;
     color: #fff !important;
 }
 
 .aiz-topbar .btn-soft-blue span {
-    color: #fff !important;
+    color: #1c1c1c !important;
 }
 
 .aiz-topbar .btn-soft-blue svg path {

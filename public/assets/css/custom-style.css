@@ -4559,3 +4559,6 @@ img[style*="float: right"] {
 .breadcrumbfont {
     font-size: 22px;
 }
+.aiz-sidebar left c-scrollbar {
+	    box-shadow: 0 8px 25px rgb(65 61 61 / 20%) !important;
+}

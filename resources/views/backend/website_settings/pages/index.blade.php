@@ -13,7 +13,10 @@
 	@can('add_website_page')
 		<div class="card-header">
 			<h6 class="mb-0 fw-600">{{ translate('All Pages') }}</h6>
-			<a href="{{ route('custom-pages.create') }}" class="btn btn-circle btn-info">{{ translate('Add New Page') }}</a>
+				<div class="d-flex flex-wrap gap-2 justify-content-end">
+					<a href="{{ route('custom-pages.create') }}" class="btn btn-circle btn-info">{{ translate('Add New Page') }}</a>
+					<a href="{{ route('team-members.index') }}" class="btn btn-circle btn-success">{{ translate('Manage Team Members') }}</a>
+				</div>
 		</div>
 	@endcan
 	<div class="card-body">

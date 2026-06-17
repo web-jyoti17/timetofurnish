@@ -58,7 +58,7 @@
             <div class="d-flex justify-content-around align-items-center align-items-stretch ml-3">
                 <div class="aiz-topbar-item">
                     <div class="d-flex align-items-center">
-                        <a class="btn btn-soft-blue btn-sm d-flex align-items-center rounded-2 hov-svg-white"
+                     <a class="btn btn-soft-blue btn-sm d-flex align-items-center rounded-2 hov-svg-white"
                             href="{{ route('cache.clear') }}">
                             {{-- <i class="las la-hdd fs-20"></i> --}}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16.023" height="16" viewBox="0 0 16.023 16">
@@ -70,7 +70,7 @@
                                   <path id="Rectangle_20177" data-name="Rectangle 20177" d="M0,0H2V1H0Z" transform="translate(-16585 -13014)" fill="#3390f3"/>
                                 </g>
                             </svg>
-                            <span class="fw-500 ml-2 mr-0 d-none d-md-block">{{ translate('Clear Cache') }}</span>
+                            <span class="fw-500 ml-2 mr-0 d-none d-md-inline">{{ translate('Clear Cache') }}</span>
                         </a>
                     </div>
                 </div>
@@ -178,7 +178,7 @@
                                 <span class="d-block fw-500">{{ Auth::user()->name }}</span>
                                 <span class="d-block small opacity-60 text-right">{{ Auth::user()->user_type }}</span>
                             </span>
-                            <span class="size-45px rounded-content overflow-hidden ml-md-2">
+                            <span class="size-45px  overflow-hidden ml-md-2 mt-3">
                                 <img src="{{ uploaded_asset(Auth::user()->avatar_original) }}" class="img-fit"
                                     onerror="this.onerror=null;this.src='{{ static_asset('assets/img/avatar-place.png') }}';">
                             </span>

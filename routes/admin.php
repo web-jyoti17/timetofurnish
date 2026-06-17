@@ -45,6 +45,7 @@ use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\TaxController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\ProductAddonGlobalController;
 use App\Http\Controllers\ProductServicesController;
@@ -311,6 +312,17 @@ Route::resource('sellers', SellerController::class);
             Route::get('/select-homepage', 'select_homepage')->name('website.select-homepage');
             Route::get('/pages', 'pages')->name('website.pages');
         });
+
+            Route::controller(TeamController::class)->group(function () {
+                Route::get('/team-members', 'index')->name('team-members.index');
+                Route::get('/team-members/create', 'create')->name('team-members.create');
+                Route::post('/team-members/store', 'store')->name('team-members.store');
+                Route::get('/team-members/edit/{id}', 'edit')->name('team-members.edit');
+                Route::post('/team-members/update/{id}', 'update')->name('team-members.update');
+                Route::get('/team-members/destroy/{id}', 'destroy')->name('team-members.destroy');
+                Route::post('/team-members/update-status', 'updatePageStatus')->name('team-members.update-status');
+                Route::post('/team-members/update-settings', 'updatePageSettings')->name('team-members.update-settings');
+            });
 
         // Custom Page
         Route::resource('custom-pages', PageController::class);

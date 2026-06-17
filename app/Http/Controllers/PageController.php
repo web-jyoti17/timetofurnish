@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\PageTranslation;
+use App\Models\TeamMember;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -327,6 +328,14 @@ public function become_delivery_partner()
             return view('frontend.custom_page', compact('page'));
         }
         abort(404);
+    }
+    public function meet_the_team()
+    {
+        if (get_setting('team_members_page_status', 0) != 1) {
+            abort(404);
+        }
+        $team_members = TeamMember::where('is_active', 1)->orderBy('created_at', 'desc')->get();
+        return view('frontend.meet_the_team', compact('team_members'));
     }
     public function mobile_custom_page($slug){
         $page = Page::where('slug', $slug)->first();
